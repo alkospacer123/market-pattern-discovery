@@ -12,7 +12,7 @@ import hashlib
 import os
 import re
 import sys
-from urllib.parse import parse_qs, urlparse
+from urllib.parse import parse_qs, urlparse, urlencode
 from zoneinfo import ZoneInfo
 
 from TradingSystemLab.stage8_robot.finam_api import (
@@ -75,6 +75,87 @@ class ReadonlyWorkerAPI(FinamAPI):
         return super()._request(
             method, path, payload=payload, auth=auth, retries=retries,
         )
+
+
+
+class AuthorityReadOnlyAPI(ReadonlyWorkerAPI):
+    """Only the three existing H1 FINAM asset routes for the own N4 account."""
+
+    def _request(self, method, path, payload=None, auth=True, retries=2):
+        symbols = {_load_registry()[code]["finam_symbol"] for code in N4}
+        extra = {
+            f"/v1/assets/{symbol}?"+urlencode({"account_id": self.account_id})
+            for symbol in symbols
+        } | {
+            f"/v1/assets/{symbol}/params?"+urlencode({"account_id": self.account_id})
+            for symbol in symbols
+        } | {f"/v1/assets/{symbol}/schedule" for symbol in symbols}
+        if method == "GET" and auth is True and payload is None and path in extra:
+            return FinamAPI._request(
+                self, method, path, payload=payload, auth=auth, retries=retries,
+            )
+        return super()._request(
+            method, path, payload=payload, auth=auth, retries=retries,
+        )
+
+
+def run_n4_authority(robot_id: str) -> dict:
+    """Fresh N4 FINAM asset/params/schedule and H1 directional margin proof.
+
+    This checks the *current* broker values against the previously verified
+    MOEX tick price/tick value reference, not current NEXT_OPEN/fill/fees.
+    """
+    from TradingSystemLab.stage8_robot.instrument_resolver import (
+        AUTHENTICATED, validate_finam_binding,
+    )
+    from TradingSystemLab.stage8_robot.margin import directional_initial_margin
+
+    if robot_id not in ROBOT_STRATEGIES:
+        raise V20FinamBlocked("WORKER_UNKNOWN_ROBOT")
+    account = os.environ.get("V20_FINAM_ACCOUNT", "")
+    secret = os.environ.get("V20_FINAM_TOKEN", "")
+    account_hash = os.environ.get("V20_FINAM_ACCOUNT_SHA256", "")
+    if (not re.fullmatch(r"[A-Za-z0-9_.-]{1,128}", account)
+            or not secret or hashlib.sha256(account.encode()).hexdigest() != account_hash):
+        raise V20FinamBlocked("WORKER_ACCOUNT_BINDING_MISSING_OR_INVALID")
+    api = AuthorityReadOnlyAPI(secret, account)
+    reader = V20FinamReadAdapter(
+        api=api, robot_id=robot_id,
+        account_id=account, expected_account_hash=account_hash,
+    )
+    reader.authenticate()
+    snap = reader.snapshot(now=datetime.now(timezone.utc))
+    if not snap.clean:
+        return {"status": "HOLD_BROKER_NOT_FLAT_NEEDS_RECONCILIATION",
+                "robot": robot_id, "instruments": {}, "orders": 0}
+    result = {}
+    registry = _load_registry()
+    for symbol in sorted(N4):
+        remote = registry[symbol]["finam_symbol"]
+        asset = api.asset(remote, account)
+        params = api.asset_params(remote, account)
+        schedule = api.schedule(remote)
+        evidence = validate_finam_binding(symbol, asset, params, schedule,
+                                          account_asset=asset)
+        go_long = directional_initial_margin(params, "LONG")
+        go_short = directional_initial_margin(params, "SHORT")
+        # FINAM step/lot bound to the validated MOEX/H1 specification.
+        if evidence.status != AUTHENTICATED or go_long <= 0 or go_short <= 0:
+            result[symbol] = "HOLD_FINAM_ASSET_OR_MARGIN_AUTHORITY"
+        elif (Decimal(str(registry[symbol]["price_step"])) !=
+              Decimal(str(evidence.expected_price_step))
+              or Decimal(str(registry[symbol]["tick_value"])) !=
+              Decimal(str(evidence.expected_tick_value))):
+            result[symbol] = "HOLD_H1_TICK_VALUE_REGISTRY_CONFLICT"
+        else:
+            result[symbol] = "PASS"
+    return {
+        "status": "PASS_N4_AUTHORITY_4_OF_4" if
+                  len(result) == 4 and all(x == "PASS" for x in result.values())
+                  else "HOLD_N4_AUTHORITY",
+        "robot": robot_id, "instruments": result, "orders": 0,
+        "scope": "FRESH_ASSET_PARAMS_SCHEDULE_MARGIN_NOT_NEXT_OPEN_OR_TARIFF",
+    }
 
 
 def run_once(robot_id: str, *, witness: bool = False) -> dict:
@@ -193,6 +274,7 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--robot", choices=tuple(ROBOT_STRATEGIES))
     parser.add_argument("--witness-current-open", action="store_true")
+    parser.add_argument("--authority", action="store_true")
     parser.add_argument("--self-test", action="store_true")
     args = parser.parse_args()
     try:
@@ -200,11 +282,15 @@ def main():
             return self_test()
         if args.robot is None:
             raise V20FinamBlocked("V20_WORKER_ROBOT_REQUIRED")
-        result = run_once(args.robot, witness=args.witness_current_open)
+        result = (run_n4_authority(args.robot) if args.authority else
+                  run_once(args.robot, witness=args.witness_current_open))
         print("v20_08_1_" + args.robot + "=" + result["status"])
         if "results" in result:
             for symbol, status in result["results"].items():
                 print("v20_08_1_open_" + symbol.lower() + "=" + status)
+        if "instruments" in result:
+            for symbol, status in result["instruments"].items():
+                print("v20_08_1_n4_" + symbol.lower() + "=" + status)
         print("v20_08_1_orders=zero")
         print("v20_08_1_live=off")
         # A missed time window is NOT a passed real-time Open witness.
