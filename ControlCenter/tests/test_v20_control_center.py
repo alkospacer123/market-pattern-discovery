@@ -215,7 +215,7 @@ def test_main_shows_only_current_operational_health_without_trade_metrics():
                          for item in getattr(app, kind))
     assert "Windows Task" in visible and "RUNNING" in visible
     assert "Kill switch" in visible and "ARMED" in visible
-    assert "Последняя ошибка: нет" in visible
+    assert "Последняя ошибка: нет" not in visible  # no filler when no error
     assert "Heartbeat:" in visible
     heartbeat_lines = [x.value for x in app.tabs[0].markdown if "Heartbeat:" in x.value]
     assert len(heartbeat_lines) == 3
@@ -269,3 +269,37 @@ def test_no_false_top_update_from_opening_tabs_or_rerun():
     app.run()
     assert not app.exception
     assert "v20-last-checked-at" not in app.session_state
+
+
+def test_staging_overview_compact_and_finam_details_in_journal():
+    now = datetime.now(timezone.utc)
+    states = {robot: dict(unconnected(robot), status="STAGING",
+                          reason="VERIFIED_OPERATOR_STAGING", observed_at=now,
+                          task_state="DISABLED", workers_observed=0,
+                          last_error_code="UNKNOWN") for robot in ROBOTS}
+    finam = {
+        "kind": "HISTORICAL_ONLY",
+        "observed_at": datetime(2026, 10, 24, 6, 7, 32, tzinfo=timezone.utc),
+        "accounts": {"v20-" + robot.split("_", 1)[1].lower(): {
+            "readonly": "PASS_READONLY", "money": "PASS", "positions": 0, "orders": 0
+        } for robot in ROBOTS}
+    }
+    app = AppTest.from_file(str(ROOT / "v20_app.py"), default_timeout=15)
+    app.session_state["v20-snapshots"] = states
+    app.session_state["v20-finam"] = finam
+    app.run()
+    assert not app.exception
+    overview = app.tabs[0]
+    journal = app.tabs[1]
+    assert len(overview.info) == 3
+    assert all("STAGING · LIVE OFF" in item.value for item in overview.info)
+    assert sum("Windows Task: DISABLED" in item.value for item in overview.markdown) == 3
+    assert sum("Heartbeat:" in item.value for item in overview.markdown) == 3
+    assert not any("FINAM READONLY · ИСТОРИЧЕСКИЙ PASS" in item.value
+                   for item in overview.caption)
+    assert not any("Worker:" in item.value or "Reconciliation:" in item.value
+                   for item in overview.caption)
+    assert sum("FINAM READONLY: исторический PASS" in item.value
+               for item in journal.caption) == 3
+    assert sum("Worker: 0" in item.value for item in journal.caption) == 3
+    assert len(app.button) == 1
