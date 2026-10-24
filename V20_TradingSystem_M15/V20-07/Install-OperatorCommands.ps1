@@ -73,10 +73,21 @@ foreach ($robot in $robots) {
     foreach ($mode in $modes) {
         $path = Join-Path $ops ($robot + '-' + $mode + '.ps1')
         # A thin wrapper passes only fixed robot/mode to the shared controller.
-        $wrapper = "& (Join-Path "+'$PSScriptRoot'+" 'operator-v20.ps1') -Robot '$robot' -Mode '$mode'"
+        $legacy = "& (Join-Path "+'$PSScriptRoot'+" 'operator-v20.ps1') -Robot '$robot' -Mode '$mode'"
+        # Windows PowerShell -File will otherwise return 0 when the outer
+        # wrapper ends, even if the invoked controller used 'exit 3'.
+        # Propagate the controller's explicit result from this process.
+        $wrapper = $legacy + [Environment]::NewLine + 'exit $LASTEXITCODE'
         if (Test-Path -LiteralPath $path) {
             $previous = (Get-Content -LiteralPath $path -Raw -Encoding UTF8).Trim()
-            require ($previous -ceq $wrapper.Trim()) 'V20_07_3_EXISTING_WRAPPER_CHANGED'
+            if ($previous -ceq $legacy.Trim()) {
+                # Idempotent, narrow repair of only the 12 original wrappers;
+                # no arbitrary existing scripts are overwritten.
+                $wrapper | Set-Content -LiteralPath $path -Encoding UTF8 -ErrorAction Stop
+                Write-Output ('V20_07_3_WRAPPER_EXIT_PROPAGATION_FIXED=' + $robot + '_' + $mode)
+            } else {
+                require ($previous -ceq $wrapper.Trim()) 'V20_07_3_EXISTING_WRAPPER_CHANGED'
+            }
         } else {
             $wrapper | Set-Content -LiteralPath $path -Encoding UTF8 -ErrorAction Stop
         }
