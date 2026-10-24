@@ -13,7 +13,7 @@ $workspace = Join-Path $root 'pretrade-08\dpapi-finam-readonly'
 $python = Join-Path $root '.venv-raw\scripts\python.exe'
 $receipt = Join-Path $root 'pretrade-08\DPAPI_TRADING_BINDINGS_REPORT.json'
 $tasksReceipt = Join-Path $root 'staging-07\TASKS_07_2_REPORT.json'
-$pin = '7316b1660d8e559f6c575dc72c3dde430126910f'
+$pin = '9c14f56ad867c1eb12eb589e80782674b78355bc'
 function need([bool]$okay,[string]$code) { if (-not $okay) { throw $code } }
 function digest([string]$val) {
     $sha=[Security.Cryptography.SHA256]::Create()
@@ -60,13 +60,13 @@ if ($Mode -eq 'witness') { need ($names.Count -eq 1) 'V20_08_1_WITNESS_ONE_ACCOU
 $pkg = Join-Path $workspace 'V20_TradingSystem_M15\v20_runtime'
 New-Item -ItemType Directory -Path $pkg -Force | Out-Null
 $files = @(
-    @('finam_worker.py','d0085f8da2d37690eb0396f7999902ee317cff5a'),
+    @('finam_worker.py','b268d127241c1ee74bac545ea13b988b0c4983e8'),
     @('finam_execution.py','879c9476a1ad53febf3f368e2b498f009de70d43'),
     @('h1_state_journal.py','f9fb32a50eb712aeae4690dd85d4e7aa512ef15c')
 )
 $previousPins = @{
-    'finam_worker.py'='4d9de12e0b3e9d0d0ec72d058840bb259e2ed30d'
-    'finam_execution.py'='5e76df4085665559e4056f07f4ddf8b6574048ef'
+    'finam_worker.py'=@('4d9de12e0b3e9d0d0ec72d058840bb259e2ed30d','d0085f8da2d37690eb0396f7999902ee317cff5a')
+    'finam_execution.py'=@('5e76df4085665559e4056f07f4ddf8b6574048ef')
 }
 foreach ($entry in $files) {
     $to = Join-Path $pkg $entry[0]
@@ -79,7 +79,7 @@ foreach ($entry in $files) {
         # Exactly the previous physically proven read-only worker may be
         # upgraded. All other local modifications remain hard-blocked.
         need ($previousPins.ContainsKey([string]$entry[0]) -and
-              $hash -eq $previousPins[[string]$entry[0]]) 'V20_08_1_WORKER_CODE_CONFLICT'
+              $hash -in $previousPins[[string]$entry[0]]) 'V20_08_1_WORKER_CODE_CONFLICT'
         $replaceOld = $true
     }
     $url = 'https://raw.githubusercontent.com/alkospacer123/market-pattern-discovery/' + $pin + '/V20_TradingSystem_M15/v20_runtime/' + $entry[0]
