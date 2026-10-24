@@ -371,11 +371,11 @@
     },
     {
       "path": "docs/V20_CC08_OPERATIONS.md",
-      "sha256": "0b0988508cf02fd8b35fe57227ff574fc7aee65258513674b8121ddbd821d3bf"
+      "sha256": "617b46b4e49c2cd2fdbe8aa403b9a3c56598b439c6c04d2e3c3d11328107fc60"
     },
     {
       "path": "docs/V20_CONTROL_CENTER_ROADMAP.md",
-      "sha256": "8a860ace0d6bafafd305938bf659104a6e4ef7072f6e8fabbefc7f88bb5871f4"
+      "sha256": "8329759d2a7e9093e718978c075de28bc6e433a96fcf6ec0038b31b8386a6112"
     },
     {
       "path": "docs/browser-check.json",
