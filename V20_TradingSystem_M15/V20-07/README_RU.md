@@ -86,3 +86,17 @@ Task имеет триггер `AtStartup`, но **действие намере
 - Реальное исполнение, стопы FINAM, восстановление после LIVE-сбоя и брокерская сверка **не проверены** и отмечены отдельными `false`/`NOT_AVAILABLE_STAGING`. Это остаётся предметом **V20-08 только по индивидуальному разрешению**.
 
 **07.4 НЕ PASS до фактического запуска на Intel. Общий этап V20-07 ещё открыт.**
+
+## 24.10.2026 — V20-07.4 и весь V20-07: ФАКТИЧЕСКИЙ PASS INTEL
+
+Операторский вывод точного закреплённого скрипта `Verify-IntelStaging.ps1`:
+
+- `V20_07_4_v20-shallow=PASS_DISABLED_LIVE_OFF`
+- `V20_07_4_v20-obv=PASS_DISABLED_LIVE_OFF`
+- `V20_07_4_v20-inside=PASS_DISABLED_LIVE_OFF`
+- `V20_07_4_RESULT=PASS_4_OF_4_STAGING_LIVE_OFF`
+- `V20_07_4_PINNED_SHA=610109b736c53a5cc1025657291e272b1136b254`
+- `V20_07_4_REPORT=C:\V20Lab\staging-07\INTEL_STAGING_REPORT.json`
+- `V20_07_4_NO_FINAM_NO_ORDERS_NO_LIVE_NO_H1_M15_MUTATIONS=YES`
+
+**V20-07.1/07.2/07.3/07.4 PASS — V20-07 ЗАКРЫТ.** Все три Windows Tasks остались Disabled, операторское управление проверено, фактические FINAM заявки и LIVE не авторизованы. `INTEL_STAGING_REPORT.json` существует только на Intel, а не в GitHub. Создание/проверка staging не подтверждают readiness торгового сервиса (в настоящий момент `v20_runtime/m15_runner.py` — OFFLINE/FakeBroker, операторская Task action — заведомый отказ). Следующий подэтап существующего roadmap V20-08.1, безопасная подготовка без торговли.
