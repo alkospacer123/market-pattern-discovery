@@ -28,6 +28,7 @@ def test_no_trade_or_system_capabilities_in_runtime(path):
         'v20_contract.py': {'hashlib', 'json', 're'},
         'v20_receiver.py': {'json', 'pathlib'},
         'v20_staging.py': {'hashlib', 'os', 'pathlib', 'subprocess'},
+        'v20_finam.py': {'json', 're'},
         'h1_windows_os.py': {'json', 'pathlib', 're', 'observer'},
         'deployment_paths.py': {'os', 'pathlib', 're'},
         'manual_gate.py': {'contextlib', 'os', 'ctypes', 'fcntl'},
