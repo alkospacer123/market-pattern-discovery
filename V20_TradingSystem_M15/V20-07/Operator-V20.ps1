@@ -41,12 +41,20 @@ function task-proof {
     $config = Join-Path $expectedDirectory 'config\staging.json'
     require (Test-Path -LiteralPath $config -PathType Leaf) 'V20_OP_CONFIG_MISSING'
     $settings = Get-Content -LiteralPath $config -Raw -Encoding UTF8 | ConvertFrom-Json
+    $moneyFile = Join-Path $root 'readonly-06\BROKER_READONLY_REPORT_FUNDED.json'
+    require (Test-Path -LiteralPath $moneyFile -PathType Leaf) 'V20_OP_BROKER_RECEIPT_MISSING'
+    $money = Get-Content -LiteralPath $moneyFile -Raw -Encoding UTF8 | ConvertFrom-Json
+    require ($money.schema -eq 'v20.finam.broker_readonly_report.v1' -and
+             $money.status -eq 'PASS_READONLY_3_OF_3' -and
+             $money.entry_authorized -eq $false) 'V20_OP_BROKER_RECEIPT_INVALID'
+    $bound = @($money.accounts | Where-Object { $_.robot -eq $Robot })
+    require ($bound.Count -eq 1 -and $bound[0].readonly_result -eq 'PASS_READONLY') 'V20_OP_BROKER_ACCOUNT_MISSING'
     require ($settings.schema -eq 'v20.intel.staging.v1' -and
              $settings.robot_id -eq $Robot -and $settings.live_enabled -eq $false -and
              $settings.execution_mode -eq 'DISABLED_NOT_LIVE' -and
              $settings.trading_token -eq 'NOT_CONFIGURED' -and
              $settings.source_commit -eq $pin -and
-             $settings.account_sha256 -eq $one[0].account_sha256) 'V20_OP_CONFIG_LIVE_OR_UNBOUND'
+             $settings.account_sha256 -eq $bound[0].account_sha256) 'V20_OP_CONFIG_LIVE_OR_UNBOUND'
     # The 07.2 task report intentionally omits raw account IDs; staging report
     # must still provide the same account hash. Never persist or print secrets.
     $task = Get-ScheduledTask -TaskName $Robot -TaskPath '\' -ErrorAction Stop
