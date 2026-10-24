@@ -150,3 +150,19 @@ GitHub blob readback: wrapper `bf1aa643e1a424fc1119fe16e4017dafd4a589ef`; token 
 Оператор выполнил физический Intel `Verify-FinamM15Open-Readonly.py --self-test` и получил **FAIL до любой сети**: `ModuleNotFoundError: No module named 'TradingSystemLab'` при fake-reader `_request`. Причина: диагностический `self_test()` вызывал `reader_type(FakeAPI)` до регистрации установленной `C:\V20Lab\source-raw` в `sys.path`; прежняя `prepare_h1()` вызывается только в `connect()`. Изменение строго в `self_test()`: теперь в его начале вызывается существующая локальная `prepare_h1()`, которая проверяет штатные H1 Git blobs и импортирует модули, но не требует токен, не отправляет HTTP и не затрагивает H1. Остальные 4 условные test assertions, guard GET-only и `connect()` неизменны.
 
 Исправленный blob `bc9f1eec69ebc9c28e66d8f26b54fcef70a57b11`; GitHub readback PASS. **Физический Intel повторный self-test и реальная M15↔H1 GET-сверка пока NOT RUN/NOT PASS**. Никаких V20 LIVE заявок, Tasks, H1/M15 mutation. 08.1 IN PROGRESS. Уже завершённые 27 уникальных synthetic cases не перезапускать.
+
+## 24.10.2026 — физический FINAM M15/H1 PASS 4/4, 382 совпадения
+
+Оператор выполнил `Verify-FinamM15Open-Readonly.py --self-test` и `--connect` на Intel, а в чат передал фактические результаты реальных FINAM GET:
+
+| Контракт | Совпавших H1 из 4 × M15 (полных) | Не совпало | Статус |
+| --- | ---: | ---: | --- |
+| USDRUBF | 94 | 0 | PASS |
+| CNYRUBF | 96 | 0 | PASS |
+| GLDRUBF | 96 | 0 | PASS |
+| IMOEXF | 96 | 0 | PASS |
+| **N4** | **382** | **0** | **PASS_4_OF_4_M15_H1_OPEN_LABELS** |
+
+Машинный локальный отчёт: `C:\V20Lab\pretrade-08\M15_TIMESTAMP_PROOF.json`. Эталонная M15 свеча у FINAM размечена временем **открытия** при проверенной OHLC агрегации. Вывод self-test в сообщении не показан отдельно, но корректная команда исполняла реальный `--connect` только после его exitcode=0; поэтому не приписывать дополнительных физических деталей кроме зафиксированного отчёта. GET-only, без торговых заявок, без секретов в JSON, H1/M15/Tasks без изменений.
+
+PASS ретроспективных OHLC **не доказывает**, что новая M15 свеча FINAM публикуется в первые 60 секунд после NEXT_OPEN; такой реальный текущий Open необходимо проверить на активной сессии. Кроме того, этот read-only факт не устанавливает торговый RUNNER с токенами, процессом, сверкой и защитой. Статус 08.1 остаётся IN PROGRESS, никаких реальных V20 заявок ещё не выставлялось.
