@@ -5,7 +5,6 @@ from cc.manual_gate import export_gate
 from cc.v20_contract import ROBOTS, LABELS, unconnected, age, heartbeat_health
 from cc.v20_receiver import acquire
 from cc.v20_staging import acquire_staging
-from cc.v20_finam import acquire as acquire_finam
 
 MSK = timezone(timedelta(hours=3))
 PAGES = ("Главная", "Журнал", "Управление")
@@ -81,19 +80,20 @@ def overview(snapshots, now):
         st.caption("Heartbeat: HEALTHY — свежий сигнал; UNHEALTHY — сигнал просрочен более чем на 5 минут; НЕТ ДАННЫХ — источник или подтверждённый heartbeat отсутствует.")
         st.caption("Heartbeat HEALTHY означает только свежий сигнал, а не разрешение торговли и не исправность всех компонентов.")
         st.caption("Дата рядом с кнопкой — время последней ручной проверки панелью, не обновления данных самого робота.")
-        st.caption("FINAM READONLY: только исторический обезличенный CC-owned экспорт; не подтверждает состояние брокера сейчас. Нет токена и запросов FINAM в Streamlit.")
         st.caption("Обновление только вручную; выполняется лишь READONLY-проверка. Торговые и управляющие команды недоступны.")
 
 
-def journal(snapshots, finam=None):
+def journal(snapshots):
     st.subheader("Последние циклы и диагностика")
     for robot in ROBOTS:
         report = snapshots[robot]
         with st.expander(LABELS[robot] + " · " + healthy_label(report), expanded=False):
             if report["events"]:
+                # Show newest first; the source contract accepts at most ten completed events.
+                recent = tuple(reversed(report["events"][-10:]))
                 st.dataframe([{"Время": show_time(event["at"]),
                                "Цикл": event["cycle"], "Результат": event["result"],
-                               "Причина": event["code"]} for event in report["events"]],
+                               "Причина": event["code"]} for event in recent],
                              hide_index=True, width="stretch")
             else:
                 st.caption("Подтверждённых событий пока нет")
@@ -103,12 +103,6 @@ def journal(snapshots, finam=None):
                 workers = "0" if report.get("workers_observed") == 0 else "НЕТ ДАННЫХ"
                 st.caption("Staging: LIVE OFF · Worker: " + workers + " · Исполнение заблокировано")
                 st.caption("Reconciliation: НЕТ ДАННЫХ · Последняя ошибка: НЕТ ДАННЫХ")
-            item = finam["accounts"].get("v20-" + robot.split("_", 1)[1].lower()) if finam else None
-            if item:
-                st.caption("FINAM READONLY: исторический PASS от " + show_time(finam["observed_at"]))
-                st.caption("Деньги PASS на момент проверки; текущий статус брокера неизвестен.")
-            else:
-                st.caption("FINAM READONLY: источник не подтверждён")
 
 
 def controls():
@@ -131,7 +125,6 @@ def main():
         try:
             with export_gate() as acquired:
                 if acquired:
-                    st.session_state["v20-finam"] = acquire_finam(datetime.now(timezone.utc))
                     primary = acquire(datetime.now(timezone.utc))
                     if any(primary[robot]["status"] == "NOT_CONNECTED" for robot in ROBOTS):
                         staging = acquire_staging(datetime.now(timezone.utc))
@@ -144,7 +137,6 @@ def main():
                     st.session_state["v20-snapshots"] = {
                         robot: unconnected(robot, "MANUAL_REFRESH_BUSY") for robot in ROBOTS}
         except Exception:
-            st.session_state["v20-finam"] = None
             st.session_state["v20-snapshots"] = {
                 robot: unconnected(robot, "READONLY_UNAVAILABLE") for robot in ROBOTS}
         # Time of a completed manual attempt; a failed source remains NOT_CONNECTED.
@@ -163,7 +155,7 @@ def main():
     with tabs[0]:
         overview(snapshots, now)
     with tabs[1]:
-        journal(snapshots, st.session_state.get("v20-finam"))
+        journal(snapshots)
     with tabs[2]:
         controls()
 
