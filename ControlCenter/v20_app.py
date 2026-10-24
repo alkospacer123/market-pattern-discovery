@@ -4,6 +4,7 @@ import streamlit as st
 from cc.manual_gate import export_gate
 from cc.v20_contract import ROBOTS, LABELS, unconnected, age, heartbeat_health
 from cc.v20_receiver import acquire
+from cc.v20_staging import acquire_staging
 
 MSK = timezone(timedelta(hours=3))
 PAGES = ("Главная", "Журнал", "Управление")
@@ -29,7 +30,7 @@ def healthy_label(report):
     status = report["status"]
     return {"HEALTHY": "HEALTHY", "HALTED": "HALTED", "FAULT": "FAULT",
             "UNKNOWN": "UNKNOWN", "STALE": "STALE",
-            "NOT_CONNECTED": "НЕ ПОДКЛЮЧЁН"}.get(status, "UNKNOWN")
+            "NOT_CONNECTED": "НЕ ПОДКЛЮЧЁН", "STAGING": "STAGING · LIVE OFF"}.get(status, "UNKNOWN")
 
 
 def overview(snapshots, now):
@@ -57,7 +58,12 @@ def overview(snapshots, now):
                     "STALE": "🔴 UNHEALTHY",
                     "UNKNOWN": "⚪ НЕТ ДАННЫХ",
                 }[pulse])
-                if current:
+                if status == "STAGING":
+                    st.markdown("**Windows Task:** DISABLED · **Kill switch:** НЕТ ДАННЫХ")
+                    worker = "0" if report.get("workers_observed") == 0 else "НЕТ ДАННЫХ"
+                    st.caption("LIVE: OFF · Worker: " + worker + " · Исполнение: заблокировано")
+                    st.caption("Reconciliation: НЕТ ДАННЫХ · Последняя ошибка: НЕТ ДАННЫХ")
+                elif current:
                     st.markdown("**Windows Task:** " + report["task_state"] +
                                 " · **Kill switch:** " + report["kill_switch"])
                     error_code = report["last_error_code"]
@@ -66,9 +72,13 @@ def overview(snapshots, now):
                 elif status == "STALE":
                     st.caption("Текущее состояние Task/защиты и ошибок не подтверждено")
                 else:
-                    st.caption("Состояние Windows Task и ошибок не подтверждено")
+                    if report.get("reason") == "OPERATOR_SID_MISMATCH":
+                        st.caption("Проверка отклонена: SID панели не совпадает с владельцем V20 Task")
+                    else:
+                        st.caption("Состояние Windows Task и ошибок не подтверждено")
     with st.expander("Об источниках", expanded=False):
-        st.caption("Состояния приходят только из отдельных READONLY-отчётов V20. Пока источники не подключены, работоспособность неизвестна.")
+        st.caption("CC-04: по ручному запросу используются подтверждённые V20 READONLY-снимки или штатные operator-check V20-07. Проверки не запускают торговлю.")
+        st.caption("STAGING · LIVE OFF означает лишь проверенную отключённую Windows Task и блокирующее действие на момент запроса. Не означает работоспособный runtime.")
         st.caption("HEALTHY означает состояние по локальному отчёту; не подтверждает сделки, брокерские позиции и SLTP FINAM.")
         st.caption("Heartbeat: HEALTHY — свежий сигнал; UNHEALTHY — сигнал просрочен более чем на 5 минут; НЕТ ДАННЫХ — источник или подтверждённый heartbeat отсутствует.")
         st.caption("Heartbeat HEALTHY означает только свежий сигнал, а не разрешение торговли и не исправность всех компонентов.")
@@ -104,7 +114,14 @@ def main():
         try:
             with export_gate() as acquired:
                 if acquired:
-                    st.session_state["v20-snapshots"] = acquire(datetime.now(timezone.utc))
+                    primary = acquire(datetime.now(timezone.utc))
+                    if any(primary[robot]["status"] == "NOT_CONNECTED" for robot in ROBOTS):
+                        staging = acquire_staging(datetime.now(timezone.utc))
+                        st.session_state["v20-snapshots"] = {
+                            robot: primary[robot] if primary[robot]["status"] != "NOT_CONNECTED"
+                            else staging[robot] for robot in ROBOTS}
+                    else:
+                        st.session_state["v20-snapshots"] = primary
                 else:
                     st.session_state["v20-snapshots"] = {
                         robot: unconnected(robot, "MANUAL_REFRESH_BUSY") for robot in ROBOTS}
