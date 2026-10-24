@@ -69,8 +69,8 @@ def test_export_refuses_partial_wrong_accounts_trading_or_future(mutation):
 
 
 def test_export_refuses_duplicate_json_keys():
-    raw = wire(original()).replace(b'"status":"PASS_READONLY_3_OF_3"',
-                                   b'"status":"PASS_READONLY_3_OF_3","status":"PASS_READONLY_3_OF_3"')
+    raw = wire(original()).replace(b'"status": "PASS_READONLY_3_OF_3"',
+                                   b'"status": "PASS_READONLY_3_OF_3", "status": "PASS_READONLY_3_OF_3"')
     with pytest.raises(ValueError, match="DUPLICATE"):
         sanitize(raw, NOW)
 
