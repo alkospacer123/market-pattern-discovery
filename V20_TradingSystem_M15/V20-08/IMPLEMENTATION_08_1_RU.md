@@ -59,3 +59,18 @@
 Четыре новых адресных теста `v20_runtime/tests/test_finam_journal.py`: атомарные риск+квоты, `UNCERTAIN` после перезапуска, исключительный lock/изоляция счёта, отказ при открытом чужом брокерском состоянии. Подготовлен `V20-08/invoke-offline-finam-journal-tests.ps1` для Intel: скачивает три pin-файла, сверяет Git blob SHA и запускает **только четыре новых теста**; никаких FINAM, токенов, заявок, Task и H1/M15 мутаций. Физический запуск нового теста: **ожидает операторского подтверждения**.
 
 **Текущий статус V20-08.1 — IN PROGRESS, NOT PASS.** Ещё не подключены настоящая авторизация V20, H1 защищённый write-transport и реальные order-linked fills/SLTP в постоянное состояние, M15 live NEXT_OPEN, post-fill risk, обработка выходов и recovery. 08.2 требует отдельного разрешения. Вся работа относится исключительно к существующему 08.1, без нового этапа.
+
+## 24.10.2026 — PASS Intel 4/4 журнала, следующий READSIDE recovery
+
+От владельца получено подтверждение физического Intel: `test_finam_journal` **4/4 PASS**, 0 FAIL, `live=off`, `orders=zero`, закреплённый SHA `e13c4da37115bf5a37e067624a2888e483745bac`. В сумме прежние адаптер 7/7 и журнал 4/4: **11/11 PASS**. Повторять их не требуется.
+
+Новый минимальный код в существующем `v20_runtime/finam_execution.py`:
+- `prepare_entry` сверяет резервируемый realized equity и available cash с **тем же** FINAM snapshot, требует актуальность (до 60 сек), а не только хеш счёта.
+- `record_submission_boundary` атомарно фиксирует не только `UNCERTAIN`, но и `entry_submission:<key>` с account SHA256 и фактическим `submitted_at UTC` для H1 order-linked FINAM `/trades` после рестарта.
+- `observe_protected_entry` вызывает **готовые** H1 `Target/analyze_history`, строгий V20 read-adapter, H1 `StateStore.persist_fill(strict=True)`, `revalue_fill` и H1 проверку активного 100% SLTP. Сверяет точный broker order id, фактические биржевые исполнения, количество брокерской позиции и стоп VWAP ±2×ATR14 на исполнимой сетке. Записывает fill ID только в виде hash FINAM trade ID (не аккаунт или токен), проверяет конфликтующую историю/пропавшие fills, сохраняет durable защитные broker IDs и risk assessment. Никакого сетевого POST/DELETE.
+- Фактическая комиссия в H1 GET trade diagnostic недоступна, поэтому фиксируется `fees_status=BUDGETED_ONLY_NOT_ACTUAL` и сохраняется блокировка новых входов `ACTUAL_FINAM_FEE_AUTHORITY_PENDING`. ACK без fills и стоп без подтверждённой позиции не принимаются. При неактивном SLTP — `OPEN_POSITION_PROTECTION_UNVERIFIED`, не объявлять защищённой.
+- `reconcile_order` более не понижает `RECONCILED` до `ACK` при повторном чтении брокерской заявки.
+
+Только для этой новой связки создан `v20_runtime/tests/test_finam_protected_recovery.py` (3 теста): broker fills+SLTP+SQLite после рестарта, refusal при отсутствующем SLTP и денежный snapshot+durable submission interval. Intel скрипт `V20-08/invoke-offline-protected-recovery-tests.ps1` скачивает ровно три закреплённых Git blobs из commit `682d2e4fcda286f08c3d7b1c22cb91868ecaf026`, запускает только эти 3 теста (FAKE FINAM, никаких сетевых/торговых действий). **Новая проверка на Intel пока NOT RUN**, V20-08.1 остаётся **IN PROGRESS**.
+
+До 08.2 по-прежнему нужны реальный санкционированный V20 write transport (не наследовать H1 production authorization), оплаченный тариф/реальные fee-доказательства, завершённый FINAM M15 NEXT_OPEN, выход до 3-й наблюдаемой сессии, безопасная защита частичных исполнений и по-настоящему работающий recovery/cancellation. Никаких изменений H1/IntradayLab/CC/Windows Tasks и реальных заявок.
