@@ -78,7 +78,7 @@ $rows = @()
 foreach ($robot in $robotNames) {
     $short = $robot.Substring(4)
     $workingDirectory = Join-Path $root ('robots\' + $short)
-    $args = '-NoProfile -NonInteractive -ExecutionPolicy RemoteSigned -File "' + $blocker + '" -Robot ' + $robot
+    $taskArguments = '-NoProfile -NonInteractive -ExecutionPolicy RemoteSigned -File "' + $blocker + '" -Robot ' + $robot
     $existing = Get-ScheduledTask -TaskName $robot -TaskPath '\' -ErrorAction SilentlyContinue
     if ($null -ne $existing) {
         # Resume a partial install ONLY if the existing task is already
@@ -87,11 +87,11 @@ foreach ($robot in $robotNames) {
                  $existing.Principal.UserId -in @($userName,$userSid) -and
                  @($existing.Actions).Count -eq 1 -and
                  $existing.Actions[0].Execute -ieq 'powershell.exe' -and
-                 $existing.Actions[0].Arguments -ceq $args -and
+                 $existing.Actions[0].Arguments -ceq $taskArguments -and
                  $existing.Actions[0].WorkingDirectory -ieq $workingDirectory) 'V20_07_2_EXISTING_TASK_CONFLICT'
         Write-Output ('V20_07_2_' + $robot + '=REUSED_DISABLED')
     } else {
-        $action = New-ScheduledTaskAction -Execute 'powershell.exe' -Argument $args -WorkingDirectory $workingDirectory -ErrorAction Stop
+        $action = New-ScheduledTaskAction -Execute 'powershell.exe' -Argument $taskArguments -WorkingDirectory $workingDirectory -ErrorAction Stop
         $task = New-ScheduledTask -Action $action -Trigger $trigger -Settings $settings -Principal $taskPrincipal -Description ('V20 '+ $robot +' staging only; LIVE NOT AUTHORIZED; exact source '+$pin) -ErrorAction Stop
         Register-ScheduledTask -TaskName $robot -InputObject $task -ErrorAction Stop | Out-Null
         Disable-ScheduledTask -TaskName $robot -TaskPath '\' -ErrorAction Stop | Out-Null
@@ -99,7 +99,7 @@ foreach ($robot in $robotNames) {
     }
     $check = Get-ScheduledTask -TaskName $robot -TaskPath '\' -ErrorAction Stop
     require ($check.State -eq 'Disabled' -and @($check.Actions).Count -eq 1 -and
-             $check.Actions[0].Arguments -ceq $args -and
+             $check.Actions[0].Arguments -ceq $taskArguments -and
              $check.Principal.UserId -in @($userName,$userSid)) 'V20_07_2_TASK_NOT_SAFE_DISABLED'
     $rows += [ordered]@{
         robot = $robot
@@ -111,7 +111,7 @@ foreach ($robot in $robotNames) {
         logon_type = 'Interactive'
         run_level = 'Limited'
         action_executable = 'powershell.exe'
-        action_arguments = $args
+        action_arguments = $taskArguments
         working_directory = $workingDirectory
         source_commit = $pin
         live_enabled = $false
