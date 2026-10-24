@@ -85,7 +85,7 @@ foreach ($robot in $robots) {
 }
 foreach ($robot in $robots) {
     $check = Join-Path $ops ($robot + '-check.ps1')
-    $log = @(& powershell.exe -NoProfile -ExecutionPolicy RemoteSigned -File $check)
+    $log = @(& powershell.exe -NoProfile -ExecutionPolicy Bypass -File $check)
     require ($LASTEXITCODE -eq 0 -and
              $log -contains 'V20_OP_TASK_DISABLED=PASS' -and
              $log -contains 'V20_OP_LIVE=OFF' -and
@@ -95,14 +95,14 @@ foreach ($robot in $robots) {
 # Explicitly verify blocked start/restart; no attempt to enable/start Task.
 foreach ($mode in @('start','restart')) {
     $guard = Join-Path $ops ('v20-shallow-' + $mode + '.ps1')
-    $seen = @(& powershell.exe -NoProfile -ExecutionPolicy RemoteSigned -File $guard)
+    $seen = @(& powershell.exe -NoProfile -ExecutionPolicy Bypass -File $guard)
     require ($LASTEXITCODE -eq 3 -and
              $seen -contains ('V20_OP_' + $mode.ToUpperInvariant() + '=REFUSED_LIVE_OFF') -and
              $seen -contains 'V20_OP_TASK_MUTATED=NO') 'V20_07_3_LIVE_START_GUARD_FAILED'
     Write-Output ('V20_07_3_' + $mode.ToUpperInvariant() + '=BLOCKED_AS_DESIGNED')
 }
 $stop = Join-Path $ops 'v20-shallow-stop.ps1'
-$stopped = @(& powershell.exe -NoProfile -ExecutionPolicy RemoteSigned -File $stop)
+$stopped = @(& powershell.exe -NoProfile -ExecutionPolicy Bypass -File $stop)
 require ($LASTEXITCODE -eq 0 -and
          $stopped -contains 'V20_OP_STOP=ALREADY_DISABLED' -and
          $stopped -contains 'V20_OP_TASK_DISABLED=PASS') 'V20_07_3_STOP_NOT_SAFE'
