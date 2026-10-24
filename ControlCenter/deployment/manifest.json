@@ -154,6 +154,10 @@
       "sha256": "530a00f21130acc1d7bd2e686b2574b571842b475548da51c8cd91b559107d2a"
     },
     {
+      "path": "controller/__init__.py",
+      "sha256": "0d18aaa98c4b893800a9768b43fba777b9fac45371e4d768a1592146e74b5681"
+    },
+    {
       "path": "controller/v20_control.py",
       "sha256": "6ebfa76af3f3bb9d378b60ff34c3ca04ceefbb93795d2fadc45f94a9b76dafa3"
     },
