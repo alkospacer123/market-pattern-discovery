@@ -65,7 +65,8 @@ class V20FinamReadAdapter:
     ):
         if robot_id not in ROBOT_STRATEGIES:
             raise V20FinamBlocked("UNKNOWN_V20_ROBOT")
-        if (not isinstance(account_id, str) or not account_id
+        if (not isinstance(account_id, str)
+                or not re.fullmatch(r"[A-Za-z0-9_.-]{1,128}", account_id)
                 or not re.fullmatch(r"[0-9a-f]{64}", str(expected_account_hash))
                 or hashlib.sha256(account_id.encode("utf-8")).hexdigest() != expected_account_hash):
             raise V20FinamBlocked("ACCOUNT_IDENTITY_MISMATCH")
