@@ -126,9 +126,9 @@ try {
         $env:V20_FINAM_ACCOUNT_SHA256=[string]$secret.account_sha256
         need ((digest $env:V20_FINAM_ACCOUNT) -ceq $env:V20_FINAM_ACCOUNT_SHA256) 'V20_08_1_DPAPI_ACCOUNT_DECRYPT_MISMATCH'
         try {
-            $args=@('-B','-m','V20_TradingSystem_M15.v20_runtime.finam_worker','--robot',$name)
-            if ($Mode -eq 'witness') { $args += '--witness-current-open' }
-            & $python @args
+            $launchArgs=@('-B','-m','V20_TradingSystem_M15.v20_runtime.finam_worker','--robot',$name)
+            if ($Mode -eq 'witness') { $launchArgs += '--witness-current-open' }
+            & $python @launchArgs
             need ($LASTEXITCODE -eq 0) 'V20_08_1_WORKER_READONLY_CHECK_FAILED'
         } finally {
             Remove-Item Env:\V20_FINAM_ACCOUNT -ErrorAction SilentlyContinue
