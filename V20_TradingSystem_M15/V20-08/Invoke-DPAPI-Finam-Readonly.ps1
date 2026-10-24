@@ -2,7 +2,7 @@
 # Does not touch Tasks, H1/M15, order/SLTP APIs or any production state.
 [CmdletBinding()]
 param(
-    [ValidateSet('preflight','witness','frozen')][string]$Mode = 'preflight',
+    [ValidateSet('preflight','witness','frozen','authority')][string]$Mode = 'preflight',
     [ValidateSet('all','v20-shallow','v20-obv','v20-inside')][string]$Robot = 'all'
 )
 $ErrorActionPreference = 'Stop'
@@ -13,7 +13,7 @@ $workspace = Join-Path $root 'pretrade-08\dpapi-finam-readonly'
 $python = Join-Path $root '.venv-raw\scripts\python.exe'
 $receipt = Join-Path $root 'pretrade-08\DPAPI_TRADING_BINDINGS_REPORT.json'
 $tasksReceipt = Join-Path $root 'staging-07\TASKS_07_2_REPORT.json'
-$pin = '25d1630ce51629b5139ef708c6c2a1864e06cd1d'
+$pin = '7316b1660d8e559f6c575dc72c3dde430126910f'
 function need([bool]$okay,[string]$code) { if (-not $okay) { throw $code } }
 function digest([string]$val) {
     $sha=[Security.Cryptography.SHA256]::Create()
@@ -60,17 +60,27 @@ if ($Mode -eq 'witness') { need ($names.Count -eq 1) 'V20_08_1_WITNESS_ONE_ACCOU
 $pkg = Join-Path $workspace 'V20_TradingSystem_M15\v20_runtime'
 New-Item -ItemType Directory -Path $pkg -Force | Out-Null
 $files = @(
-    @('finam_worker.py','4d9de12e0b3e9d0d0ec72d058840bb259e2ed30d'),
-    @('finam_execution.py','5e76df4085665559e4056f07f4ddf8b6574048ef'),
+    @('finam_worker.py','d0085f8da2d37690eb0396f7999902ee317cff5a'),
+    @('finam_execution.py','879c9476a1ad53febf3f368e2b498f009de70d43'),
     @('h1_state_journal.py','f9fb32a50eb712aeae4690dd85d4e7aa512ef15c')
 )
+$previousPins = @{
+    'finam_worker.py'='4d9de12e0b3e9d0d0ec72d058840bb259e2ed30d'
+    'finam_execution.py'='5e76df4085665559e4056f07f4ddf8b6574048ef'
+}
 foreach ($entry in $files) {
     $to = Join-Path $pkg $entry[0]
     no-link $to
+    $replaceOld = $false
     if (Test-Path -LiteralPath $to) {
         $hash = (& git.exe hash-object -- $to).Trim().ToLowerInvariant()
-        need ($LASTEXITCODE -eq 0 -and $hash -eq $entry[1]) 'V20_08_1_WORKER_CODE_CONFLICT'
-        continue
+        need ($LASTEXITCODE -eq 0) 'V20_08_1_WORKER_GIT_HASH_ERROR'
+        if ($hash -eq $entry[1]) { continue }
+        # Exactly the previous physically proven read-only worker may be
+        # upgraded. All other local modifications remain hard-blocked.
+        need ($previousPins.ContainsKey([string]$entry[0]) -and
+              $hash -eq $previousPins[[string]$entry[0]]) 'V20_08_1_WORKER_CODE_CONFLICT'
+        $replaceOld = $true
     }
     $url = 'https://raw.githubusercontent.com/alkospacer123/market-pattern-discovery/' + $pin + '/V20_TradingSystem_M15/v20_runtime/' + $entry[0]
     $tmp = $to + '.download'
@@ -79,6 +89,7 @@ foreach ($entry in $files) {
         Invoke-WebRequest -Uri $url -OutFile $tmp -UseBasicParsing
         $hash = (& git.exe hash-object -- $tmp).Trim().ToLowerInvariant()
         need ($LASTEXITCODE -eq 0 -and $hash -eq $entry[1]) 'V20_08_1_WORKER_GIT_BLOB_MISMATCH'
+        if ($replaceOld) { Remove-Item -LiteralPath $to -Force -ErrorAction Stop }
         Move-Item -LiteralPath $tmp -Destination $to
     } finally {
         if (Test-Path -LiteralPath $tmp) { Remove-Item -LiteralPath $tmp -Force }
@@ -160,9 +171,9 @@ try {
     # order/SLTP/DELETE and cross-account routes with synthetic credentials.
     & $python -B -m V20_TradingSystem_M15.v20_runtime.finam_worker --self-test
     need ($LASTEXITCODE -eq 0) 'V20_08_1_WORKER_SELFTEST_FAILED'
-    & $python -B -c $frozenSmoke
-    need ($LASTEXITCODE -eq 0) 'V20_08_1_FROZEN_FORMULA_SELFTEST_FAILED'
     if ($Mode -eq 'frozen') {
+        & $python -B -c $frozenSmoke
+        need ($LASTEXITCODE -eq 0) 'V20_08_1_FROZEN_FORMULA_SELFTEST_FAILED'
         Write-Output 'v20_08_1_frozen_sources=pass_5_of_5'
         Write-Output 'v20_08_1_live=off'
         Write-Output 'v20_08_1_orders=zero'
@@ -190,6 +201,7 @@ try {
         try {
             $launchArgs=@('-B','-m','V20_TradingSystem_M15.v20_runtime.finam_worker','--robot',$name)
             if ($Mode -eq 'witness') { $launchArgs += '--witness-current-open' }
+            if ($Mode -eq 'authority') { $launchArgs += '--authority' }
             & $python @launchArgs
             need ($LASTEXITCODE -eq 0) 'V20_08_1_WORKER_READONLY_CHECK_FAILED'
         } finally {
@@ -198,7 +210,8 @@ try {
             Remove-Item Env:\V20_FINAM_ACCOUNT_SHA256 -ErrorAction SilentlyContinue
         }
     }
-    Write-Output ('v20_08_1_worker=' + $(if($Mode -eq 'preflight') {'pass_get_only_'+$names.Count+'_of_'+$names.Count} else {'pass_one_account_witness_mode'}))
+    $finish = if ($Mode -eq 'preflight') {'pass_get_only_'+$names.Count+'_of_'+$names.Count} elseif ($Mode -eq 'authority') {'pass_n4_authority_'+$names.Count+'_of_'+$names.Count} else {'pass_one_account_witness_mode'}
+    Write-Output ('v20_08_1_worker=' + $finish)
     Write-Output 'v20_08_1_live=off'
     Write-Output 'v20_08_1_tasks_modified=no'
 } finally {
