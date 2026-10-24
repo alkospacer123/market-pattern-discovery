@@ -12,6 +12,7 @@ from datetime import datetime, timezone, timedelta
 from decimal import Decimal
 from fractions import Fraction
 import hashlib
+import json
 import re
 from typing import Any
 
@@ -595,7 +596,7 @@ class V20SingleTradeTransport:
     """
 
     def __init__(self, *, journal: V20TradeJournal, reader: V20FinamReadAdapter,
-                 accepted_commit: str, trial_permit: dict | None = None):
+                 accepted_commit: str, trial_permit_path: Path | None = None):
         if (not isinstance(journal, V20TradeJournal)
                 or not isinstance(reader, V20FinamReadAdapter)
                 or journal.robot_id != reader.robot_id
@@ -605,11 +606,19 @@ class V20SingleTradeTransport:
         self.journal = journal
         self.reader = reader
         self.accepted_commit = accepted_commit
-        self.trial_permit = trial_permit
+        self.trial_permit_path = trial_permit_path
 
     def _permit(self, *, key: str, kind: str) -> dict:
         """Validate a separately supplied narrow trial approval, never create it."""
-        approval = self.trial_permit
+        path = self.trial_permit_path
+        authorized = self.journal.instance_root / "safety" / "v20-single-trial-approval.json"
+        if (path is None or Path(path).resolve(strict=False) != authorized.resolve(strict=False)
+                or not authorized.is_file() or authorized.is_symlink()):
+            raise V20FinamBlocked("SINGLE_TRIAL_EXPLICIT_AUTHORIZATION_MISSING")
+        try:
+            approval = json.loads(authorized.read_text(encoding="utf-8"))
+        except (OSError, UnicodeError, ValueError):
+            raise V20FinamBlocked("SINGLE_TRIAL_AUTHORIZATION_INVALID") from None
         expected = {
             "schema": "v20.08.2.single_trial.v1",
             "scope": "ONE_SPECIFIC_APPROVED_TRIAL",
