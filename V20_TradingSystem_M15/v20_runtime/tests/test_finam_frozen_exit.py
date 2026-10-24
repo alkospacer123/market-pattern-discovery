@@ -17,7 +17,7 @@ from test_finam_trial_transport import (
     OfflineTestClock, TrialBoundaryTests, value,
 )
 
-DUE = datetime(2026, 10, 26, 6, 0, 5, tzinfo=timezone.utc)
+DUE = OfflineTestClock(2026, 10, 26, 6, 0, 5, tzinfo=timezone.utc)
 
 
 def bar(t, current=False):
