@@ -280,6 +280,19 @@ class V20TradeJournal(IsolatedReferenceJournal):
     def record_reference(self, *args, **kwargs):
         raise V20FinamBlocked("OFFLINE_REFERENCE_FORBIDDEN_IN_REAL_JOURNAL")
 
+    def preview_entry_key(self, entry: ProposedEntry) -> str:
+        """Exactly the H1 idempotency key used by prepare_entry; no writes."""
+        if (not isinstance(entry, ProposedEntry)
+                or entry.symbol not in N4
+                or entry.direction not in {"LONG", "SHORT"}
+                or not isinstance(entry.entry_bar_open, datetime)
+                or entry.entry_bar_open.tzinfo is not None):
+            raise V20FinamBlocked("TRIAL_PREVIEW_KEY_INVALID")
+        return ("v20:" + self.robot_id + ":" + self.account_hash[:16] + ":" +
+                compact_client_order_id(
+                    f"{entry.symbol}:{entry.entry_bar_open.isoformat()}:{entry.direction}"
+                )[2:])
+
     def prepare_entry(self, *, signal: FrozenSignal, entry: ProposedEntry,
                       authority: AccountAuthority, snapshot: LiveAccountSnapshot) -> str:
         """Atomic H1 risk reservation, once-per-session quota and immutable wire."""
@@ -322,10 +335,7 @@ class V20TradeJournal(IsolatedReferenceJournal):
         if not snapshot.clean:
             raise V20FinamBlocked("NONFLAT_BROKER_BOOTSTRAP_FORBIDDEN")
         day = OfflinePlanner._session_key(entry.entry_bar_open).isoformat()
-        key = ("v20:" + self.robot_id + ":" + self.account_hash[:16] + ":" +
-               compact_client_order_id(
-                   f"{entry.symbol}:{entry.entry_bar_open.isoformat()}:{entry.direction}"
-               )[2:])
+        key = self.preview_entry_key(entry)
         with self.store.transaction():
             if self.store.get("execution_halt"):
                 raise V20FinamBlocked("JOURNAL_HALTED")
