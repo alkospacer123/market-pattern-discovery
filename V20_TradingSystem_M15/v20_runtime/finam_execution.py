@@ -836,6 +836,134 @@ class V20SingleTradeTransport:
         # ACK alone is not protection: reader must see active 100% stop.
         return oid
 
+
+    def submit_frozen_exit_once(
+        self, *, key: str, boundary: "V20M15Boundary",
+        snapshot: LiveAccountSnapshot, now: datetime,
+    ) -> str:
+        """H1 market exit on observed third session; durable one-shot only."""
+        approval = self._permit(key=key, kind="FROZEN_EXIT")
+        self.reader._fresh(snapshot, now)
+        current = self.reader.snapshot(now=now)
+        if (not isinstance(boundary, V20M15Boundary)
+                or boundary.observed_at_utc != now.astimezone(timezone.utc)
+                or current.positions != snapshot.positions
+                or current.orders != snapshot.orders):
+            raise V20FinamBlocked("EXIT_M15_OR_BROKER_SNAPSHOT_MISMATCH")
+        entry = self.journal.store.intent(key)
+        proof = self.journal.store.get("protected_fill:" + key)
+        if (entry is None or entry["status"] not in {"RECONCILED", "PARTIAL_FILL", "FILL"}
+                or not isinstance(proof, dict)
+                or proof.get("account_sha256") != self.journal.account_hash):
+            raise V20FinamBlocked("EXIT_PROTECTED_ENTRY_UNVERIFIED")
+        payload = entry["payload"]
+        if (payload["symbol"] != approval["instrument"]
+                or payload["direction"] != approval["direction"]
+                or boundary.symbol != payload["symbol"]):
+            raise V20FinamBlocked("EXIT_TRIAL_SCOPE_MISMATCH")
+        if frozen_observed_session_exit(
+            boundary, entry_open_msk=datetime.fromisoformat(payload["entry_at"]),
+        ) != "EXIT_AT_THIRD_OBSERVED_SESSION_OPEN":
+            raise V20FinamBlocked("EXIT_THIRD_SESSION_OPEN_NOT_DUE")
+        due = boundary.at_msk.replace(tzinfo=ZoneInfo("Europe/Moscow")).astimezone(timezone.utc)
+        if not timedelta(0) <= now.astimezone(timezone.utc) - due <= timedelta(seconds=60):
+            raise V20FinamBlocked("EXIT_OPEN_STALE")
+        position = current.positions.get(payload["finam_symbol"], 0)
+        if (type(position) is not int or position == 0
+                or (position > 0) != (payload["direction"] == "LONG")
+                or abs(position) != proof.get("filled_quantity")
+                or abs(position) > approval["max_quantity"]):
+            raise V20FinamBlocked("EXIT_BROKER_QUANTITY_MISMATCH")
+        stop = self.reader.inspect_protective_stop(
+            current, entry_key=key, symbol=payload["symbol"],
+            direction=payload["direction"],
+            stop_price=Decimal(proof["installed_stop"]), now=now,
+        )
+        if stop.order_id != proof["broker_stop_id"]:
+            raise V20FinamBlocked("EXIT_BROKER_STOP_ID_MISMATCH")
+        exit_key = key + ":frozen-exit"
+        action = RuntimeAction("EMERGENCY_EXIT_REQUIRED", exit_key,
+                               payload["symbol"], payload["finam_symbol"],
+                               payload["direction"], abs(position), key,
+                               None, None, None, position)
+        wire = AuthorizedFinamProductionTransport._market_payload(action, exit_order=True)
+        with self.journal.store.transaction():
+            if self.journal.store.intent(exit_key):
+                raise V20FinamBlocked("EXIT_ALREADY_ATTEMPTED_NO_RETRANSMIT")
+            self.journal.store.persist_intent(exit_key, {
+                "kind": "FROZEN_EXIT", "entry_key": key,
+                "account_sha256": self.journal.account_hash,
+                "broker_stop_id": stop.order_id, "quantity": abs(position),
+                "boundary_msk": boundary.at_msk.isoformat(), "wire": wire,
+            })
+            self.journal.store.transition_intent(exit_key, "UNCERTAIN")
+        try:
+            ack = self.reader.api.place_order(self.reader.account_id, wire)
+        except FinamOrderRejected:
+            self.journal.store.transition_intent(exit_key, "REJECTED")
+            self.journal.store.put("execution_halt", "FROZEN_EXIT_REJECTED_KEEP_STOP")
+            raise
+        except BaseException:
+            self.journal.store.put("execution_halt", "FROZEN_EXIT_UNCERTAIN_KEEP_STOP")
+            raise
+        oid = ack.get("order_id") if isinstance(ack, dict) else None
+        if not isinstance(oid, str) or not oid:
+            self.journal.store.put("execution_halt", "FROZEN_EXIT_ACK_UNVERIFIED")
+            raise V20FinamBlocked("FROZEN_EXIT_ACK_UNVERIFIED")
+        self.journal.store.transition_intent(exit_key, "ACK", oid)
+        return oid
+
+    def cancel_stop_after_flat_once(
+        self, *, key: str, snapshot: LiveAccountSnapshot, now: datetime,
+    ) -> str:
+        """H1 cancel-after-flat: FINAM GET must prove zero position first."""
+        self._permit(key=key, kind="FROZEN_EXIT")
+        self.reader._fresh(snapshot, now)
+        current = self.reader.snapshot(now=now)
+        if current.positions != snapshot.positions:
+            raise V20FinamBlocked("FLAT_CLEANUP_SNAPSHOT_CHANGED")
+        entry = self.journal.store.intent(key)
+        proof = self.journal.store.get("protected_fill:" + key)
+        exit_intent = self.journal.store.intent(key + ":frozen-exit")
+        if (entry is None or not isinstance(proof, dict)
+                or exit_intent is None
+                or exit_intent["status"] not in {"ACK", "UNCERTAIN", "RECONCILED"}
+                or exit_intent["payload"].get("kind") != "FROZEN_EXIT"):
+            raise V20FinamBlocked("FLAT_CLEANUP_ENTRY_EXIT_UNVERIFIED")
+        symbol = entry["payload"]["finam_symbol"]
+        if current.positions.get(symbol, 0) != 0:
+            raise V20FinamBlocked("FLAT_CLEANUP_POSITION_OPEN")
+        active = [o for o in current.orders if o.active and o.kind == "SLTP"
+                  and o.symbol == symbol]
+        if not active:
+            self.journal.store.put("flat_cleanup:" + key, {
+                "status": "BROKER_FLAT_NO_ACTIVE_STOP",
+                "account_sha256": self.journal.account_hash,
+            })
+            return "BROKER_FLAT_NO_ACTIVE_STOP"
+        stop_key = key + ":stop"
+        if (len(active) != 1 or active[0].order_id != proof.get("broker_stop_id")
+                or active[0].client_order_id != compact_client_order_id(stop_key)
+                or active[0].comment != stop_key):
+            raise V20FinamBlocked("FLAT_CLEANUP_STOP_ID_MISMATCH")
+        cancel_key = key + ":cancel-after-flat"
+        with self.journal.store.transaction():
+            if self.journal.store.intent(cancel_key):
+                raise V20FinamBlocked("FLAT_CANCEL_ALREADY_ATTEMPTED_NO_RETRANSMIT")
+            self.journal.store.persist_intent(cancel_key, {
+                "kind": "STOP_CANCEL", "entry_key": key,
+                "account_sha256": self.journal.account_hash,
+                "broker_order_id": active[0].order_id,
+            })
+            self.journal.store.transition_intent(cancel_key, "UNCERTAIN")
+        try:
+            self.reader.api.cancel_order(self.reader.account_id, active[0].order_id)
+        except BaseException:
+            self.journal.store.put("execution_halt", "STOP_CANCEL_UNKNOWN_RECONCILE")
+            raise
+        self.journal.store.transition_intent(cancel_key, "ACK", active[0].order_id)
+        return "CANCEL_ACK_REQUIRE_BROKER_NO_STOP_CONFIRMATION"
+
 @dataclass(frozen=True)
 class V20M15Boundary:
     """Separate FINAM completed-candle facts and a new-bar Open witness."""
