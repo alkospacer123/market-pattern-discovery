@@ -315,6 +315,8 @@ def self_test() -> int:
         ("DELETE", "/v1/accounts/SYNTHETIC_ACCOUNT/orders/123"),
         ("GET", "/v1/assets/USDRUBF@RTSX/params?account_id=OTHER_ACCOUNT"),
         ("GET", "/v1/assets/BR@RTSX/schedule"),
+        ("GET", "/v1/assets/all?only_active=false"),
+        ("GET", "/v1/assets/all?cursor=10"),
     ):
         try:
             scoped._request(method, path)
@@ -328,8 +330,18 @@ def self_test() -> int:
     scoped.asset(target, "SYNTHETIC_ACCOUNT")
     scoped.asset_params(target, "SYNTHETIC_ACCOUNT")
     scoped.schedule(target)
-    if len(seen) != n_before + 3 or any(x[0] != "GET" for x in seen[-3:]):
+    scoped._request("GET", "/v1/assets/all?only_active=true")
+    scoped._request("GET", "/v1/assets/all?only_active=true&cursor=10")
+    if len(seen) != n_before + 5 or any(x[0] != "GET" for x in seen[-5:]):
         raise AssertionError("V20_08_1_AUTHORITY_SCOPED_READ_INVALID")
+    from TradingSystemLab.stage8_robot.instrument_resolver import discover_finam_asset
+    catalog = [{
+        "ticker": "USDRUBF", "symbol": target, "mic": "RTSX",
+        "id": "3447194", "type": "FUTURES", "is_archived": False,
+    }]
+    asset, failure = discover_finam_asset("USDRUBF", catalog)
+    if failure is not None or asset is not catalog[0]:
+        raise AssertionError("V20_08_1_CATALOG_DISCOVERY_NOT_REUSED")
     print("v20_08_1_finam_worker_selftest=pass_readonly_no_order")
     print("v20_08_1_n4_authority_gate=pass_synthetic_get_only")
     return 0
