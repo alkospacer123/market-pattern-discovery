@@ -102,6 +102,10 @@
       "sha256": "c013136cd03f02ad9956925ac805f8d9b8d958d858036276a32f76037b5d3c83"
     },
     {
+      "path": "cc/v20_staging.py",
+      "sha256": "fc40988b02e31a6ad9dba626a4c7162166be02c4adcd1e5abe4d2d9560dfe005"
+    },
+    {
       "path": "ci/Os-Fixtures.ps1",
       "sha256": "b3fecd44b17805a401ec3fc3e584d682ba7b40bbb5834310b2c845cced15f9e8"
     },
@@ -351,7 +355,7 @@
     },
     {
       "path": "docs/V20_CONTROL_CENTER_ROADMAP.md",
-      "sha256": "05ff1f664ed92b955ae9bcdd9f4a8e8c377dd9f5ecb1b6975a56042705f8cd2f"
+      "sha256": "b2bb14886b2bb3db1a8f0a81b3ddc038eb1ea3f26bf7c9e75b8a6dd7f2423046"
     },
     {
       "path": "docs/browser-check.json",
@@ -435,7 +439,7 @@
     },
     {
       "path": "tests/test_boundary.py",
-      "sha256": "2799bac9ada5b8a13a816e30bdc7bf0a33590147b43d00a6eb5cf60c6d7c800f"
+      "sha256": "5fcf1a5d153151cca233c8f1e2607b94e7ef34dbf40c9dd0d10e86a43e2c1025"
     },
     {
       "path": "tests/test_cc03_source.py",
@@ -510,6 +514,10 @@
       "sha256": "206a08905fc0fd75575ddd7497752ef93024b9aa716f5f954a71a9a2e2f5c196"
     },
     {
+      "path": "tests/test_v20_staging.py",
+      "sha256": "c41bbf409291dbfa3bceaa6611abb314164d8c951e222ce413e114b7fa6e3958"
+    },
+    {
       "path": "tests/test_windows_reader.py",
       "sha256": "c5fc0344e914c0430488515a5307b770e7ab1bd4a5ea5fe0327b19c8796fea17"
     },
@@ -519,7 +527,7 @@
     },
     {
       "path": "v20_app.py",
-      "sha256": "adcc93765698ac14cd6b2423f8035ad591407ae8a0f7288ac1464529157d142c"
+      "sha256": "6ed224898ac879ab91d138c2eb9c5938883cb6c9b08c8a8185ea60689198a369"
     }
   ]
 }
