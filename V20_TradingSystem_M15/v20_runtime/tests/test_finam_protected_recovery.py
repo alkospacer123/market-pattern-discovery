@@ -187,6 +187,26 @@ class H1ProtectedHandoffTests(unittest.TestCase):
             self.assertEqual(journal.store.all_fills(), [])
             self.assertEqual(journal.store.intent(key)["status"], "ACK")
 
+    def test_money_snapshot_and_submission_interval_are_durable(self):
+        with V20TradeJournal(self.root, ROBOT, ACCOUNT) as journal:
+            bad = initial_case()
+            snap = bad["snapshot"]
+            bad["snapshot"] = LiveAccountSnapshot(
+                snap.robot_id, snap.account_hash, snap.observed_at,
+                Decimal("46000"), snap.available_cash, {}, (),
+            )
+            with self.assertRaisesRegex(V20FinamBlocked, "BROKER_MONEY_SNAPSHOT_MISMATCH"):
+                journal.prepare_entry(**bad)
+            key = journal.prepare_entry(**initial_case())
+            at = datetime.now(timezone.utc) - timedelta(seconds=5)
+            journal.record_submission_boundary(key, at=at)
+            submission = journal.store.get("entry_submission:" + key)
+            self.assertEqual(submission["account_sha256"], SHA)
+            self.assertEqual(datetime.fromisoformat(submission["submitted_at"]), at)
+        with V20TradeJournal(self.root, ROBOT, ACCOUNT) as journal:
+            self.assertEqual(journal.store.get("entry_submission:" + key), submission)
+
+
 
 if __name__ == "__main__":
     unittest.main()
