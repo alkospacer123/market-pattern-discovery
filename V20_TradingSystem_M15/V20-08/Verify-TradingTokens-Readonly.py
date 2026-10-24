@@ -147,7 +147,8 @@ def get_h1():
             details = self.session_details()
             ids = details.get("account_ids") if isinstance(details, dict) else None
             if (not isinstance(details, dict) or details.get("readonly") is not False
-                    or not isinstance(ids, list) or ids.count(self.target_account) != 1):
+                    or not isinstance(ids, list)
+                    or [str(value) for value in ids].count(self.target_account) != 1):
                 raise ReadonlyBlocked("V20_08_1_TRADING_TOKEN_ACCOUNT_SCOPE_INVALID")
             self.bound = True
 
