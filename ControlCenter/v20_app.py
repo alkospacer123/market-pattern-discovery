@@ -5,6 +5,7 @@ from cc.manual_gate import export_gate
 from cc.v20_contract import ROBOTS, LABELS, unconnected, age, heartbeat_health
 from cc.v20_receiver import acquire
 from cc.v20_staging import acquire_staging
+from cc.v20_finam import acquire as acquire_finam
 
 MSK = timezone(timedelta(hours=3))
 PAGES = ("Главная", "Журнал", "Управление")
@@ -33,7 +34,7 @@ def healthy_label(report):
             "NOT_CONNECTED": "НЕ ПОДКЛЮЧЁН", "STAGING": "STAGING · LIVE OFF"}.get(status, "UNKNOWN")
 
 
-def overview(snapshots, now):
+def overview(snapshots, now, finam=None):
     """Only operator health signals. Trading details belong in FINAM."""
     for robot in ROBOTS:
         report = snapshots[robot]
@@ -76,6 +77,12 @@ def overview(snapshots, now):
                         st.caption("Проверка отклонена: SID панели не совпадает с владельцем V20 Task")
                     else:
                         st.caption("Состояние Windows Task и ошибок не подтверждено")
+                item = finam["accounts"].get("v20-" + robot.split("_", 1)[1].lower()) if finam else None
+                if item:
+                    st.caption("FINAM READONLY · ИСТОРИЧЕСКИЙ PASS · " + show_time(finam["observed_at"]))
+                    st.caption("На момент проверки: деньги PASS · позиции 0 · заявки 0. Не текущий статус брокера.")
+                else:
+                    st.caption("FINAM READONLY · НЕТ ИСТОЧНИКА")
     with st.expander("Об источниках", expanded=False):
         st.caption("CC-04: по ручному запросу используются подтверждённые V20 READONLY-снимки или штатные operator-check V20-07. Проверки не запускают торговлю.")
         st.caption("STAGING · LIVE OFF означает лишь проверенную отключённую Windows Task и блокирующее действие на момент запроса. Не означает работоспособный runtime.")
@@ -83,6 +90,7 @@ def overview(snapshots, now):
         st.caption("Heartbeat: HEALTHY — свежий сигнал; UNHEALTHY — сигнал просрочен более чем на 5 минут; НЕТ ДАННЫХ — источник или подтверждённый heartbeat отсутствует.")
         st.caption("Heartbeat HEALTHY означает только свежий сигнал, а не разрешение торговли и не исправность всех компонентов.")
         st.caption("Дата рядом с кнопкой — время последней ручной проверки панелью, не обновления данных самого робота.")
+        st.caption("FINAM READONLY: только исторический обезличенный CC-owned экспорт; не подтверждает состояние брокера сейчас. Нет токена и запросов FINAM в Streamlit.")
         st.caption("Обновление только вручную; выполняется лишь READONLY-проверка. Торговые и управляющие команды недоступны.")
 
 
@@ -114,6 +122,7 @@ def main():
         try:
             with export_gate() as acquired:
                 if acquired:
+                    st.session_state["v20-finam"] = acquire_finam(datetime.now(timezone.utc))
                     primary = acquire(datetime.now(timezone.utc))
                     if any(primary[robot]["status"] == "NOT_CONNECTED" for robot in ROBOTS):
                         staging = acquire_staging(datetime.now(timezone.utc))
@@ -126,6 +135,7 @@ def main():
                     st.session_state["v20-snapshots"] = {
                         robot: unconnected(robot, "MANUAL_REFRESH_BUSY") for robot in ROBOTS}
         except Exception:
+            st.session_state["v20-finam"] = None
             st.session_state["v20-snapshots"] = {
                 robot: unconnected(robot, "READONLY_UNAVAILABLE") for robot in ROBOTS}
         # Time of a completed manual attempt; a failed source remains NOT_CONNECTED.
@@ -142,7 +152,7 @@ def main():
     if previous is not None:
         st.session_state["v20-snapshots"] = snapshots
     with tabs[0]:
-        overview(snapshots, now)
+        overview(snapshots, now, st.session_state.get("v20-finam"))
     with tabs[1]:
         journal(snapshots)
     with tabs[2]:
