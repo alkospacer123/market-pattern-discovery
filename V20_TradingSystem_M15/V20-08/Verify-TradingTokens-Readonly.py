@@ -53,8 +53,26 @@ def digest_id(value):
 
 
 def get_report(path):
-    need(path.is_file() and not path.is_symlink(), "PRIOR_RECEIPT_MISSING")
-    return json.loads(path.read_text(encoding="utf-8"))
+    # Windows PowerShell receipts may legitimately be UTF-16 with a BOM.
+    # Decode ONLY an explicitly marked encoding; never guess or skip a
+    # missing/malformed receipt. Return a specific fault rather than leaking
+    # account data or failing with unhelpful JSONDecodeError.
+    label = ("BINDING" if path == BINDING else "FUNDED" if path == FUNDED
+             else "STAGING" if path == STAGING else "UNKNOWN")
+    need(path.is_file() and not path.is_symlink(), label + "_RECEIPT_MISSING")
+    raw = path.read_bytes()
+    try:
+        if raw.startswith(bytes((255, 254))) or raw.startswith(bytes((254, 255))):
+            text = raw.decode("utf-16")
+        elif raw.startswith(bytes((239, 187, 191))):
+            text = raw.decode("utf-8-sig")
+        else:
+            text = raw.decode("utf-8")
+        result = json.loads(text)
+    except (UnicodeError, json.JSONDecodeError):
+        raise ReadonlyBlocked("V20_08_1_" + label + "_JSON_INVALID") from None
+    need(isinstance(result, dict), label + "_RECEIPT_NOT_OBJECT")
+    return result
 
 
 def local_authority():
