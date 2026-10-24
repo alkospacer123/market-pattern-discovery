@@ -13,7 +13,7 @@ $workspace = Join-Path $root 'pretrade-08\dpapi-finam-readonly'
 $python = Join-Path $root '.venv-raw\scripts\python.exe'
 $receipt = Join-Path $root 'pretrade-08\DPAPI_TRADING_BINDINGS_REPORT.json'
 $tasksReceipt = Join-Path $root 'staging-07\TASKS_07_2_REPORT.json'
-$pin = 'ea97850719fe13060c481547d33bf95ebc1df585'
+$pin = '614a444ffed2ccaacb13172854abba321eb6fbe4'
 function need([bool]$okay,[string]$code) { if (-not $okay) { throw $code } }
 function digest([string]$val) {
     $sha=[Security.Cryptography.SHA256]::Create()
@@ -60,7 +60,7 @@ if ($Mode -eq 'witness') { need ($names.Count -eq 1) 'V20_08_1_WITNESS_ONE_ACCOU
 $pkg = Join-Path $workspace 'V20_TradingSystem_M15\v20_runtime'
 New-Item -ItemType Directory -Path $pkg -Force | Out-Null
 $files = @(
-    @('finam_worker.py','e9c891b2fa10de2c23b9b8d38f948d592b60fead'),
+    @('finam_worker.py','4e759f29c0926f3cde607e9dbf38f4096d6d77a3'),
     @('finam_execution.py','5e76df4085665559e4056f07f4ddf8b6574048ef'),
     @('h1_state_journal.py','f9fb32a50eb712aeae4690dd85d4e7aa512ef15c')
 )
@@ -102,6 +102,10 @@ $previousNoBytecode=$env:PYTHONDONTWRITEBYTECODE
 try {
     $env:PYTHONPATH=$workspace + [IO.Path]::PathSeparator + $source
     $env:PYTHONDONTWRITEBYTECODE='1'
+    # Before decrypting any real token, prove the H1 REST adapter denies all
+    # order/SLTP/DELETE and cross-account routes with synthetic credentials.
+    & $python -B -m V20_TradingSystem_M15.v20_runtime.finam_worker --self-test
+    need ($LASTEXITCODE -eq 0) 'V20_08_1_WORKER_SELFTEST_FAILED'
     foreach ($name in $names) {
         $rows = @($report.robots | Where-Object { $_.robot -eq $name })
         need ($rows.Count -eq 1 -and $rows[0].status -eq 'DPAPI_SID_BOUND_LIVE_OFF') 'V20_08_1_DPAPI_ROBOT_NOT_BOUND'
