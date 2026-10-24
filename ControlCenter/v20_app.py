@@ -80,7 +80,7 @@ def overview(snapshots, now, finam=None):
                 item = finam["accounts"].get("v20-" + robot.split("_", 1)[1].lower()) if finam else None
                 if item:
                     st.caption("FINAM READONLY · ИСТОРИЧЕСКИЙ PASS · " + show_time(finam["observed_at"]))
-                    st.caption("На момент проверки: деньги PASS · позиции 0 · заявки 0. Не текущий статус брокера.")
+                    st.caption("READONLY PASS · Деньги PASS на момент проверки. Сейчас состояние брокера не подтверждено.")
                 else:
                     st.caption("FINAM READONLY · НЕТ ИСТОЧНИКА")
     with st.expander("Об источниках", expanded=False):
