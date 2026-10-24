@@ -137,7 +137,7 @@ foreach ($robot in $robots) {
         $call = "& (Join-Path "+'$PSScriptRoot'+" 'operator-v20.ps1') -Robot '$robot' -Mode '$mode'"
         $expected = $call + [string][char]10 + 'exit $LASTEXITCODE'
         require ($actual -ceq $expected -and
-                 @($operatorReceipt.scripts) -contains $wrapperPath) 'V20_07_4_WRAPPER_CHANGED'
+                 (@($operatorReceipt.scripts) -contains $wrapperPath)) 'V20_07_4_WRAPPER_CHANGED'
         $verified++
     }
     $checkPath = Join-Path $operatorDir ($robot + '-check.ps1')
