@@ -1303,6 +1303,8 @@ def run_v20_single_trial_cycle(
     if len(entries) > 1:
         raise V20FinamBlocked("TRIAL_CYCLE_MORE_THAN_ONE_ENTRY")
     if not entries:
+        if not current.clean:
+            raise V20FinamBlocked("TRIAL_CYCLE_UNOWNED_BROKER_POSITION_OR_ORDER")
         if not allow_new_entry:
             return {"state": "BROKER_OBSERVED_NO_TRIAL_ENTRY", "orders": 0}
         prepared = prepare_finam_single_trial(
