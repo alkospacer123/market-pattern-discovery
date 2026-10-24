@@ -425,11 +425,18 @@ class V20TradeJournal(IsolatedReferenceJournal):
             # not silently adopted. Operator reconciliation is mandatory.
             self.store.put("execution_halt", "UNEXPECTED_ORDER_WITHOUT_POST_CHECKPOINT")
             raise V20FinamBlocked("UNEXPECTED_ORDER_WITHOUT_POST_CHECKPOINT")
-        if intent["status"] == "RECONCILED":
-            if intent["broker_order_id"] != found.order_id:
-                raise V20FinamBlocked("BROKER_ORDER_ID_CHANGED_AFTER_RECONCILIATION")
-            return "BROKER_ORDER_ALREADY_RECONCILED_NO_RETRANSMIT"
-        self.store.transition_intent(key, "ACK", found.order_id)
+        # Repeated H1 /orders observations cannot demote a partially filled
+        # or already reconciled durable entry to the earlier ACK state.
+        if intent["broker_order_id"] not in (None, found.order_id):
+            self.store.put("execution_halt", "BROKER_ORDER_ID_CHANGED")
+            raise V20FinamBlocked("BROKER_ORDER_ID_CHANGED")
+        if intent["status"] in {"PARTIAL_FILL", "FILL", "RECONCILED"}:
+            return "BROKER_ORDER_ALREADY_" + intent["status"] + "_NO_RETRANSMIT"
+        if intent["status"] not in {"UNCERTAIN", "SUBMITTED", "ACK"}:
+            self.store.put("execution_halt", "BROKER_INTENT_STATUS_INVALID")
+            raise V20FinamBlocked("BROKER_INTENT_STATUS_INVALID")
+        if intent["status"] != "ACK":
+            self.store.transition_intent(key, "ACK", found.order_id)
         # Broker ACK does not prove fill price, quantity or stop protection.
         return "BROKER_ACK_NO_FILL_OR_SLTP_PROOF"
 
