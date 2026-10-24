@@ -24,6 +24,7 @@ PREVIOUS_SCRIPT = SCRATCH / "verify_instruments.py"
 BINDINGS = SCRATCH / "ACCOUNT_BINDING_REPORT.json"
 N4_REPORT = SCRATCH / "N4_SPECIFICATIONS_REPORT.json"
 REPORT = SCRATCH / "ACCOUNT_STATE_REPORT.json"
+FUNDED_REPORT = SCRATCH / "ACCOUNT_STATE_REPORT_FUNDED.json"
 ROBOTS = ("v20-shallow", "v20-obv", "v20-inside")
 HISTORY_LIMIT = 400
 
@@ -267,8 +268,11 @@ def _observe(api, robot, account, specs):
             "entry_block_reason": "06_3_READONLY_ONLY_NO_LIVE"}
 
 
-def _run(mod):
-    if REPORT.exists():
+def _run(mod, funded_refresh=False):
+    report = FUNDED_REPORT if funded_refresh else REPORT
+    if funded_refresh and not REPORT.is_file():
+        raise RuntimeError("V20_06_3_BASELINE_REPORT_MISSING")
+    if report.exists():
         raise RuntimeError("V20_06_3_REPORT_EXISTS_NO_OVERWRITE")
     api_type, _ = _api_type(mod)
     receipts, specs = _verified_reports(mod)
@@ -303,12 +307,12 @@ def _run(mod):
               x["history"]["coverage"] == "BOUNDED_3_DAYS_COMPLETE_BY_LIMIT_AND_CURSOR"
               for x in result["accounts"]))
     result["status"] = "PASS_READONLY_3_OF_3" if ok else "PARTIAL_ACCOUNT_MONEY_OR_CLEANLINESS"
-    REPORT.parent.mkdir(parents=True, exist_ok=True)
-    with REPORT.open("x", encoding="utf-8") as output:
+    report.parent.mkdir(parents=True, exist_ok=True)
+    with report.open("x", encoding="utf-8") as output:
         json.dump(result, output, ensure_ascii=False, indent=2)
         output.write("\n")
     print("V20_06_3_FINAM_READONLY=" + result["status"])
-    print("V20_06_3_REPORT=" + str(REPORT))
+    print("V20_06_3_REPORT=" + str(report))
     return 0 if ok else 2
 
 
@@ -317,13 +321,14 @@ def main():
     group = parser.add_mutually_exclusive_group(required=True)
     group.add_argument("--self-test", action="store_true")
     group.add_argument("--connect", action="store_true")
+    group.add_argument("--funded-refresh", action="store_true")
     args = parser.parse_args()
     try:
         mod = _load_v20_06_2()
         _self_test(mod)
         if args.self_test:
             return 0
-        return _run(mod)
+        return _run(mod, funded_refresh=args.funded_refresh)
     except Exception as exc:
         # Never expose private FINAM account IDs, URLs, tokens or raw responses.
         value = str(exc)
