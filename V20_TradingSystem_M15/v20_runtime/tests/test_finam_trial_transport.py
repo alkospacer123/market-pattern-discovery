@@ -55,6 +55,8 @@ class FakeFinam(FinamAPI):
         self.stop_posts = 0
         self.uncertain_next = False
         self.sent_stops = []
+        self.fill_price = '85.00'
+        self.include_trade = True
 
     def create_session(self):
         return None
@@ -76,6 +78,23 @@ class FakeFinam(FinamAPI):
         if account_id != ACCOUNT:
             raise AssertionError("FOREIGN_ACCOUNT")
         return {"orders": self.orders_book}
+
+    def trades(self, account_id, *, start=None, end=None, limit=1000):
+        if account_id != ACCOUNT:
+            raise AssertionError("FOREIGN_ACCOUNT")
+        if not self.include_trade or not self.orders_book:
+            return {"trades": []}
+        return {"trades": [{
+            "account_id": ACCOUNT,
+            "order_id": "entry-fake-1",
+            "trade_id": "fill-fake-001",
+            "symbol": SYMBOL,
+            "side": "SIDE_BUY",
+            "currency": "RUB",
+            "price": value(self.fill_price),
+            "size": value("1"),
+            "timestamp": (OPEN_UTC + timedelta(seconds=1)).isoformat(),
+        }]}
 
     def place_order(self, account_id, payload):
         if account_id != ACCOUNT:
@@ -192,9 +211,10 @@ class TrialBoundaryTests(unittest.TestCase):
                     transport.submit_entry_once(key=key, snapshot=snap, now=OPEN_UTC)
                 self.assertEqual(self.api.order_posts, 1)
                 self.api.positions = [{"symbol": SYMBOL, "quantity": value("1")}]
-                filled_snap = self.reader.snapshot(now=OPEN_UTC)
+                later = OPEN_UTC + timedelta(seconds=3)
+                filled_snap = self.reader.snapshot(now=later)
                 stop_oid = transport.submit_protection_once(
-                    key=key, snapshot=filled_snap, stop_price=Decimal("84.80"), now=OPEN_UTC,
+                    key=key, snapshot=filled_snap, stop_price=Decimal("84.80"), now=later,
                 )
                 self.assertEqual(stop_oid, "stop-fake-1")
                 self.assertEqual(self.api.stop_posts, 1)
@@ -205,9 +225,32 @@ class TrialBoundaryTests(unittest.TestCase):
                 with self.assertRaisesRegex(V20FinamBlocked, "STOP_ALREADY_ATTEMPTED"):
                     transport.submit_protection_once(
                         key=key, snapshot=filled_snap,
-                        stop_price=Decimal("84.80"), now=OPEN_UTC,
+                        stop_price=Decimal("84.80"), now=later,
                     )
                 self.assertEqual(self.api.stop_posts, 1)
+
+    def test_unproved_or_wrong_vwap_stop_never_posts(self):
+        with patch.object(execution, "datetime", OfflineTestClock):
+            with V20TradeJournal(self.root, ROBOT, ACCOUNT) as journal:
+                key, snap = self.entry(journal)
+                permit = self.approval(journal, key)
+                sender = self.transport(journal, permit)
+                sender.submit_entry_once(key=key, snapshot=snap, now=OPEN_UTC)
+                self.api.positions = [{"symbol": SYMBOL, "quantity": value("1")}]
+                at = OPEN_UTC + timedelta(seconds=3)
+                live = self.reader.snapshot(now=at)
+                with self.assertRaisesRegex(V20FinamBlocked, "STOP_NOT_FROM_ACTUAL_FINAM_FILL_VWAP"):
+                    sender.submit_protection_once(
+                        key=key, snapshot=live, stop_price=Decimal("84.79"), now=at,
+                    )
+                self.assertEqual(self.api.stop_posts, 0)
+                self.api.include_trade = False
+                with self.assertRaisesRegex(V20FinamBlocked, "STOP_ENTRY_FILLS_NOT_PROVEN"):
+                    sender.submit_protection_once(
+                        key=key, snapshot=live, stop_price=Decimal("84.80"), now=at,
+                    )
+                self.assertEqual(self.api.stop_posts, 0)
+                self.assertIsNone(journal.store.intent(key + ":stop"))
 
     def test_unknown_post_stays_uncertain_after_restart_without_retry(self):
         with patch.object(execution, "datetime", OfflineTestClock):
