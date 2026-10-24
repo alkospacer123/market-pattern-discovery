@@ -134,12 +134,72 @@ def run_once(robot_id: str, *, witness: bool = False) -> dict:
     }
 
 
+def self_test() -> int:
+    """No network/token: prove GET target only, H1 auth and M15 allowlist."""
+    from urllib.parse import urlencode
+    seen = []
+
+    class FakeResponse:
+        status = 200
+        headers = {}
+        def read(self):
+            return b"{}"
+
+    def fake_transport(request, timeout):
+        seen.append((request.get_method(), request.full_url))
+        return FakeResponse()
+
+    api = ReadonlyWorkerAPI(
+        "SYNTHETIC_SECRET", "SYNTHETIC_ACCOUNT",
+        transport=fake_transport,
+    )
+    api._FinamAPI__jwt = "SYNTHETIC_JWT"
+    forbidden = (
+        ("POST", "/v1/accounts/SYNTHETIC_ACCOUNT/orders"),
+        ("POST", "/v1/accounts/SYNTHETIC_ACCOUNT/sltp-orders"),
+        ("DELETE", "/v1/accounts/SYNTHETIC_ACCOUNT/orders/123"),
+        ("GET", "/v1/accounts/FOREIGN_ACCOUNT"),
+        ("GET", "/v1/assets/USDRUBF@RTSX/params?account_id=SYNTHETIC_ACCOUNT"),
+        ("GET", "/v1/instruments/BR@RTSX/bars"),
+    )
+    for method, path in forbidden:
+        try:
+            api._request(method, path)
+        except V20FinamBlocked:
+            pass
+        else:
+            raise AssertionError("V20_08_1_READONLY_WRITE_OR_FOREIGN_READ_ALLOWED")
+    if seen:
+        raise AssertionError("V20_08_1_FORBIDDEN_HTTP_REACHED")
+    api.account("SYNTHETIC_ACCOUNT")
+    api.orders("SYNTHETIC_ACCOUNT")
+    if len(seen) != 2 or any(row[0] != "GET" for row in seen):
+        raise AssertionError("V20_08_1_ALLOWLIST_ACCOUNT_READ_FAILED")
+    now = datetime.now(timezone.utc)
+    symbol = _load_registry()["USDRUBF"]["finam_symbol"]
+    query = urlencode({
+        "timeframe": "TIME_FRAME_M15",
+        "interval.start_time": (now - timedelta(hours=2)).isoformat(),
+        "interval.end_time": (now + timedelta(minutes=15)).isoformat(),
+    })
+    api._request("GET", BARS_PATH_TEMPLATE.format(symbol=symbol) + "?" + query)
+    if len(seen) != 3 or seen[-1][0] != "GET":
+        raise AssertionError("V20_08_1_ALLOWLIST_M15_READ_FAILED")
+    print("v20_08_1_finam_worker_selftest=pass_readonly_no_order")
+    return 0
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--robot", required=True, choices=tuple(ROBOT_STRATEGIES))
+    parser.add_argument("--robot", choices=tuple(ROBOT_STRATEGIES))
     parser.add_argument("--witness-current-open", action="store_true")
+    parser.add_argument("--self-test", action="store_true")
     args = parser.parse_args()
     try:
+        if args.self_test:
+            return self_test()
+        if args.robot is None:
+            raise V20FinamBlocked("V20_WORKER_ROBOT_REQUIRED")
         result = run_once(args.robot, witness=args.witness_current_open)
         print("v20_08_1_" + args.robot + "=" + result["status"])
         if "results" in result:
