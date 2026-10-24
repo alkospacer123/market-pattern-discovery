@@ -1,0 +1,45 @@
+{
+  "H1_WF_separate": {
+    "CLOSED": 63,
+    "INITIAL_STOP": 17
+  },
+  "PR560_trade_fields": 106794,
+  "archive_all_state_fields": 4385052,
+  "calendar": "Frozen H1 reports UTC, frozen M15 MSK; primary new calendar tables MSK",
+  "checks": 1645,
+  "fields_checked": 202418,
+  "first_errors": [],
+  "h1_closed": 418,
+  "headline": {
+    "H1": {
+      "CLOSED": 355,
+      "INITIAL_STOP": 141,
+      "gross_PF": 2.206747303379261,
+      "gross_R": 172.41661951619082
+    },
+    "M15": {
+      "CLOSED": 1114,
+      "INITIAL_STOP": 356,
+      "gross_PF": 1.7784345758955205,
+      "gross_R": 390.44291793789307
+    }
+  },
+  "independent_scalar_control": {
+    "cash_status": "NOT_VALIDATED",
+    "fields_checked": 2688077,
+    "independence": "Independent scalar position/occupancy/signal/stop/mark calculations; authenticated frozen features shared",
+    "marks": 280997,
+    "max_abs_numeric_error": 0.0,
+    "positions": 1536,
+    "provenance": "Adapted causal scalar state logic from PR518 verify.py and PR557 verify.py; no primary engine/accounting imports",
+    "signals": 5829,
+    "status": "PASS",
+    "stop_events": 36444,
+    "streams": 28
+  },
+  "m15_closed": 1114,
+  "mismatches": 0,
+  "no_alternative_replay": true,
+  "precision": "H1 per-trade equality at original 12 significant figures; M15 1e-8 absolute; aggregate 1e-8",
+  "status": "PASS"
+}

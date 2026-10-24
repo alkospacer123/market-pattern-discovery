@@ -1,0 +1,103 @@
+{
+  "CONTROL": {
+    "H1_WF_separate": {
+      "CLOSED": 63,
+      "INITIAL_STOP": 17
+    },
+    "PR560_trade_fields": 106794,
+    "archive_all_state_fields": 4385052,
+    "calendar": "Frozen H1 reports UTC, frozen M15 MSK; primary new calendar tables MSK",
+    "checks": 1645,
+    "fields_checked": 202418,
+    "first_errors": [],
+    "h1_closed": 418,
+    "headline": {
+      "H1": {
+        "CLOSED": 355,
+        "INITIAL_STOP": 141,
+        "gross_PF": 2.206747303379261,
+        "gross_R": 172.41661951619082
+      },
+      "M15": {
+        "CLOSED": 1114,
+        "INITIAL_STOP": 356,
+        "gross_PF": 1.7784345758955205,
+        "gross_R": 390.44291793789307
+      }
+    },
+    "independent_scalar_control": {
+      "cash_status": "NOT_VALIDATED",
+      "fields_checked": 2688077,
+      "independence": "Independent scalar position/occupancy/signal/stop/mark calculations; authenticated frozen features shared",
+      "marks": 280997,
+      "max_abs_numeric_error": 0.0,
+      "positions": 1536,
+      "provenance": "Adapted causal scalar state logic from PR518 verify.py and PR557 verify.py; no primary engine/accounting imports",
+      "signals": 5829,
+      "status": "PASS",
+      "stop_events": 36444,
+      "streams": 28
+    },
+    "m15_closed": 1114,
+    "mismatches": 0,
+    "no_alternative_replay": true,
+    "precision": "H1 per-trade equality at original 12 significant figures; M15 1e-8 absolute; aggregate 1e-8",
+    "status": "PASS"
+  },
+  "causality": {
+    "cases": 24,
+    "fields": 192696,
+    "status": "PASS"
+  },
+  "code_sha256": {
+    "analysis_tables.py": "68ed56987b8560e3b08fbd83c15aa689c1a1b78cea2ef127b3646d6dce63702f",
+    "causality.py": "2991298e8b8b7e6020377b104268495908c09a8c8d0c1e4bf0de855f8b41ac00",
+    "control.py": "468af23a565a238c07385597646bf6da2b0041e799e25c8dc9e69f84633d9938",
+    "development.py": "afc03e849e7cf0fdce88db818e6ef653967aa9c727def263e485841091a9dc3f",
+    "features.py": "70c820d471a78a1760f73039fad41fa348085b2977437bb07db97969faf7832c",
+    "outcomes.py": "7a233e816237f59f489f3deef8a41e443d68f41b5f0e0d31e67a73bed5cc8989",
+    "repeat.py": "bd459c68dac802c3cc5c6d2c42a0b815b476957a5158820ba2d2cbbd87c46d54",
+    "report.py": "32c6c9920a31a1ce0a104d6821abdffd1321219d78634ba01e00b210d977e85c",
+    "run.py": "ae126ceb9c9bb5daaa0ce7440725fadbd61d0dd15d0c5ec445d103cf0d919708",
+    "support.py": "01ee5b0f22a375f9554124c77dc01ed8ff68ae2ab4444fa8e7207d3d65ada9e8",
+    "test_contract.py": "2bddb7b2c450894227cd82aefcf3d33f26631efba75cc0d1e28d83b78fa57370",
+    "verify.py": "0d7bd5bc3a25fd30e3b5b27b35f8cea081410d37dd0a7dc2511cf4d2888ce43b",
+    "verify_tables.py": "8b6fa5788c8a098262d2b0cf922d6e6ca929ec06a2765fd805d36d0347c76b82"
+  },
+  "costs": "Gross R diagnostics; frozen normalized H1 C1 untouched; no executable net or cash improvement claim",
+  "deployment": "DRAFT_ONLY_NO_MERGE_NO_AUTO_MERGE",
+  "discovery_years": [
+    2023,
+    2024
+  ],
+  "hypothesis_sha256": "df3c312b3c9200064a679a1e5118abc17513d2a1d426f08aff85dc9d2748f113",
+  "independent_algorithm": {
+    "calendar_rows": 48,
+    "feature_fields": 86526,
+    "fields_checked": 115540,
+    "independence": "Separate scalar algorithm, same author; no independent human or separate-agent review",
+    "locked_numeric_rows": 0,
+    "max_abs_numeric_error": 6.461498003318411e-14,
+    "methods": "Fresh stdlib pinned-prefix parser, independent EWM/aggregation/signals/features, stop-first bounds, post-stop levels/order, Decimal returns and MSK calendar, direct stratification",
+    "outcome_path_fields": 18770,
+    "post_stop_threshold_checks": 3416,
+    "signal_rows": 2622,
+    "status": "PASS"
+  },
+  "independent_human_review": "PENDING; verifier is a separate implementation by same author",
+  "independent_table_arithmetic": {
+    "fields_checked": 10886,
+    "max_abs_numeric_error": 8.881784197001252e-16,
+    "method": "Fresh CSV counts/returns/medians/quantiles; independently reconstructed seeded month-cluster intervals for every outcome, feature bucket and instrument/direction/year summary; every stability/breakout-stratum difference with month/quarter intervals; execution-gap summaries",
+    "status": "PASS"
+  },
+  "live_or_production_executed": false,
+  "locked_period_use": "Isolated mandatory CONTROL only; no OOS feature analysis",
+  "new_filter_backtest": false,
+  "parameter_search": false,
+  "protocol_commit": "e00cf40dc7b45d590e914a5d0f66316eca507769",
+  "protocol_sha256": "faa0e3708da6e16bd798070d3bc39a1369202c6b035f05ad2042a91854254d06",
+  "source_OHLC_copied": false,
+  "status": "PASS_DIAGNOSTICS_ONLY",
+  "synthetic_tests": 8
+}
