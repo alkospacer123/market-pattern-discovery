@@ -49,6 +49,7 @@ def _require_v20_root(root: Path) -> Path:
 class IsolatedReferenceJournal:
     state_file = STATE_FILE
     schema = SCHEMA
+    mode = "OFFLINE_ONLY"
 
     def __init__(self, v20_root: Path, robot_id: str, account_id: str):
         if robot_id not in ROBOT_STRATEGIES:
@@ -74,7 +75,7 @@ class IsolatedReferenceJournal:
             "robot_id": robot_id,
             "strategy": self.strategy,
             "account_sha256": self.account_hash,
-            "mode": "OFFLINE_ONLY",
+            "mode": self.mode,
         }
         self.lock = InstanceLock(self.instance_root / "v20-instance.lock")
         self.lock.acquire()
