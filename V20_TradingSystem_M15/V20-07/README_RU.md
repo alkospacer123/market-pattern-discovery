@@ -51,3 +51,14 @@ Task имеет триггер `AtStartup`, но **действие намере
 ## 24.10.2026 — ФАКТИЧЕСКИЙ V20-07.2 PASS INTEL 3/3
 
 Оператор подтвердил stdout: `V20_07_2_v20-shallow=REUSED_DISABLED`, `V20_07_2_v20-obv=REGISTERED_DISABLED`, `V20_07_2_v20-inside=REGISTERED_DISABLED`, `V20_07_2_RESULT=PASS_3_OF_3_DISABLED`, закреплённый V20 source SHA `610109b736c53a5cc1025657291e272b1136b254`, файл `C:\V20Lab\staging-07\TASKS_07_2_REPORT.json` создан. `V20_07_2_NO_FINAM_NO_ORDERS_NO_LIVE_NO_H1_M15_TASK_MUTATION=YES`. Три Task зарегистрированы в Disabled с блокирующим вместо торгового действия. **V20-07.2 PASS.** Следующий неизменённый подэтап — V20-07.3 операторские check/start/stop/restart, без включения LIVE.
+
+## V20-07.3 — операторские команды H1-образца: PREPARED / INTEL NOT RUN
+
+В `V20-07/Operator-V20.ps1` создан единый контроллер, в `V20-07/Install-OperatorCommands.ps1` — его минимальная инсталляция с проверкой Git blob и автоматическим созданием 12 коротких индивидуальных оболочек `C:\V20Lab\operator\v20-{shallow,obv,inside}-{check,start,stop,restart}.ps1`. Никаких дополнительных сервисов/зависимостей. До инсталляции читаются точные `INSTALL_07_1_REPORT.json`, `TASKS_07_2_REPORT.json`, текущие Task в Windows Scheduler, source SHA и неизменённый `LIVE=OFF`.
+
+- `check` читает настоящий Task state, principal по SID, фиксированный action, конфиг `NOT_CONFIGURED`, статус процесса (если локальный WMI доступен), последнее локальное состояние и **до 10 последних циклов** (если журнал существует). На staging сведения о реальных сделках, стопах, warning и reconciliation обозначены `NOT_AVAILABLE_STAGING`, а не ложными `0` или `PASS`; kill switch `NOT_CONFIGURED_STAGING`.
+- `start` и `restart` доступны как команды, но **всегда возвращают `REFUSED_LIVE_OFF` и код 3**, не запускают/не разрешают даже блокирующий Task. Никакой обход LIVE; рабочая реализация только после отдельного разрешения и завершения настоящего broker executor.
+- `stop` идемпотентен для Disabled Task; при внешнем изменении состояния способен остановить/отключить **только собственный** Task V20 после строгой проверки SID/action. H1/M15 не затрагивается.
+- Установщик физически проверяет три `check`, один `stop` уже Disabled и запрет `start/restart`, потом создаёт `C:\V20Lab\staging-07\OPERATOR_07_3_REPORT.json` с ожидаемым `PASS_3_ROBOTS_4_COMMANDS_LIVE_OFF`. Отчёт 07.2 и Windows Tasks не изменяются, FINAM не вызывается.
+
+**Статус V20-07.3 пока READY / NOT PASS**, нужен фактический Intel-вывод. Дальше V20-07.4 итоговая Windows-проверка и `INTEL_STAGING_REPORT.json`.
