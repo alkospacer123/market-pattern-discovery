@@ -527,7 +527,7 @@
     },
     {
       "path": "tests/test_v20_controller.py",
-      "sha256": "c9d0a40a800c5aeca5c0303fae4243af9e0ca9498652b011f608c24833be8ef2"
+      "sha256": "c4a63ef066df3d977ba4b3fe39ecc2c81b8de8e3d5943c54644e90acfa9d6699"
     },
     {
       "path": "tests/test_v20_finam.py",
