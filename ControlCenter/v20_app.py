@@ -34,7 +34,7 @@ def healthy_label(report):
             "NOT_CONNECTED": "НЕ ПОДКЛЮЧЁН", "STAGING": "STAGING · LIVE OFF"}.get(status, "UNKNOWN")
 
 
-def overview(snapshots, now, finam=None):
+def overview(snapshots, now):
     """Only operator health signals. Trading details belong in FINAM."""
     for robot in ROBOTS:
         report = snapshots[robot]
@@ -61,15 +61,12 @@ def overview(snapshots, now, finam=None):
                 }[pulse])
                 if status == "STAGING":
                     st.markdown("**Windows Task:** DISABLED · **Kill switch:** НЕТ ДАННЫХ")
-                    worker = "0" if report.get("workers_observed") == 0 else "НЕТ ДАННЫХ"
-                    st.caption("LIVE: OFF · Worker: " + worker + " · Исполнение: заблокировано")
-                    st.caption("Reconciliation: НЕТ ДАННЫХ · Последняя ошибка: НЕТ ДАННЫХ")
                 elif current:
                     st.markdown("**Windows Task:** " + report["task_state"] +
                                 " · **Kill switch:** " + report["kill_switch"])
                     error_code = report["last_error_code"]
-                    st.caption("Последняя ошибка: " +
-                               ("нет" if error_code == "NONE" else error_code))
+                    if error_code not in ("NONE", "UNKNOWN"):
+                        st.caption("Последняя ошибка: " + error_code)
                 elif status == "STALE":
                     st.caption("Текущее состояние Task/защиты и ошибок не подтверждено")
                 else:
@@ -77,12 +74,6 @@ def overview(snapshots, now, finam=None):
                         st.caption("Проверка отклонена: SID панели не совпадает с владельцем V20 Task")
                     else:
                         st.caption("Состояние Windows Task и ошибок не подтверждено")
-                item = finam["accounts"].get("v20-" + robot.split("_", 1)[1].lower()) if finam else None
-                if item:
-                    st.caption("FINAM READONLY · ИСТОРИЧЕСКИЙ PASS · " + show_time(finam["observed_at"]))
-                    st.caption("READONLY PASS · Деньги PASS на момент проверки. Сейчас состояние брокера не подтверждено.")
-                else:
-                    st.caption("FINAM READONLY · НЕТ ИСТОЧНИКА")
     with st.expander("Об источниках", expanded=False):
         st.caption("CC-04: по ручному запросу используются подтверждённые V20 READONLY-снимки или штатные operator-check V20-07. Проверки не запускают торговлю.")
         st.caption("STAGING · LIVE OFF означает лишь проверенную отключённую Windows Task и блокирующее действие на момент запроса. Не означает работоспособный runtime.")
@@ -94,8 +85,8 @@ def overview(snapshots, now, finam=None):
         st.caption("Обновление только вручную; выполняется лишь READONLY-проверка. Торговые и управляющие команды недоступны.")
 
 
-def journal(snapshots):
-    st.subheader("Последние циклы")
+def journal(snapshots, finam=None):
+    st.subheader("Последние циклы и диагностика")
     for robot in ROBOTS:
         report = snapshots[robot]
         with st.expander(LABELS[robot] + " · " + healthy_label(report), expanded=False):
@@ -108,6 +99,16 @@ def journal(snapshots):
                 st.caption("Подтверждённых событий пока нет")
             if report["status"] == "STALE":
                 st.caption("Исторические события · снимок STALE")
+            if report["status"] == "STAGING":
+                workers = "0" if report.get("workers_observed") == 0 else "НЕТ ДАННЫХ"
+                st.caption("Staging: LIVE OFF · Worker: " + workers + " · Исполнение заблокировано")
+                st.caption("Reconciliation: НЕТ ДАННЫХ · Последняя ошибка: НЕТ ДАННЫХ")
+            item = finam["accounts"].get("v20-" + robot.split("_", 1)[1].lower()) if finam else None
+            if item:
+                st.caption("FINAM READONLY: исторический PASS от " + show_time(finam["observed_at"]))
+                st.caption("Деньги PASS на момент проверки; текущий статус брокера неизвестен.")
+            else:
+                st.caption("FINAM READONLY: источник не подтверждён")
 
 
 def controls():
@@ -152,9 +153,9 @@ def main():
     if previous is not None:
         st.session_state["v20-snapshots"] = snapshots
     with tabs[0]:
-        overview(snapshots, now, st.session_state.get("v20-finam"))
+        overview(snapshots, now)
     with tabs[1]:
-        journal(snapshots)
+        journal(snapshots, st.session_state.get("v20-finam"))
     with tabs[2]:
         controls()
 
