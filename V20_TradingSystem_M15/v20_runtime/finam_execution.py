@@ -878,6 +878,7 @@ class V20SingleTradeTransport:
         witnessed = read_finam_m15_boundary(
             self.reader, symbol=payload["symbol"],
             from_utc=entry_utc - STEP, now=now,
+            require_adjacent_completed=False,
         )
         if (witnessed.at_msk != boundary.at_msk
                 or witnessed.witnessed_open != boundary.witnessed_open):
@@ -998,6 +999,7 @@ class V20M15Boundary:
 def read_finam_m15_boundary(
     reader: V20FinamReadAdapter, *, symbol: str,
     from_utc: datetime, now: datetime,
+    require_adjacent_completed: bool = True,
 ) -> V20M15Boundary:
     """GET-only H1 FINAM API + official TIME_FRAME_M15 query.
 
@@ -1075,7 +1077,8 @@ def read_finam_m15_boundary(
     witnessed_open = live[0][1]["open"]
     require_on_grid(witnessed_open, Decimal(_load_registry()[symbol]["price_step"]))
     completed = [(t, x) for t, x in rows if t + STEP <= boundary]
-    if not completed or completed[-1][0] != boundary-STEP:
+    if not completed or (require_adjacent_completed
+                         and completed[-1][0] != boundary-STEP):
         raise V20FinamBlocked("M15_FINAL_COMPLETED_BAR_MISSING")
     if any(t > boundary for t in dates):
         raise V20FinamBlocked("M15_FUTURE_BAR_FORBIDDEN")
@@ -1407,7 +1410,7 @@ def run_v20_single_trial_cycle(
         return {"state": "STOP_NOW_BROKER_PROVEN", "orders": 0}
     utc = now.astimezone(timezone.utc)
     msk = utc.astimezone(ZoneInfo("Europe/Moscow"))
-    if msk.second > 60 or msk.minute % 15 != 0:
+    if msk.minute % 15 != 0:
         return {"state": "PROTECTED_AWAIT_NEXT_OPEN", "orders": 0}
     if msk.second + msk.microsecond / 1_000_000 > 60:
         return {"state": "PROTECTED_AWAIT_NEXT_OPEN", "orders": 0}
@@ -1415,6 +1418,7 @@ def run_v20_single_trial_cycle(
     since = entry_at.replace(tzinfo=ZoneInfo("Europe/Moscow")).astimezone(timezone.utc)
     boundary = read_finam_m15_boundary(
         reader, symbol=trial_symbol, from_utc=since - STEP, now=now,
+        require_adjacent_completed=False,
     )
     decision = frozen_observed_session_exit(
         boundary, entry_open_msk=entry_at,
