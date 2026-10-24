@@ -15,7 +15,7 @@ from typing import Any
 
 from TradingSystemLab.stage8_robot.finam_api import FinamAPI
 from TradingSystemLab.stage8_robot.broker import compact_client_order_id
-from TradingSystemLab.stage8_robot.execution_grid import require_on_grid
+from TradingSystemLab.stage8_robot.execution_grid import require_on_grid, initial_projection
 from TradingSystemLab.stage8_robot.finam_fill_price_readonly import (
     Target, analyze_history,
 )
@@ -28,11 +28,12 @@ from TradingSystemLab.stage8_robot.production_broker_state import (
     BrokerOrderView, order_views, position_quantities, unique_order_by_client_id,
     _validate_production_sltp,
 )
-from TradingSystemLab.stage8_robot.production_runtime import _load_registry
+from TradingSystemLab.stage8_robot.production_runtime import _load_registry, RuntimeAction
 
-from .account_risk import AccountAuthority
-from .h1_state_journal import ROBOT_STRATEGIES
-from .offline_planner import N4
+from TradingSystemLab.stage8_robot.live_execution import AuthorizedFinamProductionTransport
+from .account_risk import AccountAuthority, RiskReservation, reserve_entry
+from .h1_state_journal import ROBOT_STRATEGIES, IsolatedReferenceJournal
+from .offline_planner import N4, FrozenSignal, ProposedEntry, OfflinePlanner, STEP
 
 
 ACTIVE_STATUSES = frozenset({"ACCOUNT_ACTIVE", "ACCOUNT_STATUS_ACTIVE"})
@@ -254,3 +255,158 @@ class V20FinamReadAdapter:
         age = now.astimezone(timezone.utc) - snapshot.observed_at
         if not timedelta(0) <= age <= timedelta(seconds=60):
             raise V20FinamBlocked("BROKER_OBSERVATION_STALE")
+
+
+class V20TradeJournal(IsolatedReferenceJournal):
+    """H1 StateStore/InstanceLock reused for isolated V20 real-order *intents*.
+
+    The journal is not a sender.  Existing offline FakeBroker databases are
+    neither read nor migrated.  A persisted entry can never, by itself,
+    authorize an order or SLTP POST.
+    """
+    state_file = "v20-real-intents.sqlite3"
+    schema = "v20.h1_state_store.real_intents.v1"
+    mode = "V20_PRETRADE_UNAUTHORIZED"
+
+    def record_reference(self, *args, **kwargs):
+        raise V20FinamBlocked("OFFLINE_REFERENCE_FORBIDDEN_IN_REAL_JOURNAL")
+
+    def prepare_entry(self, *, signal: FrozenSignal, entry: ProposedEntry,
+                      authority: AccountAuthority, snapshot: LiveAccountSnapshot) -> str:
+        """Atomic H1 risk reservation, once-per-session quota and immutable wire."""
+        if (not isinstance(signal, FrozenSignal) or not isinstance(entry, ProposedEntry)
+                or not isinstance(authority, AccountAuthority)
+                or not isinstance(snapshot, LiveAccountSnapshot)
+                or snapshot.robot_id != self.robot_id
+                or snapshot.account_hash != self.account_hash
+                or authority.account_id != snapshot.account_hash and
+                   hashlib.sha256(authority.account_id.encode("utf-8")).hexdigest() != self.account_hash):
+            raise V20FinamBlocked("PRETRADE_ACCOUNT_AUTHORITY_MISMATCH")
+        if (signal.strategy != self.strategy or entry.strategy != self.strategy
+                or signal.symbol not in N4 or entry.symbol != signal.symbol
+                or signal.side not in (-1, 1)
+                or entry.direction != ("LONG" if signal.side == 1 else "SHORT")
+                or entry.entry_bar_open != signal.signal_bar_open + STEP
+                or entry.mode != "OFFLINE_REFERENCE_NOT_ORDER"
+                or type(entry.quantity) is not int or entry.quantity <= 0):
+            raise V20FinamBlocked("FROZEN_NEXT_OPEN_ENTRY_INVALID")
+        registry = _load_registry()[entry.symbol]
+        step = authority.price_step
+        if (authority.price_step != Decimal(registry["price_step"])
+                or authority.tick_value != Decimal(registry["tick_value"])
+                or authority.trade_lot_size != int(registry["quantity_granularity"])):
+            raise V20FinamBlocked("FROZEN_N4_ECONOMICS_MISMATCH")
+        stop, _ = initial_projection(
+            entry.direction, entry.reference_entry,
+            Decimal(entry.reference_entry) - Decimal(signal.side) * 2 * signal.atr14, step,
+        )
+        if entry.initial_stop != stop:
+            raise V20FinamBlocked("FROZEN_2ATR_EXECUTABLE_STOP_MISMATCH")
+        # Before durable ownership/recovery is connected, only a demonstrably
+        # clean FINAM account may be seeded into this non-ordering ledger.
+        if not snapshot.clean:
+            raise V20FinamBlocked("NONFLAT_BROKER_BOOTSTRAP_FORBIDDEN")
+        day = OfflinePlanner._session_key(entry.entry_bar_open).isoformat()
+        key = ("v20:" + self.robot_id + ":" + self.account_hash[:16] + ":" +
+               compact_client_order_id(
+                   f"{entry.symbol}:{entry.entry_bar_open.isoformat()}:{entry.direction}"
+               )[2:])
+        with self.store.transaction():
+            if self.store.get("execution_halt"):
+                raise V20FinamBlocked("JOURNAL_HALTED")
+            previous = self.store.intent(key)
+            if previous is not None:
+                raise V20FinamBlocked("ENTRY_INTENT_ALREADY_PERSISTED_NO_RETRY")
+            index = self.store.get("session_entries", {})
+            rows = index.get(day, [])
+            if len(rows) >= 2:
+                raise V20FinamBlocked("TWO_ENTRIES_PER_SESSION")
+            for old_key in rows:
+                old = self.store.intent(old_key)
+                if old is None or not isinstance(old["payload"], dict):
+                    raise V20FinamBlocked("DURABLE_SESSION_INDEX_INVALID")
+                if old["payload"].get("symbol") == entry.symbol:
+                    raise V20FinamBlocked("ONE_ENTRY_PER_SYMBOL_PER_SESSION")
+            risks = self.store.get("risk_reservations", {})
+            reservations = [RiskReservation.restore(record) for record in risks.values()]
+            reservation = reserve_entry(
+                authority=authority, entry_key=key, symbol=entry.symbol,
+                direction=entry.direction, entry=entry.reference_entry,
+                atr14=signal.atr14, planned_max_quantity=entry.quantity,
+                current_reservations=reservations,
+            )
+            if reservation.initial_stop != entry.initial_stop:
+                raise V20FinamBlocked("RESERVED_EXECUTABLE_STOP_CHANGED")
+            action = RuntimeAction(
+                "ENTRY", key, entry.symbol, registry["finam_symbol"],
+                entry.direction, reservation.quantity, key, None,
+                entry.reference_entry, entry.initial_stop,
+                reservation.quantity if entry.direction == "LONG" else -reservation.quantity,
+            )
+            wire = AuthorizedFinamProductionTransport._market_payload(
+                action, exit_order=False,
+            )
+            payload = {
+                "kind": "ENTRY", "mode": "PRETRADE_NOT_AUTHORIZED",
+                "robot_id": self.robot_id, "account_sha256": self.account_hash,
+                "symbol": entry.symbol, "direction": entry.direction,
+                "entry_at": entry.entry_bar_open.isoformat(),
+                "finam_symbol": registry["finam_symbol"],
+                "quantity": reservation.quantity,
+                "reference_entry": str(entry.reference_entry),
+                "initial_stop": str(entry.initial_stop),
+                "atr14": str(signal.atr14), "wire": wire,
+            }
+            if not self.store.persist_intent(key, payload):
+                raise V20FinamBlocked("DUPLICATE_DURABLE_ENTRY_INTENT")
+            risks[key] = reservation.record()
+            self.store.put("risk_reservations", risks)
+            index[day] = rows + [key]
+            self.store.put("session_entries", index)
+        return key
+
+    def record_submission_boundary(self, key: str) -> None:
+        """Pre-POST checkpoint. Unknown outcome can never be sent twice.
+
+        This function does NOT submit. Future V20 order transport must call
+        this before any network POST, after separate user authorization.
+        """
+        with self.store.transaction():
+            intent = self.store.intent(key)
+            if (intent is None or intent["payload"].get("mode") != "PRETRADE_NOT_AUTHORIZED"
+                    or intent["status"] != "INTENT_PERSISTED"):
+                raise V20FinamBlocked("POST_BOUNDARY_ALREADY_CONSUMED_OR_MISSING")
+            self.store.transition_intent(key, "UNCERTAIN")
+            self.store.put("execution_halt", "UNKNOWN_POST_REQUIRE_BROKER_RECONCILIATION")
+
+    def reconcile_order(self, *, key: str, snapshot: LiveAccountSnapshot) -> str:
+        """Read-side H1 order proof; never retransmit a missing/unknown POST."""
+        if (not isinstance(snapshot, LiveAccountSnapshot)
+                or snapshot.account_hash != self.account_hash
+                or snapshot.robot_id != self.robot_id):
+            raise V20FinamBlocked("RECONCILIATION_ACCOUNT_MISMATCH")
+        intent = self.store.intent(key)
+        if intent is None or intent["payload"].get("mode") != "PRETRADE_NOT_AUTHORIZED":
+            raise V20FinamBlocked("RECONCILIATION_INTENT_UNKNOWN")
+        orders = list(snapshot.orders)
+        found = unique_order_by_client_id(orders, compact_client_order_id(key))
+        if found is None:
+            if intent["status"] == "INTENT_PERSISTED":
+                return "PREPARED_ONLY_NO_POST"
+            self.store.put("execution_halt", "UNKNOWN_POST_REQUIRE_BROKER_RECONCILIATION")
+            raise V20FinamBlocked("UNKNOWN_POST_NO_RETRANSMIT")
+        wire = intent["payload"]["wire"]
+        if (found.kind != "REGULAR"
+                or found.symbol != wire["symbol"] or found.side != wire["side"]
+                or found.request.get("quantity") != wire["quantity"]
+                or found.request.get("client_order_id") != wire["client_order_id"]):
+            self.store.put("execution_halt", "BROKER_ORDER_MISMATCH")
+            raise V20FinamBlocked("BROKER_ORDER_MISMATCH")
+        if intent["status"] == "INTENT_PERSISTED":
+            # An order that appeared without the local pre-POST checkpoint is
+            # not silently adopted. Operator reconciliation is mandatory.
+            self.store.put("execution_halt", "UNEXPECTED_ORDER_WITHOUT_POST_CHECKPOINT")
+            raise V20FinamBlocked("UNEXPECTED_ORDER_WITHOUT_POST_CHECKPOINT")
+        self.store.transition_intent(key, "ACK", found.order_id)
+        # Broker ACK does not prove fill price, quantity or stop protection.
+        return "BROKER_ACK_NO_FILL_OR_SLTP_PROOF"
