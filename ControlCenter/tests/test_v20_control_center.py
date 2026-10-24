@@ -271,22 +271,14 @@ def test_no_false_top_update_from_opening_tabs_or_rerun():
     assert "v20-last-checked-at" not in app.session_state
 
 
-def test_staging_overview_compact_and_finam_details_in_journal():
+def test_staging_overview_compact_and_robot_only_journal():
     now = datetime.now(timezone.utc)
     states = {robot: dict(unconnected(robot), status="STAGING",
                           reason="VERIFIED_OPERATOR_STAGING", observed_at=now,
                           task_state="DISABLED", workers_observed=0,
                           last_error_code="UNKNOWN") for robot in ROBOTS}
-    finam = {
-        "kind": "HISTORICAL_ONLY",
-        "observed_at": datetime(2026, 10, 24, 6, 7, 32, tzinfo=timezone.utc),
-        "accounts": {"v20-" + robot.split("_", 1)[1].lower(): {
-            "readonly": "PASS_READONLY", "money": "PASS", "positions": 0, "orders": 0
-        } for robot in ROBOTS}
-    }
     app = AppTest.from_file(str(ROOT / "v20_app.py"), default_timeout=15)
     app.session_state["v20-snapshots"] = states
-    app.session_state["v20-finam"] = finam
     app.run()
     assert not app.exception
     overview = app.tabs[0]
@@ -295,14 +287,57 @@ def test_staging_overview_compact_and_finam_details_in_journal():
     assert all("STAGING · LIVE OFF" in item.value for item in overview.info)
     assert sum("**Windows Task:** DISABLED" in item.value for item in overview.markdown) == 3
     assert sum("Heartbeat:" in item.value for item in overview.markdown) == 3
-    assert not any("FINAM READONLY · ИСТОРИЧЕСКИЙ PASS" in item.value
-                   for item in overview.caption)
     assert not any("Worker:" in item.value or "Reconciliation:" in item.value
                    for item in overview.caption)
-    assert sum("FINAM READONLY: исторический PASS" in item.value
-               for item in journal.caption) == 3
     assert sum("Worker: 0" in item.value for item in journal.caption) == 3
+    assert not any("FINAM READONLY" in item.value or "Деньги PASS" in item.value
+                   for item in app.caption)
+    assert "v20-finam" not in app.session_state
     assert len(app.button) == 13  # refresh + 12 CC-07 permanently disabled controls
+
+
+def test_ten_latest_completed_cycles_newest_first():
+    now = datetime.now(timezone.utc)
+    payload = example(at=now)
+    payload["cycle"] = 110
+    payload["events"] = [
+        dict(at=(now - timedelta(minutes=10 - i)).isoformat(),
+             cycle=101 + i, result="PASS" if i < 9 else "FAULT",
+             code="NO_SIGNAL" if i < 9 else "SOURCE_UNAVAILABLE")
+        for i in range(10)
+    ]
+    snapshot = parse(wire(payload), "V20_SHALLOW", now, "V20-SHALLOW")
+    app = AppTest.from_file(str(ROOT / "v20_app.py"), default_timeout=15)
+    app.session_state["v20-snapshots"] = {
+        **{robot: unconnected(robot) for robot in ROBOTS},
+        "V20_SHALLOW": snapshot,
+    }
+    app.run()
+    assert not app.exception
+    assert len(app.tabs[1].dataframe) == 1
+    data = app.tabs[1].dataframe[0].value
+    assert list(data.columns) == ["Время", "Цикл", "Результат", "Причина"]
+    assert data["Цикл"].tolist() == list(range(110, 100, -1))
+    assert data["Результат"].tolist()[0] == "FAULT"
+    assert data["Причина"].tolist()[0] == "SOURCE_UNAVAILABLE"
+    assert "FINAM READONLY" not in str(data)
+
+
+def test_manual_refresh_does_not_read_broker_history(monkeypatch):
+    import cc.v20_receiver as source
+    import cc.v20_staging as staging
+    import cc.v20_finam as broker_history
+    def forbidden(*args, **kwargs):
+        raise AssertionError("broker history must not be read by V20 dashboard")
+    monkeypatch.setattr(broker_history, "acquire", forbidden)
+    monkeypatch.setattr(source, "acquire",
+                        lambda now: {robot: unconnected(robot) for robot in ROBOTS})
+    monkeypatch.setattr(staging, "acquire_staging",
+                        lambda now: {robot: unconnected(robot) for robot in ROBOTS})
+    app = AppTest.from_file(str(ROOT / "v20_app.py"), default_timeout=15).run()
+    app.button(key="v20-manual-refresh").click().run()
+    assert not app.exception
+    assert "v20-finam" not in app.session_state
 
 
 def test_cc07_buttons_visible_but_all_twelve_inert_and_disabled(monkeypatch):
