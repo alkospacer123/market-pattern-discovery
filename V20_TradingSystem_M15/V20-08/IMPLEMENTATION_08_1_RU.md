@@ -229,3 +229,21 @@ PASS ретроспективных OHLC **не доказывает**, что �
 `V20-08/Invoke-DPAPI-Finam-Readonly.ps1` — **один** лаунчер для всех трёх (preflight) или одного (witness). Он проверяет фактические Disabled Task/SID и ранее подтверждённые отчёты 07.2 + DPAPI 3/3, скачивает exact-Git-pinned три Python source файла в собственный `C:\V20Lab\pretrade-08\dpapi-finam-readonly\`, остальные неизменённые V20-модули копирует из уже существующего source-raw. Перед дешифрованием секретов выполняет внутренний **локальный synthetic** HTTP-allowlist selftest без сети/токенов, затем для выбранного V20-робота расшифровывает только его DPAPI-пару под тем же SID и вызывает существующий H1-клиент через временные переменные среды дочернего Python-процесса (секрет не в командной строке и не в логах). После вызова удаляет переменные и не сохраняет открытые секреты. Запуск не регистрирует, не включает и не меняет Windows Tasks и не меняет H1/M15.
 
 Источник launcher pinned source `25d1630ce51629b5139ef708c6c2a1864e06cd1d`; его Git blob `2d478b94f16146db4c7bf426dfb5f36d814f4420`; Python worker blob `4d9de12e0b3e9d0d0ec72d058840bb259e2ed30d`. Исходники/блокировка write и Git blobs сверены статически. **Физический Intel общий GET-only worker ещё NOT RUN/NOT PASS**. Настоящий LIVE-токен к POST не допущен. Следующий шаг — однократный real GET-only preflight всех трёх из DPAPI и при торговой M15 границе точечный `witness`; затем только соответствующий 08.1 production worker/Task acceptance. V20-08.1 IN PROGRESS, никаких новых этапов или Shadow.
+
+## 24.10.2026 — физический Intel DPAPI→H1 FINAM worker PASS 3/3
+
+Оператор запустил Git-pinned `Invoke-DPAPI-Finam-Readonly.ps1` с установленными отдельными DPAPI-парами и предоставил фактический stdout:
+
+```text
+v20_08_1_finam_worker_selftest=pass_readonly_no_order
+v20_08_1_v20-shallow=PASS_ACCOUNT_GET_ONLY
+v20_08_1_v20-obv=PASS_ACCOUNT_GET_ONLY
+v20_08_1_v20-inside=PASS_ACCOUNT_GET_ONLY
+v20_08_1_worker=pass_get_only_3_of_3
+v20_08_1_live=off
+v20_08_1_tasks_modified=no
+```
+
+Тем самым три отдельных реальных FINAM account/session/orders GET через **общий неизменённый H1 `FinamAPI`**, верный Windows SID и зашифрованные V20 secrets физически подтверждены. Все order/SLTP/DELETE пути запрещены на `ReadonlyWorkerAPI._request`. Тесты из 34 ранее подтверждённых адресных сценариев не перезапускались; GET 3/3 — отдельный реальный broker proof. WIN Tasks остаются Disabled; H1/M15 не изменены; реальных ордеров V20 по данному запуску нет.
+
+**Уточнение ровно по существующему roadmap:** V20-08.1 — последний допуск перед первой заявкой; однократная конкретно разрешённая реальная пробная сделка — V20-08.2, а штатное автономное LIVE — V20-08.4. Не путать работающий GET-only загрузчик 08.1 с уже действующим LIVE worker. Не объявлять 08.1 PASS, пока не подтвердили свежие актуальные step/tick/GO/R15 и реальный NEXT_OPEN в активной сессии, пока отсутствует физический короткий предзаявочный preflight счёта/стопа/комиссии, Kill Switch и исключение дублей на подключённом H1-пути. Общая готовность к 08.2 не подразумевает разрешение отправки произвольных заявок.
