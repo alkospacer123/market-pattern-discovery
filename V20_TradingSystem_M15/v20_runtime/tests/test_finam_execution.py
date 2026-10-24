@@ -7,6 +7,7 @@ import hashlib
 import unittest
 
 from TradingSystemLab.stage8_robot.finam_api import FinamAPI
+from TradingSystemLab.stage8_robot.broker import compact_client_order_id
 from TradingSystemLab.stage8_robot.production_runtime import _load_registry
 
 from V20_TradingSystem_M15.v20_runtime.finam_execution import (
@@ -34,6 +35,7 @@ class FakeFinam(FinamAPI):
         self.calls = []
         self.positions = []
         self.order_rows = []
+        self.trade_rows = []
 
     def create_session(self):
         self.calls.append("auth")
@@ -59,6 +61,12 @@ class FakeFinam(FinamAPI):
     def orders(self, account_id):
         self.calls.append(("orders", account_id))
         return {"orders": self.order_rows}
+
+    def trades(self, account_id, *, start=None, end=None, limit=1000):
+        self.calls.append(("trades", account_id))
+        if account_id != self.account_id:
+            raise AssertionError("FOREIGN_ACCOUNT_HISTORY")
+        return {"trades": self.trade_rows}
 
     def asset_params(self, symbol, account_id):
         self.calls.append(("params", symbol, account_id))
@@ -146,6 +154,70 @@ class V20BrokerAdapterTests(unittest.TestCase):
         with self.assertRaisesRegex(V20FinamBlocked, "ACCOUNT_AUTHORITY_SCOPE_INVALID"):
             reader.authority(snap, symbol="BR", direction="LONG",
                              roundtrip_cost_per_contract="1", now=now)
+
+    def test_100_percent_stop_requires_matching_live_broker_order(self):
+        api = FakeFinam()
+        reader = self.client(api)
+        reader.authenticate()
+        symbol = _load_registry()["USDRUBF"]["finam_symbol"]
+        key = "v20:v20-shallow:" + ACCOUNT_HASH[:16] + ":sig01"
+        stop_key = key + ":stop"
+        api.positions = [{"symbol": symbol, "quantity": funds("1")}]
+        stop = {
+            "symbol": symbol, "side": "SIDE_SELL", "client_order_id": compact_client_order_id(stop_key),
+            "comment": stop_key, "sl_price": funds("85.00"),
+            "quantity_sl": funds("100"), "sl_qty_measure": "SLTP_QTY_MEASURE_PERCENT",
+            "valid_before": "VALID_BEFORE_GOOD_TILL_CANCEL",
+        }
+        api.order_rows = [{"order_id": "stop-a", "status": "NEW", "sltp_order": stop}]
+        now = datetime.now(timezone.utc)
+        snap = reader.snapshot(now=now)
+        found = reader.inspect_protective_stop(
+            snap, entry_key=key, symbol="USDRUBF", direction="LONG",
+            stop_price=Decimal("85.00"), now=now,
+        )
+        self.assertEqual(found.order_id, "stop-a")
+        for change in ({"quantity_sl": funds("50")}, {"comment": "foreign-order"},
+                       {"sl_price": funds("85.01")}):
+            bad_api = FakeFinam()
+            bad_api.positions = list(api.positions)
+            bad_api.order_rows = [{"order_id": "stop-b", "status": "NEW",
+                                   "sltp_order": dict(stop, **change)}]
+            bad_reader = self.client(bad_api)
+            bad_reader.authenticate()
+            bad_snap = bad_reader.snapshot(now=now)
+            with self.assertRaises(Exception):
+                bad_reader.inspect_protective_stop(
+                    bad_snap, entry_key=key, symbol="USDRUBF", direction="LONG",
+                    stop_price=Decimal("85.00"), now=now,
+                )
+
+    def test_h1_order_linked_trade_history_not_ack_only(self):
+        api = FakeFinam()
+        reader = self.client(api)
+        reader.authenticate()
+        symbol = _load_registry()["USDRUBF"]["finam_symbol"]
+        key = "v20:v20-shallow:" + ACCOUNT_HASH[:16] + ":sig02"
+        api.order_rows = [{
+            "order_id": "entry-a", "status": "NEW",
+            "order": {"symbol": symbol, "side": "SIDE_BUY",
+                      "type": "ORDER_TYPE_MARKET", "time_in_force": "TIME_IN_FORCE_DAY",
+                      "quantity": funds("1"), "client_order_id": compact_client_order_id(key)},
+        }]
+        now = datetime.now(timezone.utc)
+        snap = reader.snapshot(now=now)
+        with self.assertRaisesRegex(V20FinamBlocked, "ENTRY_ORDER_BROKER_PROOF_MISSING"):
+            reader.inspect_entry_fills(
+                snap, entry_key=key, symbol="USDRUBF", direction="SHORT",
+                requested_quantity=1, submitted_at=now-timedelta(minutes=1), now=now,
+            )
+        empty = reader.inspect_entry_fills(
+            snap, entry_key=key, symbol="USDRUBF", direction="LONG",
+            requested_quantity=1, submitted_at=now-timedelta(minutes=1), now=now,
+        )
+        self.assertEqual(empty["matched_quantity"], 0)
+        self.assertEqual(empty["authority_scope"], "READONLY_DIAGNOSTIC_ONLY_NO_RUNTIME_HANDOFF")
+        self.assertIn(("trades", ACCOUNT), api.calls)
 
 
 if __name__ == "__main__":
