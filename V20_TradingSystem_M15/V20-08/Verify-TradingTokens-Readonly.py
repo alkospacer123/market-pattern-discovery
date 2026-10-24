@@ -190,6 +190,31 @@ def self_test():
             pass
         else:
             raise AssertionError("WRITE_OR_FOREIGN_READ_GATE_BROKEN")
+    # Verify exact target-account authorization with a synthetic session;
+    # no HTTP, secrets or FINAM access during this test.
+    class SessionStub(Client):
+        def create_session(self):
+            return {}
+        def session_details(self):
+            return self.details
+
+    for details, permitted in (
+        ({"readonly": True, "account_ids": ["account-A"]}, False),
+        ({"readonly": False, "account_ids": ["account-B"]}, False),
+        ({"readonly": False, "account_ids": ["account-A"]}, True),
+    ):
+        stub = SessionStub("FAKE_TOKEN_SELF_TEST", "account-A")
+        stub.details = details
+        if permitted:
+            stub.bind_trading()
+            assert stub.bound is True
+        else:
+            try:
+                stub.bind_trading()
+            except ReadonlyBlocked:
+                pass
+            else:
+                raise AssertionError("WRONG_TRADE_TOKEN_SCOPE_ACCEPTED")
     print("V20_08_1_OFFLINE_GET_ONLY_GATE=PASS")
     return 0
 
