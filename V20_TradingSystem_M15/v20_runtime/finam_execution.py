@@ -425,6 +425,10 @@ class V20TradeJournal(IsolatedReferenceJournal):
             # not silently adopted. Operator reconciliation is mandatory.
             self.store.put("execution_halt", "UNEXPECTED_ORDER_WITHOUT_POST_CHECKPOINT")
             raise V20FinamBlocked("UNEXPECTED_ORDER_WITHOUT_POST_CHECKPOINT")
+        if intent["status"] == "RECONCILED":
+            if intent["broker_order_id"] != found.order_id:
+                raise V20FinamBlocked("BROKER_ORDER_ID_CHANGED_AFTER_RECONCILIATION")
+            return "BROKER_ORDER_ALREADY_RECONCILED_NO_RETRANSMIT"
         self.store.transition_intent(key, "ACK", found.order_id)
         # Broker ACK does not prove fill price, quantity or stop protection.
         return "BROKER_ACK_NO_FILL_OR_SLTP_PROOF"
