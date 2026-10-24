@@ -78,6 +78,7 @@ class V20FinamReadAdapter:
         self._bound = False
 
     def authenticate(self) -> None:
+        self._bound = False
         self.api.create_session()
         details = self.api.session_details()
         ids = details.get("account_ids") if isinstance(details, dict) else None
