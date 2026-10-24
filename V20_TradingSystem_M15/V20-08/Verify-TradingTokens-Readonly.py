@@ -16,9 +16,10 @@ import os
 from pathlib import Path
 import re
 import sys
-from urllib.parse import quote
+from urllib.parse import quote, urlencode
 
 ROBOTS = ("v20-shallow", "v20-obv", "v20-inside")
+N4_FINAM = ("USDRUBF@RTSX", "CNYRUBF@RTSX", "GLDRUBF@RTSX", "IMOEXF@RTSX")
 SOURCE_SHA = "610109b736c53a5cc1025657291e272b1136b254"
 BASE = Path("C:/V20Lab")
 SOURCE = BASE / "source-raw"
@@ -109,6 +110,7 @@ def get_h1():
     )
     from TradingSystemLab.stage8_robot.margin import (
         portfolio_authority, parse_rest_decimal_value_object, AVAILABLE_CASH_SEMANTICS,
+        directional_initial_margin,
     )
     from TradingSystemLab.stage8_robot.production_broker_state import (
         order_views, position_quantities,
@@ -135,8 +137,13 @@ def get_h1():
             )
             allowed_read = (
                 method == "GET" and self.bound is True and auth is True
-                and payload is None and path in
-                (self.target_path, self.target_path + "/orders")
+                and payload is None and
+                (path in (self.target_path, self.target_path + "/orders")
+                 or path in {
+                     "/v1/assets/" + symbol + "/params?" +
+                     urlencode({"account_id": self.target_account})
+                     for symbol in N4_FINAM
+                 })
             )
             if not (allowed_auth or allowed_read):
                 raise ReadonlyBlocked("V20_08_1_FINAM_WRITE_OR_UNBOUND_READ_FORBIDDEN")
@@ -158,6 +165,19 @@ def get_h1():
         def read_orders(self):
             return self.orders(self.target_account)
 
+        def read_n4_margins(self):
+            # Fresh FINAM account-scoped directional GO via unchanged H1 parser.
+            margins = {}
+            for symbol in N4_FINAM:
+                params = self.asset_params(symbol, self.target_account)
+                margins[symbol.split("@", 1)[0]] = {
+                    "long_rub": str(directional_initial_margin(params, "LONG")),
+                    "short_rub": str(directional_initial_margin(params, "SHORT")),
+                }
+            if len(margins) != 4:
+                raise ReadonlyBlocked("V20_08_1_N4_MARGIN_COUNT_INVALID")
+            return margins
+
     return (AccountTradingGetOnly, portfolio_authority,
             parse_rest_decimal_value_object, position_quantities, order_views,
             ACTIVE_ACCOUNT_STATUSES, AVAILABLE_CASH_SEMANTICS)
@@ -175,6 +195,8 @@ def self_test():
         ("DELETE", "/v1/accounts/account-A/orders/o-1"),
         ("GET", "/v1/accounts/account-A"),
         ("GET", "/v1/accounts/account-B"),
+        ("GET", "/v1/assets/BR@RTSX/params?account_id=account-A"),
+        ("GET", "/v1/assets/USDRUBF@RTSX/params?account_id=account-B"),
     )
     for method, path in forbidden:
         try:
@@ -191,6 +213,22 @@ def self_test():
             pass
         else:
             raise AssertionError("WRITE_OR_FOREIGN_READ_GATE_BROKEN")
+    # Allowed asset-params GET is proven against fake HTTP, never the Internet.
+    class FakeHTTP:
+        status = 200
+        headers = {}
+        def read(self):
+            return b"{}"
+
+    calls = []
+    def fake_transport(req, timeout):
+        calls.append((req.get_method(), req.full_url))
+        return FakeHTTP()
+    client.transport = fake_transport
+    client._FinamAPI__jwt = "OFFLINE_FAKE_JWT"
+    assert client.asset_params("USDRUBF@RTSX", "account-A") == {}
+    assert len(calls) == 1 and calls[0][0] == "GET"
+    assert calls[0][1].endswith("/v1/assets/USDRUBF@RTSX/params?account_id=account-A")
     # Verify exact target-account authorization with a synthetic session;
     # no HTTP, secrets or FINAM access during this test.
     class SessionStub(Client):
@@ -249,6 +287,8 @@ def connect():
         broker_orders = order_views(client.read_orders())
         positions = position_quantities(account)
         active = [o for o in broker_orders if o.active]
+        # Fresh GO for 4 instruments, per bound account; any unknown field blocks.
+        margins_n4 = client.read_n4_margins()
         funds = portfolio_authority(account)
         equity = parse_decimal(account.get("equity"))
         unrealized = parse_decimal(account.get("unrealized_profit"))
@@ -271,10 +311,12 @@ def connect():
             "cash_semantics": cash_semantics,
             "positions_nonzero": len(positions),
             "active_orders": len(active),
+            "fresh_n4_directional_go_rub": margins_n4,
+            "n4_margin_status": "PASS_4_OF_4",
             "account_clean": clean,
             "eligible_for_real_order": False,
             "pending_gates": [
-                "FRESH_4_N4_MARGIN_AND_TICK",
+                "FRESH_N4_STEP_TICK_LOT_AND_TARIFF_VALIDATION",
                 "ACTUAL_FROZEN_SIGNAL_AND_NEXT_OPEN",
                 "EXECUTABLE_STOP_AND_R15_R6",
                 "H1_REAL_BROKER_EXECUTOR_RECOVERY_SLTP",
@@ -287,6 +329,7 @@ def connect():
               ("PASS" if clean else "HOLD_ACCOUNT_NOT_CLEAN") +
               " MONEY=PASS POSITIONS=" + str(len(positions)) +
               " ACTIVE_ORDERS=" + str(len(active)) +
+              " N4_GO=PASS_4_OF_4" +
               " R15_RUB=" + str(realized * Decimal("0.015")))
     need(len(observed) == 3 and len(tokens_seen) == 3, "TOKEN_OR_ACCOUNT_COUNT_INVALID")
     report = {
@@ -301,6 +344,7 @@ def connect():
         "trading_token_storage": "NOT_PERSISTED",
         "account_id_storage": "ONLY_SHA256_FROM_PREVIOUS_READONLY_BINDINGS",
         "finam_write_routes": "DISABLED_BY_GET_ONLY_REQUEST_GATE",
+        "n4_margin_source": "FRESH_FINAM_ACCOUNT_ASSET_PARAMS_GET",
         "orders_sent": 0,
         "tasks_modified": False,
         "live_enabled": False,
