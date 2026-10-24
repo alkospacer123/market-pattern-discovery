@@ -1274,3 +1274,158 @@ def prepare_finam_single_trial(
         "reserved_risk_rub": str(risk.reserved_risk),
         "orders": 0,
     }
+
+
+def run_v20_single_trial_cycle(
+    transport: V20SingleTradeTransport, *, now: datetime,
+    trial_symbol: str, from_utc: datetime, cost_per_contract: Decimal,
+    allow_new_entry: bool = False,
+) -> dict[str, Any]:
+    """Existing H1 read/reconcile -> stop/exit -> optional one approved entry.
+
+    Common V20 one-trial coordinator, NOT general LIVE enablement.
+    No scheduler, token store or Task activation. In a restarted process, an
+    existing entry/stop/exit intent is managed but NEVER retransmitted.
+    """
+    if (not isinstance(transport, V20SingleTradeTransport)
+            or trial_symbol not in N4
+            or not isinstance(now, datetime) or now.tzinfo is None):
+        raise V20FinamBlocked("TRIAL_CYCLE_INPUT_INVALID")
+    reader, journal = transport.reader, transport.journal
+    if reader.robot_id != journal.robot_id or reader.account_hash != journal.account_hash:
+        raise V20FinamBlocked("TRIAL_CYCLE_ACCOUNT_MISMATCH")
+    current = reader.snapshot(now=now)
+    entries = [r for r in journal.store.all_intents()
+               if r["payload"].get("kind") == "ENTRY"]
+    if len(entries) > 1:
+        raise V20FinamBlocked("TRIAL_CYCLE_MORE_THAN_ONE_ENTRY")
+    if not entries:
+        if not allow_new_entry:
+            return {"state": "BROKER_OBSERVED_NO_TRIAL_ENTRY", "orders": 0}
+        prepared = prepare_finam_single_trial(
+            transport, symbol=trial_symbol, from_utc=from_utc,
+            now=now, cost_per_contract=cost_per_contract,
+        )
+        if prepared["status"] == "NO_FROZEN_SIGNAL":
+            return {"state": "NO_FROZEN_SIGNAL", "orders": 0}
+        key = prepared["entry_key"]
+        # The H1 transport checks fresh account, EXACT permit and time again
+        # before performing the only market-order POST.
+        ack = transport.submit_entry_once(
+            key=key, snapshot=reader.snapshot(now=now), now=now,
+        )
+        return {"state": "ENTRY_ACK_NEEDS_FILL_AND_STOP", "entry_key": key,
+                "broker_entry_order_id": ack, "orders": 1}
+
+    entry = entries[0]
+    key = entry["idempotency_key"]
+    payload = entry["payload"]
+    if (payload.get("symbol") != trial_symbol
+            or payload.get("robot_id") != journal.robot_id
+            or payload.get("account_sha256") != journal.account_hash):
+        raise V20FinamBlocked("TRIAL_CYCLE_FOREIGN_ENTRY")
+    symbol = payload["finam_symbol"]
+    position = current.positions.get(symbol, 0)
+    proof = journal.store.get("protected_fill:" + key)
+    if position == 0:
+        exit_intent = journal.store.intent(key + ":frozen-exit")
+        if exit_intent is not None:
+            return {"state": transport.cancel_stop_after_flat_once(
+                key=key, snapshot=current, now=now,
+            ), "orders": 0}
+        if isinstance(proof, dict):
+            stop = next((o for o in current.orders if
+                         o.order_id == proof.get("broker_stop_id")
+                         and o.kind == "SLTP" and o.symbol == symbol), None)
+            if (stop is not None and not stop.active
+                    and stop.status in {"FILLED", "EXECUTED"}
+                    and not any(o.active and o.kind == "SLTP" and o.symbol == symbol
+                                for o in current.orders)):
+                journal.store.put("flat_cleanup:" + key, {
+                    "status": "STOP_TERMINAL_BROKER_FLAT",
+                    "account_sha256": journal.account_hash,
+                })
+                journal.store.put("execution_halt", "STOP_EXIT_FEES_PENDING_ACCEPTANCE")
+                return {"state": "STOP_EXIT_BROKER_FLAT_UNDER_ACCEPTANCE",
+                        "orders": 0}
+        return {"state": "ENTRY_NO_POSITION_RECONCILIATION_REQUIRED",
+                "orders": 0}
+
+    if (position > 0) != (payload["direction"] == "LONG"):
+        raise V20FinamBlocked("TRIAL_CYCLE_BROKER_POSITION_SIDE_INVALID")
+    if abs(position) > payload["quantity"]:
+        raise V20FinamBlocked("TRIAL_CYCLE_POSITION_EXCEEDS_ENTRY")
+    journal.reconcile_order(key=key, snapshot=current)
+    if journal.store.intent(key + ":frozen-exit") is not None:
+        return {"state": "EXIT_ALREADY_ATTEMPTED_KEEP_PROTECTION",
+                "orders": 0}
+
+    stop_intent = journal.store.intent(key + ":stop")
+    if stop_intent is None:
+        # H1 links fills to exact order_id and computes the executable 2 ATR
+        # initial stop from actual broker VWAP (not reference entry Open).
+        submitted = journal.store.get("entry_submission:" + key)
+        if not isinstance(submitted, dict):
+            raise V20FinamBlocked("TRIAL_CYCLE_SUBMISSION_PROOF_MISSING")
+        history = reader.inspect_entry_fills(
+            current, entry_key=key, symbol=trial_symbol,
+            direction=payload["direction"],
+            requested_quantity=payload["quantity"],
+            submitted_at=datetime.fromisoformat(submitted["submitted_at"]),
+            now=now,
+        )
+        if (history.get("authority_scope") !=
+                "READONLY_DIAGNOSTIC_ONLY_NO_RUNTIME_HANDOFF"
+                or history.get("matched_quantity") != abs(position)
+                or not history.get("matched_unique_fills")):
+            raise V20FinamBlocked("TRIAL_CYCLE_FILL_AUTHORITY_MISSING")
+        filled = history["matched_unique_fills"]
+        vw = sum(
+            (int(f["quantity"]) * Fraction(f["price"]) for f in filled),
+            Fraction(0),
+        ) / abs(position)
+        step = Decimal(_load_registry()[trial_symbol]["price_step"])
+        side = 1 if payload["direction"] == "LONG" else -1
+        stop = project_stop(
+            payload["direction"],
+            vw - side * 2 * Fraction(payload["atr14"]), step,
+        )
+        oid = transport.submit_protection_once(
+            key=key, snapshot=current, stop_price=stop, now=now,
+        )
+        return {"state": "STOP_ACK_NEEDS_BROKER_PROOF",
+                "broker_stop_order_id": oid, "orders": 1}
+
+    if stop_intent["status"] not in {"ACK", "RECONCILED"}:
+        raise V20FinamBlocked("TRIAL_CYCLE_STOP_UNCERTAIN_NO_RETRY")
+    # H1 strict fill and active-100%-SLTP broker proof, preserved after restart.
+    observed = journal.observe_protected_entry(
+        key=key, reader=reader, snapshot=current, now=now,
+    )
+    if (not isinstance(proof, dict)
+            or proof.get("broker_stop_id") != observed["broker_stop_id"]):
+        return {"state": "STOP_NOW_BROKER_PROVEN", "orders": 0}
+    utc = now.astimezone(timezone.utc)
+    msk = utc.astimezone(ZoneInfo("Europe/Moscow"))
+    if msk.second > 60 or msk.minute % 15 != 0:
+        return {"state": "PROTECTED_AWAIT_NEXT_OPEN", "orders": 0}
+    if msk.second + msk.microsecond / 1_000_000 > 60:
+        return {"state": "PROTECTED_AWAIT_NEXT_OPEN", "orders": 0}
+    entry_at = datetime.fromisoformat(payload["entry_at"])
+    since = entry_at.replace(tzinfo=ZoneInfo("Europe/Moscow")).astimezone(timezone.utc)
+    boundary = read_finam_m15_boundary(
+        reader, symbol=trial_symbol, from_utc=since - STEP, now=now,
+    )
+    decision = frozen_observed_session_exit(
+        boundary, entry_open_msk=entry_at,
+    )
+    if decision == "HOLD_UNTIL_THIRD_OBSERVED_SESSION":
+        return {"state": "PROTECTED_HOLD", "orders": 0}
+    if decision != "EXIT_AT_THIRD_OBSERVED_SESSION_OPEN":
+        journal.store.put("execution_halt", "FROZEN_THIRD_SESSION_OPEN_MISSED")
+        raise V20FinamBlocked("TRIAL_CYCLE_DEADLINE_MISSED")
+    oid = transport.submit_frozen_exit_once(
+        key=key, boundary=boundary, snapshot=current, now=now,
+    )
+    return {"state": "EXIT_ACK_KEEP_STOP_UNTIL_FLAT",
+            "broker_exit_order_id": oid, "orders": 1}
