@@ -293,7 +293,7 @@ def test_staging_overview_compact_and_finam_details_in_journal():
     journal = app.tabs[1]
     assert len(overview.info) == 3
     assert all("STAGING · LIVE OFF" in item.value for item in overview.info)
-    assert sum("Windows Task: DISABLED" in item.value for item in overview.markdown) == 3
+    assert sum("**Windows Task:** DISABLED" in item.value for item in overview.markdown) == 3
     assert sum("Heartbeat:" in item.value for item in overview.markdown) == 3
     assert not any("FINAM READONLY · ИСТОРИЧЕСКИЙ PASS" in item.value
                    for item in overview.caption)
