@@ -237,7 +237,8 @@ def _observe(api, robot, account, specs):
                  "risk_budget_r15_rub": str(realized * Decimal("0.015")),
                  "account_max_initial_risk_r6_rub": str(realized * Decimal("0.06"))}
     except ValueError as exc:
-        money = {"status": "BLOCKED", "reason": str(exc) if str(exc).startswith("V20_") else type(exc).__name__}
+        reason = str(exc)
+        money = {"status": "BLOCKED", "reason": reason if re.fullmatch(r"[A-Z][A-Z0-9_]{2,100}", reason) else type(exc).__name__}
         portfolio = None
     capacity = {}
     for code, fields in specs.items():
@@ -291,6 +292,8 @@ def _run(mod, funded_refresh=False):
               "source_06_2_report_sha256": hashlib.sha256(N4_REPORT.read_bytes()).hexdigest(),
               "mode": "READONLY", "new_orders": 0, "cancellations": 0, "live_authorized": False,
               "accounts": []}
+    if funded_refresh:
+        result["prior_06_3_report_sha256"] = hashlib.sha256(REPORT.read_bytes()).hexdigest()
     try:
         for robot in ROBOTS:
             api = api_type(token, accounts[robot])
@@ -299,7 +302,8 @@ def _run(mod, funded_refresh=False):
             result["accounts"].append(observation)
             label = ("PASS" if observation["money"]["status"] == "PASS"
                      and observation["account_clean"] else "PARTIAL")
-            print("V20_06_3_" + robot + "=" + label + "_READONLY")
+            reason = observation["money"].get("reason", "NONE")
+            print("V20_06_3_" + robot + "=" + label + "_READONLY" + " MONEY=" + observation["money"]["status"] + " REASON=" + reason + " POSITIONS=" + str(observation["positions_nonzero"]) + " ACTIVE_ORDERS=" + str(observation["active_orders"]))
     finally:
         token = ""
     ok = (len(result["accounts"]) == 3 and
