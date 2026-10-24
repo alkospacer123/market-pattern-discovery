@@ -94,10 +94,10 @@ folder $instances
 $installed = @()
 foreach ($name in $names) {
     $short = $name.Substring(4)
-    $home = Join-Path $instances $short
-    folder $home
-    foreach ($dir in @('config','state','logs','secrets')) { folder (Join-Path $home $dir) }
-    $conf = Join-Path $home 'config\staging.json'
+    $instanceDir = Join-Path $instances $short
+    folder $instanceDir
+    foreach ($dir in @('config','state','logs','secrets')) { folder (Join-Path $instanceDir $dir) }
+    $conf = Join-Path $instanceDir 'config\staging.json'
     require (-not (Test-Path -LiteralPath $conf)) 'STAGING_CONFIG_EXISTS_NO_OVERWRITE'
     $match = @($rows | Where-Object { $_.robot -eq $name })[0]
     $entry = [ordered]@{
@@ -112,7 +112,7 @@ foreach ($name in $names) {
         live_enabled = $false
     }
     $entry | ConvertTo-Json -Depth 6 | Set-Content -LiteralPath $conf -Encoding UTF8
-    $installed += [ordered]@{ robot = $name; directory = $home; source_sha = $pin; live_enabled = $false; task_registered = $false }
+    $installed += [ordered]@{ robot = $name; directory = $instanceDir; source_sha = $pin; live_enabled = $false; task_registered = $false }
     Write-Output ("V20_07_1_" + $name + "=INSTALLED_LIVE_OFF")
 }
 $record = [ordered]@{
