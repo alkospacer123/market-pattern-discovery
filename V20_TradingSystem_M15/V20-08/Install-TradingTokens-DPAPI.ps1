@@ -62,6 +62,13 @@ need ($proof.schema -eq 'v20.finam.trading_tokens_get_only.v1' -and
 $sid = [Security.Principal.WindowsIdentity]::GetCurrent().User.Value
 need ($sid -eq $tasks.principal_sid -and $sid -notin @('S-1-5-18','S-1-5-19','S-1-5-20')) 'V20_08_1_DPAPI_TASK_SID_MISMATCH'
 need (@($proof.accounts).Count -eq 3 -and @($tasks.tasks).Count -eq 3) 'V20_08_1_PRIOR_ACCOUNT_COUNT_INVALID'
+need ($null -ne (Get-Command icacls.exe -ErrorAction SilentlyContinue)) 'V20_08_1_ICACLS_MISSING'
+# Local user-DPAPI round trip, never a production token or broker call.
+$roundtrip = 'V20-DPAPI-LOCAL-ROUNDTRIP'
+$encrypted = (ConvertTo-SecureString -String $roundtrip -AsPlainText -Force) | ConvertFrom-SecureString
+$opened = ConvertTo-SecureString -String $encrypted
+try { need ((secure-fingerprint $opened) -ceq (digest $roundtrip)) 'V20_08_1_DPAPI_USER_ROUNDTRIP_FAILED' }
+finally { $opened.Dispose() }
 $entries = @()
 $uniqueTokens = @{}
 foreach ($robot in $robots) {
