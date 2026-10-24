@@ -66,3 +66,15 @@
 ## 24.10.2026 — поступление средств, ожидается READONLY
 
 Владелец сообщил о пополнении трёх V20-счетов на 45 000 ₽ каждый. Зачисление и денежная схема REST ещё не подтверждены FINAM READONLY. Для адресной перепроверки добавлены `verify_account_state.py --funded-refresh` и `summarize_readonly.py --funded`. Файлы `ACCOUNT_STATE_REPORT_FUNDED.json` и `BROKER_READONLY_REPORT_FUNDED.json` создаются отдельно; предыдущие отчёты не перезаписываются. Ни один V20-счёт не считается принятым до фактического результата. 06.1/06.2 остаются PASS. LIVE=OFF.
+
+## 24.10.2026 — ФАКТИЧЕСКИЙ PASS V20-06 ПОСЛЕ ПОПОЛНЕНИЯ
+
+Оператор Intel подтвердил фактическим stdout обеих проверок:
+
+- `V20_06_3_v20-shallow/obv/inside=PASS_READONLY MONEY=PASS REASON=NONE POSITIONS=0 ACTIVE_ORDERS=0` для каждого из трёх роботов; `V20_06_3_FINAM_READONLY=PASS_READONLY_3_OF_3`.
+- Создан `C:\V20Lab\readonly-06\ACCOUNT_STATE_REPORT_FUNDED.json`; исходный отчёт PARTIAL не перезаписан.
+- `V20_06_4_v20-shallow/obv/inside=PASS_READONLY MONEY=PASS REASON=NONE POSITIONS=0 ACTIVE_ORDERS=0`; `V20_06_4_REPORT_GENERATED=PASS`, `V20_06_OVERALL=PASS_READONLY_3_OF_3`.
+- Создан `C:\V20Lab\readonly-06\BROKER_READONLY_REPORT_FUNDED.json`; исходный отчёт PARTIAL не перезаписан.
+- Пополнение: по сообщению владельца, по 45 000 ₽ на счёт (135 000 ₽). stdout подтверждает `MONEY=PASS`, но без приватных числовых значений equity мы не утверждаем, что именно 45 000 ₽ видны в каждом брокерском снапшоте. Это не требуется для указанного PASS критерия 06.
+
+**ИТОГ: V20-06 PASS READONLY.** 06.1/06.2/06.3/06.4 фактически выполнены; возврат к старым PARTIAL статусам не нужен. Запросы торговых команд, пробная сделка и включение LIVE в рамках 06 **не разрешались**. Следующий пункт неизменённого roadmap — V20-07.1: изолированная staging-установка с LIVE=OFF; H1 и IntradayLab M15 не затрагивать.
