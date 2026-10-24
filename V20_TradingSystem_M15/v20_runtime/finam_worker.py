@@ -143,9 +143,9 @@ def run_n4_authority(robot_id: str) -> dict:
         if evidence.status != AUTHENTICATED or go_long <= 0 or go_short <= 0:
             result[symbol] = "HOLD_FINAM_ASSET_OR_MARGIN_AUTHORITY"
         elif (Decimal(str(registry[symbol]["price_step"])) !=
-              Decimal(str(evidence.expected_price_step))
+              Decimal(str(evidence.moex_price_step))
               or Decimal(str(registry[symbol]["tick_value"])) !=
-              Decimal(str(evidence.expected_tick_value))):
+              Decimal(str(evidence.moex_tick_value))):
             result[symbol] = "HOLD_H1_TICK_VALUE_REGISTRY_CONFLICT"
         else:
             result[symbol] = "PASS"
