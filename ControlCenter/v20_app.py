@@ -112,9 +112,17 @@ def journal(snapshots, finam=None):
 
 
 def controls():
+    """CC-07 preview only: disabled buttons; no callbacks or controller import."""
     st.subheader("Управление")
-    st.info("Отключено. Команды START / PAUSE / STOP / RESTART появятся только после отдельной приёмки контроллера для трёх V20-роботов.")
-    st.caption("Нет торговых полномочий и обработчиков команд управления Windows Task. Только READONLY operator-check при ручном обновлении.")
+    st.info("Отключено. Управляющие команды не авторизованы; роботы остаются STAGING · LIVE OFF.")
+    for robot in ROBOTS:
+        st.markdown("**" + LABELS[robot] + "**")
+        columns = st.columns(4)
+        for column, action in zip(columns, ("START", "PAUSE", "STOP", "RESTART")):
+            with column:
+                st.button(action, key="cc07-" + robot.lower() + "-" + action.lower(),
+                          disabled=True, use_container_width=True)
+    st.caption("Кнопки заблокированы. Нет обработчиков, торговых полномочий или изменения Windows Tasks. Действующее управление — только после отдельной приёмки CC-07.")
 
 
 def main():
