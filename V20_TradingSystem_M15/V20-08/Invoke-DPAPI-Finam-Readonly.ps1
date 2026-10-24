@@ -13,7 +13,7 @@ $workspace = Join-Path $root 'pretrade-08\dpapi-finam-readonly'
 $python = Join-Path $root '.venv-raw\scripts\python.exe'
 $receipt = Join-Path $root 'pretrade-08\DPAPI_TRADING_BINDINGS_REPORT.json'
 $tasksReceipt = Join-Path $root 'staging-07\TASKS_07_2_REPORT.json'
-$pin = '614a444ffed2ccaacb13172854abba321eb6fbe4'
+$pin = '25d1630ce51629b5139ef708c6c2a1864e06cd1d'
 function need([bool]$okay,[string]$code) { if (-not $okay) { throw $code } }
 function digest([string]$val) {
     $sha=[Security.Cryptography.SHA256]::Create()
@@ -60,7 +60,7 @@ if ($Mode -eq 'witness') { need ($names.Count -eq 1) 'V20_08_1_WITNESS_ONE_ACCOU
 $pkg = Join-Path $workspace 'V20_TradingSystem_M15\v20_runtime'
 New-Item -ItemType Directory -Path $pkg -Force | Out-Null
 $files = @(
-    @('finam_worker.py','4e759f29c0926f3cde607e9dbf38f4096d6d77a3'),
+    @('finam_worker.py','4d9de12e0b3e9d0d0ec72d058840bb259e2ed30d'),
     @('finam_execution.py','5e76df4085665559e4056f07f4ddf8b6574048ef'),
     @('h1_state_journal.py','f9fb32a50eb712aeae4690dd85d4e7aa512ef15c')
 )
