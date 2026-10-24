@@ -107,9 +107,16 @@ foreach ($robot in $robots) {
 foreach ($mode in @('start','restart')) {
     $guard = Join-Path $ops ('v20-shallow-' + $mode + '.ps1')
     $seen = @(& powershell.exe -NoProfile -ExecutionPolicy Bypass -File $guard)
-    require ($LASTEXITCODE -eq 3 -and
-             $seen -contains ('V20_OP_' + $mode.ToUpperInvariant() + '=REFUSED_LIVE_OFF') -and
-             $seen -contains 'V20_OP_TASK_MUTATED=NO') 'V20_07_3_LIVE_START_GUARD_FAILED'
+    $guardExit = $LASTEXITCODE
+    if (-not ($guardExit -eq 3 -and
+              $seen -contains ('V20_OP_' + $mode.ToUpperInvariant() + '=REFUSED_LIVE_OFF') -and
+              $seen -contains 'V20_OP_TASK_MUTATED=NO')) {
+        Write-Output ('V20_07_3_GUARD_MODE=' + $mode + ' EXIT_CODE=' + $guardExit)
+        foreach ($line in $seen) {
+            if ([string]$line -match '^V20_OP_[A-Z0-9_]+=') { Write-Output ([string]$line) }
+        }
+        throw 'V20_07_3_LIVE_START_GUARD_FAILED'
+    }
     Write-Output ('V20_07_3_' + $mode.ToUpperInvariant() + '=BLOCKED_AS_DESIGNED')
 }
 $stop = Join-Path $ops 'v20-shallow-stop.ps1'
