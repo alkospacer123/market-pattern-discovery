@@ -261,3 +261,19 @@ Source update commit `2787b003752577cd77e9b38bb278ab2020c8fca5`, итоговы�
 Оператор выполнил `Invoke-DPAPI-Finam-Readonly.ps1 -Mode frozen`: `v20_08_1_finam_worker_selftest=pass_readonly_no_order`, затем `NameError: name 'Datetime' is not defined` из `<string>` при подготовке фиктивных OHLCV; оболочка завершилась `V20_08_1_FROZEN_FORMULA_SELFTEST_FAILED`. Трейс возник **до вызова frozen AST**, поэтому это не дефект формул V20 и не свидетельство о неверных торговых сигналах.
 
 Причина: PowerShell 5.1 при запуске Windows native `python -c $frozenSmoke` удаляет двойные кавычки вокруг ключей словаря `{"Datetime":t,...}`. Минимальный фикс **только в блоке `$frozenSmoke`**: single-quoted Python ключи OHLCV, signal column names и текст PASS, корректно сохранённый отступ `rows.append` внутри цикла. Не трогать frozen-source, H1 FINAM-код, риск, Task, DPAPI, тарифы. Повторная физическая проверка ещё **NOT RUN**; локальный Python compile + synthetic dataframe по точному новому smoke-тексту PASS, GitHub readback verifies no double quotes in `-c` code, точный git blob `878fe6ead20ed481fc49633c92f9d942c7870885`, source commit `8a9594eb9d5e4b73aabb8d5ed41cc95123785826`. Не считать `frozen_sources` PASS до native Intel stdout. Предыдущие DPAPI 3/3 + реальный FINAM GET 3/3 + 34 адресных synthetic PASS сохраняются.
+
+## 24.10.2026 — native frozen PASS 5/5; подготовлена свежая N4 authority на трёх DPAPI счетах
+
+Оператор передал точный PASS Intel при `Invoke-DPAPI-Finam-Readonly.ps1 -Mode frozen`:
+```text
+v20_08_1_finam_worker_selftest=pass_readonly_no_order
+v20_08_1_frozen_bundle=pass_exact_locked_sources
+v20_08_1_frozen_sources=pass_5_of_5
+v20_08_1_live=off
+v20_08_1_orders=zero
+```
+Значит исходные неизменённые V20-03 / V20/V4 AST сигналы реально вызваны на Intel, 5 оригинальных файлов совпали с pinned Git hashes. Этот факт **не** означает наличия реального сегодняшнего сигнала или доказанного NEXT_OPEN. Ранее реальный GET 3/3 и 34 synthetic case PASS сохраняются.
+
+Для закрытия финансового допуска 08.1 (свежие параметры N4) расширен **тот же** `v20_runtime/finam_worker.py` — без сервиса, новых стратегий, новых расчётчиков или брокерского POST. `--authority` через existing `Invoke-DPAPI-Finam-Readonly.ps1 -Mode authority` читает для каждого собственного DPAPI-счёта H1 `FinamAPI.asset`, `asset_params`, `schedule` для 4 N4, текущие account/orders/equity/free ГО, вызывает **неизменённый H1 `instrument_resolver.validate_finam_binding`** (контракт ticker@MIC/id, FUTURES, архивность, RUB, min_step/decimals, lot/contract_size, account trade_lot_size, расписание, tradable), также H1 `margin.directional_initial_margin` отдельно LONG/SHORT. Обязательное соответствие MOEX price_step/tick_value H1 реестру; цену шага берём из проверенного MOEX authority, не угадываем по C1. Все 4/4 должны совпасть или HOLD. Система не вычисляет R15 из выдуманного сигнала, комиссии не угадывает — фактический план сделки по собственному FINAM NEXT_OPEN остаётся отдельной предзаявочной проверкой. GET-only allowlist расширен **только** на 4 N4 × asset/params/schedule при уже авторизованной JWT сессии данного счёта. Любые order/SLTP POST, DELETE, чужой счёт/инструмент блокируются (в self-test включены fake-GET allowlist и запреты).
+
+Существующий PowerShell лаунчер принимает `-Mode authority` и при необходимости обновляет в отдельном `C:\V20Lab\pretrade-08\dpapi-finam-readonly\` **только два** Python-файла, если старые файлы совпали с предыдущими подтверждёнными точными Git blob hashes. Новые точные worker/finam_execution blobs `d0085f8da2d37690eb0396f7999902ee317cff5a` / `879c9476a1ad53febf3f368e2b498f009de70d43`; новый source pin `7316b1660d8e559f6c575dc72c3dde430126910f`; script blob `583ad866b3b5f370d398484ade9ee17294ab278a`. Статический GitHub readback/allowlist/pins PASS. **Физический Intel authority 3/3 пока NOT RUN/NOT PASS**. Никаких FINAM заявок, V20 Task mutations, H1/M15 правок. Этап 08.1 IN_PROGRESS.
