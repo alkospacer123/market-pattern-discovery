@@ -7,6 +7,7 @@ writer. In particular it must never be treated as proof of executable LIVE.
 from __future__ import annotations
 
 from dataclasses import dataclass, replace
+from pathlib import Path
 from datetime import datetime, timezone, timedelta
 from decimal import Decimal
 from fractions import Fraction
@@ -14,7 +15,7 @@ import hashlib
 import re
 from typing import Any
 
-from TradingSystemLab.stage8_robot.finam_api import FinamAPI
+from TradingSystemLab.stage8_robot.finam_api import FinamAPI, FinamOrderRejected
 from TradingSystemLab.stage8_robot.broker import compact_client_order_id
 from TradingSystemLab.stage8_robot.execution_grid import require_on_grid, initial_projection, project_stop
 from TradingSystemLab.stage8_robot.finam_fill_price_readonly import (
@@ -32,6 +33,7 @@ from TradingSystemLab.stage8_robot.production_broker_state import (
 from TradingSystemLab.stage8_robot.production_runtime import _load_registry, RuntimeAction
 
 from TradingSystemLab.stage8_robot.live_execution import AuthorizedFinamProductionTransport
+from TradingSystemLab.stage8_robot.protective_stop_contract import percent_position_stop_payload
 from .account_risk import AccountAuthority, RiskReservation, reserve_entry, revalue_fill
 from .h1_state_journal import ROBOT_STRATEGIES, IsolatedReferenceJournal
 from .offline_planner import N4, FrozenSignal, ProposedEntry, OfflinePlanner, STEP
@@ -582,3 +584,175 @@ class V20TradeJournal(IsolatedReferenceJournal):
                 else "ACTUAL_FINAM_FEE_AUTHORITY_PENDING",
             )
         return observation
+
+class V20SingleTradeTransport:
+    """08.1 only: reuse H1 FINAM POSTs, strictly gated to an individual trial.
+
+    This is NOT wired to any Windows Task or installed LIVE runner. There is
+    deliberately no permit creator or automatic permission escalation.
+    Possession of an API token, a clean account or a prepared SQLite intent
+    alone cannot enable any POST. 08.2 requires separate operator approval.
+    """
+
+    def __init__(self, *, journal: V20TradeJournal, reader: V20FinamReadAdapter,
+                 accepted_commit: str, trial_permit: dict | None = None):
+        if (not isinstance(journal, V20TradeJournal)
+                or not isinstance(reader, V20FinamReadAdapter)
+                or journal.robot_id != reader.robot_id
+                or journal.account_hash != reader.account_hash
+                or not re.fullmatch(r"[0-9a-f]{40}", str(accepted_commit))):
+            raise V20FinamBlocked("TRIAL_TRANSPORT_ACCOUNT_OR_COMMIT_INVALID")
+        self.journal = journal
+        self.reader = reader
+        self.accepted_commit = accepted_commit
+        self.trial_permit = trial_permit
+
+    def _permit(self, *, key: str, kind: str) -> dict:
+        """Validate a separately supplied narrow trial approval, never create it."""
+        approval = self.trial_permit
+        expected = {
+            "schema": "v20.08.2.single_trial.v1",
+            "scope": "ONE_SPECIFIC_APPROVED_TRIAL",
+            "source_commit": self.accepted_commit,
+            "robot_id": self.journal.robot_id,
+            "account_sha256": self.journal.account_hash,
+            "entry_key": key,
+        }
+        if (not isinstance(approval, dict)
+                or any(approval.get(k) != v for k, v in expected.items())
+                or approval.get("authorized_operations") != ["ENTRY", "PROTECTIVE_STOP", "FROZEN_EXIT"]
+                or approval.get("explicit_owner_approval") is not True
+                or not isinstance(approval.get("instrument"), str)
+                or approval["instrument"] not in N4
+                or approval.get("direction") not in {"LONG", "SHORT"}
+                or type(approval.get("max_quantity")) is not int
+                or approval["max_quantity"] < 1):
+            raise V20FinamBlocked("SINGLE_TRIAL_EXPLICIT_AUTHORIZATION_MISSING")
+        if kind not in approval["authorized_operations"]:
+            raise V20FinamBlocked("TRIAL_OPERATION_NOT_APPROVED")
+        if (self.journal.store.get("trial_authority_consumed")
+                not in (None, key)):
+            raise V20FinamBlocked("TRIAL_AUTHORITY_ALREADY_USED")
+        return approval
+
+    def _entry(self, key: str, *, snapshot: LiveAccountSnapshot, now: datetime):
+        self.reader._fresh(snapshot, now)
+        if not snapshot.clean:
+            raise V20FinamBlocked("TRIAL_ACCOUNT_NOT_FLAT")
+        if self.journal.store.get("execution_halt") is not None:
+            raise V20FinamBlocked("TRIAL_JOURNAL_HALTED")
+        approval = self._permit(key=key, kind="ENTRY")
+        row = self.journal.store.intent(key)
+        if (row is None or row["status"] != "INTENT_PERSISTED"
+                or row["payload"].get("mode") != "PRETRADE_NOT_AUTHORIZED"):
+            raise V20FinamBlocked("TRIAL_ENTRY_NOT_PREPARED")
+        payload = row["payload"]
+        if (payload["symbol"] != approval["instrument"]
+                or payload["direction"] != approval["direction"]
+                or payload["quantity"] > approval["max_quantity"]
+                or len(self.journal.store.all_intents()) != 1):
+            raise V20FinamBlocked("TRIAL_SCOPE_NOT_EXACT")
+        reservation = RiskReservation.restore(
+            self.journal.store.get("risk_reservations", {}).get(key),
+        )
+        try:
+            approved_risk = Decimal(str(approval.get("max_risk_rub")))
+        except (ValueError, ArithmeticError, TypeError):
+            raise V20FinamBlocked("TRIAL_APPROVED_RISK_INVALID") from None
+        if (not approved_risk.is_finite() or approved_risk <= 0
+                or reservation.reserved_risk > approved_risk):
+            raise V20FinamBlocked("TRIAL_RISK_EXCEEDS_APPROVAL")
+        return payload
+
+    def submit_entry_once(self, *, key: str, snapshot: LiveAccountSnapshot,
+                          now: datetime) -> str:
+        """One H1 market POST, after durable UNCERTAIN checkpoint. Never retry."""
+        payload = self._entry(key, snapshot=snapshot, now=now)
+        with self.journal.store.transaction():
+            if self.journal.store.get("trial_authority_consumed") is not None:
+                raise V20FinamBlocked("TRIAL_ALREADY_CONSUMED")
+            self.journal.store.put("trial_authority_consumed", key)
+            self.journal.record_submission_boundary(key, at=now)
+        try:
+            ack = self.reader.api.place_order(self.reader.account_id, payload["wire"])
+        except FinamOrderRejected:
+            self.journal.store.transition_intent(key, "REJECTED")
+            # Even a terminal rejection requires an operator before rearming.
+            raise
+        except BaseException:
+            # No retry; unknown post result remains UNCERTAIN/HALTED in SQLite.
+            raise
+        oid = ack.get("order_id") if isinstance(ack, dict) else None
+        if not isinstance(oid, str) or not oid:
+            raise V20FinamBlocked("TRIAL_ENTRY_ACK_UNVERIFIED")
+        self.journal.store.transition_intent(key, "ACK", oid)
+        return oid
+
+    def submit_protection_once(self, *, key: str, snapshot: LiveAccountSnapshot,
+                               stop_price: Decimal, now: datetime) -> str:
+        """Use H1 100%-SLTP payload; persist intent BEFORE the only stop POST.
+
+        This risk-reducing operation deliberately remains possible when the
+        trial entry left the new-entry gate HALTED. An unknown stop result
+        never creates an automatic second stop.
+        """
+        self.reader._fresh(snapshot, now)
+        approval = self._permit(key=key, kind="PROTECTIVE_STOP")
+        entry = self.journal.store.intent(key)
+        if (entry is None or entry["status"] not in
+                {"ACK", "PARTIAL_FILL", "FILL", "RECONCILED"}
+                or not entry["broker_order_id"]):
+            raise V20FinamBlocked("STOP_ENTRY_ORDER_UNVERIFIED")
+        payload = entry["payload"]
+        if (payload["symbol"] != approval["instrument"]
+                or payload["direction"] != approval["direction"]):
+            raise V20FinamBlocked("STOP_TRIAL_SCOPE_INVALID")
+        position = snapshot.positions.get(payload["finam_symbol"], 0)
+        if (type(position) is not int or position == 0
+                or (position > 0) != (payload["direction"] == "LONG")
+                or abs(position) > payload["quantity"]):
+            raise V20FinamBlocked("STOP_POSITION_AUTHORITY_INVALID")
+        registry = _load_registry()[payload["symbol"]]
+        step = Decimal(registry["price_step"])
+        price = Decimal(str(stop_price))
+        require_on_grid(price, step)
+        stop_key = key + ":stop"
+        action = RuntimeAction(
+            "PROTECTIVE_STOP_INSTALL", stop_key, payload["symbol"],
+            payload["finam_symbol"], payload["direction"],
+            abs(position), key, None, Decimal(payload["reference_entry"]),
+            price, position, price_step=step,
+        )
+        wire = percent_position_stop_payload(action)
+        wire.pop("schema_id", None)
+        wire["client_order_id"] = compact_client_order_id(stop_key)
+        if len(stop_key) > 128:
+            raise V20FinamBlocked("STOP_KEY_COMMENT_TOO_LONG")
+        # Only the H1 documented 100%-of-position stop is accepted.
+        if wire["sl_qty_measure"] != "SLTP_QTY_MEASURE_PERCENT" or wire["quantity_sl"] != {"value": "100"}:
+            raise V20FinamBlocked("STOP_COVERAGE_INVALID")
+        with self.journal.store.transaction():
+            if self.journal.store.intent(stop_key) is not None:
+                raise V20FinamBlocked("STOP_ALREADY_ATTEMPTED_NO_RETRANSMIT")
+            self.journal.store.persist_intent(stop_key, {
+                "kind": "STOP", "entry_key": key, "wire": wire,
+                "account_sha256": self.journal.account_hash,
+                "observed_position_quantity": position,
+            })
+            self.journal.store.transition_intent(stop_key, "UNCERTAIN")
+        try:
+            ack = self.reader.api.place_sltp_order(self.reader.account_id, wire)
+        except FinamOrderRejected:
+            self.journal.store.transition_intent(stop_key, "REJECTED")
+            self.journal.store.put("execution_halt", "STOP_ORDER_REJECTED")
+            raise
+        except BaseException:
+            self.journal.store.put("execution_halt", "STOP_POST_OUTCOME_UNVERIFIED")
+            raise
+        oid = ack.get("order_id") if isinstance(ack, dict) else None
+        if not isinstance(oid, str) or not oid:
+            self.journal.store.put("execution_halt", "STOP_ACK_UNVERIFIED")
+            raise V20FinamBlocked("STOP_ACK_UNVERIFIED")
+        self.journal.store.transition_intent(stop_key, "ACK", oid)
+        # ACK alone is not protection: reader must see active 100% stop.
+        return oid
