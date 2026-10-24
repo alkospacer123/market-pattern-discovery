@@ -140,11 +140,13 @@ dates=[datetime(2026,9,1)+timedelta(days=day,hours=10,minutes=15*i) for day in r
 rows=[]
 for i,t in enumerate(dates):
     p=100+i/500
-    rows.append({"Datetime":t,"Open":p,"High":p+0.25,"Low":p-0.25,"Close":p+0.03,"Volume":1000+i%29})
+    # PowerShell 5.1 native -c argument removes embedded double quotes;
+# Python single-quoted string literals survive unchanged on Windows.
+rows.append({'Datetime':t,'Open':p,'High':p+0.25,'Low':p-0.25,'Close':p+0.03,'Volume':1000+i%29})
 result=_frozen_immutable_features(pd.DataFrame(rows))
-need={"SHALLOW_PULLBACK","OBV_PRESSURE","INSIDE_DAY_RELEASE","atr","ema50","ema200"}
-assert len(result)==len(rows) and need.issubset(result.columns), "FROZEN_FORMULA_LOAD_INVALID"
-print("v20_08_1_frozen_bundle=pass_exact_locked_sources")
+need={'SHALLOW_PULLBACK','OBV_PRESSURE','INSIDE_DAY_RELEASE','atr','ema50','ema200'}
+assert len(result)==len(rows) and need.issubset(result.columns), 'FROZEN_FORMULA_LOAD_INVALID'
+print('v20_08_1_frozen_bundle=pass_exact_locked_sources')
 '@
 $previousPath=$env:PYTHONPATH
 $previousAccount=$env:V20_FINAM_ACCOUNT
