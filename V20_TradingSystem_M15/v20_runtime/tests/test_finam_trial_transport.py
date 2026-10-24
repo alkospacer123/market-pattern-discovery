@@ -31,7 +31,15 @@ ACCOUNT = "isolated-trial-fake-account"
 ROBOT = "v20-shallow"
 HASH = hashlib.sha256(ACCOUNT.encode()).hexdigest()
 CODE_SHA = "a" * 40
-OPEN_UTC = datetime(2026, 10, 24, 7, 15, 5, tzinfo=timezone.utc)
+class OfflineTestClock(datetime):
+    """A datetime subclass keeps isinstance() checks real, never a MagicMock."""
+    @classmethod
+    def now(cls, tz=None):
+        value = OPEN_UTC
+        return value if tz is not None else value.replace(tzinfo=None)
+
+
+OPEN_UTC = OfflineTestClock(2026, 10, 24, 7, 15, 5, tzinfo=timezone.utc)
 SYMBOL = "USDRUBF@RTSX"
 
 
@@ -150,8 +158,7 @@ class TrialBoundaryTests(unittest.TestCase):
         )
 
     def test_without_external_approval_no_market_or_sltp_post(self):
-        with patch.object(execution, "datetime", wraps=datetime) as clock:
-            clock.now.return_value = OPEN_UTC
+        with patch.object(execution, "datetime", OfflineTestClock):
             with V20TradeJournal(self.root, ROBOT, ACCOUNT) as journal:
                 key, snap = self.entry(journal)
                 with self.assertRaisesRegex(V20FinamBlocked, "SINGLE_TRIAL_EXPLICIT_AUTHORIZATION_MISSING"):
@@ -160,8 +167,7 @@ class TrialBoundaryTests(unittest.TestCase):
                 self.assertEqual(journal.store.intent(key)["status"], "INTENT_PERSISTED")
 
     def test_wrong_trial_scope_denied_before_post(self):
-        with patch.object(execution, "datetime", wraps=datetime) as clock:
-            clock.now.return_value = OPEN_UTC
+        with patch.object(execution, "datetime", OfflineTestClock):
             with V20TradeJournal(self.root, ROBOT, ACCOUNT) as journal:
                 key, snap = self.entry(journal)
                 permit = self.approval(journal, key, valid=False)
@@ -172,8 +178,7 @@ class TrialBoundaryTests(unittest.TestCase):
                 self.assertEqual(self.api.order_posts, 0)
 
     def test_exact_single_entry_and_h1_100_percent_stop_never_resubmitted(self):
-        with patch.object(execution, "datetime", wraps=datetime) as clock:
-            clock.now.return_value = OPEN_UTC
+        with patch.object(execution, "datetime", OfflineTestClock):
             with V20TradeJournal(self.root, ROBOT, ACCOUNT) as journal:
                 key, snap = self.entry(journal)
                 permit = self.approval(journal, key)
@@ -205,8 +210,7 @@ class TrialBoundaryTests(unittest.TestCase):
                 self.assertEqual(self.api.stop_posts, 1)
 
     def test_unknown_post_stays_uncertain_after_restart_without_retry(self):
-        with patch.object(execution, "datetime", wraps=datetime) as clock:
-            clock.now.return_value = OPEN_UTC
+        with patch.object(execution, "datetime", OfflineTestClock):
             with V20TradeJournal(self.root, ROBOT, ACCOUNT) as journal:
                 key, snap = self.entry(journal)
                 permit = self.approval(journal, key)
