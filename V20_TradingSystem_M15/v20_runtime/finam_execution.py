@@ -747,6 +747,50 @@ class V20SingleTradeTransport:
         if (payload["direction"] == "LONG" and price >= Decimal(payload["reference_entry"])
                 or payload["direction"] == "SHORT" and price <= Decimal(payload["reference_entry"])):
             raise V20FinamBlocked("STOP_ON_WRONG_SIDE")
+        # Reuse the SAME strict H1 FINAM /trades order-linked fill proof that
+        # our V20 SQLite protected-entry observer already trusts. A caller
+        # cannot supply an arbitrary stop merely because it lies on the grid.
+        submission = self.journal.store.get("entry_submission:" + key)
+        if (not isinstance(submission, dict)
+                or submission.get("account_sha256") != self.journal.account_hash
+                or not isinstance(submission.get("submitted_at"), str)):
+            raise V20FinamBlocked("STOP_ENTRY_SUBMISSION_EVIDENCE_MISSING")
+        try:
+            submitted_at = datetime.fromisoformat(submission["submitted_at"])
+            history = self.reader.inspect_entry_fills(
+                current, entry_key=key, symbol=payload["symbol"],
+                direction=payload["direction"],
+                requested_quantity=payload["quantity"],
+                submitted_at=submitted_at, now=now,
+            )
+            facts = history["matched_unique_fills"]
+            if (history["authority_scope"] !=
+                    "READONLY_DIAGNOSTIC_ONLY_NO_RUNTIME_HANDOFF"
+                    or history["matched_quantity"] != abs(position)
+                    or not facts):
+                raise V20FinamBlocked("STOP_ENTRY_FILLS_NOT_PROVEN")
+            order = unique_order_by_client_id(
+                list(current.orders), compact_client_order_id(key),
+            )
+            if order is None or order.order_id != entry["broker_order_id"]:
+                raise V20FinamBlocked("STOP_ENTRY_ORDER_ID_MISMATCH")
+            reservation = RiskReservation.restore(
+                self.journal.store.get("risk_reservations", {}).get(key),
+            )
+            fill_items = [(int(f["quantity"]), f["price"], "0") for f in facts]
+            valuation = revalue_fill(
+                reservation, fill_items, installed_stop=price,
+                other_reserved_risk=sum(
+                    (RiskReservation.restore(r).reserved_risk for k, r in
+                     self.journal.store.get("risk_reservations", {}).items()
+                     if k != key), Decimal(0),
+                ),
+            )
+            if valuation["stop_conforms"] is not True:
+                raise V20FinamBlocked("STOP_NOT_FROM_ACTUAL_FINAM_FILL_VWAP")
+        except Exception:
+            self.journal.store.put("execution_halt", "STOP_FILL_OR_PRICE_AUTHORITY_UNVERIFIED")
+            raise
         stop_key = key + ":stop"
         action = RuntimeAction(
             "PROTECTIVE_STOP_INSTALL", stop_key, payload["symbol"],
