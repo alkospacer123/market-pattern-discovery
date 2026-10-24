@@ -371,11 +371,11 @@
     },
     {
       "path": "docs/V20_CC08_OPERATIONS.md",
-      "sha256": "617b46b4e49c2cd2fdbe8aa403b9a3c56598b439c6c04d2e3c3d11328107fc60"
+      "sha256": "a68b802cbe54d3d9b91c879f34db80c3c532b19db624569bebda1aa0685a10d9"
     },
     {
       "path": "docs/V20_CONTROL_CENTER_ROADMAP.md",
-      "sha256": "8329759d2a7e9093e718978c075de28bc6e433a96fcf6ec0038b31b8386a6112"
+      "sha256": "24d110523c917240ba34f15841779eefbe50c9203f5c6dcafd6c6c2172ee90d8"
     },
     {
       "path": "docs/browser-check.json",
@@ -531,7 +531,7 @@
     },
     {
       "path": "tests/test_v20_control_center.py",
-      "sha256": "27efe9601209a8a81a2bb9cc52dcf2332136e3d430ab9882111616d620cd6577"
+      "sha256": "2af75953c6ee03e348cb174316e2c5f1e9d66eb13960fe3a831ca067d30b6431"
     },
     {
       "path": "tests/test_v20_controller.py",
@@ -555,7 +555,7 @@
     },
     {
       "path": "v20_app.py",
-      "sha256": "14c4ed65e2818da668d0771f640787b403460e9ae8eb9f42087df8463299712f"
+      "sha256": "9ca38f66a80be7d6e3fa2f2892abbdafde0b44dd2aeb33b78c1e131910c89925"
     }
   ]
 }
