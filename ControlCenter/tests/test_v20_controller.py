@@ -1,6 +1,8 @@
 """CC-06: offline refusal contract; cannot control Windows Tasks or FINAM."""
 import ast
 import json
+import subprocess
+import sys
 from pathlib import Path
 import pytest
 
@@ -68,3 +70,35 @@ def test_controller_has_no_task_broker_or_streamlit_capabilities():
     assert "controller.v20_control" not in app
     assert "controller" not in {name.module for name in ast.walk(ast.parse(app))
                                 if isinstance(name, ast.ImportFrom)}
+
+
+def test_independent_cli_process_refuses_all_actions_without_ui(tmp_path):
+    """Execute the real isolated CLI as a child, not a Streamlit or Task process."""
+    script = ROOT / "controller" / "v20_control.py"
+    before = sorted(tmp_path.iterdir())
+    for robot in ROBOTS:
+        for action in ACTIONS:
+            child = subprocess.run(
+                [sys.executable, "-I", "-B", str(script), "--robot", robot,
+                 "--action", action, "--request-id", "offline-process-01"],
+                cwd=tmp_path, capture_output=True, text=True, timeout=10, check=False,
+            )
+            assert child.returncode == 3
+            assert child.stderr == ""
+            result = json.loads(child.stdout)
+            assert result["robot"] == robot and result["action"] == action
+            assert result["executed"] is False and result["task_mutated"] is False
+            assert result["finam_contacted"] is False and result["live_authorized"] is False
+    assert sorted(tmp_path.iterdir()) == before
+
+
+def test_independent_cli_rejects_invalid_robot_before_any_execution(tmp_path):
+    script = ROOT / "controller" / "v20_control.py"
+    child = subprocess.run(
+        [sys.executable, "-I", "-B", str(script), "--robot", "../v20",
+         "--action", "start", "--request-id", "offline-02"],
+        cwd=tmp_path, capture_output=True, text=True, timeout=10, check=False,
+    )
+    assert child.returncode != 0
+    assert child.stdout == ""
+    assert list(tmp_path.iterdir()) == []
