@@ -9,6 +9,9 @@ from __future__ import annotations
 from dataclasses import dataclass, replace
 from pathlib import Path
 from zoneinfo import ZoneInfo
+from urllib.parse import urlencode
+
+import pandas as pd
 from datetime import datetime, timezone, timedelta
 from decimal import Decimal
 from fractions import Fraction
@@ -17,7 +20,7 @@ import json
 import re
 from typing import Any
 
-from TradingSystemLab.stage8_robot.finam_api import FinamAPI, FinamOrderRejected
+from TradingSystemLab.stage8_robot.finam_api import FinamAPI, FinamOrderRejected, BARS_PATH_TEMPLATE
 from TradingSystemLab.stage8_robot.broker import compact_client_order_id
 from TradingSystemLab.stage8_robot.execution_grid import require_on_grid, initial_projection, project_stop
 from TradingSystemLab.stage8_robot.finam_fill_price_readonly import (
@@ -39,6 +42,7 @@ from TradingSystemLab.stage8_robot.protective_stop_contract import percent_posit
 from .account_risk import AccountAuthority, RiskReservation, reserve_entry, revalue_fill
 from .h1_state_journal import ROBOT_STRATEGIES, IsolatedReferenceJournal
 from .offline_planner import N4, FrozenSignal, ProposedEntry, OfflinePlanner, STEP
+from .frozen_adapter import validate_completed_history, completed_signal
 
 
 ACTIVE_STATUSES = frozenset({"ACCOUNT_ACTIVE", "ACCOUNT_STATUS_ACTIVE"})
@@ -786,3 +790,127 @@ class V20SingleTradeTransport:
         self.journal.store.transition_intent(stop_key, "ACK", oid)
         # ACK alone is not protection: reader must see active 100% stop.
         return oid
+
+@dataclass(frozen=True)
+class V20M15Boundary:
+    """Separate FINAM completed-candle facts and a new-bar Open witness."""
+    symbol: str
+    at_msk: datetime  # naive Moscow wall-clock exact M15 boundary
+    completed: pd.DataFrame
+    witnessed_open: Decimal
+    observed_at_utc: datetime
+
+
+def read_finam_m15_boundary(
+    reader: V20FinamReadAdapter, *, symbol: str,
+    from_utc: datetime, now: datetime,
+) -> V20M15Boundary:
+    """GET-only H1 FINAM API + official TIME_FRAME_M15 query.
+
+    Caller must still establish FINAM M15 timestamp *open-label* semantics
+    against real broker samples before any LIVE decision. We never treat a
+    partially formed bar's High/Low/Close/Volume as a completed signal.
+    An absent current-bar Open, late observation or discontinuity refuses entry.
+    """
+    reader._require_bound()
+    if (symbol not in N4 or not isinstance(from_utc, datetime)
+            or not isinstance(now, datetime)
+            or from_utc.tzinfo is None or now.tzinfo is None
+            or from_utc.utcoffset() is None or now.utcoffset() is None):
+        raise V20FinamBlocked("M15_READ_INPUT_INVALID")
+    start = from_utc.astimezone(timezone.utc)
+    observed = now.astimezone(timezone.utc)
+    if not timedelta(minutes=15) <= observed - start <= timedelta(days=30):
+        raise V20FinamBlocked("M15_FINAM_HISTORY_INTERVAL_INVALID")
+    at_msk = observed.astimezone(ZoneInfo("Europe/Moscow")).replace(tzinfo=None)
+    boundary = at_msk.replace(minute=at_msk.minute//15*15, second=0, microsecond=0)
+    elapsed = at_msk - boundary
+    if not timedelta(0) <= elapsed <= timedelta(seconds=60):
+        raise V20FinamBlocked("M15_IMMEDIATE_NEXT_OPEN_MISSED")
+    # The exclusive end includes the current M15 bar's Open if FINAM has
+    # published it. This is a scalar reference only, not a filled price.
+    exclusive_end = (observed + STEP).isoformat()
+    query = urlencode({
+        "timeframe": "TIME_FRAME_M15",
+        "interval.start_time": start.isoformat(),
+        "interval.end_time": exclusive_end,
+    })
+    finam_symbol = _load_registry()[symbol]["finam_symbol"]
+    response = reader.api._request(
+        "GET", BARS_PATH_TEMPLATE.format(symbol=finam_symbol) + "?" + query,
+    ).body
+    if (not isinstance(response, dict)
+            or response.get("symbol") not in (None, finam_symbol)
+            or not isinstance(response.get("bars"), list)):
+        raise V20FinamBlocked("M15_FINAM_RESPONSE_SCHEMA_INVALID")
+    rows = []
+    for item in response["bars"]:
+        if not isinstance(item, dict) or not isinstance(item.get("timestamp"), str):
+            raise V20FinamBlocked("M15_FINAM_BAR_SCHEMA_INVALID")
+        try:
+            utc_open = datetime.fromisoformat(
+                item["timestamp"].replace("Z", "+00:00"),
+            ).astimezone(timezone.utc)
+        except (ValueError, TypeError) as exc:
+            raise V20FinamBlocked("M15_FINAM_TIMESTAMP_INVALID") from exc
+        if utc_open < start or utc_open > observed or utc_open.second or utc_open.microsecond:
+            raise V20FinamBlocked("M15_FINAM_TIMESTAMP_OUT_OF_RANGE")
+        stamp = utc_open.astimezone(ZoneInfo("Europe/Moscow")).replace(tzinfo=None)
+        if stamp.minute % 15:
+            raise V20FinamBlocked("M15_FINAM_GRID_MISMATCH")
+        price = {}
+        for field in ("open", "high", "low", "close", "volume"):
+            price[field] = parse_rest_decimal_value_object(item.get(field))
+            if not price[field].is_finite() or price[field] < 0 or (
+                field != "volume" and price[field] <= 0
+            ):
+                raise V20FinamBlocked("M15_FINAM_OHLCV_INVALID")
+        rows.append((stamp, price))
+    dates = [r[0] for r in rows]
+    if dates != sorted(set(dates)):
+        raise V20FinamBlocked("M15_DUPLICATE_OR_UNSORTED_BARS")
+    live = [(t, x) for t, x in rows if t == boundary]
+    if len(live) != 1:
+        raise V20FinamBlocked("M15_NEXT_OPEN_WITNESS_MISSING")
+    witnessed_open = live[0][1]["open"]
+    require_on_grid(witnessed_open, Decimal(_load_registry()[symbol]["price_step"]))
+    completed = [(t, x) for t, x in rows if t + STEP <= boundary]
+    if not completed or completed[-1][0] != boundary-STEP:
+        raise V20FinamBlocked("M15_FINAL_COMPLETED_BAR_MISSING")
+    if any(t > boundary for t in dates):
+        raise V20FinamBlocked("M15_FUTURE_BAR_FORBIDDEN")
+    frame = pd.DataFrame([
+        {"Datetime": t, "Open": float(x["open"]), "High": float(x["high"]),
+         "Low": float(x["low"]), "Close": float(x["close"]),
+         "Volume": float(x["volume"])}
+        for t, x in completed
+    ])
+    frame = validate_completed_history(symbol, frame, observed_at=boundary)
+    return V20M15Boundary(symbol, boundary, frame, witnessed_open, observed)
+
+
+def offline_m15_signal_diagnostic(
+    reader: V20FinamReadAdapter, *, symbol: str, from_utc: datetime,
+    now: datetime,
+) -> dict[str, Any]:
+    """Run *only* the frozen signal from observed FINAM bars, not a trade."""
+    boundary = read_finam_m15_boundary(
+        reader, symbol=symbol, from_utc=from_utc, now=now,
+    )
+    signal = completed_signal(
+        symbol, ROBOT_STRATEGIES[reader.robot_id], boundary.completed,
+        observed_at=boundary.at_msk,
+    )
+    return {
+        "mode": "DIAGNOSTIC_ONLY_TIMESTAMP_SEMANTICS_NOT_YET_VERIFIED",
+        "robot_id": reader.robot_id, "symbol": symbol,
+        "at_msk": boundary.at_msk.isoformat(),
+        "completed_bar_count": len(boundary.completed),
+        "witnessed_open": str(boundary.witnessed_open),
+        "signal": None if signal is None else {
+            "direction": "LONG" if signal.side == 1 else "SHORT",
+            "atr14": str(signal.atr14),
+            "bar_open_msk": signal.signal_bar_open.isoformat(),
+        },
+        "orders": 0,
+    }
