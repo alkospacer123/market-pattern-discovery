@@ -1,6 +1,6 @@
-# v20-08.1: 3 new fake FINAM M15 boundary GET-only cases, no real requests.
+# v20-08.1: 5 new fake FINAM M15 and observed-session cases, no real requests.
 $ErrorActionPreference = 'Stop'
-$pin = '94394d846d24ca21c0f1e2419fc7caaf46972ef6'
+$pin = '9f39a6e2635f3bcebf8328eb5210fba0ea735698'
 $root = 'c:\v20lab'
 $source = Join-Path $root 'source-raw'
 $python = Join-Path $root '.venv-raw\scripts\python.exe'
@@ -11,9 +11,9 @@ $pkg = Join-Path $workspace 'V20_TradingSystem_M15\v20_runtime'
 $tests = Join-Path $pkg 'tests'
 New-Item -ItemType Directory -Path $tests -Force | Out-Null
 $files = @(
-    @('v20_runtime/finam_execution.py','63297d8199b49616a7825fb656e92c26bd718e71',$pkg,'finam_execution.py'),
+    @('v20_runtime/finam_execution.py','5bd5078e2a74cdff2d8df227ae8294bd0e68e1ed',$pkg,'finam_execution.py'),
     @('v20_runtime/h1_state_journal.py','f9fb32a50eb712aeae4690dd85d4e7aa512ef15c',$pkg,'h1_state_journal.py'),
-    @('v20_runtime/tests/test_finam_m15_boundary.py','2c4fd75cb7baaf8feb385ee5619789847d5d3b52',$tests,'test_finam_m15_boundary.py')
+    @('v20_runtime/tests/test_finam_m15_boundary.py','1daf68c4cb1da2ee1697b3ea26a76122f9c3fa49',$tests,'test_finam_m15_boundary.py')
 )
 foreach ($entry in $files) {
     $to = Join-Path $entry[2] $entry[3]
@@ -47,7 +47,7 @@ try {
     $env:pythondontwritebytecode = '1'
     & $python -B -m unittest discover -s $tests -p 'test_finam_m15_boundary.py' -v
     if ($LASTEXITCODE -ne 0) { throw 'v20_08_1_m15_boundary_failed' }
-    Write-Output 'v20_08_1_m15_boundary=pass_3_of_3'
+    Write-Output 'v20_08_1_m15_boundary=pass_5_of_5'
     Write-Output 'v20_08_1_live=off'
     Write-Output 'v20_08_1_orders=zero'
     Write-Output ('v20_08_1_source_pin=' + $pin)
