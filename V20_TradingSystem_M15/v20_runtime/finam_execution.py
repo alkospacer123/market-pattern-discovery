@@ -920,3 +920,39 @@ def offline_m15_signal_diagnostic(
         },
         "orders": 0,
     }
+
+def frozen_observed_session_exit(
+    boundary: V20M15Boundary, *, entry_open_msk: datetime,
+) -> str:
+    """Frozen V20 holding deadline, evaluated on *observed* M15 opens only.
+
+    The entry session counts as the first. On the first witnessed Open of
+    the third session, return EXIT_AT_THIRD_OBSERVED_SESSION_OPEN. If that
+    exact opening boundary was missed, HALT instead of pretending to have
+    exited at a past price. This emits NO broker orders.
+    """
+    if (not isinstance(boundary, V20M15Boundary)
+            or not isinstance(entry_open_msk, datetime)
+            or entry_open_msk.tzinfo is not None
+            or entry_open_msk.second or entry_open_msk.microsecond
+            or entry_open_msk.minute % 15
+            or boundary.at_msk < entry_open_msk):
+        raise V20FinamBlocked("THIRD_SESSION_EXIT_INPUT_INVALID")
+    entry_day = OfflinePlanner._session_key(entry_open_msk)
+    rows = [
+        pd.Timestamp(value).to_pydatetime()
+        for value in boundary.completed["Datetime"]
+    ]
+    if entry_open_msk not in rows and entry_open_msk != boundary.at_msk:
+        raise V20FinamBlocked("ENTRY_SESSION_OBSERVATION_MISSING")
+    days = sorted({OfflinePlanner._session_key(t) for t in rows
+                   if t >= entry_open_msk}
+                  | {OfflinePlanner._session_key(boundary.at_msk), entry_day})
+    if len(days) < 3:
+        return "HOLD_UNTIL_THIRD_OBSERVED_SESSION"
+    third = days[2]
+    if (len(days) == 3
+            and OfflinePlanner._session_key(boundary.at_msk) == third
+            and not any(OfflinePlanner._session_key(t) == third for t in rows)):
+        return "EXIT_AT_THIRD_OBSERVED_SESSION_OPEN"
+    return "MISSED_OR_PASSED_THIRD_SESSION_OPEN_HALT"
