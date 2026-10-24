@@ -212,3 +212,20 @@ PASS ретроспективных OHLC **не доказывает**, что �
 - Перед вводом реальных секретов выполняется локальный DPAPI round-trip на искусственном значении и проверяется наличие `icacls.exe`. GitHub file blob `8bb8281fc5cbfea0dabb4be9a81da3add907d6dc` проверен; **Intel DPAPI installer ещё NOT RUN / NOT PASS**, реальное наличие токенов в защищённых отдельных V20 окружениях не утверждать.
 
 Остаток V20-08.1: 3 отдельные секретные конфигурации → подключение единого V20 worker-процесса к существующим FINAM/H1 StateStore/SLTP, включение без обхода существующего 07 Task SID/оператора → проверить фактическое своевременное NEXT_OPEN в сессию → короткий физический до-ордерный preflight. 08.2 и выше НЕ STARTED; Live OFF.
+
+## 24.10.2026 — оператор подтвердил физическую установку DPAPI 3/3 PASS; общий FINAM GET-only worker
+
+Оператор предоставил завершившийся на Intel stdout:
+- `v20_08_1_dpapi_v20-shallow=PASS_SID_BOUND_LIVE_OFF`
+- `v20_08_1_dpapi_v20-obv=PASS_SID_BOUND_LIVE_OFF`
+- `v20_08_1_dpapi_v20-inside=PASS_SID_BOUND_LIVE_OFF`
+- `v20_08_1_dpapi=pass_3_of_3_live_off`
+- `C:\V20Lab\pretrade-08\DPAPI_TRADING_BINDINGS_REPORT.json`.
+
+Три отдельных парных account/token DPAPI файла физически созданы под действующим Task SID, без попадания секретов в GitHub/чат. Не объявлять их токены подключёнными к рабочему worker до проверки реального запуска. Task Disabled, H1/M15 без изменений.
+
+**Один общий, НЕ новый движок:** создан `v20_runtime/finam_worker.py` с выбором `--robot` из трёх existing `ROBOT_STRATEGIES`: опирается исключительно на исходный H1 `FinamAPI` и существующий `V20FinamReadAdapter`. В нынешнем варианте разрешены только H1 POST авторизации и строго два GET по собственному счету (account/orders), плюс ограниченный GET текущей M15 N4. Любой POST/DELETE заявки, чтение чужого account, asset N4 params и прочие запросы блокируются на уровне `_request`. По умолчанию выполняется ровно один GET-only проход, без изменения SQLite/Tasks и без создания заявки; при флаге `--witness-current-open` внутри первых 60 секунд реальной M15 границы проверяются четыре FINAM новых Open. Запуск вне первой минуты не считается PASS — вывод HOLD, код 2.
+
+`V20-08/Invoke-DPAPI-Finam-Readonly.ps1` — **один** лаунчер для всех трёх (preflight) или одного (witness). Он проверяет фактические Disabled Task/SID и ранее подтверждённые отчёты 07.2 + DPAPI 3/3, скачивает exact-Git-pinned три Python source файла в собственный `C:\V20Lab\pretrade-08\dpapi-finam-readonly\`, остальные неизменённые V20-модули копирует из уже существующего source-raw. Перед дешифрованием секретов выполняет внутренний **локальный synthetic** HTTP-allowlist selftest без сети/токенов, затем для выбранного V20-робота расшифровывает только его DPAPI-пару под тем же SID и вызывает существующий H1-клиент через временные переменные среды дочернего Python-процесса (секрет не в командной строке и не в логах). После вызова удаляет переменные и не сохраняет открытые секреты. Запуск не регистрирует, не включает и не меняет Windows Tasks и не меняет H1/M15.
+
+Источник launcher pinned source `25d1630ce51629b5139ef708c6c2a1864e06cd1d`; его Git blob `2d478b94f16146db4c7bf426dfb5f36d814f4420`; Python worker blob `4d9de12e0b3e9d0d0ec72d058840bb259e2ed30d`. Исходники/блокировка write и Git blobs сверены статически. **Физический Intel общий GET-only worker ещё NOT RUN/NOT PASS**. Настоящий LIVE-токен к POST не допущен. Следующий шаг — однократный real GET-only preflight всех трёх из DPAPI и при торговой M15 границе точечный `witness`; затем только соответствующий 08.1 production worker/Task acceptance. V20-08.1 IN PROGRESS, никаких новых этапов или Shadow.
