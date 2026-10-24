@@ -103,7 +103,7 @@
     },
     {
       "path": "cc/v20_staging.py",
-      "sha256": "fc40988b02e31a6ad9dba626a4c7162166be02c4adcd1e5abe4d2d9560dfe005"
+      "sha256": "37ca41e56ef53148cf998aceae5829187e88ae56491aad011a695faf01da6276"
     },
     {
       "path": "ci/Os-Fixtures.ps1",
