@@ -17,6 +17,8 @@ BINDING = BASE / "ACCOUNT_BINDING_REPORT.json"
 SPEC = BASE / "N4_SPECIFICATIONS_REPORT.json"
 STATE = BASE / "ACCOUNT_STATE_REPORT.json"
 OUTPUT = BASE / "BROKER_READONLY_REPORT.json"
+FUNDED_STATE = BASE / "ACCOUNT_STATE_REPORT_FUNDED.json"
+FUNDED_OUTPUT = BASE / "BROKER_READONLY_REPORT_FUNDED.json"
 ROBOTS = ("v20-shallow", "v20-obv", "v20-inside")
 N4 = ("USDRUBF", "CNYRUBF", "GLDRUBF", "IMOEXF")
 COMPLETE = "BOUNDED_3_DAYS_COMPLETE_BY_LIMIT_AND_CURSOR"
@@ -48,9 +50,16 @@ def accounts(source, label):
     return indexed
 
 
-def summarize():
-    require(not OUTPUT.exists(), "REPORT_ALREADY_EXISTS_NO_OVERWRITE")
-    binding, spec, state = read(BINDING), read(SPEC), read(STATE)
+def summarize(funded=False):
+    state_path = FUNDED_STATE if funded else STATE
+    output_path = FUNDED_OUTPUT if funded else OUTPUT
+    require(not output_path.exists(), "REPORT_ALREADY_EXISTS_NO_OVERWRITE")
+    if funded:
+        require(OUTPUT.is_file() and STATE.is_file(), "BASELINE_MISSING")
+    binding, spec, state = read(BINDING), read(SPEC), read(state_path)
+    if funded:
+        require(state.get("prior_06_3_report_sha256") == sha256(STATE),
+                "FUNDED_BASELINE_HASH_MISMATCH")
     require(binding.get("status") == "PASS_3_OF_3"
             and binding.get("readonly_token_scope") == "ONE_SHARED_TOKEN_THREE_DISTINCT_ACCOUNTS",
             "BINDING_06_1_NOT_PASS")
@@ -139,7 +148,7 @@ def summarize():
     report = {
         "schema": "v20.finam.broker_readonly_report.v1",
         "sources_sha256": {
-            "06_1": sha256(BINDING), "06_2": sha256(SPEC), "06_3": sha256(STATE),
+            "06_1": sha256(BINDING), "06_2": sha256(SPEC), "06_3": sha256(state_path),
         },
         "source_observed_at_utc": state.get("observed_at_utc"),
         "status": overall,
@@ -154,19 +163,21 @@ def summarize():
         "operator_next": "FUNDING_OR_CLEANLINESS_RESOLUTION" if not successful
                          else "06_4_REPORT_READY_FOR_OPERATOR_REVIEW",
     }
-    OUTPUT.parent.mkdir(parents=True, exist_ok=True)
-    with OUTPUT.open("x", encoding="utf-8") as f:
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    with output_path.open("x", encoding="utf-8") as f:
         json.dump(report, f, ensure_ascii=False, indent=2)
         f.write("\n")
     print("V20_06_4_REPORT_GENERATED=PASS")
     print("V20_06_OVERALL=" + overall)
-    print("V20_06_4_REPORT=" + str(OUTPUT))
+    print("V20_06_4_REPORT=" + str(output_path))
     return 0
 
 
 if __name__ == "__main__":
     try:
-        raise SystemExit(summarize())
+        if len(sys.argv) > 2 or (len(sys.argv) == 2 and sys.argv[1] != "--funded"):
+            raise RuntimeError("V20_06_4_UNSUPPORTED_ARGS")
+        raise SystemExit(summarize(funded=len(sys.argv) == 2))
     except Exception as exc:
         message = str(exc)
         reason = (message if type(exc) is RuntimeError and
