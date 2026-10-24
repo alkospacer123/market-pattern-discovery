@@ -266,7 +266,35 @@ def self_test() -> int:
     api._request("GET", BARS_PATH_TEMPLATE.format(symbol=symbol) + "?" + query)
     if len(seen) != 3 or seen[-1][0] != "GET":
         raise AssertionError("V20_08_1_ALLOWLIST_M15_READ_FAILED")
+    # Exercise the additional per-account FINAM asset/params/schedule reads
+    # with synthetic HTTP, proving no new order route can become reachable.
+    scoped = AuthorityReadOnlyAPI(
+        "SYNTHETIC_SECRET", "SYNTHETIC_ACCOUNT", transport=fake_transport,
+    )
+    scoped._FinamAPI__jwt = "SYNTHETIC_JWT"
+    n_before = len(seen)
+    for method, path in (
+        ("POST", "/v1/accounts/SYNTHETIC_ACCOUNT/orders"),
+        ("DELETE", "/v1/accounts/SYNTHETIC_ACCOUNT/orders/123"),
+        ("GET", "/v1/assets/USDRUBF@RTSX/params?account_id=OTHER_ACCOUNT"),
+        ("GET", "/v1/assets/BR@RTSX/schedule"),
+    ):
+        try:
+            scoped._request(method, path)
+        except V20FinamBlocked:
+            pass
+        else:
+            raise AssertionError("V20_08_1_AUTHORITY_WRITE_OR_FOREIGN_READ_ALLOWED")
+    if len(seen) != n_before:
+        raise AssertionError("V20_08_1_AUTHORITY_FORBIDDEN_HTTP_REACHED")
+    target = "USDRUBF@RTSX"
+    scoped.asset(target, "SYNTHETIC_ACCOUNT")
+    scoped.asset_params(target, "SYNTHETIC_ACCOUNT")
+    scoped.schedule(target)
+    if len(seen) != n_before + 3 or any(x[0] != "GET" for x in seen[-3:]):
+        raise AssertionError("V20_08_1_AUTHORITY_SCOPED_READ_INVALID")
     print("v20_08_1_finam_worker_selftest=pass_readonly_no_order")
+    print("v20_08_1_n4_authority_gate=pass_synthetic_get_only")
     return 0
 
 
