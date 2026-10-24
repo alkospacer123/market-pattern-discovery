@@ -1,0 +1,14 @@
+{
+  "Decimal_calendar_and_aggregate_fields": 102,
+  "external_review": "NOT_PERFORMED",
+  "fields": 3256082,
+  "independence": "Separate event-agenda scalar execution and PR518 streaming EWM; same author; no primary engine/features or report imports",
+  "independent_statistics": {
+    "fresh_CSV_Decimal_fields": 8520,
+    "scope": "all requested aggregate/year/month metrics, drawdowns, every cohort row, lost and >=2R winners, new/missed entries, CONTROL_R0 decomposition",
+    "status": "PASS"
+  },
+  "max_abs_error": 4.440892098500626e-16,
+  "rows": 321213,
+  "status": "PASS"
+}
