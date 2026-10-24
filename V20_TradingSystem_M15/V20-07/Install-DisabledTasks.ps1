@@ -69,11 +69,21 @@ if (Test-Path -LiteralPath $blocker) {
     $blockerText | Set-Content -LiteralPath $blocker -Encoding UTF8 -ErrorAction Stop
 }
 function principal-sid-matches([string]$taskUser, [string]$expectedSid) {
-    # Scheduler may persist the same Windows identity with a different name.
-    # Resolve to SID instead of weakening the principal security gate.
+    # Windows can normalize the account name in a registered Task differently.
+    # Never waive identity validation; compare the resolved Windows SID.
     if ([string]::IsNullOrWhiteSpace($taskUser)) { return $false }
     try {
-        if ($taskUser -match '^S-[0-9]+(-[0-9]+)+
+        if ($taskUser -match '^S-[0-9]+(-[0-9]+)+$') {
+            $resolvedSid = [Security.Principal.SecurityIdentifier]::new($taskUser)
+        } else {
+            $resolvedSid = ([Security.Principal.NTAccount]::new($taskUser)).Translate([Security.Principal.SecurityIdentifier])
+        }
+        return $resolvedSid.Value -eq $expectedSid
+    } catch {
+        return $false
+    }
+}
+$identity = [Security.Principal.WindowsIdentity]::GetCurrent()
 $userName = $identity.Name
 $userSid = $identity.User.Value
 require ($userSid -notin @('S-1-5-18','S-1-5-19','S-1-5-20')) 'V20_07_2_SERVICE_PRINCIPAL_FORBIDDEN'
@@ -107,89 +117,6 @@ foreach ($robot in $robotNames) {
     require ($check.State -eq 'Disabled' -and @($check.Actions).Count -eq 1 -and
              $check.Actions[0].Arguments -ceq $taskArguments -and
              (principal-sid-matches ([string]$check.Principal.UserId) $userSid)) 'V20_07_2_TASK_NOT_SAFE_DISABLED'
-    $rows += [ordered]@{
-        robot = $robot
-        task_name = $robot
-        task_path = '\'
-        task_state = 'Disabled'
-        windows_user = $userName
-        windows_sid = $userSid
-        logon_type = 'Interactive'
-        run_level = 'Limited'
-        action_executable = 'powershell.exe'
-        action_arguments = $taskArguments
-        working_directory = $workingDirectory
-        source_commit = $pin
-        live_enabled = $false
-        trading_token_present = $false
-    }
-}
-$summary = [ordered]@{
-    schema = 'v20.intel.stage07.disabled_tasks.v1'
-    status = 'PASS_3_OF_3_DISABLED'
-    source_commit = $pin
-    principal_user = $userName
-    principal_sid = $userSid
-    account_binding_authority = 'FUNDED_READONLY_ACCOUNT_SHA256_ONLY'
-    trading_authorized = $false
-    live_enabled = $false
-    tasks_started = $false
-    finam_used = $false
-    orders_sent = 0
-    h1_m15_task_mutations = 0
-    action = 'PERMANENT_FAIL_CLOSED_PLACEHOLDER_UNTIL_SEPARATE_APPROVAL'
-    tasks = $rows
-    next_roadmap = 'V20-07.3'
-}
-$summary | ConvertTo-Json -Depth 8 | Set-Content -LiteralPath $taskReport -Encoding UTF8 -ErrorAction Stop
-Write-Output 'V20_07_2_RESULT=PASS_3_OF_3_DISABLED'
-Write-Output ('V20_07_2_SOURCE_SHA=' + $pin)
-Write-Output ('V20_07_2_REPORT=' + $taskReport)
-Write-Output 'V20_07_2_NO_FINAM_NO_ORDERS_NO_LIVE_NO_H1_M15_TASK_MUTATION=YES'
-) {
-            $resolvedSid = [Security.Principal.SecurityIdentifier]::new($taskUser)
-        } else {
-            $resolvedSid = ([Security.Principal.NTAccount]::new($taskUser)).Translate([Security.Principal.SecurityIdentifier])
-        }
-        return $resolvedSid.Value -eq $expectedSid
-    } catch {
-        return $false
-    }
-}
-$identity = [Security.Principal.WindowsIdentity]::GetCurrent()
-$userName = $identity.Name
-$userSid = $identity.User.Value
-require ($userSid -notin @('S-1-5-18','S-1-5-19','S-1-5-20')) 'V20_07_2_SERVICE_PRINCIPAL_FORBIDDEN'
-$taskPrincipal = New-ScheduledTaskPrincipal -UserId $userName -LogonType Interactive -RunLevel Limited -ErrorAction Stop
-$settings = New-ScheduledTaskSettingsSet -MultipleInstances IgnoreNew -ExecutionTimeLimit (New-TimeSpan -Minutes 1) -ErrorAction Stop
-$trigger = New-ScheduledTaskTrigger -AtStartup -ErrorAction Stop
-$rows = @()
-foreach ($robot in $robotNames) {
-    $short = $robot.Substring(4)
-    $workingDirectory = Join-Path $root ('robots\' + $short)
-    $taskArguments = '-NoProfile -NonInteractive -ExecutionPolicy RemoteSigned -File "' + $blocker + '" -Robot ' + $robot
-    $existing = Get-ScheduledTask -TaskName $robot -TaskPath '\' -ErrorAction SilentlyContinue
-    if ($null -ne $existing) {
-        # Resume a partial install ONLY if the existing task is already
-        # disabled, bound to this user and still runs the exact blocker.
-        require ($existing.State -eq 'Disabled' -and
-                 $existing.Principal.UserId -in @($userName,$userSid) -and
-                 @($existing.Actions).Count -eq 1 -and
-                 $existing.Actions[0].Execute -ieq 'powershell.exe' -and
-                 $existing.Actions[0].Arguments -ceq $taskArguments -and
-                 $existing.Actions[0].WorkingDirectory -ieq $workingDirectory) 'V20_07_2_EXISTING_TASK_CONFLICT'
-        Write-Output ('V20_07_2_' + $robot + '=REUSED_DISABLED')
-    } else {
-        $action = New-ScheduledTaskAction -Execute 'powershell.exe' -Argument $taskArguments -WorkingDirectory $workingDirectory -ErrorAction Stop
-        $task = New-ScheduledTask -Action $action -Trigger $trigger -Settings $settings -Principal $taskPrincipal -Description ('V20 '+ $robot +' staging only; LIVE NOT AUTHORIZED; exact source '+$pin) -ErrorAction Stop
-        Register-ScheduledTask -TaskName $robot -InputObject $task -ErrorAction Stop | Out-Null
-        Disable-ScheduledTask -TaskName $robot -TaskPath '\' -ErrorAction Stop | Out-Null
-        Write-Output ('V20_07_2_' + $robot + '=REGISTERED_DISABLED')
-    }
-    $check = Get-ScheduledTask -TaskName $robot -TaskPath '\' -ErrorAction Stop
-    require ($check.State -eq 'Disabled' -and @($check.Actions).Count -eq 1 -and
-             $check.Actions[0].Arguments -ceq $taskArguments -and
-             $check.Principal.UserId -in @($userName,$userSid)) 'V20_07_2_TASK_NOT_SAFE_DISABLED'
     $rows += [ordered]@{
         robot = $robot
         task_name = $robot
