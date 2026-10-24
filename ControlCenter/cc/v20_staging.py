@@ -104,8 +104,10 @@ def check_one(robot, now):
         environment = {k: os.environ[k] for k in (
             "SYSTEMROOT", "WINDIR", "SYSTEMDRIVE", "TEMP", "TMP",
             "OS", "COMPUTERNAME", "USERPROFILE", "APPDATA") if k in os.environ}
+        exe = str(Path(os.environ["SYSTEMROOT"]) / "System32" / "WindowsPowerShell"
+                  / "v1.0" / "powershell.exe")
         result = subprocess.run(
-            ["powershell.exe", "-NoProfile", "-NonInteractive",
+            [exe, "-NoProfile", "-NonInteractive",
              "-ExecutionPolicy", "Bypass", "-File", script],
             stdout=subprocess.PIPE, stderr=subprocess.DEVNULL, timeout=15,
             creationflags=subprocess.CREATE_NO_WINDOW, env=environment,
