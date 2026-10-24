@@ -281,6 +281,13 @@ class V20TradeJournal(IsolatedReferenceJournal):
                 or snapshot.account_hash != self.account_hash
                 or hashlib.sha256(authority.account_id.encode("utf-8")).hexdigest() != self.account_hash):
             raise V20FinamBlocked("PRETRADE_ACCOUNT_AUTHORITY_MISMATCH")
+        if (authority.realized_equity != snapshot.realized_equity
+                or authority.available_cash != snapshot.available_cash):
+            raise V20FinamBlocked("BROKER_MONEY_SNAPSHOT_MISMATCH")
+        if (snapshot.observed_at.tzinfo is None
+                or not timedelta(0) <= datetime.now(timezone.utc) - snapshot.observed_at
+                <= timedelta(seconds=60)):
+            raise V20FinamBlocked("PRETRADE_BROKER_SNAPSHOT_STALE")
         if (signal.strategy != self.strategy or entry.strategy != self.strategy
                 or signal.symbol not in N4 or entry.symbol != signal.symbol
                 or signal.side not in (-1, 1)
@@ -364,17 +371,28 @@ class V20TradeJournal(IsolatedReferenceJournal):
             self.store.put("session_entries", index)
         return key
 
-    def record_submission_boundary(self, key: str) -> None:
-        """Pre-POST checkpoint. Unknown outcome can never be sent twice.
+    def record_submission_boundary(self, key: str, *, at: datetime | None = None) -> None:
+        """Pre-POST checkpoint with durable time for H1 order-linked history.
 
         This function does NOT submit. Future V20 order transport must call
         this before any network POST, after separate user authorization.
         """
+        observed = at if at is not None else datetime.now(timezone.utc)
+        if (not isinstance(observed, datetime) or observed.tzinfo is None
+                or observed.utcoffset() is None):
+            raise V20FinamBlocked("POST_TIME_AUTHORITY_INVALID")
+        observed_utc = observed.astimezone(timezone.utc)
+        if not timedelta(0) <= datetime.now(timezone.utc) - observed_utc <= timedelta(seconds=60):
+            raise V20FinamBlocked("POST_TIME_STALE_OR_FUTURE")
         with self.store.transaction():
             intent = self.store.intent(key)
             if (intent is None or intent["payload"].get("mode") != "PRETRADE_NOT_AUTHORIZED"
                     or intent["status"] != "INTENT_PERSISTED"):
                 raise V20FinamBlocked("POST_BOUNDARY_ALREADY_CONSUMED_OR_MISSING")
+            self.store.put("entry_submission:" + key, {
+                "account_sha256": self.account_hash,
+                "submitted_at": observed_utc.isoformat(),
+            })
             self.store.transition_intent(key, "UNCERTAIN")
             self.store.put("execution_halt", "UNKNOWN_POST_REQUIRE_BROKER_RECONCILIATION")
 
