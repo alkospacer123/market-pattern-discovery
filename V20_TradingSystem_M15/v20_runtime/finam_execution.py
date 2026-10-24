@@ -1330,6 +1330,28 @@ def run_v20_single_trial_cycle(
             or payload.get("account_sha256") != journal.account_hash):
         raise V20FinamBlocked("TRIAL_CYCLE_FOREIGN_ENTRY")
     symbol = payload["finam_symbol"]
+    # The unchanged H1 service rejects unrelated broker positions/orders
+    # before it reconciles owned orders or transmits a protective action.
+    # Single-trial V20 uses the same ownership invariant, one account only.
+    if set(current.positions) - {symbol}:
+        raise V20FinamBlocked("TRIAL_CYCLE_FOREIGN_BROKER_POSITION")
+    expected_orders = {
+        compact_client_order_id(key): (key, "REGULAR"),
+        compact_client_order_id(key + ":stop"): (key + ":stop", "SLTP"),
+        compact_client_order_id(key + ":frozen-exit"): (
+            key + ":frozen-exit", "REGULAR",
+        ),
+    }
+    seen_active = set()
+    for order in current.orders:
+        if not order.active:
+            continue
+        owner = expected_orders.get(order.client_order_id)
+        if (owner is None or order.client_order_id in seen_active
+                or order.symbol != symbol or order.kind != owner[1]
+                or journal.store.intent(owner[0]) is None):
+            raise V20FinamBlocked("TRIAL_CYCLE_UNOWNED_OR_DUPLICATE_ACTIVE_ORDER")
+        seen_active.add(order.client_order_id)
     position = current.positions.get(symbol, 0)
     proof = journal.store.get("protected_fill:" + key)
     if position == 0:
