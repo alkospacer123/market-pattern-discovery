@@ -51,15 +51,26 @@ foreach ($name in $names) {
 require ($null -ne (Get-Command git.exe -ErrorAction SilentlyContinue)) 'GIT_MISSING'
 require (-not (Test-Path -LiteralPath $report)) 'STAGING_REPORT_EXISTS_NO_OVERWRITE'
 folder $stage
-require (-not (Test-Path -LiteralPath $checkout)) 'CHECKOUT_EXISTS_NO_OVERWRITE'
-folder $checkout
-# Sparse-filter avoids copying multi-GB IntradayLab history. H1/M15 reuse source-raw.
-gitrun @('-C',$checkout,'init','-q')
-gitrun @('-C',$checkout,'remote','add','origin',$repo)
-gitrun @('-C',$checkout,'sparse-checkout','init','--cone')
-gitrun @('-C',$checkout,'sparse-checkout','set','V20_TradingSystem_M15')
-gitrun @('-C',$checkout,'fetch','--depth','1','--filter=blob:none','origin',$pin)
-gitrun @('-C',$checkout,'checkout','--detach','--quiet',$pin)
+if (Test-Path -LiteralPath $checkout) {
+    # Previous installer run reached the pinned checkout, then failed only
+    # at the offline Python -c print. Resume without fetching or rewriting.
+    folder $checkout
+    require (Test-Path -LiteralPath (Join-Path $checkout '.git') -PathType Container) 'RESUME_GIT_METADATA_MISSING'
+    $existingOrigin = (& git.exe -C $checkout remote get-url origin).Trim()
+    require ($LASTEXITCODE -eq 0 -and $existingOrigin -eq $repo) 'RESUME_WRONG_REPOSITORY'
+    $sparse = @(& git.exe -C $checkout sparse-checkout list)
+    require ($LASTEXITCODE -eq 0 -and $sparse.Count -eq 1 -and $sparse[0] -eq 'V20_TradingSystem_M15') 'RESUME_SPARSE_SCOPE_MISMATCH'
+    Write-Output 'V20_07_1_EXISTING_PINNED_CHECKOUT=REUSE'
+} else {
+    folder $checkout
+    # Sparse-filter avoids copying multi-GB IntradayLab history.
+    gitrun @('-C',$checkout,'init','-q')
+    gitrun @('-C',$checkout,'remote','add','origin',$repo)
+    gitrun @('-C',$checkout,'sparse-checkout','init','--cone')
+    gitrun @('-C',$checkout,'sparse-checkout','set','V20_TradingSystem_M15')
+    gitrun @('-C',$checkout,'fetch','--depth','1','--filter=blob:none','origin',$pin)
+    gitrun @('-C',$checkout,'checkout','--detach','--quiet',$pin)
+}
 $sha = (& git.exe -C $checkout rev-parse HEAD).Trim()
 require ($LASTEXITCODE -eq 0 -and $sha -eq $pin) 'PINNED_COMMIT_MISMATCH'
 $runner = Join-Path $checkout 'V20_TradingSystem_M15\v20_runtime\m15_runner.py'
@@ -71,8 +82,11 @@ require ($LASTEXITCODE -eq 0 -and $dirty.Count -eq 0) 'STAGING_CHECKOUT_DIRTY'
 $previousPath = $env:PYTHONPATH
 try {
     $env:PYTHONPATH = "$checkout;$raw"
-    & $python -B -c 'import V20_TradingSystem_M15.v20_runtime.m15_runner; print("V20_07_1_IMPORT_CHECK=PASS_OFFLINE_ONLY")'
+    # Windows PowerShell strips nested quoting from python -c arguments.
+    # Import only in Python; print the result in PowerShell after exit=0.
+    & $python -B -c 'import V20_TradingSystem_M15.v20_runtime.m15_runner'
     require ($LASTEXITCODE -eq 0) 'OFFLINE_IMPORT_FAILED'
+    Write-Output 'V20_07_1_IMPORT_CHECK=PASS_OFFLINE_ONLY'
 } finally {
     $env:PYTHONPATH = $previousPath
 }
