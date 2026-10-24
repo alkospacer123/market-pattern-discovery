@@ -236,7 +236,11 @@ def connect():
 
 
 def self_test():
-    """Four small structural tests; no FINAM, credentials, report or Task reads."""
+    """Four offline structural tests; load pinned H1 locally, never HTTP."""
+    # The fake reader checks H1 session endpoint constants in _request.
+    # Register and verify the already-installed H1 code BEFORE fake calls.
+    # prepare_h1 performs local file checks/imports only (no network).
+    prepare_h1()
     now = datetime(2026, 10, 24, 12, 0, tzinfo=timezone.utc)
     uri = ("/v1/instruments/USDRUBF@RTSX/bars?" + urlencode({
         "timeframe": "TIME_FRAME_M15",
