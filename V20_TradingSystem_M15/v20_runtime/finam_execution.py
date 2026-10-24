@@ -861,8 +861,19 @@ class V20SingleTradeTransport:
                 or payload["direction"] != approval["direction"]
                 or boundary.symbol != payload["symbol"]):
             raise V20FinamBlocked("EXIT_TRIAL_SCOPE_MISMATCH")
+        # Never trust a caller-supplied M15 boundary for a live close; GET
+        # the actual FINAM completed bars and new Open through H1 first.
+        entry_open = datetime.fromisoformat(payload["entry_at"])
+        entry_utc = entry_open.replace(tzinfo=ZoneInfo("Europe/Moscow")).astimezone(timezone.utc)
+        witnessed = read_finam_m15_boundary(
+            self.reader, symbol=payload["symbol"],
+            from_utc=entry_utc - STEP, now=now,
+        )
+        if (witnessed.at_msk != boundary.at_msk
+                or witnessed.witnessed_open != boundary.witnessed_open):
+            raise V20FinamBlocked("EXIT_FINAM_M15_WITNESS_MISMATCH")
         if frozen_observed_session_exit(
-            boundary, entry_open_msk=datetime.fromisoformat(payload["entry_at"]),
+            witnessed, entry_open_msk=entry_open,
         ) != "EXIT_AT_THIRD_OBSERVED_SESSION_OPEN":
             raise V20FinamBlocked("EXIT_THIRD_SESSION_OPEN_NOT_DUE")
         due = boundary.at_msk.replace(tzinfo=ZoneInfo("Europe/Moscow")).astimezone(timezone.utc)
