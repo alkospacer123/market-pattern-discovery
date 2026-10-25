@@ -161,3 +161,16 @@ V20-06 завершён физическим `PASS_READONLY_3_OF_3` для тр�
 - The optional post-check compares two *simulated* snapshots. It never claims a real Windows Task or FINAM postcondition; absent snapshot is `NOT_OBSERVED_NO_EXECUTION`.
 - Added autonomous OFFLINE tests: 12/12 refused commands, durable duplicate detection after restart, operator/source gating, post-check mismatch, contending writer, malformed inputs, forbidden symlink, static no-executor import check.
 - This is an incremental CC-06/07 OFFLINE development result, **not CC-07 LIVE acceptance**. Panel buttons remain disabled; no Intel install/merge/Task mutation was performed. CC-02 authenticated real telemetry and PAUSE/STOP semantics are still open.
+
+## CC-06/07: Intel OFFLINE acceptance — пункт 6 закрыт (25.10.2026)
+
+Оператор выполнил `cc07-offline-intel-check-25-10-2026.ps1` на Intel Windows. Переданный им фактический вывод:
+
+```text
+CC07_OFFLINE_12_OF_12=PASS; DUPLICATE_REPLAY=PASS; AUDIT=PASS; LIVE_EXECUTION=NO; FINAM=NO; WINDOWS_TASK_CALLS=NO
+CC07_INTEL_OFFLINE_ACCEPTANCE=PASS
+```
+
+Версия проверенного пакета контроллера: PR #568 head `b5fab2a5f3379b2bb8d14034d5a9663a1983fb53`, native Windows CI #40217839469 `completed/success`. Это **представленное оператором свидетельство физической OFFLINE-проверки**, не независимая проверка текущих Windows Tasks и не проверка реального исполнения. Контроллер остаётся без полномочий, журнал и допуск оператора пока только OFFLINE. Принят: **CC-06/07 автономная Intel OFFLINE-проверка / пункт 6 PASS**. Не приняты: LIVE-управление CC-07, реальный CC-02 publisher/Heartbeat/циклы и LIVE-эксплуатация CC-08.
+
+По согласованному плану **работы Control Center до запуска V20 на этом завершены**. Не создавать искусственные циклы или альтернативные источники, не включать Tasks и не менять роботов. После **отдельно разрешённого запуска V20** продолжить CC-02: оценить реальные `status.json` / `m15.jsonl`, одобрить CC-owned READONLY-источник и policy/ACL, затем принять подлинные Heartbeat/до 10 завершённых циклов на Intel и CC-08. Реальные команды CC-07 — позже, только по отдельной авторизации. PR #568 остаётся Draft; merge не разрешён.
