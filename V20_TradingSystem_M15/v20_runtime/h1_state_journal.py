@@ -50,6 +50,9 @@ class IsolatedReferenceJournal:
     state_file = STATE_FILE
     schema = SCHEMA
     mode = "OFFLINE_ONLY"
+    # Staging on Intel installs real robots under C:\\V20Lab\\robots\\<slug>.
+    # Historical reference-only journals keep their original root/<slug>.
+    instance_parent = ""
 
     def __init__(self, v20_root: Path, robot_id: str, account_id: str):
         if robot_id not in ROBOT_STRATEGIES:
@@ -61,9 +64,12 @@ class IsolatedReferenceJournal:
         self.account_hash = hashlib.sha256(account_id.encode("utf-8")).hexdigest()
         root = _require_v20_root(v20_root)
         slug = robot_id.removeprefix("v20-")
-        self.instance_root = root / slug
+        if self.instance_parent not in ("", "robots"):
+            raise V20StateBoundaryError("V20_STATE_INSTANCE_PARENT_FORBIDDEN")
+        instance_parent = root / self.instance_parent if self.instance_parent else root
+        self.instance_root = instance_parent / slug
         state_dir = self.instance_root / "state"
-        for path in (self.instance_root, state_dir):
+        for path in (instance_parent, self.instance_root, state_dir):
             if path.is_symlink():
                 raise V20StateBoundaryError("V20_STATE_SYMLINK_FORBIDDEN")
         state_dir.mkdir(parents=True, exist_ok=True)
