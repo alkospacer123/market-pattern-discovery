@@ -166,6 +166,10 @@
       "sha256": "6ebfa76af3f3bb9d378b60ff34c3ca04ceefbb93795d2fadc45f94a9b76dafa3"
     },
     {
+      "path": "controller/v20_rehearsal.py",
+      "sha256": "6d802b3aa01219955e29d637aa14b363c0b1807e84a955b89172aee20ddb7563"
+    },
+    {
       "path": "deployment/Common.ps1",
       "sha256": "ae337c523a1d86a001f6e69adc78c7944cf1a4903f9a0e3a379dab83a5ac0bff"
     },
@@ -375,7 +379,7 @@
     },
     {
       "path": "docs/V20_CONTROL_CENTER_ROADMAP.md",
-      "sha256": "41cd8b88a5b942bafbefca7e3663b74f256317dbf5d52b8a54df2d4e6abd85b9"
+      "sha256": "a7fd50e07e2f06859ad6e68f7ee49cdaedabee704020d6f5ac08601c9e85f9cc"
     },
     {
       "path": "docs/browser-check.json",
@@ -540,6 +544,10 @@
     {
       "path": "tests/test_v20_finam.py",
       "sha256": "62634913783c7931c8aac8a40501df7eb4b2d87b61934cddff5979611f3902af"
+    },
+    {
+      "path": "tests/test_v20_rehearsal.py",
+      "sha256": "89f13c13eb48148c31ba7333433508bde38a21f2682c13ebc4df90bd24e80571"
     },
     {
       "path": "tests/test_v20_staging.py",
