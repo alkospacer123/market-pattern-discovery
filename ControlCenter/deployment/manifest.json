@@ -166,6 +166,10 @@
       "sha256": "6ebfa76af3f3bb9d378b60ff34c3ca04ceefbb93795d2fadc45f94a9b76dafa3"
     },
     {
+      "path": "controller/v20_offline_journal.py",
+      "sha256": "fc0fc223299a974e9f57ac6c4027a331323d2255845fc4b21327bced9991c4c4"
+    },
+    {
       "path": "controller/v20_rehearsal.py",
       "sha256": "6d802b3aa01219955e29d637aa14b363c0b1807e84a955b89172aee20ddb7563"
     },
@@ -379,7 +383,7 @@
     },
     {
       "path": "docs/V20_CONTROL_CENTER_ROADMAP.md",
-      "sha256": "a7fd50e07e2f06859ad6e68f7ee49cdaedabee704020d6f5ac08601c9e85f9cc"
+      "sha256": "b0a9b353a506e9c377ef2dabff85f13afa3dbd208eb2ed9ff49f0f5fc989c417"
     },
     {
       "path": "docs/browser-check.json",
@@ -544,6 +548,10 @@
     {
       "path": "tests/test_v20_finam.py",
       "sha256": "62634913783c7931c8aac8a40501df7eb4b2d87b61934cddff5979611f3902af"
+    },
+    {
+      "path": "tests/test_v20_offline_journal.py",
+      "sha256": "36be8c1492b35fa0a23d5453459edd20c18debbd5f15fbc059837fff7f159165"
     },
     {
       "path": "tests/test_v20_rehearsal.py",
