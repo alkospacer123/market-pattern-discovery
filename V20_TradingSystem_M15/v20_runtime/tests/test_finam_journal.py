@@ -16,6 +16,7 @@ from V20_TradingSystem_M15.v20_runtime.finam_execution import (
     LiveAccountSnapshot, V20FinamBlocked, V20TradeJournal,
 )
 from V20_TradingSystem_M15.v20_runtime.offline_planner import FrozenSignal, ProposedEntry
+from V20_TradingSystem_M15.v20_runtime.h1_state_journal import IsolatedReferenceJournal
 
 
 ACCOUNT = "synthetic-fin-account-001"
@@ -55,6 +56,29 @@ class JournalTests(unittest.TestCase):
         self.addCleanup(self.temp.cleanup)
         self.root = Path(self.temp.name) / "v20lab"
         self.root.mkdir()
+
+    def test_real_journal_uses_intel_robot_instance_not_legacy_offline(self):
+        # Stage07 placed DPAPI, config and Task working dir under robots/.
+        # No exchange of state or modification of a prior offline journal.
+        installed = self.root / "robots" / "shallow"
+        secret_dir = installed / "secrets"
+        secret_dir.mkdir(parents=True)
+        secret = secret_dir / "finam.dpapi.json"
+        secret.write_text("synthetic-never-a-real-token", encoding="utf-8")
+        old = self.root / "shallow"
+        with IsolatedReferenceJournal(self.root, ROBOT, ACCOUNT) as offline:
+            self.assertEqual(offline.instance_root, old)
+            self.assertEqual(offline.state_path.name, "v20-offline-reference.sqlite3")
+            with V20TradeJournal(self.root, ROBOT, ACCOUNT) as real:
+                self.assertEqual(real.instance_root, installed)
+                self.assertEqual(real.state_path, installed / "state" /
+                                 "v20-real-intents.sqlite3")
+                self.assertTrue(real.state_path.exists())
+                self.assertNotEqual(real.lock, offline.lock)
+                self.assertEqual(real.account_hash, HASH)
+        self.assertEqual(secret.read_text(encoding="utf-8"),
+                         "synthetic-never-a-real-token")
+        self.assertFalse((old / "state" / "v20-real-intents.sqlite3").exists())
 
     def test_atomic_entry_risk_and_session_quota(self):
         with V20TradeJournal(self.root, ROBOT, ACCOUNT) as journal:
