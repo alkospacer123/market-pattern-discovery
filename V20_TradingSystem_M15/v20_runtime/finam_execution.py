@@ -273,6 +273,9 @@ class V20TradeJournal(IsolatedReferenceJournal):
     neither read nor migrated.  A persisted entry can never, by itself,
     authorize an order or SLTP POST.
     """
+    # Intel Stage07 owns C:\\V20Lab\\robots\\<slug> (config/state/secrets/logs).
+    # Do not create a second real ledger at C:\\V20Lab\\<slug>.
+    instance_parent = "robots"
     state_file = "v20-real-intents.sqlite3"
     schema = "v20.h1_state_store.real_intents.v1"
     mode = "V20_PRETRADE_UNAUTHORIZED"
