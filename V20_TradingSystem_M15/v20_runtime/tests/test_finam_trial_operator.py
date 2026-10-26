@@ -211,6 +211,42 @@ class TrialOperatorTests(unittest.TestCase):
                 cb("v20:v20-shallow:second-key", signal, entry, authority)
             self.assertEqual(json.loads(permit.read_text(encoding="utf-8")), exact)
 
+    def test_technical_grant_creates_one_contract_stop_only_permit(self):
+        with TemporaryDirectory() as tmp:
+            safety = Path(tmp) / "safety"
+            safety.mkdir()
+            grant = safety / "v20-first-signal-approval.json"
+            permit = safety / "v20-single-trial-approval.json"
+            grant.write_text(json.dumps({
+                "schema": "v20.08.2.first_signal_approval.v1",
+                "scope": "ONE_FIRST_REAL_FROZEN_TRIAL_ONLY",
+                "robot_id": "v20-shallow", "account_sha256": HASH,
+                "source_commit": SHA, "instrument": "CNYRUBF",
+                "max_risk_fraction": "0.015", "explicit_owner_approval": True,
+            }), encoding="utf-8")
+            cb = operator.create_exact_permit_on_signal(
+                authorized_path=grant, permit_path=permit,
+                robot="v20-shallow", account_hash=HASH,
+                symbol="CNYRUBF", source_sha=SHA, technical_acceptance=True,
+            )
+            at = datetime(2026, 10, 26, 10, 15)
+            signal = FrozenSignal("SHALLOW_PULLBACK", "CNYRUBF", 1,
+                                  datetime(2026, 10, 26, 10, 0), Decimal("0.01"))
+            entry = ProposedEntry("SHALLOW_PULLBACK", "CNYRUBF", "LONG", at,
+                                  Decimal("12.50"), Decimal("12.48"), Decimal("0.02"),
+                                  1, Decimal("675"), Decimal("1500"),
+                                  "TECHNICAL_NOT_STRATEGY_SIGNAL")
+            authority = AccountAuthority(ACCOUNT, Decimal("45000"), Decimal("45000"),
+                                         Decimal("0.01"), Decimal("10"),
+                                         Decimal("1500"), 1, Decimal("2.02"))
+            cb("v20:v20-shallow:technical-one-contract", signal, entry, authority)
+            exact = json.loads(permit.read_text(encoding="utf-8"))
+            self.assertEqual(exact["trial_kind"], "TECHNICAL_ACCEPTANCE_NOT_STRATEGY_SIGNAL")
+            self.assertEqual(exact["max_quantity"], 1)
+            self.assertEqual(exact["authorized_operations"], ["ENTRY", "PROTECTIVE_STOP"])
+            with self.assertRaisesRegex(V20FinamBlocked, "TRIAL_EXACT_PERMIT_ALREADY_EXISTS"):
+                cb("v20:v20-shallow:another", signal, entry, authority)
+
     def test_advance_owner_scope_refuses_wrong_robot_or_instrument(self):
         with TemporaryDirectory() as tmp:
             grant = Path(tmp) / "approved.json"
