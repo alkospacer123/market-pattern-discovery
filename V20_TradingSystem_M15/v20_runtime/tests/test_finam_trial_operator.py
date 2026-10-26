@@ -62,6 +62,25 @@ class TrialOperatorTests(unittest.TestCase):
         self.assertEqual(flags, [True, False, False, False])
         self.assertEqual(waits, [5, 5, 5])
 
+    def test_technical_trial_reuses_one_entry_then_follow_only(self):
+        states = iter((
+            "ENTRY_ACK_NEEDS_FILL_AND_STOP",
+            "STOP_NOW_BROKER_PROVEN",
+            "TECHNICAL_SLTP_CONFIRMED_AWAIT_MANUAL_CLOSE",
+            "MANUAL_EXIT_BROKER_FLAT_UNDER_ACCEPTANCE",
+        ))
+        flags = []
+        def fake_cycle(sender, **kw):
+            flags.append((kw["allow_new_entry"], kw["technical_acceptance"]))
+            return {"state": next(states), "orders": 0}
+        with patch.object(operator, "run_v20_single_trial_cycle", fake_cycle):
+            outcome = operator.supervised_cycle(
+                object(), symbol="CNYRUBF", cost=Decimal("2.02"),
+                mode="technical", sleep=lambda _: None, now_utc=lambda: UTC,
+            )
+        self.assertEqual(outcome, "MANUAL_EXIT_BROKER_FLAT_UNDER_ACCEPTANCE")
+        self.assertEqual(flags, [(True, True), (False, True), (False, True), (False, True)])
+
     def test_restart_follow_must_never_allow_entry(self):
         flags = []
         def fake_cycle(sender, **kw):
