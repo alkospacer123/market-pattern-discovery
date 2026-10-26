@@ -8,7 +8,7 @@ $root='C:\V20Lab'
 $stage=Join-Path $root 'pretrade-08\live-08'
 $manifest=Join-Path $stage 'LIVE_PREPARED.json'
 $launcher=Join-Path $stage 'v20-08-live-launch.ps1'
-$source='0d245f2c5680a48548edb48fa2b6148cbd203e0d'
+$source='dd55f201b3e9a92ce5fa3f927289f5a5ef89366d'
 $names=@('v20-shallow','v20-obv','v20-inside')
 function need([bool]$ok,[string]$fail){if(-not $ok){throw $fail}}
 function sidof([string]$value){
