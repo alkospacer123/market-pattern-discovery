@@ -8,6 +8,7 @@ Never schedule this module automatically; operator must supervise the process.
 from __future__ import annotations
 
 import argparse
+from contextlib import closing
 from datetime import datetime, timedelta, timezone
 from decimal import Decimal, InvalidOperation
 import json
@@ -72,7 +73,7 @@ def prove_shallow_prior_post_and_flat(*, journal: ShallowStopRetestJournal,
         raise V20FinamBlocked("SHALLOW_RETEST_PRIOR_PROOF_MISSING")
     try:
         permission = json.loads(first_permit.read_text(encoding="utf-8"))
-        with sqlite3.connect(old.as_uri() + "?mode=ro", uri=True) as db:
+        with closing(sqlite3.connect(old.as_uri() + "?mode=ro", uri=True)) as db:
             def get_state(key):
                 item = db.execute("SELECT value FROM state WHERE key=?", (key,)).fetchone()
                 return json.loads(item[0]) if item else None
