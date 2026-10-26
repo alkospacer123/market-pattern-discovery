@@ -31,6 +31,13 @@ from .h1_state_journal import ROBOT_STRATEGIES
 from .offline_planner import N4
 
 
+class TechnicalTrialJournal(V20TradeJournal):
+    """H1 StateStore/InstanceLock, acceptance ledger separate from LIVE intents."""
+    state_file = "v20-technical-acceptance.sqlite3"
+    schema = "v20.h1_state_store.technical_acceptance.v1"
+    mode = "V20_TECHNICAL_ACCEPTANCE_ONLY"
+
+
 def _inputs(robot: str, symbol: str, fee: str, source_sha: str) -> tuple[str, str, Decimal]:
     if robot not in ROBOT_STRATEGIES or symbol not in N4:
         raise V20FinamBlocked("TRIAL_OPERATOR_SCOPE_INVALID")
@@ -72,8 +79,8 @@ def advance_authorization(approved_path: Path, *, robot: str, account_hash: str,
 
 def create_exact_permit_on_signal(*, authorized_path: Path, permit_path: Path,
                                   robot: str, account_hash: str, symbol: str,
-                                  source_sha: str):
-    """Real signal -> existing H1 executable risk -> exact idempotency permit.
+                                  source_sha: str, technical_acceptance: bool = False):
+    """Real signal OR one clearly labeled technical trial -> H1 idempotency permit.
 
     Approves only the first frozen signal on the owner's selected instrument.
     One use, never overwrite an existing permit, no journal mutation or POST.
@@ -99,6 +106,8 @@ def create_exact_permit_on_signal(*, authorized_path: Path, permit_path: Path,
         )
         if risk.quantity < 1 or risk.reserved_risk > bound:
             raise V20FinamBlocked("TRIAL_SIGNAL_RISK_EXCEEDS_OWNER_LIMIT")
+        if technical_acceptance and (proposal.direction != "LONG" or risk.quantity != 1):
+            raise V20FinamBlocked("TECHNICAL_TRIAL_REQUIRES_ONE_LONG_CONTRACT")
         record = {
             "schema": "v20.08.2.single_trial.v1",
             "scope": "ONE_SPECIFIC_APPROVED_TRIAL",
@@ -112,6 +121,8 @@ def create_exact_permit_on_signal(*, authorized_path: Path, permit_path: Path,
             "direction": proposal.direction,
             "max_quantity": risk.quantity,
             "max_risk_rub": str(bound),
+            "trial_kind": ("TECHNICAL_ACCEPTANCE_NOT_STRATEGY_SIGNAL"
+                           if technical_acceptance else "FROZEN_NEXT_OPEN_SIGNAL"),
         }
         if permit_path.exists() or permit_path.is_symlink() or permit_path.parent.is_symlink():
             raise V20FinamBlocked("TRIAL_EXACT_PERMIT_ALREADY_EXISTS")
@@ -160,10 +171,11 @@ def supervised_cycle(
     Existing H1/V20 ledger prevents a duplicate after process restart.
     Existing FINAM stop remains on broker while a third-session exit is due.
     """
-    if mode not in ("trial", "follow"):
+    if mode not in ("trial", "follow", "technical", "technical_follow"):
         raise V20FinamBlocked("TRIAL_OPERATOR_MODE_INVALID")
     clock = now_utc if now_utc is not None else lambda: datetime.now(timezone.utc)
-    allow_entry = mode == "trial"
+    allow_entry = mode in ("trial", "technical")
+    technical = mode in ("technical", "technical_follow")
     iterations = 0
     while True:
         now = clock()
@@ -186,6 +198,7 @@ def supervised_cycle(
                 from_utc=now-timedelta(days=20), cost_per_contract=cost,
                 allow_new_entry=allow_entry,
                 permit_on_signal=permit_on_signal if allow_entry else None,
+                technical_acceptance=technical,
             )
         except V20FinamBlocked as exc:
             # No current FINAM Open / no adjacent completed bar / 60s expired
@@ -224,8 +237,10 @@ def supervised_cycle(
 def run(*, root: Path, robot: str, symbol: str, fee: str,
         source_sha: str, mode: str, arm_for_trial: bool = False) -> str:
     robot, symbol, cost = _inputs(robot, symbol, fee, source_sha)
-    if mode not in ("trial", "follow"):
+    if mode not in ("trial", "follow", "technical", "technical_follow"):
         raise V20FinamBlocked("TRIAL_OPERATOR_MODE_INVALID")
+    technical = mode in ("technical", "technical_follow")
+    opening = mode in ("trial", "technical")
     if not root.is_absolute() or root.name.casefold() != "v20lab":
         raise V20FinamBlocked("TRIAL_OPERATOR_ROOT_INVALID")
     account = os.environ.get("V20_FINAM_ACCOUNT", "")
@@ -241,7 +256,8 @@ def run(*, root: Path, robot: str, symbol: str, fee: str,
         expected_account_hash=scope,
     )
     # Journal/InstanceLock is shared between submit, follow and recovery.
-    with V20TradeJournal(root, robot, account) as journal:
+    journal_type = TechnicalTrialJournal if technical else V20TradeJournal
+    with journal_type(root, robot, account) as journal:
         permit = journal.instance_root / "safety" / "v20-single-trial-approval.json"
         sender = V20SingleTradeTransport(
             journal=journal, reader=reader, accepted_commit=source_sha,
@@ -263,23 +279,27 @@ def run(*, root: Path, robot: str, symbol: str, fee: str,
                         or owner_record.get("source_commit") != source_sha
                         or owner_record.get("robot_id") != robot
                         or owner_record.get("account_sha256") != scope
-                        or owner_record.get("explicit_owner_approval") is not True):
+                        or owner_record.get("explicit_owner_approval") is not True
+                        or owner_record.get("trial_kind") != (
+                            "TECHNICAL_ACCEPTANCE_NOT_STRATEGY_SIGNAL" if technical
+                            else "FROZEN_NEXT_OPEN_SIGNAL")):
                     raise V20FinamBlocked("TRIAL_OPERATOR_PERMIT_SCOPE_INVALID")
                 key = owner_record.get("entry_key")
                 if not isinstance(key, str) or not key.startswith("v20:" + robot + ":"):
                     raise V20FinamBlocked("TRIAL_OPERATOR_ENTRY_KEY_INVALID")
-                sender._permit(key=key, kind="ENTRY" if mode == "trial" else "PROTECTIVE_STOP")
-            elif mode == "trial":
+                sender._permit(key=key, kind="ENTRY" if opening else "PROTECTIVE_STOP")
+            elif opening:
                 grant_path = journal.instance_root / "safety" / "v20-first-signal-approval.json"
                 if not grant_path.is_file() or grant_path.is_symlink():
                     raise V20FinamBlocked("TRIAL_OPERATOR_PERMIT_MISSING")
                 permit_on_signal = create_exact_permit_on_signal(
                     authorized_path=grant_path, permit_path=permit, robot=robot,
                     account_hash=scope, symbol=symbol, source_sha=source_sha,
+                    technical_acceptance=technical,
                 )
             else:
                 raise V20FinamBlocked("TRIAL_OPERATOR_PERMIT_MISSING")
-            if mode == "trial":
+            if opening:
                 if arm_for_trial is not True:
                     raise V20FinamBlocked("TRIAL_OPERATOR_EXPLICIT_ARM_FLAG_REQUIRED")
                 if journal.store.all_intents():
@@ -291,7 +311,7 @@ def run(*, root: Path, robot: str, symbol: str, fee: str,
             return supervised_cycle(
                 sender, symbol=symbol, cost=cost, mode=mode,
                 permit_on_signal=permit_on_signal,
-                wait_for_signal=mode == "trial" and permit_on_signal is not None,
+                wait_for_signal=opening and permit_on_signal is not None,
             )
         finally:
             # HALTED inhibits NEW entries only; active FINAM SLTP/exit
@@ -306,7 +326,7 @@ def main() -> int:
     parser.add_argument("--symbol", choices=tuple(sorted(N4)), required=True)
     parser.add_argument("--full-roundtrip-cost", required=True)
     parser.add_argument("--source-sha", required=True)
-    parser.add_argument("--mode", choices=("trial", "follow"), required=True)
+    parser.add_argument("--mode", choices=("trial", "follow", "technical", "technical_follow"), required=True)
     parser.add_argument("--arm-for-trial", action="store_true", default=False)
     args = parser.parse_args()
     try:
