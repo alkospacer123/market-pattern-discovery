@@ -107,12 +107,12 @@ $prepared=Join-Path $root 'pretrade-08\live-08'
 New-Item -ItemType Directory -Path $prepared -Force | Out-Null
 noguardlink $prepared
 $launchPath=Join-Path $prepared 'v20-08-live-launch.ps1'
-$launcherBlob='8703f0c70d9f4e2099d4c36ba0363575f568bfe2'
+$launcherBlob='c161a15d87c2bfc85939f4f570b3f79013c3c665'
 if($mode -eq 'install' -and -not (Test-Path -LiteralPath $launchPath)){
     $tmp=$launchPath+'.download'
     need (-not (Test-Path -LiteralPath $tmp)) 'V20_LIVE_LAUNCHER_PARTIAL'
     try {
-        Invoke-WebRequest -Uri ('https://raw.githubusercontent.com/alkospacer123/market-pattern-discovery/85b47ed8c68d2473594ddecbb86dbc582aa80917/V20_TradingSystem_M15/V20-08/v20-08-live-launch.ps1') -OutFile $tmp -UseBasicParsing -ErrorAction Stop
+        Invoke-WebRequest -Uri ('https://raw.githubusercontent.com/alkospacer123/market-pattern-discovery/b494d59fdfc5cd50375ea313ccd16e5019286151/V20_TradingSystem_M15/V20-08/v20-08-live-launch.ps1') -OutFile $tmp -UseBasicParsing -ErrorAction Stop
         need ((blob $tmp) -eq $launcherBlob) 'V20_LIVE_LAUNCHER_REMOTE_HASH'
         Move-Item -LiteralPath $tmp -Destination $launchPath
     } finally {
@@ -123,12 +123,12 @@ need (Test-Path -LiteralPath $launchPath -PathType Leaf) 'V20_LIVE_LAUNCHER_MISS
 noguardlink $launchPath
 need ((blob $launchPath) -eq $launcherBlob) 'V20_LIVE_LAUNCHER_CHANGED'
 $cutoverPath=Join-Path $prepared 'v20-08-live-cutover.ps1'
-$cutoverBlob='f4a0014b03e9ef1f7b345df0f809d5d7277711c1'
+$cutoverBlob='c2f08d6ad566a0ccfb09d59eed4a43b04e6dba2b'
 if($mode -eq 'install' -and -not (Test-Path -LiteralPath $cutoverPath)){
     $tmp=$cutoverPath+'.download'
     need (-not (Test-Path -LiteralPath $tmp)) 'V20_LIVE_CUTOVER_PARTIAL'
     try {
-        Invoke-WebRequest -Uri ('https://raw.githubusercontent.com/alkospacer123/market-pattern-discovery/987fc2f4462187617b60c35c33cb747ede101747/V20_TradingSystem_M15/V20-08/v20-08-live-cutover.ps1') -OutFile $tmp -UseBasicParsing -ErrorAction Stop
+        Invoke-WebRequest -Uri ('https://raw.githubusercontent.com/alkospacer123/market-pattern-discovery/d2e5505f43ee31a1e1670ea51e068fa5d458fbd6/V20_TradingSystem_M15/V20-08/v20-08-live-cutover.ps1') -OutFile $tmp -UseBasicParsing -ErrorAction Stop
         need ((blob $tmp) -eq $cutoverBlob) 'V20_LIVE_CUTOVER_REMOTE_HASH'
         Move-Item -LiteralPath $tmp -Destination $cutoverPath
     } finally {
