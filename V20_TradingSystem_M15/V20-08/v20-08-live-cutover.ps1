@@ -31,24 +31,46 @@ function sourcecheck([string]$name){
     need ($LASTEXITCODE -eq 0 -and
           (($result -join '|') -match ('v20_08_4_'+$name+'=PASS_VERIFY_NO_FINAM'))) 'V20_LIVE_SOURCE_AND_SID_VERIFY_FAILED'
 }
-function observe([string]$name) {
+function cycleproof([string]$name,[datetimeoffset]$after,[bool]$print=$false) {
     $task=boundtask $name
-    $kind='BLOCKER'
-    if($task.Actions[0].Arguments -ieq (expected $name)){$kind='V20_LIVE'}
-    $workers=@(Get-CimInstance Win32_Process -Filter "Name='python.exe' OR Name='pythonw.exe'" -ErrorAction Stop | Where-Object {
-        $_.CommandLine -and $_.CommandLine.Contains('v20_runtime.finam_live') -and $_.CommandLine.Contains($name)
-    })
-    Write-Output ('v20_08_4_'+$name+'_task='+$task.State)
-    Write-Output ('v20_08_4_'+$name+'_action='+$kind)
-    Write-Output ('v20_08_4_'+$name+'_worker_count='+$workers.Count)
+    $info=Get-ScheduledTaskInfo -TaskName $name -TaskPath '\' -ErrorAction Stop
     $log=Join-Path $root ('robots\'+$name.Substring(4)+'\logs\live-m15.jsonl')
-    if(Test-Path -LiteralPath $log -PathType Leaf){
-        Get-Content -LiteralPath $log -Tail 10 -Encoding UTF8 | ForEach-Object {
-            try {$one=$_ | ConvertFrom-Json; Write-Output ('v20_08_4_'+$name+'_cycle='+[string]$one.state)}
-            catch {Write-Output ('v20_08_4_'+$name+'_cycle=UNREADABLE')}
+    $latest=$null
+    if(Test-Path -LiteralPath $log -PathType Leaf) {
+        $lines=@(Get-Content -LiteralPath $log -Tail 10 -Encoding UTF8)
+        for($i=$lines.Count-1;$i -ge 0;$i--){
+            try{
+                $item=$lines[$i] | ConvertFrom-Json -ErrorAction Stop
+                if($item.robot -eq $name -and $item.utc -and $item.state) {
+                    $at=[datetimeoffset]::Parse([string]$item.utc,[globalization.cultureinfo]::InvariantCulture)
+                    $latest=@{utc=$at;state=[string]$item.state}
+                    break
+                }
+            } catch {}
         }
     }
-    return @($task.State,$kind,$workers.Count)
+    if($print){
+        Write-Output ('v20_08_4_'+$name+'_task='+$task.State)
+        Write-Output ('v20_08_4_'+$name+'_last_result='+$info.LastTaskResult)
+        Write-Output ('v20_08_4_'+$name+'_action='+$(if($task.Actions[0].Arguments -ieq (expected $name)){'V20_LIVE'}else{'UNEXPECTED'}))
+        if($null -eq $latest){Write-Output ('v20_08_4_'+$name+'_last_cycle=MISSING')}
+        else{
+            Write-Output ('v20_08_4_'+$name+'_last_cycle='+$latest.state)
+            Write-Output ('v20_08_4_'+$name+'_last_utc='+$latest.utc.ToString('o'))
+        }
+    }
+    if($task.State -ne 'Running' -or
+       $task.Actions[0].Arguments -ine (expected $name) -or
+       $null -eq $latest -or $latest.state -like 'HALT_*'){return $false}
+    $utc=[datetimeoffset]::UtcNow
+    $age=($utc-$latest.utc).TotalSeconds
+    return ($latest.utc -ge $after.AddSeconds(-5) -and $age -ge -5 -and $age -le 90)
+}
+function observe([string]$name) {
+    # Task Scheduler + fresh per-robot H1-style cycle is the authority.
+    # WMI/CIM Python command-line enumeration can omit running child
+    # processes and caused a false-negative despite broker cycle logs.
+    [void](cycleproof $name ([datetimeoffset]::UtcNow.AddSeconds(-90)) $true)
 }
 function readonly([string]$name) {
     $result=@(& powershell.exe -noprofile -noninteractive -executionpolicy bypass -file $launcher -mode readonly -robot $name 2>&1)
@@ -99,8 +121,13 @@ if($mode -eq 'halt'){
 # NEXT_OPEN signal occurs after the task is armed; broker orders are permitted.
 foreach($name in $names){
     $task=boundtask $name
-    need ($task.State -eq 'Disabled' -and
-          $task.Actions[0].Arguments.Contains('v20-task-live-blocked.ps1')) 'V20_LIVE_TASK_NOT_STAGING_DISABLED'
+    $staged=($task.State -eq 'Disabled' -and
+             $task.Actions[0].Arguments.Contains('v20-task-live-blocked.ps1'))
+    $prepared=($task.State -in @('Disabled','Ready','Running') -and
+               $task.Actions[0].Execute -ieq 'powershell.exe' -and
+               $task.Actions[0].Arguments -ieq (expected $name) -and
+               $task.Actions[0].WorkingDirectory -ieq (Join-Path $root ('robots\'+$name.Substring(4))))
+    need ($staged -or $prepared) 'V20_LIVE_TASK_NOT_STAGED_OR_EXACT_PREPARED'
 }
 foreach($name in $names){
     $probe=@(readonly $name)
@@ -114,48 +141,51 @@ try {
     foreach($name in $names){
         $dir=Join-Path $root ('robots\'+$name.Substring(4))
         $args=expected $name
-        $action=New-ScheduledTaskAction -Execute 'powershell.exe' -Argument $args -WorkingDirectory $dir
-        $settings=New-ScheduledTaskSettingsSet -MultipleInstances IgnoreNew -ExecutionTimeLimit ([timespan]::Zero) -RestartCount 3 -RestartInterval (New-TimeSpan -Minutes 1)
-        Set-ScheduledTask -TaskName $name -TaskPath '\' -Action $action -Settings $settings -ErrorAction Stop | Out-Null
-        Disable-ScheduledTask -TaskName $name -TaskPath '\' -ErrorAction Stop | Out-Null
+        $before=boundtask $name
+        if($before.Actions[0].Arguments.Contains('v20-task-live-blocked.ps1')){
+            $action=New-ScheduledTaskAction -Execute 'powershell.exe' -Argument $args -WorkingDirectory $dir
+            $settings=New-ScheduledTaskSettingsSet -MultipleInstances IgnoreNew -ExecutionTimeLimit ([timespan]::Zero) -RestartCount 3 -RestartInterval (New-TimeSpan -Minutes 1)
+            Set-ScheduledTask -TaskName $name -TaskPath '\' -Action $action -Settings $settings -ErrorAction Stop | Out-Null
+            Disable-ScheduledTask -TaskName $name -TaskPath '\' -ErrorAction Stop | Out-Null
+            $mutated+= $name
+        }
         $now=boundtask $name
-        need ($now.State -eq 'Disabled' -and
-              $now.Actions[0].Arguments -ieq $args -and
+        need ($now.Actions[0].Arguments -ieq $args -and
               $now.Actions[0].WorkingDirectory -ieq $dir) 'V20_LIVE_TASK_CUTOVER_VERIFICATION_FAILED'
-        $mutated+= $name
     }
     foreach($name in $names){
-        Enable-ScheduledTask -TaskName $name -TaskPath '\' -ErrorAction Stop | Out-Null
-        Start-ScheduledTask -TaskName $name -TaskPath '\' -ErrorAction Stop
+        $task=boundtask $name
+        if($task.State -eq 'Disabled'){
+            Enable-ScheduledTask -TaskName $name -TaskPath '\' -ErrorAction Stop | Out-Null
+        }
+        $started=[datetimeoffset]::UtcNow
+        if((boundtask $name).State -ne 'Running'){
+            Start-ScheduledTask -TaskName $name -TaskPath '\' -ErrorAction Stop
+        }else {
+            # Already running from a previous partial cutover: require a fresh
+            # current cycle rather than assert that starting a second was safe.
+            $started=$started.AddSeconds(-90)
+        }
         $proved=$false
-        for($n=0;$n -lt 15;$n++){
-            $task=boundtask $name
-            $worker=@(Get-CimInstance Win32_Process -Filter "Name='python.exe' OR Name='pythonw.exe'" -ErrorAction Stop | Where-Object {
-                $_.CommandLine -and $_.CommandLine.Contains('v20_runtime.finam_live') -and $_.CommandLine.Contains($name)
-            })
-            if($task.State -eq 'Running' -and $worker.Count -eq 1){$proved=$true;break}
+        for($n=0;$n -lt 90;$n++){
+            if(cycleproof $name $started){$proved=$true;break}
             Start-Sleep -Seconds 1
         }
-        need $proved 'V20_LIVE_RUNNING_PROCESS_NOT_CONFIRMED'
+        if(-not $proved){[void](cycleproof $name $started $true)}
+        need $proved 'V20_LIVE_RUNNING_TASK_WITH_FRESH_CYCLE_NOT_CONFIRMED'
         $output=@(& powershell.exe -noprofile -noninteractive -executionpolicy bypass -file $launcher -mode arm -robot $name 2>&1)
         need ($LASTEXITCODE -eq 0 -and
               (($output -join '|') -match ('v20_08_4_switch=ARMED_'+$name+'_BROKER_CLEAN'))) 'V20_LIVE_ARM_BROKER_PROOF_FAILED'
-        Write-Output ('v20_08_4_'+$name+'=PASS_TASK_RUNNING_ACCOUNT_BOUND_ARMED')
+        Write-Output ('v20_08_4_'+$name+'=PASS_TASK_RUNNING_FRESH_CYCLE_ACCOUNT_BOUND_ARMED')
     }
     # Final 3/3 check within the same operator window, not just after each
     # sequential start. Recheck the first and second processes as well.
     foreach($name in $names) {
-        $task=boundtask $name
-        $workers=@(Get-CimInstance Win32_Process -Filter "Name='python.exe' OR Name='pythonw.exe'" -ErrorAction Stop | Where-Object {
-            $_.CommandLine -and $_.CommandLine.Contains('v20_runtime.finam_live') -and $_.CommandLine.Contains($name)
-        })
-        need ($task.State -eq 'Running' -and
-              $task.Actions[0].Arguments -ieq (expected $name) -and
-              $workers.Count -eq 1) 'V20_LIVE_FINAL_THREE_PROCESS_PROOF_FAILED'
+        need (cycleproof $name ([datetimeoffset]::UtcNow.AddSeconds(-90))) 'V20_LIVE_FINAL_THREE_TASK_CYCLE_PROOF_FAILED'
         $probe=@(readonly $name)
         need (($probe -join '|') -match 'v20_08_4_order_posts=zero') 'V20_LIVE_FINAL_FINAM_GET_FAILED'
     }
-    Write-Output 'v20_08_4_live=PASS_ACTIVATED_3_OF_3_TASKS_PROCESSES_AND_FINAM_READONLY'
+    Write-Output 'v20_08_4_live=PASS_ACTIVATED_3_OF_3_TASKS_FRESH_CYCLES_AND_FINAM_READONLY'
 } catch {
     # Preserve all broker stops. Existing live processes continue tracking
     # exits while all new entries are halted; never cancel SLTP on failure.
