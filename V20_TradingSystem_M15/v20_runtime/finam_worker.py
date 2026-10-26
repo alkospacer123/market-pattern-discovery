@@ -22,9 +22,11 @@ from TradingSystemLab.stage8_robot.production_runtime import _load_registry
 
 from .finam_execution import (
     V20FinamBlocked, V20FinamReadAdapter, read_finam_m15_boundary,
+    propose_finam_m15_next_open,
 )
 from .h1_state_journal import ROBOT_STRATEGIES
 from .offline_planner import N4
+from .account_risk import reserve_entry
 
 
 class ReadonlyWorkerAPI(FinamAPI):
@@ -252,6 +254,62 @@ def run_once(robot_id: str, *, witness: bool = False) -> dict:
     }
 
 
+def run_candidate(robot_id: str, *, symbol: str, cost_per_contract: Decimal) -> dict:
+    """One GET-only observed frozen NEXT_OPEN → existing H1 R15/GO estimate.
+
+    No journal/permit/POST/SLTP, no production activation or stored intent.
+    """
+    if robot_id not in ROBOT_STRATEGIES or symbol not in N4:
+        raise V20FinamBlocked("CANDIDATE_ROBOT_OR_SYMBOL_INVALID")
+    try:
+        fee = Decimal(str(cost_per_contract))
+    except (ArithmeticError, TypeError, ValueError) as exc:
+        raise V20FinamBlocked("CANDIDATE_ROUNDTRIP_FEE_INVALID") from exc
+    if not fee.is_finite() or fee <= 0:
+        raise V20FinamBlocked("CANDIDATE_ROUNDTRIP_FEE_REQUIRED")
+    account = os.environ.get("V20_FINAM_ACCOUNT", "")
+    token = os.environ.get("V20_FINAM_TOKEN", "")
+    account_hash = os.environ.get("V20_FINAM_ACCOUNT_SHA256", "")
+    if (not re.fullmatch(r"[A-Za-z0-9_.-]{1,128}", account)
+            or not token or hashlib.sha256(account.encode()).hexdigest() != account_hash):
+        raise V20FinamBlocked("WORKER_ACCOUNT_BINDING_MISSING_OR_INVALID")
+    reader = V20FinamReadAdapter(
+        api=AuthorityReadOnlyAPI(token, account), robot_id=robot_id,
+        account_id=account, expected_account_hash=account_hash,
+    )
+    reader.authenticate()
+    now = datetime.now(timezone.utc)
+    proposal = propose_finam_m15_next_open(
+        reader, symbol=symbol, from_utc=now-timedelta(days=20),
+        now=now, cost_per_contract=fee,
+    )
+    if proposal is None:
+        return {"status": "PASS_NO_FROZEN_SIGNAL_NO_ORDER",
+                "robot": robot_id, "symbol": symbol, "orders": 0}
+    signal, entry, authority, snapshot = proposal
+    risk = reserve_entry(
+        authority=authority, entry_key="v20:readonly-candidate-no-intent",
+        symbol=symbol, direction=entry.direction, entry=entry.reference_entry,
+        atr14=signal.atr14, planned_max_quantity=entry.quantity,
+        current_reservations=(),
+    )
+    if risk.initial_stop != entry.initial_stop or risk.quantity > entry.quantity:
+        raise V20FinamBlocked("CANDIDATE_H1_STOP_OR_SIZING_MISMATCH")
+    return {
+        "status": "PASS_REFERENCE_CANDIDATE_ONLY_NO_ORDER",
+        "symbol": symbol, "direction": entry.direction,
+        "bar_open_msk": entry.entry_bar_open.isoformat(),
+        "observed_open": str(entry.reference_entry), "atr14": str(signal.atr14),
+        "executable_stop": str(entry.initial_stop),
+        "realized_equity_rub": str(snapshot.realized_equity),
+        "available_cash_rub": str(snapshot.available_cash),
+        "go_per_contract_rub": str(authority.initial_margin),
+        "full_roundtrip_cost_per_contract_rub": str(fee),
+        "quantity": risk.quantity, "reserved_risk_rub": str(risk.reserved_risk),
+        "margin_required_rub": str(risk.reserved_margin), "orders": 0,
+    }
+
+
 def self_test() -> int:
     """No network/token: prove GET target only, H1 auth and M15 allowlist."""
     from urllib.parse import urlencode
@@ -352,6 +410,8 @@ def main():
     parser.add_argument("--robot", choices=tuple(ROBOT_STRATEGIES))
     parser.add_argument("--witness-current-open", action="store_true")
     parser.add_argument("--authority", action="store_true")
+    parser.add_argument("--candidate-symbol", choices=tuple(sorted(N4)))
+    parser.add_argument("--roundtrip-cost-per-contract")
     parser.add_argument("--self-test", action="store_true")
     args = parser.parse_args()
     try:
@@ -359,9 +419,28 @@ def main():
             return self_test()
         if args.robot is None:
             raise V20FinamBlocked("V20_WORKER_ROBOT_REQUIRED")
-        result = (run_n4_authority(args.robot) if args.authority else
-                  run_once(args.robot, witness=args.witness_current_open))
+        if args.candidate_symbol:
+            if (args.authority or args.witness_current_open
+                    or args.roundtrip_cost_per_contract is None):
+                raise V20FinamBlocked("CANDIDATE_ARGUMENTS_INVALID")
+            result = run_candidate(
+                args.robot, symbol=args.candidate_symbol,
+                cost_per_contract=args.roundtrip_cost_per_contract,
+            )
+        else:
+            if args.roundtrip_cost_per_contract is not None:
+                raise V20FinamBlocked("CANDIDATE_ARGUMENTS_INVALID")
+            result = (run_n4_authority(args.robot) if args.authority else
+                      run_once(args.robot, witness=args.witness_current_open))
         print("v20_08_1_" + args.robot + "=" + result["status"])
+        if args.candidate_symbol and result["status"] == "PASS_REFERENCE_CANDIDATE_ONLY_NO_ORDER":
+            for field in (
+                "symbol", "direction", "bar_open_msk", "observed_open", "atr14",
+                "executable_stop", "realized_equity_rub", "available_cash_rub",
+                "go_per_contract_rub", "full_roundtrip_cost_per_contract_rub",
+                "quantity", "reserved_risk_rub", "margin_required_rub",
+            ):
+                print("v20_08_1_candidate_" + field + "=" + str(result[field]))
         if "results" in result:
             for symbol, status in result["results"].items():
                 print("v20_08_1_open_" + symbol.lower() + "=" + status)
