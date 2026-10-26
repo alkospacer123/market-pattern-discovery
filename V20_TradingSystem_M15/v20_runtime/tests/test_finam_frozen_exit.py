@@ -84,6 +84,10 @@ class FrozenExitTests(unittest.TestCase):
             expected_account_hash=HASH,
         )
         self.reader.authenticate()
+        guard = patch("TradingSystemLab.stage8_robot.trading_safety_gate.load_kill_switch",
+                      return_value=({"state": "ARMED"}, None))
+        guard.start()
+        self.addCleanup(guard.stop)
 
     def setup_protected(self, journal):
         key, snap = self.entry(journal)
