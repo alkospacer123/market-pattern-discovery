@@ -36,11 +36,21 @@ Roadmap остаётся ровно **8 этапов / 24 подэтапа**. `V
 
 FINAM источник: https://broker.finam.ru/landing/tariffs-n2-day/ . Для 26.10 карточки MOEX показывают обновлённые ставки относительно более ранних октябрьских снимков (в частности, исторические CNYRUBF 0,58 ₽/сторона на 14.10 не переносятся на 26.10). **Это датированный справочный снимок**, а не обещание неизменности биржевого тарифа, не свидетельство фактического списания на новых счетах и не разрешение заявки. Перед реальным сигналом заново подтверждать актуальный сбор выбранного инструмента; H1 `roundtrip_cost_per_contract` принимает суммарный двухсторонний расход, H1 `reserve_entry` использует его в риске. Не подменять регистрационный сбор сбором за адресную сделку либо клиринговой комиссией за отдельное исполнение контракта. Фандинг/обслуживание счёта учитываются отдельно по их правилам, но не выдаются за фиксированный сбор за каждый круг. Нового расчётчика и новых параметров стратегии нет.
 
-## 26.10.2026 — адресная защита V20-08.1 перед реальным POST (ожидает Intel offline acceptance)
+## 26.10.2026 — фактическая Intel-приёмка последнего Kill Switch исправления
+
+Оператор выполнил Git blob-pinned `invoke-offline-entry-kill-switch-tests.ps1` (`cce5e144c19f648e55f410c807b30a25321de3a0`), исходники закреплены на `a7d7d090c377ac04737bff36e7b6f12bca42938b`. Реальный Windows/Intel stdout:
+
+- `test_finam_trial_transport.py`: 6/6 PASS; новый `test_halt_after_preparation_blocks_market_post` = **PASS** (после подготовленного intent HALTED => 0 fake POST, permit не потреблён).
+- `test_finam_frozen_exit.py`: 8/8 PASS, шесть импортированных тестов повторяются; `test_finam_single_cycle.py`: 2/2 PASS. **16 запусков = 10 уникальных сценариев, 0 FAIL**; исторические 34 уникальных адресных сценария не пересчитывать.
+- Финал скрипта: `v20_08_1_entry_kill_switch=PASS_TARGETED_FAKE_ONLY`, `v20_08_1_live=off`, `v20_08_1_orders=zero`, `v20_08_1_finam=NO_NETWORK`.
+- Действующий H1, IntradayLab M15, Control Center, реальные FINAM заявки, V20 Windows Tasks и DPAPI не затрагивались. **Адресный FAIL закрыт и больше не требует повторения.**
+- Этап **08.1 IN PROGRESS**: нет фактической предзаявочной карточки по *настоящему текущему frozen-сигналу* с FINAM Open, 2 ATR14 Wilder, исполнительным H1 стопом, R15/R6, GO, полными комиссиями и локальной готовностью реального SLTP. Никаких искусственных сигналов/заявок для закрытия этого пункта; 08.2 — только после индивидуального одобрения владельца.
+
+## 26.10.2026 — адресная защита V20-08.1 перед реальным POST (Intel PASS — см. выше)
 
 После физического FINAM `PASS_NEXT_OPEN_4_OF_4` проверен существующий `V20SingleTradeTransport.submit_entry_once`. Найдено узкое окно: `prepare_finam_single_trial` требовал локальный H1 Kill Switch `ARMED`, но оператор мог переключить его в `HALTED` между созданием SQLite intent и фактическим одноразовым POST. **Точечный V20-only fix:** немедленно перед атомарным потреблением `trial_authority_consumed` и до вызова `place_order` повторно читать Kill Switch из собственной директории `C:\V20Lab\robots\<slug>`. `HALTED`, отсутствующий, испорченный или несоответствующий Switch блокирует только **новый ENTRY**, не подавляя восстановление/SLTP/exit уже открытой позиции. Реальный токен/FINAM не нужны, H1 не менялся.
 
-Добавлен один новый адресный fake-test `test_halt_after_preparation_blocks_market_post`; его критерий: **0 POST**, статус SQLite intent остаётся `INTENT_PERSISTED`, одноразовое разрешение не израсходовано. Зависимые ранее PASS fake-tests входа, SLTP, frozen exit и single cycle обновлены для явной модели `ARMED`. Физическое исполнение **NOT RUN / NOT PASS**; новый pinned Intel-only offline runner `V20-08/invoke-offline-entry-kill-switch-tests.ps1` (source pin `a7d7d090c377ac04737bff36e7b6f12bca42938b`, Git blob `cce5e144c19f648e55f410c807b30a25321de3a0`) выполняет только эти адресные regressions в отдельной директории. Никаких новых этапов и разрешений LIVE.
+Добавлен один новый адресный fake-test `test_halt_after_preparation_blocks_market_post`; его критерий: **0 POST**, статус SQLite intent остаётся `INTENT_PERSISTED`, одноразовое разрешение не израсходовано. Зависимые ранее PASS fake-tests входа, SLTP, frozen exit и single cycle обновлены для явной модели `ARMED`. Физическое исполнение **PASS** (подробности выше); pinned Intel-only offline runner `V20-08/invoke-offline-entry-kill-switch-tests.ps1` (source pin `a7d7d090c377ac04737bff36e7b6f12bca42938b`, Git blob `cce5e144c19f648e55f410c807b30a25321de3a0`) выполняет только эти адресные regressions в отдельной директории. Никаких новых этапов и разрешений LIVE.
 
 ## Граница разрешений
 
