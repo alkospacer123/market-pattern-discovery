@@ -4,7 +4,7 @@
 param()
 $ErrorActionPreference = 'Stop'
 Set-StrictMode -Version Latest
-$pin = 'a5c6938c2ec767c9e4af721ceb6ba095bb5c20bf'
+$pin = '137f5e3095d709a5b9f871de937b38510150156a'
 $root = 'C:\V20Lab'
 $source = Join-Path $root 'source-raw'
 $python = Join-Path $root '.venv-raw\scripts\python.exe'
@@ -43,12 +43,12 @@ $objects = @(
     @('v20_runtime/tests/test_finam_trial_transport.py','e5d0fd711ffcd3141cad6432f77f9f4b40969ec2'),
     @('v20_runtime/tests/test_finam_preapproved_trial.py','da3c42495018ea672faf22fa779b8cecf4ca252a'),
     @('v20_runtime/tests/test_finam_m15_boundary.py','6fd5f65c6cbf31b3200d9dbe1594c6a48de17ce7'),
-    @('v20_runtime/tests/test_finam_trial_operator.py','28e4656a7ffcc8853086b3f009f133f49e6c42a7')
+    @('v20_runtime/tests/test_finam_trial_operator.py','861082dfeeb2ecffe00c712c3431bc69ce9a76ab')
 )
 $previous=@{
     'finam_execution.py'=@('7bbd692583bc47346b9a80c6cf505d6dd5a62c6f','2313556c8348de891bc27f472e6d4f48043f3c66','c68bf38c760e82bd0d626632ae6a9ebe5ae3b6f2','ed3f55cea5a5860aae0caf821e1c12c20d785d64','644a5c2fe18275b8da472583d67738f9ab582a7f','4f56c1f638b818d5a8ab05f56b724a4f3e67d747','3ad48954931c22007e4f76d1ce196be5dfedcc34','ffa7014046f92a9aecb4c94047ec94bd0bb963f9')
     'test_finam_trial_transport.py'=@('c7973b3e1a5c4285525e1a355d1c1d389fdee0a0')
-    'test_finam_trial_operator.py'=@('8d25ebeb567ad7c613b87eba8e1bc608245b5350')
+    'test_finam_trial_operator.py'=@('8d25ebeb567ad7c613b87eba8e1bc608245b5350','28e4656a7ffcc8853086b3f009f133f49e6c42a7')
     'test_finam_preapproved_trial.py'=@('f23d52c2cbe7ae6ccfb9ed2c9c66386f718331de','a71c2952005a79f0b25f90fc9201d59355cff89b','c3a1097e96fe12a9fd99824c2238d84c8256eb72','c7820c3c313ac1864a1b3c9c0c62fa10975e9dd5')
     'finam_trial_operator.py'=@('27a8afa8746b270d85c4ec17056bc5ff064ecc05','ac6671bebbea8d2bbe8389d4b4ee166ae1b13b39','4ada625363ff2baba92578811d7ed0b45f7408ed','829d657212942dd7d7ae8f406c28ba67d34fc5c5','138bca5f40f1445be5e51b728a1cc6ea86a3057f','09245d1a50754d4116547f73c0d67725b98d1991','78c86481e70a99c4e1bfef3ffab9d2a6a7a7706f','c8a350494e89494da56503a53da1bc137c10dbf3','589489e5a488ae8ecf5d162f4fb0df79ff5b9cdc')
 }
@@ -129,7 +129,7 @@ try {
 }
 Write-Output 'v20_08_2_trial_source=PASS_PINNED_IMPORT_ONLY'
 Write-Output 'v20_08_2_shallow_retest_targeted=PASS_2_OF_2'
-Write-Output 'v20_08_2_source_commit=a5c6938c2ec767c9e4af721ceb6ba095bb5c20bf'
+Write-Output 'v20_08_2_source_commit=137f5e3095d709a5b9f871de937b38510150156a'
 Write-Output 'v20_08_2_finam=NO_NETWORK'
 Write-Output 'v20_08_2_orders=zero'
 Write-Output 'v20_08_2_live=off'
