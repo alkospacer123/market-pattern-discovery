@@ -251,6 +251,36 @@ class TrialBoundaryTests(unittest.TestCase):
                     )
                 self.assertEqual(self.api.stop_posts, 1)
 
+    def test_real_finam_quantity_format_uses_unchanged_h1_contract_parser(self):
+        """One submitted order: FINAM numeric 1.000 and submitted 1 are equal.
+
+        This uses only the unchanged H1 order_views/_contracts and FakeFinam;
+        it cannot contact a real account, place a live order or change H1.
+        """
+        with patch.object(execution, "datetime", OfflineTestClock):
+            with V20TradeJournal(self.root, ROBOT, ACCOUNT) as journal:
+                key, snap = self.entry(journal)
+                permit = self.approval(journal, key)
+                sender = self.transport(journal, permit)
+                sender.submit_entry_once(key=key, snapshot=snap, now=OPEN_UTC)
+                self.assertEqual(self.api.order_posts, 1)
+                # H1 accepts canonical numeric representations as integers.
+                self.api.orders_book[0]["order"]["quantity"] = {"value": "1.000"}
+                self.api.positions = [{"symbol": SYMBOL, "quantity": value("1")}]
+                observed = self.reader.snapshot(now=OPEN_UTC + timedelta(seconds=5))
+                self.assertEqual(
+                    journal.reconcile_order(key=key, snapshot=observed),
+                    "BROKER_ACK_NO_FILL_OR_SLTP_PROOF",
+                )
+                self.assertEqual(self.api.order_posts, 1)
+                self.assertEqual(self.api.stop_posts, 0)
+                hist = self.reader.inspect_entry_fills(
+                    observed, entry_key=key, symbol="USDRUBF",
+                    direction="LONG", requested_quantity=1,
+                    submitted_at=OPEN_UTC, now=OPEN_UTC + timedelta(seconds=5),
+                )
+                self.assertEqual(hist["matched_quantity"], 1)
+
     def test_unproved_or_wrong_vwap_stop_never_posts(self):
         with patch.object(execution, "datetime", OfflineTestClock):
             with V20TradeJournal(self.root, ROBOT, ACCOUNT) as journal:
