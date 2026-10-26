@@ -59,8 +59,8 @@ need ($a.schema -eq 'v20.08.2.first_signal_approval.v1' -and
       $a.max_risk_fraction -eq '0.015' -and
       $a.explicit_owner_approval -eq $true) 'V20_TRIAL_OWNER_SCOPE_INVALID'
 $files=@(
-    @('finam_execution.py','ed3f55cea5a5860aae0caf821e1c12c20d785d64'),
-    @('finam_trial_operator.py','09245d1a50754d4116547f73c0d67725b98d1991'),
+    @('finam_execution.py','644a5c2fe18275b8da472583d67738f9ab582a7f'),
+    @('finam_trial_operator.py','78c86481e70a99c4e1bfef3ffab9d2a6a7a7706f'),
     @('account_risk.py','50d0a924b0eccef45746c0111fa0df4803aed125'),
     @('h1_state_journal.py','68988932c11241cb34273b745dda7764e35d9e62')
 )
