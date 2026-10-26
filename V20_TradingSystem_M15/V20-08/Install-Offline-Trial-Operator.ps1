@@ -4,7 +4,7 @@
 param()
 $ErrorActionPreference = 'Stop'
 Set-StrictMode -Version Latest
-$pin = 'a6c6b0f223b953c497adb3381c0fdf1aedfed2b5'
+$pin = 'ece4a32414cb90fad6d6c69b4105499b6a8bcee6'
 $root = 'C:\V20Lab'
 $source = Join-Path $root 'source-raw'
 $python = Join-Path $root '.venv-raw\scripts\python.exe'
@@ -38,12 +38,12 @@ $objects = @(
     @('v20_runtime/account_risk.py','50d0a924b0eccef45746c0111fa0df4803aed125'),
     @('v20_runtime/frozen_adapter.py','71d50f3f1227a00c8831e9a7f738dcf0d19ea49e'),
     @('v20_runtime/h1_state_journal.py','68988932c11241cb34273b745dda7764e35d9e62'),
-    @('v20_runtime/finam_execution.py','2313556c8348de891bc27f472e6d4f48043f3c66'),
-    @('v20_runtime/finam_trial_operator.py','829d657212942dd7d7ae8f406c28ba67d34fc5c5')
+    @('v20_runtime/finam_execution.py','c68bf38c760e82bd0d626632ae6a9ebe5ae3b6f2'),
+    @('v20_runtime/finam_trial_operator.py','138bca5f40f1445be5e51b728a1cc6ea86a3057f')
 )
 $previous=@{
-    'finam_execution.py'='7bbd692583bc47346b9a80c6cf505d6dd5a62c6f'
-    'finam_trial_operator.py'=@('27a8afa8746b270d85c4ec17056bc5ff064ecc05','ac6671bebbea8d2bbe8389d4b4ee166ae1b13b39','4ada625363ff2baba92578811d7ed0b45f7408ed')
+    'finam_execution.py'=@('7bbd692583bc47346b9a80c6cf505d6dd5a62c6f','2313556c8348de891bc27f472e6d4f48043f3c66')
+    'finam_trial_operator.py'=@('27a8afa8746b270d85c4ec17056bc5ff064ecc05','ac6671bebbea8d2bbe8389d4b4ee166ae1b13b39','4ada625363ff2baba92578811d7ed0b45f7408ed','829d657212942dd7d7ae8f406c28ba67d34fc5c5')
 }
 $rawroot='https://raw.githubusercontent.com/alkospacer123/market-pattern-discovery/'+$pin+'/V20_TradingSystem_M15/'
 New-Item -ItemType Directory -Path $pkg -Force | Out-Null
@@ -115,7 +115,7 @@ try {
     $env:PYTHONDONTWRITEBYTECODE=$bytecode
 }
 Write-Output 'v20_08_2_trial_source=PASS_PINNED_IMPORT_ONLY'
-Write-Output 'v20_08_2_source_commit=a6c6b0f223b953c497adb3381c0fdf1aedfed2b5'
+Write-Output 'v20_08_2_source_commit=ece4a32414cb90fad6d6c69b4105499b6a8bcee6'
 Write-Output 'v20_08_2_finam=NO_NETWORK'
 Write-Output 'v20_08_2_orders=zero'
 Write-Output 'v20_08_2_live=off'
