@@ -199,9 +199,32 @@ v20_08_1_tasks_modified=no
 
 Критический минимальный safety-fix в **V20-only** `finam_execution.py`: после подготовленного intent и непосредственно перед необратимым market POST повторно сверяется **реальное текущее UTC-время**, а не только переданный ранний timestamp snapshot. Если первые 60 секунд `NEXT_OPEN` уже прошли из-за задержки FINAM GET, `TRIAL_ENTRY_ACTUAL_NEXT_OPEN_EXPIRED`, **0 POST**, расход одноразового permit не совершается. H1 и frozen-правила не изменены.
 
-Для нового кода подготовлен один pinned fake-only regression runner `V20-08/invoke-offline-trial-operator-tests.ps1`, Git blob `19ab9b2a753f0537ae211cfd5f2f89490eb4a799` с source pin `4412b4ce45f164e7157794a48e4f43fbb88e4f3d`. Пять адресных сценариев: корректное отсутствие сигнала/0 повторов; переход ENTRY→SLTP→broker flat без нового входа; после рестарта follow без нового ENTRY; отсутствие точного permit блокирует брокер до сети; устаревший фактический 60-секундный Open блокирует POST. Все тесты работают в отдельном `C:\V20Lab\pretrade-08\trial-operator-fake-4412b4ce` на Fake/mock, без реального FINAM, DPAPI, остановки H1/M15/CC, Windows Task и реальной V20 SQLite. **Intel выполнение НЕ получено / НЕ PASS.**
+Для нового кода подготовлен один pinned fake-only regression runner `V20-08/invoke-offline-trial-operator-tests.ps1`, Git blob `19ab9b2a753f0537ae211cfd5f2f89490eb4a799` с source pin `4412b4ce45f164e7157794a48e4f43fbb88e4f3d`. Пять адресных сценариев: корректное отсутствие сигнала/0 повторов; переход ENTRY→SLTP→broker flat без нового входа; после рестарта follow без нового ENTRY; отсутствие точного permit блокирует брокер до сети; устаревший фактический 60-секундный Open блокирует POST. Все тесты работают в отдельном `C:\V20Lab\pretrade-08\trial-operator-fake-4412b4ce` на Fake/mock, без реального FINAM, DPAPI, остановки H1/M15/CC, Windows Task и реальной V20 SQLite. **Физический Intel PASS 5/5 получен 26.10.2026; повтор не требуется (детали ниже).**
 
 **Операционные границы 08.2:** этот новый Python-модуль ещё **не установлен в торговый V20 runtime и НЕ имеет принятого DPAPI-операторского лаунчера**, никаких реальных отправок не было. До конкретной сделки необходимы (1) нативный PASS этих 5 новых тестов; (2) минимальная закреплённая установка в собственный V20 trial workspace/операторская команда, без подмены безопасного GET-only лаунчера; (3) настоящий frozen-сигнал и актуальный FINAM GET риск/GO/комиссии; (4) отдельный owner-approved permit с точным `entry_key`, стороной, количеством, счётом, лимитом риска и source SHA; (5) supervision STOP/fill/reconciliation. Нельзя создавать разрешение на неизвестную будущую сделку, автоматически включать Task или считать общий допуск 08.1 разрешением на POST. Последовательность: проба Shallow → OBV → Inside, после 3/3 принятия единое LIVE-окно по отдельному согласию.
+
+## 26.10.2026 — Intel PASS 5/5 нового контролируемого оператора 08.2
+
+Оператор запустил pinned `invoke-offline-trial-operator-tests.ps1` (Git blob `19ab9b2a753f0537ae211cfd5f2f89490eb4a799`, source SHA `4412b4ce45f164e7157794a48e4f43fbb88e4f3d`) на Intel. Физический stdout:
+
+```text
+test_actual_clock_elapsed_rejects_delayed_market_post ... ok
+test_entry_follow_stop_exit_never_rearms_new_entry ... ok
+test_missing_precise_permit_refuses_without_finam_network ... ok
+test_no_signal_is_terminal_without_any_order_loop ... ok
+test_restart_follow_must_never_allow_entry ... ok
+Ran 5 tests in 0.080s
+OK
+v20_08_2_trial_operator=PASS_FAKE_5_OF_5
+v20_08_2_finam=NO_NETWORK
+v20_08_2_live=off
+v20_08_2_orders=zero
+v20_08_2_source_pin=4412b4ce45f164e7157794a48e4f43fbb88e4f3d
+```
+
+**Физический Intel PASS 5/5**, без FINAM-запросов или реальных заявок. Защита реального времени NEXT_OPEN, отсутствие permit, сопровождение после первой заявки и запрет повторного ENTRY приняты адресно. Прошлые 08.1 тесты не повторять.
+
+Следующий **всё ещё 08.2**, не новый этап: только безопасно установить закреплённый trial-код в независимую V20 runtime-папку без разрешения реального POST или изменения Task. Реальный sender пока не подключён к DPAPI-операторскому исполнению, ARM не разрешён, ни одной реальной пробы нет. Применять только настоящий frozen-сигнал с конкретным account/direction/quantity/entry_key/актуальными стопом/GO/полными расходами. Требование точного разрешения в первой минуте NEXT_OPEN — отдельная операционная проблема, которую нельзя обойти подстановкой фиктивного сигнала или заранее созданным разрешением на несуществующую сделку.
 
 ## Граница разрешений
 
