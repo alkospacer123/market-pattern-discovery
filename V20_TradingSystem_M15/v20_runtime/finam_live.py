@@ -38,7 +38,8 @@ from .finam_execution import (
 from .h1_state_journal import ROBOT_STRATEGIES
 from .offline_planner import N4, OfflinePlanner, STEP
 
-SYMBOLS = ("USDRUBF", "CNYRUBF", "GLDRUBF", "IMOEXF")
+# Preserve the already accepted reference runner's deterministic N4 tie order.
+SYMBOLS = tuple(sorted(N4))
 AUTH_SCHEMA = "v20.08.4.live_authorization.v1"
 POLL_SECONDS = 30
 FAST_RECONCILIATION_SECONDS = 3
@@ -343,8 +344,10 @@ def run_cycle(sender: V20LiveTransport, now: datetime) -> str:
         if previous is None or previous["payload"].get("kind") != "ENTRY":
             raise V20FinamBlocked("V20_LIVE_SESSION_INDEX_CORRUPT")
         same_session.add(previous["payload"]["symbol"])
+    boundary_id = msk.replace(tzinfo=None, second=0, microsecond=0).isoformat()
     for symbol in SYMBOLS:
-        if symbol in current_open or symbol in same_session:
+        if (symbol in current_open or symbol in same_session
+                or journal.store.get("live_decision:" + symbol) == boundary_id):
             continue
         cost = Decimal(str(sender.auth["roundtrip_cost_rub"][symbol]))
         # FINAM M15 witness must be fresh; an absent/newly delayed Open
@@ -360,8 +363,12 @@ def run_cycle(sender: V20LiveTransport, now: datetime) -> str:
                 continue
             raise
         if draft is None:
+            journal.store.put("live_decision:" + symbol, boundary_id)
             continue
         signal, candidate, authority, broker = draft
+        # Durable decision cursor before creating any irreversible FINAM
+        # intention. A crash cannot replay the same frozen NEXT_OPEN.
+        journal.store.put("live_decision:" + symbol, boundary_id)
         _ownership(journal, broker)
         key = journal.prepare_entry(
             signal=signal, entry=candidate,
