@@ -336,7 +336,7 @@ class V20TradeJournal(IsolatedReferenceJournal):
             raise V20FinamBlocked("FROZEN_2ATR_EXECUTABLE_STOP_MISMATCH")
         # Before durable ownership/recovery is connected, only a demonstrably
         # clean FINAM account may be seeded into this non-ordering ledger.
-        if not snapshot.clean:
+        if not snapshot.clean and not getattr(self, "live_runtime", False):
             raise V20FinamBlocked("NONFLAT_BROKER_BOOTSTRAP_FORBIDDEN")
         day = OfflinePlanner._session_key(entry.entry_bar_open).isoformat()
         key = self.preview_entry_key(entry)
@@ -601,11 +601,13 @@ class V20TradeJournal(IsolatedReferenceJournal):
                 self.store.transition_intent(key, "RECONCILED", matched_order.order_id)
             else:
                 self.store.transition_intent(key, "PARTIAL_FILL", matched_order.order_id)
-            self.store.put(
-                "execution_halt",
-                assessment["reason"] if assessment["status"] != "PASS"
-                else "ACTUAL_FINAM_FEE_AUTHORITY_PENDING",
-            )
+            if assessment["status"] != "PASS":
+                self.store.put("execution_halt", assessment["reason"])
+            elif not getattr(self, "live_runtime", False):
+                # Technical acceptance remains single-use and fee-gated.
+                self.store.put("execution_halt", "ACTUAL_FINAM_FEE_AUTHORITY_PENDING")
+            # Autonomous V20 LIVE uses already-reserved complete roundtrip
+            # tariff costs. Actual broker fees will be recorded on LIVE fills.
         return observation
 
 class V20SingleTradeTransport:
@@ -774,14 +776,19 @@ class V20SingleTradeTransport:
             if not timedelta(0) <= actual_post_time-due <= timedelta(seconds=60):
                 raise V20FinamBlocked("TRIAL_ENTRY_ACTUAL_NEXT_OPEN_EXPIRED")
         with self.journal.store.transaction():
-            if self.journal.store.get("trial_authority_consumed") is not None:
-                raise V20FinamBlocked("TRIAL_ALREADY_CONSUMED")
-            self.journal.store.put("trial_authority_consumed", key)
+            if getattr(self, "_live_mode", False):
+                if self.journal.store.get("live_post:" + key) is not None:
+                    raise V20FinamBlocked("LIVE_ENTRY_POST_ALREADY_CHECKPOINTED")
+                self.journal.store.put("live_post:" + key, "CONSUMED")
+            else:
+                if self.journal.store.get("trial_authority_consumed") is not None:
+                    raise V20FinamBlocked("TRIAL_ALREADY_CONSUMED")
+                self.journal.store.put("trial_authority_consumed", key)
             # The technical pretrade is freshly checked above, so its
             # broker-history checkpoint must use this same real time, not
             # the older cycle timestamp. Keep frozen NEXT_OPEN unchanged.
             self.journal.record_submission_boundary(
-                key, at=actual_post_time if technical is not None else now,
+                key, at=actual_post_time if technical is not None or getattr(self, "_live_mode", False) else now,
             )
         try:
             ack = self.reader.api.place_order(self.reader.account_id, payload["wire"])
