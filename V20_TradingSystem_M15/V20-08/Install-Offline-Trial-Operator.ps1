@@ -4,7 +4,7 @@
 param()
 $ErrorActionPreference = 'Stop'
 Set-StrictMode -Version Latest
-$pin = '4d8f09b8853ffedc80eba5ecfc0a7bd868a96d6c'
+$pin = 'e9de4acd8582009c93d67dcac299cabf51eae08e'
 $root = 'C:\V20Lab'
 $source = Join-Path $root 'source-raw'
 $python = Join-Path $root '.venv-raw\scripts\python.exe'
@@ -39,11 +39,11 @@ $objects = @(
     @('v20_runtime/frozen_adapter.py','71d50f3f1227a00c8831e9a7f738dcf0d19ea49e'),
     @('v20_runtime/h1_state_journal.py','68988932c11241cb34273b745dda7764e35d9e62'),
     @('v20_runtime/finam_execution.py','2313556c8348de891bc27f472e6d4f48043f3c66'),
-    @('v20_runtime/finam_trial_operator.py','ac6671bebbea8d2bbe8389d4b4ee166ae1b13b39')
+    @('v20_runtime/finam_trial_operator.py','4ada625363ff2baba92578811d7ed0b45f7408ed')
 )
 $previous=@{
     'finam_execution.py'='7bbd692583bc47346b9a80c6cf505d6dd5a62c6f'
-    'finam_trial_operator.py'='27a8afa8746b270d85c4ec17056bc5ff064ecc05'
+    'finam_trial_operator.py'=@('27a8afa8746b270d85c4ec17056bc5ff064ecc05','ac6671bebbea8d2bbe8389d4b4ee166ae1b13b39')
 }
 $rawroot='https://raw.githubusercontent.com/alkospacer123/market-pattern-discovery/'+$pin+'/V20_TradingSystem_M15/'
 New-Item -ItemType Directory -Path $pkg -Force | Out-Null
@@ -59,7 +59,7 @@ foreach ($entry in $objects) {
         if ($existing -eq $expected) { continue }
         $leaf=[string]($rel.Split('/')[-1])
         need ($previous.ContainsKey($leaf) -and
-              $existing -eq $previous[$leaf]) 'V20_08_2_EXISTING_SOURCE_CONFLICT'
+              $existing -in @($previous[$leaf])) 'V20_08_2_EXISTING_SOURCE_CONFLICT'
         $oldVersion=$true
     }
     $tmp=$to+'.download'
@@ -115,7 +115,7 @@ try {
     $env:PYTHONDONTWRITEBYTECODE=$bytecode
 }
 Write-Output 'v20_08_2_trial_source=PASS_PINNED_IMPORT_ONLY'
-Write-Output 'v20_08_2_source_commit=4d8f09b8853ffedc80eba5ecfc0a7bd868a96d6c'
+Write-Output 'v20_08_2_source_commit=e9de4acd8582009c93d67dcac299cabf51eae08e'
 Write-Output 'v20_08_2_finam=NO_NETWORK'
 Write-Output 'v20_08_2_orders=zero'
 Write-Output 'v20_08_2_live=off'
