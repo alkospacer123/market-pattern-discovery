@@ -42,7 +42,7 @@ from TradingSystemLab.stage8_robot.protective_stop_contract import percent_posit
 from .account_risk import AccountAuthority, RiskReservation, reserve_entry, revalue_fill
 from .h1_state_journal import ROBOT_STRATEGIES, IsolatedReferenceJournal
 from .offline_planner import N4, FrozenSignal, ProposedEntry, OfflinePlanner, STEP
-from .frozen_adapter import validate_completed_history, completed_signal
+from .frozen_adapter import validate_completed_history, completed_signal, _frozen_immutable_features
 
 
 ACTIVE_STATUSES = frozenset({"ACCOUNT_ACTIVE", "ACCOUNT_STATUS_ACTIVE"})
@@ -1176,7 +1176,7 @@ def frozen_observed_session_exit(
 
 def propose_finam_m15_next_open(
     reader: V20FinamReadAdapter, *, symbol: str, from_utc: datetime,
-    now: datetime, cost_per_contract: Decimal,
+    now: datetime, cost_per_contract: Decimal, technical_acceptance: bool = False,
 ) -> tuple[FrozenSignal, ProposedEntry, AccountAuthority, LiveAccountSnapshot] | None:
     """08.1: one common NO-POST path FINAM M15 -> frozen V20 -> reused H1 risk.
 
@@ -1196,12 +1196,27 @@ def propose_finam_m15_next_open(
                  second=0, microsecond=0)
     ):
         raise V20FinamBlocked("NEXT_OPEN_BOUNDARY_INVALID")
-    signal = completed_signal(
-        symbol, ROBOT_STRATEGIES[reader.robot_id],
-        boundary.completed, observed_at=boundary.at_msk,
-    )
-    if signal is None:
-        return None
+    if technical_acceptance:
+        # Technical 08.2 acceptance is NOT a strategy signal. Only the
+        # unchanged frozen feature calculator provides Wilder ATR14. Reuse
+        # the existing H1 risk/stop planner on the observed next M15 Open.
+        # This synthetic typed input is isolated and permanently labeled
+        # TECHNICAL_ACCEPTANCE in its separate SQLite journal.
+        last = boundary.completed["Datetime"].iloc[-1].to_pydatetime()
+        if last + STEP != boundary.at_msk:
+            raise V20FinamBlocked("TECHNICAL_TRIAL_ADJACENT_M15_MISSING")
+        features = _frozen_immutable_features(boundary.completed)
+        atr = Decimal(str(features["atr"].iloc[-1]))
+        if not atr.is_finite() or atr <= 0:
+            raise V20FinamBlocked("TECHNICAL_TRIAL_ATR_INVALID")
+        signal = FrozenSignal(ROBOT_STRATEGIES[reader.robot_id], symbol, 1, last, atr)
+    else:
+        signal = completed_signal(
+            symbol, ROBOT_STRATEGIES[reader.robot_id],
+            boundary.completed, observed_at=boundary.at_msk,
+        )
+        if signal is None:
+            return None
     if (signal.strategy != ROBOT_STRATEGIES[reader.robot_id]
             or signal.symbol != symbol
             or signal.signal_bar_open + STEP != boundary.at_msk):
@@ -1232,7 +1247,7 @@ def propose_finam_m15_next_open(
 def prepare_finam_single_trial(
     transport: V20SingleTradeTransport, *, symbol: str, from_utc: datetime,
     now: datetime, cost_per_contract: Decimal,
-    permit_on_signal=None,
+    permit_on_signal=None, technical_acceptance: bool = False,
 ) -> dict[str, Any]:
     """08.1/08.2 preflight: exact trial authority -> durable H1 intent.
 
@@ -1255,10 +1270,15 @@ def prepare_finam_single_trial(
     draft = propose_finam_m15_next_open(
         reader, symbol=symbol, from_utc=from_utc,
         now=now, cost_per_contract=cost_per_contract,
+        technical_acceptance=technical_acceptance,
     )
     if draft is None:
         return {"status": "NO_FROZEN_SIGNAL", "orders": 0}
     signal, candidate, authority, snapshot = draft
+    if technical_acceptance:
+        if authority.trade_lot_size != 1:
+            raise V20FinamBlocked("TECHNICAL_ONE_CONTRACT_LOT_REQUIRED")
+        candidate = replace(candidate, quantity=1)
     key = journal.preview_entry_key(candidate)
     # 08.2: owner may approve ONE frozen entry in advance by account/robot/
     # instrument/risk ceiling. Only after real FINAM bars + frozen signal
@@ -1287,12 +1307,21 @@ def prepare_finam_single_trial(
         raise V20FinamBlocked("TRIAL_PREPARER_APPROVED_RISK_INVALID") from None
     if not cap.is_finite() or cap <= 0 or risk.reserved_risk > cap:
         raise V20FinamBlocked("TRIAL_PREPARER_RISK_EXCEEDS_APPROVAL")
-    persisted = journal.prepare_entry(
-        signal=signal, entry=candidate, authority=authority, snapshot=snapshot,
-    )
-    if persisted != key:
-        journal.store.put("execution_halt", "TRIAL_PREPARER_INTENT_KEY_CHANGED")
-        raise V20FinamBlocked("TRIAL_PREPARER_INTENT_KEY_CHANGED")
+    with journal.store.transaction():
+        persisted = journal.prepare_entry(
+            signal=signal, entry=candidate, authority=authority, snapshot=snapshot,
+        )
+        if persisted != key:
+            raise V20FinamBlocked("TRIAL_PREPARER_INTENT_KEY_CHANGED")
+        if technical_acceptance:
+            journal.store.put("technical_acceptance:" + key, {
+                "kind": "TECHNICAL_ACCEPTANCE_NOT_FROZEN_SIGNAL",
+                "robot_id": journal.robot_id, "account_sha256": journal.account_hash,
+                "symbol": symbol, "direction": "LONG", "max_quantity": 1,
+                "m15_observed_open": str(candidate.reference_entry),
+                "atr14_wilder": str(signal.atr14),
+                "reserved_risk_rub": str(risk.reserved_risk),
+            })
     return {
         "status": "APPROVED_PREPARED_ONLY_NO_ORDER",
         "robot_id": journal.robot_id,
@@ -1309,6 +1338,7 @@ def run_v20_single_trial_cycle(
     transport: V20SingleTradeTransport, *, now: datetime,
     trial_symbol: str, from_utc: datetime, cost_per_contract: Decimal,
     allow_new_entry: bool = False, permit_on_signal=None,
+    technical_acceptance: bool = False,
 ) -> dict[str, Any]:
     """Existing H1 read/reconcile -> stop/exit -> optional one approved entry.
 
@@ -1337,6 +1367,7 @@ def run_v20_single_trial_cycle(
             transport, symbol=trial_symbol, from_utc=from_utc,
             now=now, cost_per_contract=cost_per_contract,
             permit_on_signal=permit_on_signal,
+            technical_acceptance=technical_acceptance,
         )
         if prepared["status"] == "NO_FROZEN_SIGNAL":
             return {"state": "NO_FROZEN_SIGNAL", "orders": 0}
@@ -1357,6 +1388,18 @@ def run_v20_single_trial_cycle(
             or payload.get("account_sha256") != journal.account_hash):
         raise V20FinamBlocked("TRIAL_CYCLE_FOREIGN_ENTRY")
     symbol = payload["finam_symbol"]
+    if technical_acceptance:
+        marker = journal.store.get("technical_acceptance:" + key)
+        if (not isinstance(marker, dict)
+                or marker.get("kind") != "TECHNICAL_ACCEPTANCE_NOT_FROZEN_SIGNAL"
+                or marker.get("robot_id") != journal.robot_id
+                or marker.get("account_sha256") != journal.account_hash
+                or marker.get("symbol") != trial_symbol
+                or marker.get("max_quantity") != 1
+                or payload.get("quantity") != 1):
+            raise V20FinamBlocked("TECHNICAL_TRIAL_DURABLE_SCOPE_INVALID")
+    elif journal.store.get("technical_acceptance:" + key) is not None:
+        raise V20FinamBlocked("TECHNICAL_TRIAL_CANNOT_RUN_AS_FROZEN")
     # The unchanged H1 service rejects unrelated broker positions/orders
     # before it reconciles owned orders or transmits a protective action.
     # Single-trial V20 uses the same ownership invariant, one account only.
@@ -1483,6 +1526,10 @@ def run_v20_single_trial_cycle(
     if (not isinstance(proof, dict)
             or proof.get("broker_stop_id") != observed["broker_stop_id"]):
         return {"state": "STOP_NOW_BROKER_PROVEN", "orders": 0}
+    if technical_acceptance:
+        # In the isolated H1-style acceptance trade the owner closes manually.
+        # Never apply the third-session *strategy* exit to this technical test.
+        return {"state": "TECHNICAL_SLTP_CONFIRMED_AWAIT_MANUAL_CLOSE", "orders": 0}
     utc = now.astimezone(timezone.utc)
     msk = utc.astimezone(ZoneInfo("Europe/Moscow"))
     if msk.minute % 15 != 0:
