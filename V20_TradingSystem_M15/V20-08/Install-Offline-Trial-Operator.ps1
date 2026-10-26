@@ -4,7 +4,7 @@
 param()
 $ErrorActionPreference = 'Stop'
 Set-StrictMode -Version Latest
-$pin = '4412b4ce45f164e7157794a48e4f43fbb88e4f3d'
+$pin = '4d8f09b8853ffedc80eba5ecfc0a7bd868a96d6c'
 $root = 'C:\V20Lab'
 $source = Join-Path $root 'source-raw'
 $python = Join-Path $root '.venv-raw\scripts\python.exe'
@@ -38,9 +38,13 @@ $objects = @(
     @('v20_runtime/account_risk.py','50d0a924b0eccef45746c0111fa0df4803aed125'),
     @('v20_runtime/frozen_adapter.py','71d50f3f1227a00c8831e9a7f738dcf0d19ea49e'),
     @('v20_runtime/h1_state_journal.py','68988932c11241cb34273b745dda7764e35d9e62'),
-    @('v20_runtime/finam_execution.py','7bbd692583bc47346b9a80c6cf505d6dd5a62c6f'),
-    @('v20_runtime/finam_trial_operator.py','27a8afa8746b270d85c4ec17056bc5ff064ecc05')
+    @('v20_runtime/finam_execution.py','2313556c8348de891bc27f472e6d4f48043f3c66'),
+    @('v20_runtime/finam_trial_operator.py','ac6671bebbea8d2bbe8389d4b4ee166ae1b13b39')
 )
+$previous=@{
+    'finam_execution.py'='7bbd692583bc47346b9a80c6cf505d6dd5a62c6f'
+    'finam_trial_operator.py'='27a8afa8746b270d85c4ec17056bc5ff064ecc05'
+}
 $rawroot='https://raw.githubusercontent.com/alkospacer123/market-pattern-discovery/'+$pin+'/V20_TradingSystem_M15/'
 New-Item -ItemType Directory -Path $pkg -Force | Out-Null
 foreach ($p in @($workspace,(Join-Path $workspace 'V20_TradingSystem_M15'),$pkg)) { no-link $p }
@@ -49,16 +53,26 @@ foreach ($entry in $objects) {
     $expected=[string]$entry[1]
     $to=Join-Path (Join-Path $workspace 'V20_TradingSystem_M15') ($rel.Replace('/','\'))
     no-link $to
+    $oldVersion=$false
     if (Test-Path -LiteralPath $to -PathType Leaf) {
-        need ((git-sha $to) -eq $expected) 'V20_08_2_EXISTING_SOURCE_CONFLICT'
-        continue
+        $existing=git-sha $to
+        if ($existing -eq $expected) { continue }
+        $leaf=[string]($rel.Split('/')[-1])
+        need ($previous.ContainsKey($leaf) -and
+              $existing -eq $previous[$leaf]) 'V20_08_2_EXISTING_SOURCE_CONFLICT'
+        $oldVersion=$true
     }
     $tmp=$to+'.download'
     need (-not (Test-Path -LiteralPath $tmp)) 'V20_08_2_PREVIOUS_PARTIAL_DOWNLOAD'
     try {
         Invoke-WebRequest -Uri ($rawroot+$rel) -OutFile $tmp -UseBasicParsing
         need ((git-sha $tmp) -eq $expected) 'V20_08_2_SOURCE_HASH_MISMATCH'
-        Move-Item -LiteralPath $tmp -Destination $to -ErrorAction Stop
+        if ($oldVersion) {
+            Move-Item -LiteralPath $tmp -Destination $to -Force -ErrorAction Stop
+        } else {
+            Move-Item -LiteralPath $tmp -Destination $to -ErrorAction Stop
+        }
+        need ((git-sha $to) -eq $expected) 'V20_08_2_INSTALLED_SOURCE_MISMATCH'
     } finally {
         if (Test-Path -LiteralPath $tmp) { Remove-Item -LiteralPath $tmp -Force }
     }
@@ -101,7 +115,7 @@ try {
     $env:PYTHONDONTWRITEBYTECODE=$bytecode
 }
 Write-Output 'v20_08_2_trial_source=PASS_PINNED_IMPORT_ONLY'
-Write-Output 'v20_08_2_source_commit=4412b4ce45f164e7157794a48e4f43fbb88e4f3d'
+Write-Output 'v20_08_2_source_commit=4d8f09b8853ffedc80eba5ecfc0a7bd868a96d6c'
 Write-Output 'v20_08_2_finam=NO_NETWORK'
 Write-Output 'v20_08_2_orders=zero'
 Write-Output 'v20_08_2_live=off'
