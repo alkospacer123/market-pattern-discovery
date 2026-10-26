@@ -1,8 +1,8 @@
 # V20-08.2 supervised single real trial. Reuse H1 FINAM / StateStore / SLTP / kill-switch.
-# Modes: verify, execute (frozen), technical (one test-only entry), follow/technical_follow (no entries).
+# Modes: verify, frozen execute, technical, follow-only, technical_recover (GET+pre-POST only).
 [CmdletBinding()]
 param(
-    [ValidateSet('verify','execute','follow','technical','technical_follow')][string]$Mode='verify',
+    [ValidateSet('verify','execute','follow','technical','technical_follow','technical_recover')][string]$Mode='verify',
     [ValidateSet('v20-shallow','v20-obv','v20-inside')][string]$Robot='v20-shallow',
     [ValidateSet('cnyrubf')][string]$Symbol='cnyrubf',
     [ValidatePattern('^[0-9]+(\.[0-9]+)?$')][string]$RoundtripCostPerContract='2.02',
@@ -59,8 +59,8 @@ need ($a.schema -eq 'v20.08.2.first_signal_approval.v1' -and
       $a.max_risk_fraction -eq '0.015' -and
       $a.explicit_owner_approval -eq $true) 'V20_TRIAL_OWNER_SCOPE_INVALID'
 $files=@(
-    @('finam_execution.py','4f56c1f638b818d5a8ab05f56b724a4f3e67d747'),
-    @('finam_trial_operator.py','c8a350494e89494da56503a53da1bc137c10dbf3'),
+    @('finam_execution.py','3ad48954931c22007e4f76d1ce196be5dfedcc34'),
+    @('finam_trial_operator.py','589489e5a488ae8ecf5d162f4fb0df79ff5b9cdc'),
     @('account_risk.py','50d0a924b0eccef45746c0111fa0df4803aed125'),
     @('h1_state_journal.py','68988932c11241cb34273b745dda7764e35d9e62')
 )
@@ -96,7 +96,7 @@ try {
     $params=@('-B','-m','V20_TradingSystem_M15.v20_runtime.finam_trial_operator',
       '--root',$root,'--robot',$Robot,'--symbol',$Symbol.ToUpperInvariant(),
       '--full-roundtrip-cost',$RoundtripCostPerContract,'--source-sha',$sourceSha,
-      '--mode',$(if($Mode -eq 'execute'){'trial'}elseif($Mode -eq 'technical'){'technical'}elseif($Mode -eq 'technical_follow'){'technical_follow'}else{'follow'}))
+      '--mode',$(if($Mode -eq 'execute'){'trial'}elseif($Mode -eq 'technical'){'technical'}elseif($Mode -eq 'technical_follow'){'technical_follow'}elseif($Mode -eq 'technical_recover'){'technical_recover'}else{'follow'}))
     if($Mode -in @('execute','technical')){$params+='--arm-for-trial'}
     & $python @params
     need ($LASTEXITCODE -eq 0) 'V20_TRIAL_BROKER_RECONCILIATION_REQUIRED'
