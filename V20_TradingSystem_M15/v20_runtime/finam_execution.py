@@ -689,13 +689,32 @@ class V20SingleTradeTransport:
                 or payload["quantity"] > approval["max_quantity"]
                 or len(self.journal.store.all_intents()) != 1):
             raise V20FinamBlocked("TRIAL_SCOPE_NOT_EXACT")
-        entry_open = datetime.fromisoformat(payload["entry_at"])
-        if entry_open.tzinfo is not None or now.tzinfo is None:
-            raise V20FinamBlocked("TRIAL_NEXT_OPEN_TIME_INVALID")
-        expected_utc = entry_open.replace(tzinfo=ZoneInfo("Europe/Moscow")).astimezone(timezone.utc)
-        elapsed = now.astimezone(timezone.utc) - expected_utc
-        if not timedelta(0) <= elapsed <= timedelta(seconds=60):
-            raise V20FinamBlocked("TRIAL_NEXT_OPEN_EXPIRED_OR_FUTURE")
+        technical = self.journal.store.get("technical_acceptance:" + key)
+        if technical is not None:
+            if (not isinstance(technical, dict)
+                    or technical.get("kind") != "TECHNICAL_ACCEPTANCE_NOT_FROZEN_SIGNAL"
+                    or technical.get("account_sha256") != self.journal.account_hash
+                    or technical.get("robot_id") != self.journal.robot_id
+                    or technical.get("symbol") != payload["symbol"]
+                    or technical.get("direction") != "LONG"
+                    or technical.get("max_quantity") != 1
+                    or payload["quantity"] != 1
+                    or approval.get("trial_kind") != "TECHNICAL_ACCEPTANCE_NOT_STRATEGY_SIGNAL"
+                    or self.journal.state_file != "v20-technical-acceptance.sqlite3"):
+                raise V20FinamBlocked("TECHNICAL_ENTRY_ACCOUNT_OR_PERMIT_INVALID")
+            prepared_utc = datetime.fromisoformat(technical["prepared_at_utc"])
+            if (prepared_utc.tzinfo is None or
+                    not timedelta(0) <= now.astimezone(timezone.utc)-prepared_utc
+                    <= timedelta(seconds=60)):
+                raise V20FinamBlocked("TECHNICAL_ENTRY_PRETRADE_EXPIRED")
+        else:
+            entry_open = datetime.fromisoformat(payload["entry_at"])
+            if entry_open.tzinfo is not None or now.tzinfo is None:
+                raise V20FinamBlocked("TRIAL_NEXT_OPEN_TIME_INVALID")
+            expected_utc = entry_open.replace(tzinfo=ZoneInfo("Europe/Moscow")).astimezone(timezone.utc)
+            elapsed = now.astimezone(timezone.utc) - expected_utc
+            if not timedelta(0) <= elapsed <= timedelta(seconds=60):
+                raise V20FinamBlocked("TRIAL_NEXT_OPEN_EXPIRED_OR_FUTURE")
         reservation = RiskReservation.restore(
             self.journal.store.get("risk_reservations", {}).get(key),
         )
@@ -723,11 +742,19 @@ class V20SingleTradeTransport:
             raise V20FinamBlocked("TRIAL_ENTRY_V20_KILL_SWITCH_NOT_ARMED")
         # The caller's 'now' may be a few FINAM roundtrips old. Recheck the
         # ACTUAL wall clock directly before the irreversible one-shot POST.
-        entry_open = datetime.fromisoformat(payload["entry_at"])
         actual_post_time = datetime.now(timezone.utc)
-        due = entry_open.replace(tzinfo=ZoneInfo("Europe/Moscow")).astimezone(timezone.utc)
-        if not timedelta(0) <= actual_post_time-due <= timedelta(seconds=60):
-            raise V20FinamBlocked("TRIAL_ENTRY_ACTUAL_NEXT_OPEN_EXPIRED")
+        technical = self.journal.store.get("technical_acceptance:" + key)
+        if technical is not None:
+            prepared_utc = datetime.fromisoformat(technical["prepared_at_utc"])
+            if (prepared_utc.tzinfo is None
+                    or not timedelta(0) <= actual_post_time-prepared_utc
+                    <= timedelta(seconds=60)):
+                raise V20FinamBlocked("TECHNICAL_ENTRY_ACTUAL_PRETRADE_EXPIRED")
+        else:
+            entry_open = datetime.fromisoformat(payload["entry_at"])
+            due = entry_open.replace(tzinfo=ZoneInfo("Europe/Moscow")).astimezone(timezone.utc)
+            if not timedelta(0) <= actual_post_time-due <= timedelta(seconds=60):
+                raise V20FinamBlocked("TRIAL_ENTRY_ACTUAL_NEXT_OPEN_EXPIRED")
         with self.journal.store.transaction():
             if self.journal.store.get("trial_authority_consumed") is not None:
                 raise V20FinamBlocked("TRIAL_ALREADY_CONSUMED")
@@ -1025,6 +1052,7 @@ def read_finam_m15_boundary(
     reader: V20FinamReadAdapter, *, symbol: str,
     from_utc: datetime, now: datetime,
     require_adjacent_completed: bool = True,
+    technical_reference: bool = False,
 ) -> V20M15Boundary:
     """GET-only H1 FINAM API + official TIME_FRAME_M15 query.
 
@@ -1046,7 +1074,7 @@ def read_finam_m15_boundary(
     at_msk = observed.astimezone(ZoneInfo("Europe/Moscow")).replace(tzinfo=None)
     boundary = at_msk.replace(minute=at_msk.minute//15*15, second=0, microsecond=0)
     elapsed = at_msk - boundary
-    if not timedelta(0) <= elapsed <= timedelta(seconds=60):
+    if not technical_reference and not timedelta(0) <= elapsed <= timedelta(seconds=60):
         raise V20FinamBlocked("M15_IMMEDIATE_NEXT_OPEN_MISSED")
     # The exclusive end includes the current M15 bar's Open if FINAM has
     # published it. This is a scalar reference only, not a filled price.
@@ -1080,10 +1108,12 @@ def read_finam_m15_boundary(
         if stamp.minute % 15:
             raise V20FinamBlocked("M15_FINAM_GRID_MISMATCH")
         if stamp == boundary:
-            # FINAM may not yet have final High/Low/Close/Volume in the
-            # still-forming opening candle. Never inspect or trust them.
-            opened = parse_rest_decimal_value_object(item.get("open"), positive=True)
-            rows.append((stamp, {"open": opened}))
+            # Technical acceptance uses exclusively the prior completed bar
+            # Close as a one-contract planning reference; never inspect the
+            # current forming candle, even if its Open is absent at FINAM.
+            if not technical_reference:
+                opened = parse_rest_decimal_value_object(item.get("open"), positive=True)
+                rows.append((stamp, {"open": opened}))
             continue
         price = {}
         for field in ("open", "high", "low", "close", "volume"):
@@ -1096,15 +1126,22 @@ def read_finam_m15_boundary(
     dates = [r[0] for r in rows]
     if dates != sorted(set(dates)):
         raise V20FinamBlocked("M15_DUPLICATE_OR_UNSORTED_BARS")
-    live = [(t, x) for t, x in rows if t == boundary]
-    if len(live) != 1:
-        raise V20FinamBlocked("M15_NEXT_OPEN_WITNESS_MISSING")
-    witnessed_open = live[0][1]["open"]
-    require_on_grid(witnessed_open, Decimal(_load_registry()[symbol]["price_step"]))
     completed = [(t, x) for t, x in rows if t + STEP <= boundary]
     if not completed or (require_adjacent_completed
                          and completed[-1][0] != boundary-STEP):
-        raise V20FinamBlocked("M15_FINAL_COMPLETED_BAR_MISSING")
+        raise V20FinamBlocked(
+            "TECHNICAL_NO_FRESH_COMPLETED_M15" if technical_reference
+            else "M15_FINAL_COMPLETED_BAR_MISSING"
+        )
+    if technical_reference:
+        # Strict fresh-bar proof, not a made-up current Open or a strategy signal.
+        witnessed_open = completed[-1][1]["close"]
+    else:
+        live = [(t, x) for t, x in rows if t == boundary]
+        if len(live) != 1:
+            raise V20FinamBlocked("M15_NEXT_OPEN_WITNESS_MISSING")
+        witnessed_open = live[0][1]["open"]
+    require_on_grid(witnessed_open, Decimal(_load_registry()[symbol]["price_step"]))
     if any(t > boundary for t in dates):
         raise V20FinamBlocked("M15_FUTURE_BAR_FORBIDDEN")
     frame = pd.DataFrame([
@@ -1195,6 +1232,7 @@ def propose_finam_m15_next_open(
         raise V20FinamBlocked("NEXT_OPEN_ROBOT_IDENTITY_INVALID")
     boundary = read_finam_m15_boundary(
         reader, symbol=symbol, from_utc=from_utc, now=now,
+        technical_reference=technical_acceptance,
     )
     if boundary.at_msk != (
         now.astimezone(ZoneInfo("Europe/Moscow"))
@@ -1328,9 +1366,11 @@ def prepare_finam_single_trial(
                 "kind": "TECHNICAL_ACCEPTANCE_NOT_FROZEN_SIGNAL",
                 "robot_id": journal.robot_id, "account_sha256": journal.account_hash,
                 "symbol": symbol, "direction": "LONG", "max_quantity": 1,
-                "m15_observed_open": str(candidate.reference_entry),
+                "reference_kind": "LAST_COMPLETED_M15_CLOSE_NOT_CURRENT_OPEN",
+                "m15_reference_close": str(candidate.reference_entry),
                 "atr14_wilder": str(signal.atr14),
                 "reserved_risk_rub": str(risk.reserved_risk),
+                "prepared_at_utc": datetime.now(timezone.utc).isoformat(),
             })
     return {
         "status": "APPROVED_PREPARED_ONLY_NO_ORDER",
