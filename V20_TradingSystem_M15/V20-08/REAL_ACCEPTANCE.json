@@ -94,8 +94,14 @@
   "roadmap": {
     "08.1": "PASS_PRETRADE_INTEL",
     "08.2": "PASS_3_OF_3_BROKER_EXECUTION_SLTP_MANUAL_EXIT",
-    "08.3": "TECHNICAL_PASS_3_OF_3_FINANCIAL_FEES_PENDING",
+    "08.3": "EXECUTION_PASS_3_OF_3_FINANCIAL_PARTIAL_ACTUAL_FEES_MISSING",
     "08.4": "NOT_STARTED_LIVE_OFF",
     "08.5": "NOT_STARTED"
+  },
+  "acceptance_report": "V20-08/ACCEPTANCE_08_3_RU.md",
+  "actual_commission_verification": {
+    "status": "NOT_AVAILABLE_FROM_OWNER_EVIDENCE",
+    "method": "GET-only FINAM trades/account statement for three existing executions; do not create new orders",
+    "net_pnl_rub": null
   }
 }
