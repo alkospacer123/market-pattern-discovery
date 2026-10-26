@@ -4,8 +4,8 @@
   "source": "Intel URIU-PC owner FINAM history/order screenshots and exact operator stdout in conversation; not independent live API capture from GitHub",
   "execution": "PASS_3_OF_3_REAL_ENTRY_AND_PROVEN_BROKER_100_PERCENT_SLTP_MANUAL_FLAT",
   "accounting": "ACCEPTED_WITH_TARIFF_RESERVE_ACTUAL_FEES_TO_BE_OBSERVED_ON_FUTURE_LIVE_TRADES",
-  "automated_live": "OFF_TASKS_DISABLED",
-  "strategy_timing": "TECHNICAL_TRIAL_ONLY_FROZEN_NEXT_OPEN_LIVE_NOT_YET_OBSERVED",
+  "automated_live": "PASS_3_OF_3_TASK_RUNNING_KILL_SWITCH_ARMED_FRESH_HEALTHY_CYCLES",
+  "strategy_timing": "FROZEN_M15_LIVE_TASKS_ARMED_NEXT_OPEN_STRATEGIC_FILL_NOT_YET_OBSERVED",
   "market": "CNYRUBF",
   "contract_economics": {
     "tick_size": "0.001",
@@ -89,14 +89,15 @@
     "Stop triggers/execution were not tested: broker SLTP 100% active/proven and then manually cancelled after owner flattening",
     "Historical technical-trial commissions not individually reconciled by explicit owner decision; the 2.02 RUB budget is a reserve, not measured fees",
     "Technical exception entry is not proof of frozen strategy LIVE NEXT_OPEN execution",
-    "Production V20 M15 runner and Windows Task live cutover were not yet installed; m15_runner.py remains OFFLINE_ONLY"
+    "First autonomous frozen signal, FINAM fill and resulting broker-proven SLTP in production are not yet observed; technical trial SLTP 3/3 remains separate",
+    "PowerShell windows appear on the operator desktop because original Windows Tasks are Interactive; do not close them while LIVE; background UI treatment requires its own safe, flat-account Task restart."
   ],
   "roadmap": {
     "08.1": "PASS_PRETRADE_INTEL",
     "08.2": "PASS_3_OF_3_BROKER_EXECUTION_SLTP_MANUAL_EXIT",
     "08.3": "PASS_OWNER_ACCEPTED_TECHNICAL_3_OF_3_AND_TARIFF_COST_MODEL",
-    "08.4": "NOT_STARTED_LIVE_OFF",
-    "08.5": "NOT_STARTED"
+    "08.4": "PASS_INTEL_3_OF_3_RUNNING_ARMED_HEALTHY_FRESH_CYCLE",
+    "08.5": "IN_PROGRESS_OPERATOR_BACKUP_RUNBOOK_OFFLINE_PREPARED_PENDING_INTEL"
   },
   "acceptance_report": "V20-08/ACCEPTANCE_08_3_RU.md",
   "actual_commission_verification": {
@@ -104,5 +105,36 @@
     "method": "Use existing full roundtrip tariff/risk reserve. Observe actual fees on later LIVE trades.",
     "net_pnl_rub": null
   },
-  "owner_decision": "2026-10-26: accept 08.3 without checking individual technical trial fee debits; use full tariff and costs in live sizing, record actuals on future live trades"
+  "owner_decision": "2026-10-26: accept 08.3 without checking individual technical trial fee debits; use full tariff and costs in live sizing, record actuals on future live trades",
+  "live_activation_08_4": {
+    "source": "Intel URIU-PC owner PowerShell exact task, kill switch and fresh cycle readings on 2026-10-26",
+    "status": "PASS_3_OF_3_RUNNING_ARMED_HEALTHY",
+    "cutover": "PASS_ACTIVATED_3_OF_3_TASKS_FRESH_CYCLES_AND_FINAM_READONLY",
+    "tasks": {
+      "v20-shallow": {
+        "task": "Running",
+        "kill_switch": "ARMED",
+        "last_cycle": "WAIT_NEXT_M15_OPEN",
+        "age_sec": 9,
+        "healthy": true
+      },
+      "v20-obv": {
+        "task": "Running",
+        "kill_switch": "ARMED",
+        "last_cycle": "WAIT_NEXT_M15_OPEN",
+        "age_sec": 2,
+        "healthy": true
+      },
+      "v20-inside": {
+        "task": "Running",
+        "kill_switch": "ARMED",
+        "last_cycle": "WAIT_NEXT_M15_OPEN",
+        "age_sec": 25,
+        "healthy": true
+      }
+    },
+    "execution_scope": "LIVE_AUTHORIZED_BUT_NO_FROZEN_NEXT_OPEN_FILL_YET_OBSERVED",
+    "h1_modified": false,
+    "intradaylab_m15_modified": false
+  }
 }
