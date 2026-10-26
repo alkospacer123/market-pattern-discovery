@@ -10,6 +10,7 @@ from __future__ import annotations
 import argparse
 from datetime import datetime, timedelta, timezone
 from decimal import Decimal, InvalidOperation
+import json
 import hashlib
 import os
 from pathlib import Path
@@ -25,6 +26,7 @@ from .finam_execution import (
     V20FinamBlocked, V20FinamReadAdapter, V20SingleTradeTransport,
     V20TradeJournal, run_v20_single_trial_cycle,
 )
+from .account_risk import reserve_entry
 from .h1_state_journal import ROBOT_STRATEGIES
 from .offline_planner import N4
 
@@ -43,6 +45,87 @@ def _inputs(robot: str, symbol: str, fee: str, source_sha: str) -> tuple[str, st
     return robot, symbol, cost
 
 
+
+def advance_authorization(approved_path: Path, *, robot: str, account_hash: str,
+                          symbol: str, source_sha: str) -> dict:
+    """Read owner's preapproved ONE-trial scope; never infer consent from token."""
+    if not approved_path.is_file() or approved_path.is_symlink() or approved_path.parent.is_symlink():
+        raise V20FinamBlocked("TRIAL_ADVANCE_APPROVAL_MISSING")
+    try:
+        granted = json.loads(approved_path.read_text(encoding="utf-8"))
+    except (OSError, UnicodeError, ValueError):
+        raise V20FinamBlocked("TRIAL_ADVANCE_APPROVAL_INVALID") from None
+    expected = {
+        "schema": "v20.08.2.first_signal_approval.v1",
+        "scope": "ONE_FIRST_REAL_FROZEN_TRIAL_ONLY",
+        "robot_id": robot,
+        "account_sha256": account_hash,
+        "source_commit": source_sha,
+        "instrument": symbol,
+        "max_risk_fraction": "0.015",
+        "explicit_owner_approval": True,
+    }
+    if not isinstance(granted, dict) or any(granted.get(k) != v for k,v in expected.items()):
+        raise V20FinamBlocked("TRIAL_ADVANCE_APPROVAL_SCOPE_INVALID")
+    return granted
+
+
+def create_exact_permit_on_signal(*, authorized_path: Path, permit_path: Path,
+                                  robot: str, account_hash: str, symbol: str,
+                                  source_sha: str):
+    """Real signal -> existing H1 executable risk -> exact idempotency permit.
+
+    Approves only the first frozen signal on the owner's selected instrument.
+    One use, never overwrite an existing permit, no journal mutation or POST.
+    """
+    advance_authorization(
+        authorized_path, robot=robot, account_hash=account_hash,
+        symbol=symbol, source_sha=source_sha,
+    )
+    def on_signal(key, signal, proposal, authority):
+        if (signal.symbol != symbol or proposal.symbol != symbol
+                or signal.strategy != ROBOT_STRATEGIES[robot]
+                or authority.account_id is None
+                or hashlib.sha256(authority.account_id.encode()).hexdigest() != account_hash
+                or proposal.direction not in ("LONG", "SHORT")
+                or proposal.quantity <= 0):
+            raise V20FinamBlocked("TRIAL_SIGNAL_SCOPE_INVALID")
+        bound = authority.realized_equity * Decimal("0.015")
+        risk = reserve_entry(
+            authority=authority, entry_key=key, symbol=symbol,
+            direction=proposal.direction, entry=proposal.reference_entry,
+            atr14=signal.atr14, planned_max_quantity=proposal.quantity,
+            current_reservations=(),
+        )
+        if risk.quantity < 1 or risk.reserved_risk > bound:
+            raise V20FinamBlocked("TRIAL_SIGNAL_RISK_EXCEEDS_OWNER_LIMIT")
+        record = {
+            "schema": "v20.08.2.single_trial.v1",
+            "scope": "ONE_SPECIFIC_APPROVED_TRIAL",
+            "source_commit": source_sha,
+            "robot_id": robot,
+            "account_sha256": account_hash,
+            "entry_key": key,
+            "authorized_operations": ["ENTRY", "PROTECTIVE_STOP", "FROZEN_EXIT"],
+            "explicit_owner_approval": True,
+            "instrument": symbol,
+            "direction": proposal.direction,
+            "max_quantity": risk.quantity,
+            "max_risk_rub": str(bound),
+        }
+        if permit_path.exists() or permit_path.is_symlink() or permit_path.parent.is_symlink():
+            raise V20FinamBlocked("TRIAL_EXACT_PERMIT_ALREADY_EXISTS")
+        # Exclusive creation prevents a second signal/process from altering the
+        # owner's first authorized trade even if two workers race.
+        with permit_path.open("x", encoding="utf-8", newline="\n") as fh:
+            json.dump(record, fh, sort_keys=True, separators=(",", ":"))
+            fh.write("\n")
+            fh.flush()
+            os.fsync(fh.fileno())
+        print("v20_08_2_exact_permit=ONE_REAL_FROZEN_SIGNAL_APPROVED", flush=True)
+    return on_signal
+
+
 TERMINAL = {
     "BROKER_FLAT_NO_ACTIVE_STOP",
     "STOP_EXIT_BROKER_FLAT_UNDER_ACCEPTANCE",
@@ -52,7 +135,7 @@ NO_NEW_ENTRY = {"NO_FROZEN_SIGNAL", "BROKER_OBSERVED_NO_TRIAL_ENTRY"}
 
 def supervised_cycle(
     sender: V20SingleTradeTransport, *, symbol: str, cost: Decimal,
-    mode: str, sleep=time.sleep, now_utc=None,
+    mode: str, sleep=time.sleep, now_utc=None, permit_on_signal=None,
 ) -> str:
     """Only approved one-entry cycle; follow means no new entries, even ARMED.
 
@@ -72,6 +155,7 @@ def supervised_cycle(
             sender, now=now, trial_symbol=symbol,
             from_utc=now-timedelta(days=20), cost_per_contract=cost,
             allow_new_entry=allow_entry,
+            permit_on_signal=permit_on_signal if allow_entry else None,
         )
         state = observed["state"]
         print("v20_08_2_cycle=" + state, flush=True)
@@ -117,26 +201,35 @@ def run(*, root: Path, robot: str, symbol: str, fee: str,
             trial_permit_path=permit,
         )
         try:
-            # Before actual broker requests, require the exact scoped permit.
-            # Reuse transport's _permit in both entry and follow modes.
-            import json
-            if not permit.is_file() or permit.is_symlink():
+            # Exact source permit may already exist (after restart).
+            # Otherwise the owner explicitly authorized ONE first genuine
+            # frozen signal. It will be atomically narrowed to an exact H1
+            # single-trial key only after broker data and R15 sizing arrive.
+            permit_on_signal = None
+            if permit.is_file() and not permit.is_symlink():
+                try:
+                    owner_record = json.loads(permit.read_text(encoding="utf-8"))
+                except (OSError, UnicodeError, ValueError):
+                    raise V20FinamBlocked("TRIAL_OPERATOR_PERMIT_INVALID") from None
+                if (not isinstance(owner_record, dict)
+                        or owner_record.get("instrument") != symbol
+                        or owner_record.get("source_commit") != source_sha
+                        or owner_record.get("robot_id") != robot
+                        or owner_record.get("account_sha256") != scope
+                        or owner_record.get("explicit_owner_approval") is not True):
+                    raise V20FinamBlocked("TRIAL_OPERATOR_PERMIT_SCOPE_INVALID")
+                key = owner_record.get("entry_key")
+                if not isinstance(key, str) or not key.startswith("v20:" + robot + ":"):
+                    raise V20FinamBlocked("TRIAL_OPERATOR_ENTRY_KEY_INVALID")
+                sender._permit(key=key, kind="ENTRY" if mode == "trial" else "PROTECTIVE_STOP")
+            elif mode == "trial":
+                grant_path = journal.instance_root / "safety" / "v20-first-signal-approval.json"
+                permit_on_signal = create_exact_permit_on_signal(
+                    authorized_path=grant_path, permit_path=permit, robot=robot,
+                    account_hash=scope, symbol=symbol, source_sha=source_sha,
+                )
+            else:
                 raise V20FinamBlocked("TRIAL_OPERATOR_PERMIT_MISSING")
-            try:
-                owner_record = json.loads(permit.read_text(encoding="utf-8"))
-            except (OSError, UnicodeError, ValueError):
-                raise V20FinamBlocked("TRIAL_OPERATOR_PERMIT_INVALID") from None
-            if (not isinstance(owner_record, dict)
-                    or owner_record.get("instrument") != symbol
-                    or owner_record.get("source_commit") != source_sha
-                    or owner_record.get("robot_id") != robot
-                    or owner_record.get("account_sha256") != scope
-                    or owner_record.get("explicit_owner_approval") is not True):
-                raise V20FinamBlocked("TRIAL_OPERATOR_PERMIT_SCOPE_INVALID")
-            key = owner_record.get("entry_key")
-            if not isinstance(key, str) or not key.startswith("v20:" + robot + ":"):
-                raise V20FinamBlocked("TRIAL_OPERATOR_ENTRY_KEY_INVALID")
-            sender._permit(key=key, kind="ENTRY" if mode == "trial" else "PROTECTIVE_STOP")
             switch, err = load_kill_switch(journal.instance_root)
             if mode == "trial" and (err or switch["state"] != "ARMED"):
                 raise V20FinamBlocked("TRIAL_OPERATOR_SWITCH_NOT_ARMED")
@@ -145,6 +238,7 @@ def run(*, root: Path, robot: str, symbol: str, fee: str,
             reader.authenticate()
             return supervised_cycle(
                 sender, symbol=symbol, cost=cost, mode=mode,
+                permit_on_signal=permit_on_signal,
             )
         finally:
             # HALTED inhibits NEW entries only; active FINAM SLTP/exit
