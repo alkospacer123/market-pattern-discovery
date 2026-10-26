@@ -159,6 +159,110 @@ def arm_one_approved_trial(instance_root: Path) -> None:
         raise V20FinamBlocked("TRIAL_OPERATOR_ARM_RESULT_UNVERIFIED")
 
 
+def recover_unsubmitted_technical(
+    *, journal: TechnicalTrialJournal, reader: V20FinamReadAdapter,
+    sender: V20SingleTradeTransport, permit: Path, robot: str, symbol: str,
+) -> str:
+    """One V20-08.2 PRE-POST repair, never submit or authorize an order.
+
+    Account/orders are read twice from FINAM while H1 InstanceLock is held.
+    Recovery is refused if a durable POST checkpoint, any fill, another
+    intent or any broker exposure exists. Old evidence stays inside H1 SQLite.
+    """
+    if (not isinstance(journal, TechnicalTrialJournal)
+            or journal.state_file != "v20-technical-acceptance.sqlite3"):
+        raise V20FinamBlocked("TECHNICAL_RECOVERY_LEDGER_SCOPE_INVALID")
+    switch, error = load_kill_switch(journal.instance_root)
+    if error or not switch or switch["state"] != "HALTED":
+        raise V20FinamBlocked("TECHNICAL_RECOVERY_REQUIRES_HALTED")
+    reader.authenticate()
+    first = reader.snapshot(now=datetime.now(timezone.utc))
+    second = reader.snapshot(now=datetime.now(timezone.utc))
+    if not first.clean or not second.clean or first.positions != second.positions:
+        raise V20FinamBlocked("TECHNICAL_RECOVERY_BROKER_NOT_FLAT")
+    entries = journal.store.all_intents()
+    audit = journal.store.get("technical_unposted_aborts", [])
+    if not isinstance(audit, list):
+        raise V20FinamBlocked("TECHNICAL_RECOVERY_AUDIT_INVALID")
+    if not permit.is_file() or permit.is_symlink() or permit.parent.is_symlink():
+        raise V20FinamBlocked("TECHNICAL_RECOVERY_PERMIT_MISSING")
+    try:
+        permission = json.loads(permit.read_text(encoding="utf-8"))
+    except (OSError, UnicodeError, ValueError):
+        raise V20FinamBlocked("TECHNICAL_RECOVERY_PERMIT_INVALID") from None
+    if (not isinstance(permission, dict)
+            or permission.get("trial_kind") !=
+            "TECHNICAL_ACCEPTANCE_NOT_STRATEGY_SIGNAL"
+            or permission.get("robot_id") != robot
+            or permission.get("account_sha256") != journal.account_hash
+            or permission.get("instrument") != symbol
+            or permission.get("direction") != "LONG"
+            or permission.get("max_quantity") != 1):
+        raise V20FinamBlocked("TECHNICAL_RECOVERY_PERMIT_SCOPE_INVALID")
+    key = permission.get("entry_key")
+    if not isinstance(key, str) or not key.startswith("v20:" + robot + ":"):
+        raise V20FinamBlocked("TECHNICAL_RECOVERY_ENTRY_KEY_INVALID")
+    if entries:
+        if len(entries) != 1 or entries[0]["idempotency_key"] != key:
+            raise V20FinamBlocked("TECHNICAL_RECOVERY_OTHER_INTENTS")
+        row = entries[0]
+        marker = journal.store.get("technical_acceptance:" + key)
+        reservations = journal.store.get("risk_reservations", {})
+        sessions = journal.store.get("session_entries", {})
+        if (row["status"] != "INTENT_PERSISTED"
+                or row["broker_order_id"] is not None
+                or row["payload"].get("kind") != "ENTRY"
+                or row["payload"].get("account_sha256") != journal.account_hash
+                or row["payload"].get("robot_id") != robot
+                or row["payload"].get("symbol") != symbol
+                or row["payload"].get("direction") != "LONG"
+                or row["payload"].get("quantity") != 1
+                or not isinstance(marker, dict)
+                or marker.get("kind") != "TECHNICAL_ACCEPTANCE_NOT_FROZEN_SIGNAL"
+                or marker.get("account_sha256") != journal.account_hash
+                or not isinstance(reservations, dict)
+                or set(reservations) != {key}
+                or not isinstance(sessions, dict)
+                or sum(len(v) for v in sessions.values()) != 1
+                or not any(v == [key] for v in sessions.values())
+                or journal.store.get("entry_submission:" + key) is not None
+                or journal.store.get("trial_authority_consumed") is not None
+                or journal.store.get("execution_halt") is not None
+                or journal.store.all_fills()):
+            raise V20FinamBlocked("TECHNICAL_RECOVERY_POST_OR_STATE_UNCERTAIN")
+        sender._permit(key=key, kind="ENTRY")
+        with journal.store.transaction():
+            # Atomically preserve the original prepared attempt in H1 state.
+            # No previous irreversible FINAM POST is admissible here.
+            journal.store.put("technical_unposted_aborts", audit + [{
+                "entry_key": key, "original_intent": row,
+                "original_marker": marker,
+                "at_utc": datetime.now(timezone.utc).isoformat(),
+                "result": "PREPOST_ABORT_BROKER_TWICE_FLAT_NO_POST_CHECKPOINT",
+            }])
+            cur = journal.store.db.execute(
+                "DELETE FROM intents WHERE idempotency_key=? "
+                "AND status='INTENT_PERSISTED' AND broker_order_id IS NULL",
+                (key,),
+            )
+            if cur.rowcount != 1:
+                raise V20FinamBlocked("TECHNICAL_RECOVERY_INTENT_CHANGED")
+            journal.store.put("risk_reservations", {})
+            journal.store.put("session_entries", {})
+            journal.store.db.execute(
+                "DELETE FROM state WHERE key=?", ("technical_acceptance:" + key,),
+            )
+    else:
+        # Crash between atomic local cleanup and permit unlink: finish only
+        # if prior abort evidence proves exactly which permit was cleared.
+        if (not audit or audit[-1].get("entry_key") != key
+                or journal.store.get("trial_authority_consumed") is not None
+                or journal.store.all_fills()):
+            raise V20FinamBlocked("TECHNICAL_RECOVERY_EMPTY_WITHOUT_PROOF")
+    permit.unlink()
+    return "PASS_PREPOST_ONLY_FINAM_TWICE_FLAT_NEW_ENTRY_STILL_OFF"
+
+
 TERMINAL = {
     "BROKER_FLAT_NO_ACTIVE_STOP",
     "STOP_EXIT_BROKER_FLAT_UNDER_ACCEPTANCE",
@@ -243,9 +347,9 @@ def supervised_cycle(
 def run(*, root: Path, robot: str, symbol: str, fee: str,
         source_sha: str, mode: str, arm_for_trial: bool = False) -> str:
     robot, symbol, cost = _inputs(robot, symbol, fee, source_sha)
-    if mode not in ("trial", "follow", "technical", "technical_follow"):
+    if mode not in ("trial", "follow", "technical", "technical_follow", "technical_recover"):
         raise V20FinamBlocked("TRIAL_OPERATOR_MODE_INVALID")
-    technical = mode in ("technical", "technical_follow")
+    technical = mode in ("technical", "technical_follow", "technical_recover")
     opening = mode in ("trial", "technical")
     if not root.is_absolute() or root.name.casefold() != "v20lab":
         raise V20FinamBlocked("TRIAL_OPERATOR_ROOT_INVALID")
@@ -273,6 +377,13 @@ def run(*, root: Path, robot: str, symbol: str, fee: str,
             trial_permit_path=permit,
         )
         try:
+            if mode == "technical_recover":
+                if arm_for_trial:
+                    raise V20FinamBlocked("TECHNICAL_RECOVERY_MUST_NOT_ARM")
+                return recover_unsubmitted_technical(
+                    journal=journal, reader=reader, sender=sender,
+                    permit=permit, robot=robot, symbol=symbol,
+                )
             # Exact source permit may already exist (after restart).
             # Otherwise the owner explicitly authorized ONE first genuine
             # frozen signal. It will be atomically narrowed to an exact H1
@@ -335,7 +446,7 @@ def main() -> int:
     parser.add_argument("--symbol", choices=tuple(sorted(N4)), required=True)
     parser.add_argument("--full-roundtrip-cost", required=True)
     parser.add_argument("--source-sha", required=True)
-    parser.add_argument("--mode", choices=("trial", "follow", "technical", "technical_follow"), required=True)
+    parser.add_argument("--mode", choices=("trial", "follow", "technical", "technical_follow", "technical_recover"), required=True)
     parser.add_argument("--arm-for-trial", action="store_true", default=False)
     args = parser.parse_args()
     try:
