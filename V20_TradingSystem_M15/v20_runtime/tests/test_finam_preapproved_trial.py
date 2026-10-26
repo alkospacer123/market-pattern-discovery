@@ -129,7 +129,7 @@ class PreapprovedIntentTests(unittest.TestCase):
         from dataclasses import replace
         old_bar = old_entry.entry_bar_open-timedelta(minutes=15)
         signal = replace(old_signal, signal_bar_open=old_bar-timedelta(minutes=15))
-        entry = replace(old_entry, entry_bar_open=old_bar)
+        entry = replace(old_entry, entry_bar_open=old_bar, quantity=1)
         with TechnicalTrialJournal(self.root, fixture.ROBOT, fixture.ACCOUNT) as journal:
             with patch.object(execution, "datetime", fixture.OfflineTestClock):
                 key = journal.prepare_entry(signal=signal, entry=entry,
