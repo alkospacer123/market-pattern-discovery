@@ -2,7 +2,7 @@
 # Modes: verify, frozen execute, technical, follow-only, technical_recover (GET+pre-POST only).
 [CmdletBinding()]
 param(
-    [ValidateSet('verify','execute','follow','technical','technical_follow','technical_recover')][string]$Mode='verify',
+    [ValidateSet('verify','execute','follow','technical','technical_follow','technical_recover','technical_retest')][string]$Mode='verify',
     [ValidateSet('v20-shallow','v20-obv','v20-inside')][string]$Robot='v20-shallow',
     [ValidateSet('cnyrubf')][string]$Symbol='cnyrubf',
     [ValidatePattern('^[0-9]+(\.[0-9]+)?$')][string]$RoundtripCostPerContract='2.02',
@@ -59,8 +59,8 @@ need ($a.schema -eq 'v20.08.2.first_signal_approval.v1' -and
       $a.max_risk_fraction -eq '0.015' -and
       $a.explicit_owner_approval -eq $true) 'V20_TRIAL_OWNER_SCOPE_INVALID'
 $files=@(
-    @('finam_execution.py','ffa7014046f92a9aecb4c94047ec94bd0bb963f9'),
-    @('finam_trial_operator.py','589489e5a488ae8ecf5d162f4fb0df79ff5b9cdc'),
+    @('finam_execution.py','9d12eee5fd718f0f81716adfd81b45a6e5844df6'),
+    @('finam_trial_operator.py','c702bab6cd147bb7e079a9e2cf977f7261bbaa48'),
     @('account_risk.py','50d0a924b0eccef45746c0111fa0df4803aed125'),
     @('h1_state_journal.py','68988932c11241cb34273b745dda7764e35d9e62')
 )
@@ -76,7 +76,7 @@ if($Mode -eq 'verify'){
     Write-Output 'v20_08_2_live=off'
     return
 }
-need ($Mode -notin @('execute','technical') -or $AuthorizeRealTrial.IsPresent) 'V20_TRIAL_EXPLICIT_EXECUTE_SWITCH_REQUIRED'
+need ($Mode -notin @('execute','technical','technical_retest') -or $AuthorizeRealTrial.IsPresent) 'V20_TRIAL_EXPLICIT_EXECUTE_SWITCH_REQUIRED'
 $record=Get-Content -LiteralPath $secretPath -Raw -Encoding UTF8 | ConvertFrom-Json
 need ($record.schema -eq 'v20.08.1.dpapi_finam_pair.v1' -and
       $record.robot_id -eq $Robot -and $record.principal_sid -eq $sid -and
@@ -96,8 +96,8 @@ try {
     $params=@('-B','-m','V20_TradingSystem_M15.v20_runtime.finam_trial_operator',
       '--root',$root,'--robot',$Robot,'--symbol',$Symbol.ToUpperInvariant(),
       '--full-roundtrip-cost',$RoundtripCostPerContract,'--source-sha',$sourceSha,
-      '--mode',$(if($Mode -eq 'execute'){'trial'}elseif($Mode -eq 'technical'){'technical'}elseif($Mode -eq 'technical_follow'){'technical_follow'}elseif($Mode -eq 'technical_recover'){'technical_recover'}else{'follow'}))
-    if($Mode -in @('execute','technical')){$params+='--arm-for-trial'}
+      '--mode',$(if($Mode -eq 'execute'){'trial'}elseif($Mode -eq 'technical'){'technical'}elseif($Mode -eq 'technical_follow'){'technical_follow'}elseif($Mode -eq 'technical_recover'){'technical_recover'}elseif($Mode -eq 'technical_retest'){'technical_retest'}else{'follow'}))
+    if($Mode -in @('execute','technical','technical_retest')){$params+='--arm-for-trial'}
     & $python @params
     need ($LASTEXITCODE -eq 0) 'V20_TRIAL_BROKER_RECONCILIATION_REQUIRED'
 } finally {
