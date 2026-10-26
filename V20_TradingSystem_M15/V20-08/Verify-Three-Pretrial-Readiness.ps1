@@ -65,7 +65,7 @@ for slug, account_hash in zip(robots, hashes):
         if not dbfile.is_file():
             raise RuntimeError('V20_08_1_LEDGER_FILE_INVALID_' + slug)
         with sqlite3.connect(dbfile.as_uri() + '?mode=ro', uri=True) as db:
-            identity_row = db.execute("SELECT value FROM state WHERE key='database_identity'").fetchone()
+            identity_row = db.execute('SELECT value FROM state WHERE key=?', ('database_identity',)).fetchone()
             expected = {
                 'schema_id': 'v20.h1_state_store.real_intents.v1',
                 'robot_id': 'v20-' + slug,
