@@ -8,7 +8,7 @@ $root='C:\V20Lab'
 $source=Join-Path $root 'source-raw'
 $python=Join-Path $root '.venv-raw\scripts\python.exe'
 $binding=Join-Path $root 'pretrade-08\DPAPI_TRADING_BINDINGS_REPORT.json'
-$pin='4d8f09b8853ffedc80eba5ecfc0a7bd868a96d6c'
+$pin='e9de4acd8582009c93d67dcac299cabf51eae08e'
 function need([bool]$value,[string]$code) { if (-not $value) { throw $code } }
 need ($env:OS -eq 'Windows_NT' -and $env:COMPUTERNAME -eq 'URIU-PC') 'V20_08_2_WRONG_HOST'
 foreach ($path in @($root,$source,$python,$binding)) {
