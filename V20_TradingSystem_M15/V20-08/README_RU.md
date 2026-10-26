@@ -321,9 +321,29 @@ v20_08_2_tasks_modified=no
 
 После физического `v20_08_2_offline_prep=PASS_3_ACTIONS` (Intel: 8/8 fake-only, pinned Python import-only, три собственных узких first-signal CNYRUBF grants в HALTED) подготовлено **только V20 runtime** улучшение `finam_trial_operator.py`, Git blob `829d657212942dd7d7ae8f406c28ba67d34fc5c5`: при явном `--arm-for-trial` после проверки полного owner-scope и пустого реального H1 StateStore локально переводит **только** Kill Switch своего instance из HALTED в ARMED неизменённым H1 `write_kill_switch(...,allow_arm=True)`; внутри `finally` переводит его обратно в HALTED через H1 `emergency_halt` даже при исключении. Без flag пробная торговля невозможна. Это не замена H1, не автономный LIVE и не модификация текущих Intel Disabled Tasks.
 
-Новые **2** адресные fake-only проверки, без повторов уже принятых 8/8: `v20_runtime/tests/test_finam_trial_arming.py` Git blob `b6f402c3efe1889c7f4d082089c3121e8baac4fb` (отсутствие ARM-флага не вызывает брокера; ошибка имитированного брокера после ARM возвращает собственный Kill Switch в HALTED). Закреплённый `V20-08/invoke-offline-trial-arming-tests.ps1`, Git blob `fb08574413853794d26e23698b457157a25f281c`, source pin `786fbaf31bfebf9fadcabea4ed351060b5fb5196`. **На физическом Intel пока НЕ ПРОВЕРЕНО, 2/2 PASS НЕ заявлен.**
+Новые **2** адресные fake-only проверки, без повторов уже принятых 8/8: `v20_runtime/tests/test_finam_trial_arming.py` Git blob `b6f402c3efe1889c7f4d082089c3121e8baac4fb` (отсутствие ARM-флага не вызывает брокера; ошибка имитированного брокера после ARM возвращает собственный Kill Switch в HALTED). Закреплённый `V20-08/invoke-offline-trial-arming-tests.ps1`, Git blob `fb08574413853794d26e23698b457157a25f281c`, source pin `786fbaf31bfebf9fadcabea4ed351060b5fb5196`. **Физический Intel PASS 2/2 получен 26.10.2026 — оба новых теста успешно выполнены; повтор не требуется.**
 
 **Точная оставшаяся граница:** локальная установка предыдущего trial runtime по owner grants 3/3 PASS, но установленная на Intel версия оператора ещё не включает описанную ARM lifecycle адаптацию. Отдельный DPAPI supervisor launcher с реальным FINAM POST не опубликован и не установлен; его инструментальная публикация была заблокирована, обхода через прямые токены не делать. До явной проверки H1 ARM/HALT в новом коде, принятого отдельного запуска с FINAM token/SID scope и реального брокерского стопа пробные сделки ещё **НЕ ВЫПОЛНЕНЫ**, даже при наличии решения владельца. Три V20 Tasks по-прежнему Disabled, H1/M15/CC без изменений. Никаких дополнительных подэтапов в 8/24 не вводить.
+
+## 26.10.2026 — фактический Intel PASS: локальный ARM/HALT 2/2
+
+На Intel пользователь выполнил закреплённый `invoke-offline-trial-arming-tests.ps1` (Git blob `fb08574413853794d26e23698b457157a25f281c`, source SHA `786fbaf31bfebf9fadcabea4ed351060b5fb5196`). Оригинальный вывод:
+
+```text
+test_arm_then_broker_error_restores_own_halted_switch ... ok
+test_trial_without_explicit_arm_flag_never_contacts_finam ... ok
+Ran 2 tests in 0.221s
+OK
+v20_08_2_trial_arm=PASS_FAKE_2_OF_2
+v20_08_2_finam=NO_NETWORK
+v20_08_2_live=off
+v20_08_2_orders=zero
+v20_08_2_arm_source_pin=786fbaf31bfebf9fadcabea4ed351060b5fb5196
+```
+
+**PASS только новых 2/2 fake-only lifecycle-тестов.** Запрещённый ARM оставляет брокер недоступным; имитированная ошибка после временного ARM возвращает *собственный тестовый* Kill Switch в HALTED. Реальные V20 Kill Switch на Intel **не переводились в ARMED**, FINAM не вызывался, ордеров нет, LIVE OFF. Предыдущий 8/8 Intel PASS сохраняется без повторов.
+
+**Следующий безопасный шаг 08.2:** строгое pinned обновление *одного* `v20_runtime/finam_trial_operator.py` в собственном `C:\V20Lab\pretrade-08\trial-runtime-08`, а затем import-only проверка, без DPAPI/FINAM/Task/state mutation. Это не разрешение автоматически активировать или выполнить реальные заявки. Отдельный брокерский DPAPI-оператор ещё не опубликован и не установлен, из-за чего 08.2 реальные сделки **не выполнялись**; существующее решение владельца о трёх сделках и последующем LIVE сохраняется, но само по себе не устраняет отсутствующий исполнительный стык.
 
 ## Граница разрешений
 
