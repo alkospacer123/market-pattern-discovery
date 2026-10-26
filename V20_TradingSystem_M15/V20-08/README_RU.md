@@ -351,6 +351,25 @@ v20_08_2_arm_source_pin=786fbaf31bfebf9fadcabea4ed351060b5fb5196
 
 **Ни FINAM, ни DPAPI, ни H1/M15, ни V20 Ledger, ни Kill Switch, ни Windows Tasks не используются для изменений; реальные заявки невозможны во время установки.** Ни 08.2 реальных сделок, ни 08.3/08.4 PASS нет. **Обновлённый installer пока НЕ ЗАПУЩЕН на Intel / NOT PASS**. Реальный брокерский запуск остаётся закрытым, пока отдельный защищённый operator DPAPI-to-FINAM executor не опубликован и не принят; заблокированную предыдущую публикацию не обходить.
 
+## 26.10.2026 — Intel PASS установки 08.2 manual-flat оператора
+
+Оператор на Intel выполнил прежний закреплённый `Install-Offline-Trial-Operator.ps1` (Git blob `8200449a7dbe8929da095487dfb795250b9df5bc`) и получил:
+
+```text
+v20_08_2_trial_source=PASS_PINNED_IMPORT_ONLY
+v20_08_2_source_commit=ece4a32414cb90fad6d6c69b4105499b6a8bcee6
+v20_08_2_finam=NO_NETWORK
+v20_08_2_orders=zero
+v20_08_2_live=off
+v20_08_2_tasks_modified=no
+```
+
+**Физический Intel PASS:** текущий offline trial runtime включает V20-only `manual flat` код, после уже принятого `test_finam_manual_flat=PASS_FAKE_1_OF_1`. Никакие предыдущие H1/strategy/ARM/NEXT_OPEN regression не повторять. Это source-only установка, НЕ пробная брокерская заявка.
+
+По фактическому **GitHub main 6f352acfac7ebdfabba73e143c4dfea3a6e48507** H1 production уже содержит `TradingSystemLab/stage8_robot/deploy/windows/run-production.ps1`, `install-production-task.ps1`, `trading-credential-store.ps1`, H1 StateStore, broker adapter, SLTP, reconciliation. **Переиспользуем неизменённые H1 блоки, не переносим H1 production identity/счёт/Task в V20**: для V20 уже есть три отдельные user-DPAPI `robots/<slug>/secrets/finam.dpapi.json`, журнал/permit/kill switch и пробный Python цикл. Единственный оставшийся пробный исполняемый интерфейс — V20 изолированный DPAPI account-scoped мост к уже установленному `finam_trial_operator` с его режимами `trial/follow`. Нельзя запускать READONLY worker в режиме POST и нельзя использовать H1 живой токен.
+
+**Текущая точка:** 08.1 PASS; 08.2 подготовительные 8/8 + 2/2 + 1/1 и source update физически PASS, конкретные owner grant 3/3 HALTED; реальных POST/SLTP/fill/terminal manual-close ещё не было; Windows Tasks остаются Disabled placeholders; LIVE разрешён владельцем, но 08.4 не выполнялся. После появления принятого V20 DPAPI trial launcher — 08.2 проба Shallow, OBV, Inside с ручным закрытием, 08.3 сверка и 08.4 общий LIVE-старт. Не добавлять этапы и тесты без дефекта.
+
 ## Граница разрешений
 
 **V20-08.2** — только отдельное разрешение пользователя на строго указанную пробную сделку каждого робота, после 08.1. Сохранённый токен, выключенный Task, GET-only PASS, SQLite намерение или файл конфигурации не являются разрешением на `POST orders`. **V20-08.4** — прямое разрешение владельца на LIVE дано 26.10.2026, но вступает в действие только после трёх реальных проб, 08.3 PASS и общего операционного окна; это не разрешение активировать Task сейчас. Никогда не включать V20 Tasks или не вооружать Kill Switch без соответствующей санкции.
