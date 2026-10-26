@@ -8,6 +8,9 @@ Never install/enable tasks just by importing this module.
 from __future__ import annotations
 
 import argparse
+from contextlib import closing
+import sqlite3
+from types import SimpleNamespace
 from datetime import datetime, timedelta, timezone
 from decimal import Decimal
 import hashlib
@@ -24,7 +27,7 @@ from TradingSystemLab.stage8_robot.broker import compact_client_order_id
 from TradingSystemLab.stage8_robot.execution_grid import project_stop
 from TradingSystemLab.stage8_robot.finam_api import FinamAPI
 from TradingSystemLab.stage8_robot.production_runtime import _load_registry
-from TradingSystemLab.stage8_robot.trading_safety_gate import load_kill_switch, emergency_halt
+from TradingSystemLab.stage8_robot.trading_safety_gate import load_kill_switch, emergency_halt, write_kill_switch
 
 from .account_risk import RiskReservation
 from .finam_execution import (
@@ -369,6 +372,56 @@ def run_cycle(sender: V20LiveTransport, now: datetime) -> str:
     return "NO_FROZEN_SIGNAL"
 
 
+def operator_switch(*, root: Path, robot: str, source: str, arm: bool) -> int:
+    """Owner-scoped V20-only ARMED/HALTED, never a broker order."""
+    if (root.name.casefold() != "v20lab" or not root.is_absolute()
+            or robot not in ROBOT_STRATEGIES):
+        raise V20FinamBlocked("V20_LIVE_SWITCH_SCOPE_INVALID")
+    account = os.environ.get("V20_FINAM_ACCOUNT", "")
+    token = os.environ.get("V20_FINAM_TOKEN", "")
+    scope = os.environ.get("V20_FINAM_ACCOUNT_SHA256", "")
+    if (not re.fullmatch(r"[A-Za-z0-9_.-]{1,128}", account)
+            or hashlib.sha256(account.encode()).hexdigest() != scope):
+        raise V20FinamBlocked("V20_LIVE_SWITCH_ACCOUNT_INVALID")
+    instance = root / "robots" / robot.removeprefix("v20-")
+    identity = SimpleNamespace(instance_root=instance, robot_id=robot,
+                               account_hash=scope)
+    _safe_auth(instance/"safety"/"v20-live-authorization.json",
+               journal=identity, source=source)
+    if not arm:
+        emergency_halt(instance)
+        print("v20_08_4_switch=HALTED_" + robot, flush=True)
+        return 0
+    if not token:
+        raise V20FinamBlocked("V20_LIVE_ARM_TOKEN_MISSING")
+    switch, error = load_kill_switch(instance)
+    if error or switch is None or switch.get("state") != "HALTED":
+        raise V20FinamBlocked("V20_LIVE_ARM_REQUIRES_HALTED")
+    dbpath = instance / "state" / "v20-real-intents.sqlite3"
+    if not dbpath.is_file() or dbpath.is_symlink():
+        raise V20FinamBlocked("V20_LIVE_REAL_JOURNAL_REQUIRED")
+    with closing(sqlite3.connect(dbpath.as_uri()+"?mode=ro", uri=True)) as db:
+        row = db.execute("SELECT value FROM state WHERE key='database_identity'").fetchone()
+        expected = {"schema_id": "v20.h1_state_store.real_intents.v1",
+                    "robot_id": robot, "strategy": ROBOT_STRATEGIES[robot],
+                    "account_sha256": scope, "mode": "V20_PRETRADE_UNAUTHORIZED"}
+        if row is None or json.loads(row[0]) != expected:
+            raise V20FinamBlocked("V20_LIVE_JOURNAL_IDENTITY_MISMATCH")
+        blocked = db.execute("SELECT value FROM state WHERE key='execution_halt'").fetchone()
+        if blocked is not None and json.loads(blocked[0]) is not None:
+            raise V20FinamBlocked("V20_LIVE_DURABLE_HALT_REQUIRES_RECOVERY")
+    reader = V20FinamReadAdapter(
+        api=FinamAPI(token), robot_id=robot, account_id=account,
+        expected_account_hash=scope)
+    reader.authenticate()
+    broker = reader.snapshot(now=datetime.now(timezone.utc))
+    if not broker.clean:
+        raise V20FinamBlocked("V20_LIVE_ARM_REQUIRES_CLEAN_BROKER")
+    write_kill_switch(instance, "ARMED", allow_arm=True)
+    print("v20_08_4_switch=ARMED_" + robot + "_BROKER_CLEAN", flush=True)
+    return 0
+
+
 def run(*, root: Path, robot: str, source: str, once: bool = False,
         readonly: bool = False) -> int:
     account = os.environ.get("V20_FINAM_ACCOUNT", "")
@@ -441,8 +494,15 @@ def main() -> int:
     parser.add_argument("--source-commit", required=True)
     parser.add_argument("--once", action="store_true")
     parser.add_argument("--readonly", action="store_true")
+    parser.add_argument("--arm", action="store_true")
+    parser.add_argument("--halt", action="store_true")
     args = parser.parse_args()
     try:
+        if args.arm or args.halt:
+            if args.arm and args.halt:
+                raise V20FinamBlocked("V20_LIVE_SWITCH_MODE_CONFLICT")
+            return operator_switch(root=args.root, robot=args.robot,
+                                   source=args.source_commit, arm=args.arm)
         return run(root=args.root, robot=args.robot,
                    source=args.source_commit, once=args.once,
                    readonly=args.readonly)
