@@ -4,7 +4,7 @@
 param()
 $ErrorActionPreference = 'Stop'
 Set-StrictMode -Version Latest
-$pin = '137f5e3095d709a5b9f871de937b38510150156a'
+$pin = '91e85ca434eb28618e5d9053870118b36e7c925a'
 $root = 'C:\V20Lab'
 $source = Join-Path $root 'source-raw'
 $python = Join-Path $root '.venv-raw\scripts\python.exe'
@@ -39,7 +39,7 @@ $objects = @(
     @('v20_runtime/frozen_adapter.py','71d50f3f1227a00c8831e9a7f738dcf0d19ea49e'),
     @('v20_runtime/h1_state_journal.py','68988932c11241cb34273b745dda7764e35d9e62'),
     @('v20_runtime/finam_execution.py','9d12eee5fd718f0f81716adfd81b45a6e5844df6'),
-    @('v20_runtime/finam_trial_operator.py','c702bab6cd147bb7e079a9e2cf977f7261bbaa48'),
+    @('v20_runtime/finam_trial_operator.py','c10c7ddf8644bc32f02f159938daaf8ce89ecf6b'),
     @('v20_runtime/tests/test_finam_trial_transport.py','e5d0fd711ffcd3141cad6432f77f9f4b40969ec2'),
     @('v20_runtime/tests/test_finam_preapproved_trial.py','da3c42495018ea672faf22fa779b8cecf4ca252a'),
     @('v20_runtime/tests/test_finam_m15_boundary.py','6fd5f65c6cbf31b3200d9dbe1594c6a48de17ce7'),
@@ -50,7 +50,7 @@ $previous=@{
     'test_finam_trial_transport.py'=@('c7973b3e1a5c4285525e1a355d1c1d389fdee0a0')
     'test_finam_trial_operator.py'=@('8d25ebeb567ad7c613b87eba8e1bc608245b5350','28e4656a7ffcc8853086b3f009f133f49e6c42a7')
     'test_finam_preapproved_trial.py'=@('f23d52c2cbe7ae6ccfb9ed2c9c66386f718331de','a71c2952005a79f0b25f90fc9201d59355cff89b','c3a1097e96fe12a9fd99824c2238d84c8256eb72','c7820c3c313ac1864a1b3c9c0c62fa10975e9dd5')
-    'finam_trial_operator.py'=@('27a8afa8746b270d85c4ec17056bc5ff064ecc05','ac6671bebbea8d2bbe8389d4b4ee166ae1b13b39','4ada625363ff2baba92578811d7ed0b45f7408ed','829d657212942dd7d7ae8f406c28ba67d34fc5c5','138bca5f40f1445be5e51b728a1cc6ea86a3057f','09245d1a50754d4116547f73c0d67725b98d1991','78c86481e70a99c4e1bfef3ffab9d2a6a7a7706f','c8a350494e89494da56503a53da1bc137c10dbf3','589489e5a488ae8ecf5d162f4fb0df79ff5b9cdc')
+    'finam_trial_operator.py'=@('27a8afa8746b270d85c4ec17056bc5ff064ecc05','ac6671bebbea8d2bbe8389d4b4ee166ae1b13b39','4ada625363ff2baba92578811d7ed0b45f7408ed','829d657212942dd7d7ae8f406c28ba67d34fc5c5','138bca5f40f1445be5e51b728a1cc6ea86a3057f','09245d1a50754d4116547f73c0d67725b98d1991','78c86481e70a99c4e1bfef3ffab9d2a6a7a7706f','c8a350494e89494da56503a53da1bc137c10dbf3','589489e5a488ae8ecf5d162f4fb0df79ff5b9cdc','c702bab6cd147bb7e079a9e2cf977f7261bbaa48')
 }
 $rawroot='https://raw.githubusercontent.com/alkospacer123/market-pattern-discovery/'+$pin+'/V20_TradingSystem_M15/'
 New-Item -ItemType Directory -Path $pkg -Force | Out-Null
@@ -129,7 +129,7 @@ try {
 }
 Write-Output 'v20_08_2_trial_source=PASS_PINNED_IMPORT_ONLY'
 Write-Output 'v20_08_2_shallow_retest_targeted=PASS_2_OF_2'
-Write-Output 'v20_08_2_source_commit=137f5e3095d709a5b9f871de937b38510150156a'
+Write-Output 'v20_08_2_source_commit=91e85ca434eb28618e5d9053870118b36e7c925a'
 Write-Output 'v20_08_2_finam=NO_NETWORK'
 Write-Output 'v20_08_2_orders=zero'
 Write-Output 'v20_08_2_live=off'
