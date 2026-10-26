@@ -98,6 +98,31 @@ class M15BoundaryTests(unittest.TestCase):
                 now=AT+timedelta(seconds=65),
             )
 
+    def test_technical_uses_completed_close_without_open_or_wait(self):
+        # At 10:33 no new-bar Open need exist: normal NEXT_OPEN still blocks.
+        self.api.rows = [bar(COMPLETED_1), bar(COMPLETED_2)]
+        observed = AT + timedelta(minutes=3)
+        with self.assertRaisesRegex(V20FinamBlocked, "M15_IMMEDIATE_NEXT_OPEN_MISSED"):
+            read_finam_m15_boundary(
+                self.reader, symbol="USDRUBF", from_utc=START, now=observed,
+            )
+        technical = read_finam_m15_boundary(
+            self.reader, symbol="USDRUBF", from_utc=START,
+            now=observed, technical_reference=True,
+        )
+        self.assertEqual(technical.witnessed_open, Decimal("85.02"))
+        self.assertEqual(len(technical.completed), 2)
+        self.assertEqual(self.api.calls[-1][0], "GET")
+
+    def test_technical_refuses_stale_completed_bar_without_order(self):
+        self.api.rows = [bar(COMPLETED_1)]
+        with self.assertRaisesRegex(V20FinamBlocked, "TECHNICAL_NO_FRESH_COMPLETED_M15"):
+            read_finam_m15_boundary(
+                self.reader, symbol="USDRUBF", from_utc=START,
+                now=AT+timedelta(minutes=3), technical_reference=True,
+            )
+        self.assertTrue(all(method == "GET" for method, _ in self.api.calls))
+
     def test_wrong_grid_duplicate_or_future_bar_blocks(self):
         self.api.rows[-1] = bar(CURRENT+timedelta(minutes=5), current=True)
         with self.assertRaisesRegex(V20FinamBlocked, "M15_FINAM_TIMESTAMP_OUT_OF_RANGE"):
