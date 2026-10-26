@@ -1250,6 +1250,7 @@ def frozen_observed_session_exit(
 def propose_finam_m15_next_open(
     reader: V20FinamReadAdapter, *, symbol: str, from_utc: datetime,
     now: datetime, cost_per_contract: Decimal, technical_acceptance: bool = False,
+    broker_ownership=None,
 ) -> tuple[FrozenSignal, ProposedEntry, AccountAuthority, LiveAccountSnapshot] | None:
     """08.1: one common NO-POST path FINAM M15 -> frozen V20 -> reused H1 risk.
 
@@ -1297,7 +1298,12 @@ def propose_finam_m15_next_open(
         raise V20FinamBlocked("NEXT_OPEN_FROZEN_SIGNAL_MISMATCH")
     snapshot = reader.snapshot(now=now)
     if not snapshot.clean:
-        raise V20FinamBlocked("NEXT_OPEN_NONFLAT_ACCOUNT_NO_BOOTSTRAP")
+        if not callable(broker_ownership) or technical_acceptance:
+            raise V20FinamBlocked("NEXT_OPEN_NONFLAT_ACCOUNT_NO_BOOTSTRAP")
+        # LIVE only: the caller must prove every position and active order is
+        # already its own isolated H1/V20 durable journal exposure. The 08.2
+        # single-trial default remains flat-account-only and unchanged.
+        broker_ownership(snapshot)
     direction = "LONG" if signal.side == 1 else "SHORT"
     authority = reader.authority(
         snapshot, symbol=symbol, direction=direction,
