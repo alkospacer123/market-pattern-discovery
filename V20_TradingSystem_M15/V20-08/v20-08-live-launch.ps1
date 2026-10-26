@@ -8,7 +8,7 @@ param(
 $ErrorActionPreference='Stop'
 Set-StrictMode -Version Latest
 $root='C:\V20Lab'
-$source='eb1595fa68a400996f95beaca9089068aa78f12a'
+$source='0d245f2c5680a48548edb48fa2b6148cbd203e0d'
 $live=Join-Path $root 'pretrade-08\live-runtime-08'
 $manifest=Join-Path $root 'pretrade-08\live-08\LIVE_PREPARED.json'
 $self=Join-Path $root 'pretrade-08\live-08\v20-08-live-launch.ps1'
@@ -65,7 +65,7 @@ need ($ap.schema -eq 'v20.08.4.live_authorization.v1' -and
       $ap.owner_approved -eq $true -and $ap.risk_fraction -eq '0.015') 'V20_LIVE_APPROVAL_INVALID'
 foreach($spec in @(
     @('finam_execution.py','9ca194c61aa9db003d298fd1a3e93cc7f8bb23c4'),
-    @('finam_live.py','3bc157d70e7528d0d3191ff89ea0d2f2e33f539a')
+    @('finam_live.py','30999d909feed368fa5eb67081fb41736c1d3a41')
 )){
     $item=Join-Path $live ('V20_TradingSystem_M15\v20_runtime\'+$spec[0])
     need (Test-Path -LiteralPath $item -PathType Leaf) 'V20_LIVE_MODULE_MISSING'
