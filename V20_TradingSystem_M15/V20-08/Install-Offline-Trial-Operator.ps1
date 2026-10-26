@@ -4,7 +4,7 @@
 param()
 $ErrorActionPreference = 'Stop'
 Set-StrictMode -Version Latest
-$pin = '07b4a2b1add677057a5042c76a47f2a0a49b6e4d'
+$pin = 'a9b280b570e1afc401ca4776e3cb81830c2ad31e'
 $root = 'C:\V20Lab'
 $source = Join-Path $root 'source-raw'
 $python = Join-Path $root '.venv-raw\scripts\python.exe'
@@ -38,16 +38,23 @@ $objects = @(
     @('v20_runtime/account_risk.py','50d0a924b0eccef45746c0111fa0df4803aed125'),
     @('v20_runtime/frozen_adapter.py','71d50f3f1227a00c8831e9a7f738dcf0d19ea49e'),
     @('v20_runtime/h1_state_journal.py','68988932c11241cb34273b745dda7764e35d9e62'),
-    @('v20_runtime/finam_execution.py','ed3f55cea5a5860aae0caf821e1c12c20d785d64'),
-    @('v20_runtime/finam_trial_operator.py','09245d1a50754d4116547f73c0d67725b98d1991')
+    @('v20_runtime/finam_execution.py','644a5c2fe18275b8da472583d67738f9ab582a7f'),
+    @('v20_runtime/finam_trial_operator.py','78c86481e70a99c4e1bfef3ffab9d2a6a7a7706f'),
+    @('v20_runtime/tests/test_finam_trial_transport.py','c7973b3e1a5c4285525e1a355d1c1d389fdee0a0'),
+    @('v20_runtime/tests/test_finam_preapproved_trial.py','f23d52c2cbe7ae6ccfb9ed2c9c66386f718331de'),
+    @('v20_runtime/tests/test_finam_trial_operator.py','8d25ebeb567ad7c613b87eba8e1bc608245b5350')
 )
 $previous=@{
-    'finam_execution.py'=@('7bbd692583bc47346b9a80c6cf505d6dd5a62c6f','2313556c8348de891bc27f472e6d4f48043f3c66','c68bf38c760e82bd0d626632ae6a9ebe5ae3b6f2')
-    'finam_trial_operator.py'=@('27a8afa8746b270d85c4ec17056bc5ff064ecc05','ac6671bebbea8d2bbe8389d4b4ee166ae1b13b39','4ada625363ff2baba92578811d7ed0b45f7408ed','829d657212942dd7d7ae8f406c28ba67d34fc5c5','138bca5f40f1445be5e51b728a1cc6ea86a3057f')
+    'finam_execution.py'=@('7bbd692583bc47346b9a80c6cf505d6dd5a62c6f','2313556c8348de891bc27f472e6d4f48043f3c66','c68bf38c760e82bd0d626632ae6a9ebe5ae3b6f2','ed3f55cea5a5860aae0caf821e1c12c20d785d64')
+    'finam_trial_operator.py'=@('27a8afa8746b270d85c4ec17056bc5ff064ecc05','ac6671bebbea8d2bbe8389d4b4ee166ae1b13b39','4ada625363ff2baba92578811d7ed0b45f7408ed','829d657212942dd7d7ae8f406c28ba67d34fc5c5','138bca5f40f1445be5e51b728a1cc6ea86a3057f','09245d1a50754d4116547f73c0d67725b98d1991')
 }
 $rawroot='https://raw.githubusercontent.com/alkospacer123/market-pattern-discovery/'+$pin+'/V20_TradingSystem_M15/'
 New-Item -ItemType Directory -Path $pkg -Force | Out-Null
 foreach ($p in @($workspace,(Join-Path $workspace 'V20_TradingSystem_M15'),$pkg)) { no-link $p }
+$testDir=Join-Path $pkg 'tests'
+no-link $testDir
+New-Item -ItemType Directory -Path $testDir -Force | Out-Null
+no-link $testDir
 foreach ($entry in $objects) {
     $rel=[string]$entry[0]
     $expected=[string]$entry[1]
@@ -105,17 +112,20 @@ foreach ($entry in $frozen) {
 $prior=$env:PYTHONPATH
 $bytecode=$env:PYTHONDONTWRITEBYTECODE
 try {
-    $env:PYTHONPATH=$workspace+[IO.Path]::PathSeparator+$source
+    $env:PYTHONPATH=$testDir+[IO.Path]::PathSeparator+$workspace+[IO.Path]::PathSeparator+$source
     $env:PYTHONDONTWRITEBYTECODE='1'
-    # Argument parser --help exits before credential, journal or FINAM logic.
+    # Parser/import and exactly three NEW technical-only fake scenarios.
     & $python -B -m V20_TradingSystem_M15.v20_runtime.finam_trial_operator --help | Out-Null
     need ($LASTEXITCODE -eq 0) 'V20_08_2_TRIAL_MODULE_IMPORT_INVALID'
+    & $python -B -m unittest test_finam_preapproved_trial.PreapprovedIntentTests.test_technical_single_contract_has_separate_h1_state_and_no_post test_finam_trial_operator.TrialOperatorTests.test_technical_trial_reuses_one_entry_then_follow_only test_finam_trial_operator.TrialOperatorTests.test_technical_grant_creates_one_contract_stop_only_permit
+    need ($LASTEXITCODE -eq 0) 'V20_08_2_TECHNICAL_TESTS_FAILED'
 } finally {
     $env:PYTHONPATH=$prior
     $env:PYTHONDONTWRITEBYTECODE=$bytecode
 }
 Write-Output 'v20_08_2_trial_source=PASS_PINNED_IMPORT_ONLY'
-Write-Output 'v20_08_2_source_commit=07b4a2b1add677057a5042c76a47f2a0a49b6e4d'
+Write-Output 'v20_08_2_technical_new_tests=PASS_FAKE_3_OF_3'
+Write-Output 'v20_08_2_source_commit=a9b280b570e1afc401ca4776e3cb81830c2ad31e'
 Write-Output 'v20_08_2_finam=NO_NETWORK'
 Write-Output 'v20_08_2_orders=zero'
 Write-Output 'v20_08_2_live=off'
