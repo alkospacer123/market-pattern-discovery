@@ -134,6 +134,11 @@ class TrialBoundaryTests(unittest.TestCase):
         self.reader = V20FinamReadAdapter(api=self.api, robot_id=ROBOT,
                                           account_id=ACCOUNT, expected_account_hash=HASH)
         self.reader.authenticate()
+        # Every authorized fake entry exercises the real final-post arm gate.
+        guard = patch("TradingSystemLab.stage8_robot.trading_safety_gate.load_kill_switch",
+                      return_value=({"state": "ARMED"}, None))
+        guard.start()
+        self.addCleanup(guard.stop)
 
     def entry(self, journal):
         bar = datetime(2026, 10, 24, 10, 15)
@@ -183,6 +188,23 @@ class TrialBoundaryTests(unittest.TestCase):
                 with self.assertRaisesRegex(V20FinamBlocked, "SINGLE_TRIAL_EXPLICIT_AUTHORIZATION_MISSING"):
                     self.transport(journal).submit_entry_once(key=key, snapshot=snap, now=OPEN_UTC)
                 self.assertEqual(self.api.order_posts, 0)
+                self.assertEqual(journal.store.intent(key)["status"], "INTENT_PERSISTED")
+
+    def test_halt_after_preparation_blocks_market_post(self):
+        with patch.object(execution, "datetime", OfflineTestClock):
+            with V20TradeJournal(self.root, ROBOT, ACCOUNT) as journal:
+                key, snap = self.entry(journal)
+                permit = self.approval(journal, key)
+                with patch("TradingSystemLab.stage8_robot.trading_safety_gate.load_kill_switch",
+                           return_value=({"state": "HALTED"}, None)):
+                    with self.assertRaisesRegex(
+                        V20FinamBlocked, "TRIAL_ENTRY_V20_KILL_SWITCH_NOT_ARMED"
+                    ):
+                        self.transport(journal, permit).submit_entry_once(
+                            key=key, snapshot=snap, now=OPEN_UTC,
+                        )
+                self.assertEqual(self.api.order_posts, 0)
+                self.assertIsNone(journal.store.get("trial_authority_consumed"))
                 self.assertEqual(journal.store.intent(key)["status"], "INTENT_PERSISTED")
 
     def test_wrong_trial_scope_denied_before_post(self):
