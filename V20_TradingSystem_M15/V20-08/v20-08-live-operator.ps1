@@ -165,6 +165,16 @@ print("V20_08_5_SQLITE_SNAPSHOT_PASS")
 # START is a logical unpause or a checked restart of an already registered
 # V20-only Task; no backup/secret/Task principal changes.
 foreach($name in $selected){
+    if($mode -eq 'start' -and (exact-task $name).State -eq 'Running'){
+        $switchPath=Join-Path $root ('robots\'+$name.Substring(4)+'\safety\stage8-trading-kill-switch.json')
+        $existing=Get-Content -LiteralPath $switchPath -Raw -Encoding UTF8 | ConvertFrom-Json
+        if($existing.state -eq 'ARMED'){
+            $checked=@(proof $name)
+            need (($checked -join '|') -match ('v20_08_5_'+$name+'_healthy=True')) 'V20_08_5_ALREADY_ARMED_UNHEALTHY'
+            Write-Output ('v20_08_5_'+$name+'=ALREADY_RUNNING_ARMED_PASS')
+            continue
+        }
+    }
     if($mode -eq 'restart'){
         # Restart only on a proven clean FINAM account: never abandon active
         # protection or forcibly kill an open-position managing worker.
