@@ -646,9 +646,15 @@ class V20SingleTradeTransport:
             "account_sha256": self.journal.account_hash,
             "entry_key": key,
         }
+        allowed_ops = (
+            ["ENTRY", "PROTECTIVE_STOP"]
+            if isinstance(approval, dict) and
+            approval.get("trial_kind") == "TECHNICAL_ACCEPTANCE_NOT_STRATEGY_SIGNAL"
+            else ["ENTRY", "PROTECTIVE_STOP", "FROZEN_EXIT"]
+        )
         if (not isinstance(approval, dict)
                 or any(approval.get(k) != v for k, v in expected.items())
-                or approval.get("authorized_operations") != ["ENTRY", "PROTECTIVE_STOP", "FROZEN_EXIT"]
+                or approval.get("authorized_operations") != allowed_ops
                 or approval.get("explicit_owner_approval") is not True
                 or not isinstance(approval.get("instrument"), str)
                 or approval["instrument"] not in N4
@@ -1258,6 +1264,10 @@ def prepare_finam_single_trial(
     if not isinstance(transport, V20SingleTradeTransport):
         raise V20FinamBlocked("TRIAL_PREPARER_TRANSPORT_INVALID")
     journal, reader = transport.journal, transport.reader
+    if technical_acceptance and (
+            journal.state_file != "v20-technical-acceptance.sqlite3"
+            or journal.mode != "V20_TECHNICAL_ACCEPTANCE_ONLY"):
+        raise V20FinamBlocked("TECHNICAL_TRIAL_REQUIRES_SEPARATE_SQLITE")
     if (journal.robot_id != reader.robot_id
             or journal.account_hash != reader.account_hash
             or journal.store.get("execution_halt") is not None
