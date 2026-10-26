@@ -1,11 +1,11 @@
 # V20-08.2 new-operator targeted fake-only tests; no FINAM, DPAPI, Task calls.
 $ErrorActionPreference = 'Stop'
 Set-StrictMode -Version Latest
-$pin = '4d8f09b8853ffedc80eba5ecfc0a7bd868a96d6c'
+$pin = 'e9de4acd8582009c93d67dcac299cabf51eae08e'
 $root = 'c:\v20lab'
 $source = Join-Path $root 'source-raw'
 $python = Join-Path $root '.venv-raw\scripts\python.exe'
-$workspace = Join-Path $root 'pretrade-08\trial-operator-fake-4d8f09b8'
+$workspace = Join-Path $root 'pretrade-08\trial-operator-fake-e9de4acd'
 if (-not (Test-Path -LiteralPath $source -PathType Container)) { throw 'v20_08_2_source_missing' }
 if (-not (Test-Path -LiteralPath $python -PathType Leaf)) { throw 'v20_08_2_python_missing' }
 $pkg = Join-Path $workspace 'V20_TradingSystem_M15\v20_runtime'
@@ -14,8 +14,8 @@ New-Item -ItemType Directory -Path $tests -Force | Out-Null
 $files = @(
     @('v20_runtime/finam_execution.py','2313556c8348de891bc27f472e6d4f48043f3c66',$pkg,'finam_execution.py'),
     @('v20_runtime/h1_state_journal.py','68988932c11241cb34273b745dda7764e35d9e62',$pkg,'h1_state_journal.py'),
-    @('v20_runtime/finam_trial_operator.py','ac6671bebbea8d2bbe8389d4b4ee166ae1b13b39',$pkg,'finam_trial_operator.py'),
-    @('v20_runtime/tests/test_finam_trial_operator.py','150e6074cae2fce30c14ec8d91140527bbc4a0b6',$tests,'test_finam_trial_operator.py')
+    @('v20_runtime/finam_trial_operator.py','4ada625363ff2baba92578811d7ed0b45f7408ed',$pkg,'finam_trial_operator.py'),
+    @('v20_runtime/tests/test_finam_trial_operator.py','b66a51cfbde45d71da8b49dc3ac4f5d3bbe5bca0',$tests,'test_finam_trial_operator.py')
 )
 foreach ($entry in $files) {
     $target = Join-Path $entry[2] $entry[3]
@@ -53,11 +53,11 @@ try {
     $env:PYTHONDONTWRITEBYTECODE = '1'
     & $python -B -m unittest discover -s $tests -p 'test_finam_trial_operator.py' -v
     if ($LASTEXITCODE -ne 0) { throw 'v20_08_2_trial_operator_fake_tests_failed' }
-    Write-Output 'v20_08_2_trial_operator=PASS_FAKE_7_OF_7'
+    Write-Output 'v20_08_2_trial_operator=PASS_FAKE_8_OF_8'
     Write-Output 'v20_08_2_finam=NO_NETWORK'
     Write-Output 'v20_08_2_live=off'
     Write-Output 'v20_08_2_orders=zero'
-    Write-Output 'v20_08_2_source_pin=4d8f09b8853ffedc80eba5ecfc0a7bd868a96d6c'
+    Write-Output 'v20_08_2_source_pin=e9de4acd8582009c93d67dcac299cabf51eae08e'
 } finally {
     $env:PYTHONPATH = $oldPath
     $env:PYTHONDONTWRITEBYTECODE = $oldNoBytecode
