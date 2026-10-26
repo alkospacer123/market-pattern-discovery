@@ -1232,8 +1232,9 @@ def propose_finam_m15_next_open(
 def prepare_finam_single_trial(
     transport: V20SingleTradeTransport, *, symbol: str, from_utc: datetime,
     now: datetime, cost_per_contract: Decimal,
+    permit_on_signal=None,
 ) -> dict[str, Any]:
-    """08.1 common preflight: exact trial authority -> durable H1 intent.
+    """08.1/08.2 preflight: exact trial authority -> durable H1 intent.
 
     Does NOT send a FINAM order. Its returned key may only be submitted by
     V20SingleTradeTransport.submit_entry_once after the same broker guards.
@@ -1259,6 +1260,12 @@ def prepare_finam_single_trial(
         return {"status": "NO_FROZEN_SIGNAL", "orders": 0}
     signal, candidate, authority, snapshot = draft
     key = journal.preview_entry_key(candidate)
+    # 08.2: owner may approve ONE frozen entry in advance by account/robot/
+    # instrument/risk ceiling. Only after real FINAM bars + frozen signal
+    # generate the exact pre-existing H1 one-trial permit for this entry key.
+    # The callback cannot bypass the unchanged _permit() validator.
+    if permit_on_signal is not None:
+        permit_on_signal(key, signal, candidate, authority)
     approval = transport._permit(key=key, kind="ENTRY")
     if (approval["instrument"] != candidate.symbol
             or approval["direction"] != candidate.direction):
@@ -1301,7 +1308,7 @@ def prepare_finam_single_trial(
 def run_v20_single_trial_cycle(
     transport: V20SingleTradeTransport, *, now: datetime,
     trial_symbol: str, from_utc: datetime, cost_per_contract: Decimal,
-    allow_new_entry: bool = False,
+    allow_new_entry: bool = False, permit_on_signal=None,
 ) -> dict[str, Any]:
     """Existing H1 read/reconcile -> stop/exit -> optional one approved entry.
 
@@ -1329,6 +1336,7 @@ def run_v20_single_trial_cycle(
         prepared = prepare_finam_single_trial(
             transport, symbol=trial_symbol, from_utc=from_utc,
             now=now, cost_per_contract=cost_per_contract,
+            permit_on_signal=permit_on_signal,
         )
         if prepared["status"] == "NO_FROZEN_SIGNAL":
             return {"state": "NO_FROZEN_SIGNAL", "orders": 0}
