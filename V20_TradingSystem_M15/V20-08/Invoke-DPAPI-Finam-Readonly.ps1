@@ -55,7 +55,11 @@ need ($report.schema -eq 'v20.08.1.dpapi_trading_bindings.v1' -and
       $report.principal_sid -eq $sid -and
       $tasks.status -eq 'PASS_3_OF_3_DISABLED' -and
       $tasks.principal_sid -eq $sid) 'V20_08_1_DPAPI_OR_SID_RECEIPT_INVALID'
-$names = if ($Robot -eq 'all') { @('v20-shallow','v20-obv','v20-inside') } else { @($Robot) }
+# PowerShell 5.1 unrolls the single pipeline result of a right-hand if:
+# one robot otherwise becomes a scalar string, and StrictMode rejects .Count.
+# Retain the array type in both the 3-account and 1-account paths.
+$names = @('v20-shallow','v20-obv','v20-inside')
+if ($Robot -ne 'all') { $names = @($Robot) }
 if ($Mode -eq 'witness') { need ($names.Count -eq 1) 'V20_08_1_WITNESS_ONE_ACCOUNT_ONLY' }
 $pkg = Join-Path $workspace 'V20_TradingSystem_M15\v20_runtime'
 New-Item -ItemType Directory -Path $pkg -Force | Out-Null
