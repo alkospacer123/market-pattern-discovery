@@ -4,7 +4,7 @@
 param()
 $ErrorActionPreference = 'Stop'
 Set-StrictMode -Version Latest
-$pin = 'c1980abdb45fa02b54f870d9d0310bd05b35360d'
+$pin = '30faf1e5dfd94cb2625817831a41ab63f37826ef'
 $root = 'C:\V20Lab'
 $source = Join-Path $root 'source-raw'
 $python = Join-Path $root '.venv-raw\scripts\python.exe'
@@ -38,17 +38,17 @@ $objects = @(
     @('v20_runtime/account_risk.py','50d0a924b0eccef45746c0111fa0df4803aed125'),
     @('v20_runtime/frozen_adapter.py','71d50f3f1227a00c8831e9a7f738dcf0d19ea49e'),
     @('v20_runtime/h1_state_journal.py','68988932c11241cb34273b745dda7764e35d9e62'),
-    @('v20_runtime/finam_execution.py','4f56c1f638b818d5a8ab05f56b724a4f3e67d747'),
-    @('v20_runtime/finam_trial_operator.py','c8a350494e89494da56503a53da1bc137c10dbf3'),
+    @('v20_runtime/finam_execution.py','3ad48954931c22007e4f76d1ce196be5dfedcc34'),
+    @('v20_runtime/finam_trial_operator.py','589489e5a488ae8ecf5d162f4fb0df79ff5b9cdc'),
     @('v20_runtime/tests/test_finam_trial_transport.py','c7973b3e1a5c4285525e1a355d1c1d389fdee0a0'),
-    @('v20_runtime/tests/test_finam_preapproved_trial.py','c3a1097e96fe12a9fd99824c2238d84c8256eb72'),
+    @('v20_runtime/tests/test_finam_preapproved_trial.py','c7820c3c313ac1864a1b3c9c0c62fa10975e9dd5'),
     @('v20_runtime/tests/test_finam_m15_boundary.py','6fd5f65c6cbf31b3200d9dbe1594c6a48de17ce7'),
     @('v20_runtime/tests/test_finam_trial_operator.py','8d25ebeb567ad7c613b87eba8e1bc608245b5350')
 )
 $previous=@{
-    'finam_execution.py'=@('7bbd692583bc47346b9a80c6cf505d6dd5a62c6f','2313556c8348de891bc27f472e6d4f48043f3c66','c68bf38c760e82bd0d626632ae6a9ebe5ae3b6f2','ed3f55cea5a5860aae0caf821e1c12c20d785d64','644a5c2fe18275b8da472583d67738f9ab582a7f')
-    'test_finam_preapproved_trial.py'=@('f23d52c2cbe7ae6ccfb9ed2c9c66386f718331de','a71c2952005a79f0b25f90fc9201d59355cff89b')
-    'finam_trial_operator.py'=@('27a8afa8746b270d85c4ec17056bc5ff064ecc05','ac6671bebbea8d2bbe8389d4b4ee166ae1b13b39','4ada625363ff2baba92578811d7ed0b45f7408ed','829d657212942dd7d7ae8f406c28ba67d34fc5c5','138bca5f40f1445be5e51b728a1cc6ea86a3057f','09245d1a50754d4116547f73c0d67725b98d1991','78c86481e70a99c4e1bfef3ffab9d2a6a7a7706f')
+    'finam_execution.py'=@('7bbd692583bc47346b9a80c6cf505d6dd5a62c6f','2313556c8348de891bc27f472e6d4f48043f3c66','c68bf38c760e82bd0d626632ae6a9ebe5ae3b6f2','ed3f55cea5a5860aae0caf821e1c12c20d785d64','644a5c2fe18275b8da472583d67738f9ab582a7f','4f56c1f638b818d5a8ab05f56b724a4f3e67d747')
+    'test_finam_preapproved_trial.py'=@('f23d52c2cbe7ae6ccfb9ed2c9c66386f718331de','a71c2952005a79f0b25f90fc9201d59355cff89b','c3a1097e96fe12a9fd99824c2238d84c8256eb72')
+    'finam_trial_operator.py'=@('27a8afa8746b270d85c4ec17056bc5ff064ecc05','ac6671bebbea8d2bbe8389d4b4ee166ae1b13b39','4ada625363ff2baba92578811d7ed0b45f7408ed','829d657212942dd7d7ae8f406c28ba67d34fc5c5','138bca5f40f1445be5e51b728a1cc6ea86a3057f','09245d1a50754d4116547f73c0d67725b98d1991','78c86481e70a99c4e1bfef3ffab9d2a6a7a7706f','c8a350494e89494da56503a53da1bc137c10dbf3')
 }
 $rawroot='https://raw.githubusercontent.com/alkospacer123/market-pattern-discovery/'+$pin+'/V20_TradingSystem_M15/'
 New-Item -ItemType Directory -Path $pkg -Force | Out-Null
@@ -119,15 +119,15 @@ try {
     # Parser/import and exactly three NEW technical-only fake scenarios.
     & $python -B -m V20_TradingSystem_M15.v20_runtime.finam_trial_operator --help | Out-Null
     need ($LASTEXITCODE -eq 0) 'V20_08_2_TRIAL_MODULE_IMPORT_INVALID'
-    & $python -B -m unittest test_finam_m15_boundary.M15BoundaryTests.test_technical_uses_completed_close_without_open_or_wait test_finam_m15_boundary.M15BoundaryTests.test_technical_refuses_stale_completed_bar_without_order test_finam_preapproved_trial.PreapprovedIntentTests.test_technical_one_shot_posts_only_on_fresh_pretrade_not_old_m15_open
+    & $python -B -m unittest test_finam_preapproved_trial.PreapprovedIntentTests.test_technical_current_clock_not_earlier_cycle_clock test_finam_preapproved_trial.PreapprovedIntentTests.test_recover_only_unsubmitted_technical_intent_after_broker_flat test_finam_preapproved_trial.PreapprovedIntentTests.test_recovery_refuses_if_post_checkpoint_present
     need ($LASTEXITCODE -eq 0) 'V20_08_2_TECHNICAL_TESTS_FAILED'
 } finally {
     $env:PYTHONPATH=$prior
     $env:PYTHONDONTWRITEBYTECODE=$bytecode
 }
 Write-Output 'v20_08_2_trial_source=PASS_PINNED_IMPORT_ONLY'
-Write-Output 'v20_08_2_repair_targeted=PASS_3_OF_3'
-Write-Output 'v20_08_2_source_commit=c1980abdb45fa02b54f870d9d0310bd05b35360d'
+Write-Output 'v20_08_2_prepost_recovery_targeted=PASS_3_OF_3'
+Write-Output 'v20_08_2_source_commit=30faf1e5dfd94cb2625817831a41ab63f37826ef'
 Write-Output 'v20_08_2_finam=NO_NETWORK'
 Write-Output 'v20_08_2_orders=zero'
 Write-Output 'v20_08_2_live=off'
