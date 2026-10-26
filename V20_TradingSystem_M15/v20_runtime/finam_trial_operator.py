@@ -136,6 +136,7 @@ NO_NEW_ENTRY = {"NO_FROZEN_SIGNAL", "BROKER_OBSERVED_NO_TRIAL_ENTRY"}
 def supervised_cycle(
     sender: V20SingleTradeTransport, *, symbol: str, cost: Decimal,
     mode: str, sleep=time.sleep, now_utc=None, permit_on_signal=None,
+    wait_for_signal: bool = False,
 ) -> str:
     """Only approved one-entry cycle; follow means no new entries, even ARMED.
 
@@ -151,18 +152,47 @@ def supervised_cycle(
         now = clock()
         if now.tzinfo is None or now.utcoffset() is None:
             raise V20FinamBlocked("TRIAL_OPERATOR_CLOCK_INVALID")
-        observed = run_v20_single_trial_cycle(
-            sender, now=now, trial_symbol=symbol,
-            from_utc=now-timedelta(days=20), cost_per_contract=cost,
-            allow_new_entry=allow_entry,
-            permit_on_signal=permit_on_signal if allow_entry else None,
-        )
+        if wait_for_signal and allow_entry:
+            # This is an ARMED, owner-authorized first-trial *executor*,
+            # not a Shadow monitor. Only ask for a real NEXT_OPEN once at
+            # approximately second 8 of each 15-minute interval.
+            elapsed = (now.minute % 15)*60 + now.second + now.microsecond/1_000_000
+            if elapsed < 8:
+                sleep(8-elapsed)
+                continue
+            if elapsed > 25:
+                sleep(900-elapsed+8)
+                continue
+        try:
+            observed = run_v20_single_trial_cycle(
+                sender, now=now, trial_symbol=symbol,
+                from_utc=now-timedelta(days=20), cost_per_contract=cost,
+                allow_new_entry=allow_entry,
+                permit_on_signal=permit_on_signal if allow_entry else None,
+            )
+        except V20FinamBlocked as exc:
+            # No current FINAM Open / no adjacent completed bar / 60s expired
+            # means NO ORDER this interval. Everything else fails closed.
+            if not (wait_for_signal and allow_entry and str(exc) in {
+                "M15_NEXT_OPEN_WITNESS_MISSING",
+                "M15_FINAL_COMPLETED_BAR_MISSING",
+                "M15_IMMEDIATE_NEXT_OPEN_MISSED",
+            }):
+                raise
+            observed = {"state": "NO_FROZEN_SIGNAL", "orders": 0}
         state = observed["state"]
         print("v20_08_2_cycle=" + state, flush=True)
         if state in TERMINAL:
             return state
         if state in NO_NEW_ENTRY and allow_entry:
-            return state
+            if not wait_for_signal:
+                return state
+            # Retain the first-entry authorization, but never invent a signal
+            # or consume an exact permit on an empty M15 boundary.
+            later = clock()
+            elapsed = (later.minute % 15)*60 + later.second + later.microsecond/1_000_000
+            sleep(max(1,900-elapsed+8))
+            continue
         if state == "BROKER_OBSERVED_NO_TRIAL_ENTRY":
             return state
         # Once the first attempt has been considered, follow only; any
@@ -241,6 +271,7 @@ def run(*, root: Path, robot: str, symbol: str, fee: str,
             return supervised_cycle(
                 sender, symbol=symbol, cost=cost, mode=mode,
                 permit_on_signal=permit_on_signal,
+                wait_for_signal=mode == "trial" and permit_on_signal is not None,
             )
         finally:
             # HALTED inhibits NEW entries only; active FINAM SLTP/exit
