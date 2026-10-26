@@ -223,6 +223,14 @@ def _follow_existing(sender: V20LiveTransport, now: datetime, snapshot) -> str:
             exit_intent = journal.store.intent(key + ":frozen-exit")
             proof = journal.store.get("protected_fill:" + key)
             if exit_intent is not None and isinstance(proof, dict):
+                existing_cancel = journal.store.intent(key + ":cancel-after-flat")
+                if existing_cancel is not None and any(
+                    o.active and o.kind == "SLTP" and o.symbol == finam_symbol
+                    for o in snapshot.orders
+                ):
+                    # One acknowledged or uncertain cancel is already durable.
+                    # Do not retransmit; FINAM must prove stop inactive.
+                    return "STOP_CANCEL_WAIT_BROKER_NO_RETRANSMIT"
                 status = sender.cancel_stop_after_flat_once(
                     key=key, snapshot=snapshot, now=now)
                 if status == "BROKER_FLAT_NO_ACTIVE_STOP":
