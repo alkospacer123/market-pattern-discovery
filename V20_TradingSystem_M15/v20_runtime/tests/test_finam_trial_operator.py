@@ -106,6 +106,35 @@ class TrialOperatorTests(unittest.TestCase):
                 )
         never_post.assert_not_called()
 
+    def test_owner_approved_first_signal_waits_for_next_real_bar_without_reentry(self):
+        # Existing no-signal result is not a synthetic trade or a reason
+        # to consume the owner-approved one-time entry.
+        from datetime import timedelta
+        base = datetime(2026, 10, 26, 7, 15, 8, tzinfo=timezone.utc)
+        stamps = iter((base, base, base+timedelta(minutes=15),
+                       base+timedelta(minutes=15, seconds=1)))
+        outcomes = iter((
+            {"state":"NO_FROZEN_SIGNAL", "orders":0},
+            {"state":"ENTRY_ACK_NEEDS_FILL_AND_STOP", "orders":1},
+            {"state":"BROKER_FLAT_NO_ACTIVE_STOP", "orders":0},
+        ))
+        flags=[]
+        waits=[]
+        def fake(sender,**kw):
+            flags.append((kw["allow_new_entry"],kw["permit_on_signal"]))
+            return next(outcomes)
+        token=lambda *a: None
+        with patch.object(operator,"run_v20_single_trial_cycle",fake):
+            final=operator.supervised_cycle(
+                object(),symbol="USDRUBF",cost=Decimal("8.34"),
+                mode="trial",sleep=waits.append,
+                now_utc=lambda: next(stamps),
+                permit_on_signal=token,wait_for_signal=True,
+            )
+        self.assertEqual(final,"BROKER_FLAT_NO_ACTIVE_STOP")
+        self.assertEqual(flags,[(True,token),(True,token),(False,None)])
+        self.assertEqual(waits,[900,5])
+
     def test_advance_owner_scope_becomes_exact_h1_first_entry_only(self):
         with TemporaryDirectory() as tmp:
             safety = Path(tmp) / "safety"
