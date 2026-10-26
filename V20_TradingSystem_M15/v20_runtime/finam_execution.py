@@ -633,7 +633,12 @@ class V20SingleTradeTransport:
     def _permit(self, *, key: str, kind: str) -> dict:
         """Validate a separately supplied narrow trial approval, never create it."""
         path = self.trial_permit_path
-        authorized = self.journal.instance_root / "safety" / "v20-single-trial-approval.json"
+        retest = (self.journal.robot_id == "v20-shallow"
+                  and self.journal.state_file == "v20-technical-shallow-retest.sqlite3")
+        authorized = self.journal.instance_root / "safety" / (
+            "v20-shallow-stop-retest-approval.json" if retest
+            else "v20-single-trial-approval.json"
+        )
         if (path is None or Path(path).resolve(strict=False) != authorized.resolve(strict=False)
                 or not authorized.is_file() or authorized.is_symlink()
                 or authorized.parent.is_symlink()):
@@ -704,7 +709,10 @@ class V20SingleTradeTransport:
                     or technical.get("max_quantity") != 1
                     or payload["quantity"] != 1
                     or approval.get("trial_kind") != "TECHNICAL_ACCEPTANCE_NOT_STRATEGY_SIGNAL"
-                    or self.journal.state_file != "v20-technical-acceptance.sqlite3"):
+                    or self.journal.state_file not in (
+                        "v20-technical-acceptance.sqlite3",
+                        "v20-technical-shallow-retest.sqlite3",
+                    )):
                 raise V20FinamBlocked("TECHNICAL_ENTRY_ACCOUNT_OR_PERMIT_INVALID")
             # 'now' is the START of this M15/FINAM cycle, captured before
             # multiple broker GETs and before this durable prepared_at_utc.
@@ -1318,7 +1326,10 @@ def prepare_finam_single_trial(
         raise V20FinamBlocked("TRIAL_PREPARER_TRANSPORT_INVALID")
     journal, reader = transport.journal, transport.reader
     if technical_acceptance and (
-            journal.state_file != "v20-technical-acceptance.sqlite3"
+            journal.state_file not in (
+                "v20-technical-acceptance.sqlite3",
+                "v20-technical-shallow-retest.sqlite3",
+            )
             or journal.mode != "V20_TECHNICAL_ACCEPTANCE_ONLY"):
         raise V20FinamBlocked("TECHNICAL_TRIAL_REQUIRES_SEPARATE_SQLITE")
     if (journal.robot_id != reader.robot_id
@@ -1343,6 +1354,14 @@ def prepare_finam_single_trial(
             raise V20FinamBlocked("TECHNICAL_ONE_CONTRACT_LOT_REQUIRED")
         candidate = replace(candidate, quantity=1)
     key = journal.preview_entry_key(candidate)
+    if journal.state_file == "v20-technical-shallow-retest.sqlite3":
+        # The original Shallow broker order was already ACK'd. Even though the
+        # H1 SQLite files are isolated, FINAM client_order_id must NEVER be
+        # reused across these two tests on the same account.
+        previous = journal.store.get("shallow_previous_client_order_id")
+        if (not isinstance(previous, str) or
+                compact_client_order_id(key) == previous):
+            raise V20FinamBlocked("SHALLOW_RETEST_CLIENT_ORDER_ID_NOT_UNIQUE")
     # 08.2: owner may approve ONE frozen entry in advance by account/robot/
     # instrument/risk ceiling. Only after real FINAM bars + frozen signal
     # generate the exact pre-existing H1 one-trial permit for this entry key.
