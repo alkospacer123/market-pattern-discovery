@@ -199,12 +199,18 @@ class PreapprovedIntentTests(unittest.TestCase):
             class LaterClock(datetime):
                 @classmethod
                 def now(cls, tz=None):
-                    return fixture.OPEN_UTC + timedelta(seconds=7)
+                    return cls.fromtimestamp(
+                        (fixture.OPEN_UTC + timedelta(seconds=7)).timestamp(),
+                        tz=fixture.OPEN_UTC.tzinfo,
+                    )
+            old_cycle = LaterClock.fromtimestamp(
+                fixture.OPEN_UTC.timestamp(), tz=fixture.OPEN_UTC.tzinfo,
+            )
             with patch.object(execution, "datetime", LaterClock):
                 with patch("TradingSystemLab.stage8_robot.trading_safety_gate.load_kill_switch",
                            return_value=({"state": "ARMED"}, None)):
                     sender.submit_entry_once(
-                        key=key, snapshot=snap, now=fixture.OPEN_UTC,
+                        key=key, snapshot=snap, now=old_cycle,
                     )
             self.assertEqual(self.api.order_posts, 1)
             self.assertEqual(journal.store.intent(key)["status"], "ACK")
