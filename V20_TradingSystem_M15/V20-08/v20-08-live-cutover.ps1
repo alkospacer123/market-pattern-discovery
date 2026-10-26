@@ -61,7 +61,7 @@ function cycleproof([string]$name,[datetimeoffset]$after,[bool]$print=$false) {
     }
     if($task.State -ne 'Running' -or
        $task.Actions[0].Arguments -ine (expected $name) -or
-       $null -eq $latest -or $latest.state -like 'HALT_*'){return $false}
+       $null -eq $latest -or $latest.state -match '^HALT' ){return $false}
     $utc=[datetimeoffset]::UtcNow
     $age=($utc-$latest.utc).TotalSeconds
     return ($latest.utc -ge $after.AddSeconds(-5) -and $age -ge -5 -and $age -le 90)
