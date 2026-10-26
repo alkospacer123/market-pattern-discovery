@@ -338,3 +338,22 @@ if ($Robot -ne 'all') { $names = @($Robot) }
 Проверен фактический GitHub источник `v20_runtime/finam_execution.py`: `M15_NEXT_OPEN_WITNESS_MISSING` формируется только когда FINAM GET /v1/instruments/{symbol}/bars с TIME_FRAME_M15 не вернул **ни одной** свечи с точным current M15 open-timestamp для USDRUBF. Данные других трёх полностью прошли: открытый новый Open в <=60s, он на ценовой сетке, предыдущая завершённая M15 свеча присутствовала и валидна. Причина отсутствия свечи USDRUBF **не установлена** (отсутствие сделок, задержка публикации и иные причины нельзя различить без новых наблюдений). Это не является доказательством нарушения замороженных стратегий, но **USDRUBF НЕ PASS**, **overall N4 4/4 НЕ PASS**, 08.1 IN_PROGRESS.
 
 Решение: **не менять код и frozen NEXT_OPEN** на основании одного отсутствующего нового бара, не подменять Open предыдущим Close, не создавать пустую синтетическую свечу и не отправлять заявку для USDRUBF. Три PASS не требуют повторного подтверждения. Следующее минимальное наблюдение — повтор одного GET-only `witness` на следующей активной M15 границе (несколько секунд после начала, пока не истекла первая минута); локальный launcher повторно прочтёт N4, но менять методологию/сервисы/календарь нет оснований. При повторном USDRUBF HOLD отделить instrument-specific issue от V20/NEXT_OPEN shared code. Операторский GET-only сценарий, три Task Disabled, H1 не изменён, LIVE не разрешён.
+
+## 26.10.2026 — второй реальный FINAM M15 witness 3/4; N4 покрыты 4/4 ПО РАЗНЫМ свечам
+
+Вторая операторская команда `Invoke-DPAPI-Finam-Readonly.ps1 -Mode witness -Robot v20-shallow` выполнена на активной M15 границе; фактический stdout: `finam_worker_selftest=pass_readonly_no_order`, `n4_authority_gate=pass_synthetic_get_only`, `v20-shallow=HOLD_NEXT_OPEN_BROKER_WITNESS`, `open_cnyrubf=PASS`, `open_gldrubf=M15_NEXT_OPEN_WITNESS_MISSING`, `open_imoexf=PASS`, `open_usdrubf=PASS`, `orders=zero`, `live=off`. `V20_08_1_WORKER_READONLY_CHECK_FAILED` — штатный fail-closed результат, потому что **агрегатный diagnostic witness требует все четыре Open одновременно**. На второй попытке USDRUBF уже PASS, но GLDRUBF отсутствовал в ответе FINAM для нового временного интервала.
+
+Строгое объединение ДВУХ физических измерений по независимым M15 границам:
+
+| N4 | Первый текущий M15 Open | Второй текущий M15 Open | Хотя бы раз подтверждён |
+|---|---|---|---|
+| CNYRUBF | PASS | PASS | YES |
+| GLDRUBF | PASS | M15_NEXT_OPEN_WITNESS_MISSING | YES |
+| IMOEXF | PASS | PASS | YES |
+| USDRUBF | M15_NEXT_OPEN_WITNESS_MISSING | PASS | YES |
+
+**Итог:** `N4_DISTINCT_SYMBOL_NEXT_OPEN_OBSERVED=4_OF_4_ACROSS_TWO_BOUNDARIES`; `SIMULTANEOUS_NEXT_OPEN_4_OF_4=NOT_PROVEN`; `NEXT_OPEN_RELIABILITY_EVERY_BOUNDARY=NOT_PROVEN`. Все четыре инструмента фактически хотя бы раз дали своевременный REST FINAM current Open плюс валидный завершённый предыдущий M15 бар. Нельзя объявить `PASS_NEXT_OPEN_4_OF_4` на отдельном запуске, поскольку такого stdout **не было**. Отсутствие REST-свечи с текущей меткой **не доказывает**, были ли сделки, задержка публикации либо другая причина.
+
+**Операционное решение 08.1:** Trading signal/frozen NEXT_OPEN определяется **для конкретного инструмента**, а не требует одновременной пригодности всех N4. Существующий `read_finam_m15_boundary` уже fail-closed: при отсутствии его current Open он не создаёт сигнал и не выставляет заявку для этого инструмента; чужие доступные инструменты не должны блокироваться в штатном per-symbol executor. Жёсткий `4_OF_4` — только агрегатный **разовый diagnostic worker**, он не является доказанным техническим требованием замороженного V20 тестера на каждую свечу. Повторять четырёхинструментный witness до случайного одновременного 4/4 не требуется, не ослаблять stop/risk/Next_Open и не синтезировать Open из Close. В рамках 08.1 переходить к реальному конкретно наблюдаемому сигналу: fresh M15+FINAM деньги/маржа/тариф по инструменту + frozen ATR14 и H1 R15/2ATR/grid SLTP preflight, затем только отдельно разрешённый 08.2.
+
+Задача `08.1` остаётся **IN_PROGRESS** до этого предзаявочного допуска. Имеющаяся RUN команда проверяла только `v20-shallow`, не подтверждала реальный per-symbol live workflow на двух других роботах; проверенные общие H1/FINAM N4 и DPAPI 3/3 остаются действительными. Комиссии/защитный стоп/реальный order permit данным GET свидетелем не проверялись. `H1`, `IntradayLab`, `Control Center`, реальные Task/секреты/SQLite untouched.
