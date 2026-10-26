@@ -59,8 +59,27 @@ FINAM источник: https://broker.finam.ru/landing/tariffs-n2-day/ . Для
 - Через прежний собственный DPAPI/SID и H1 GET-only allowlist читается до 20 календарных дней M15 для прогрева оригинальных locked-функций ATR/EMA и **текущий подтверждённый Open**. Стратегия исполняется на **только завершённых** барах по неизменённому исходному frozen V20.
 - Нет сигнала → `PASS_NO_FROZEN_SIGNAL_NO_ORDER`, никакого поиска искусственных входов и чтения денежных данных не требуется. Нет текущего Open/сессии/достоверных баров → fail closed, не считать техническим отказом уже принятый физический 4/4 witness.
 - Есть сигнал → реальный broker GET equity/free cash и GO направления, исходный H1 `OfflinePlanner.reference_next_open` + `reserve_entry`, исполнимый 2×ATR14 Wilder стоп на H1 сетке, R15/R6 и явно переданный **не нулевой** полный биржевой+брокерский roundtrip. Выводятся только инструмент, направление, время, observed Open, ATR/стоп, количество, GO/риск и заявленная стоимость; без приватных номеров/токена, без сохранённого intent. Это **снимок готовности расчёта, не разрешение сделки и не подтверждённый broker fill**.
-- Новый узкий `test_finam_candidate_worker.py` содержит **3 fake-only сценария**: положительный сигнал с H1 stop/risk, нормальное отсутствие сигнала, отказ до FINAM при нулевом/невалидном расходе. Pinned Intel offline runner `V20-08/invoke-offline-candidate-hook-tests.ps1`, Git blob `8b780a56e698e75b46ff55bb73c3c9b19c74794b` (`d927d183c5c7de3b903236006450c2bf01e73a7d`). **Физический Intel результат ещё НЕ получен, не объявлять PASS; текущий старый witness повторять не нужно.**
+- Новый узкий `test_finam_candidate_worker.py` содержит **3 fake-only сценария**: положительный сигнал с H1 stop/risk, нормальное отсутствие сигнала, отказ до FINAM при нулевом/невалидном расходе. Pinned Intel offline runner `V20-08/invoke-offline-candidate-hook-tests.ps1`, Git blob `8b780a56e698e75b46ff55bb73c3c9b19c74794b` (`d927d183c5c7de3b903236006450c2bf01e73a7d`). **Физический Intel PASS 3/3 получен (см. ниже), ранее принятый M15 witness не повторять.**
 - Перед использованием этого режима на реальных данных оператор обновляет **только ранее установленный V20 GET-only PowerShell launcher и его отдельные reader-файлы**, строго по проверенным Git blobs и с отказом при чужих изменениях. Рабочий H1, приостановленный M15, V20 Tasks/DPAPI/SQLite не затрагивать. Реальное `08.2` по-прежнему отдельно разрешается только на конкретную заявку.
+
+## 26.10.2026 — Intel PASS 3/3 нового frozen → H1 candidate стыка
+
+Оператор на Intel запустил адресный pinned offline runner `invoke-offline-candidate-hook-tests.ps1`, Git blob `8b780a56e698e75b46ff55bb73c3c9b19c74794b`, source pin `d927d183c5c7de3b903236006450c2bf01e73a7d`. Фактический stdout:
+
+```text
+test_actual_frozen_candidate_uses_h1_cost_stop_go_no_post ... ok
+test_bad_fee_or_symbol_is_rejected_before_broker ... ok
+test_no_frozen_signal_is_normal_and_no_order ... ok
+Ran 3 tests in 0.005s
+OK
+v20_08_1_candidate_hook=PASS_FAKE_3_OF_3
+v20_08_1_finam=NO_NETWORK
+v20_08_1_live=off
+v20_08_1_orders=zero
+v20_08_1_source_pin=d927d183c5c7de3b903236006450c2bf01e73a7d
+```
+
+**PASS 3/3 физически подтверждён на Intel, 0 FAIL.** Это адресное подтверждение нового **fake-only** пути; не доказывает факт нового сигнала или broker fill. Повторять без конкретного FAIL не нужно. Следующее действие: существующий one-shot GET-only `-Mode candidate` по одному N4 инструменту/роботу на реальной M15 границе; если нет frozen-сигнала, `PASS_NO_FROZEN_SIGNAL_NO_ORDER` допустим, без искусственного входа или ожиданий. Любое средство управления реальной заявкой/Task/кнопка LIVE остаётся выключенным. Статус 08.1 = **IN PROGRESS**.
 
 ## Граница разрешений
 
