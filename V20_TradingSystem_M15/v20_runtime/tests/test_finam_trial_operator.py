@@ -345,8 +345,8 @@ class TrialOperatorTests(unittest.TestCase):
                 snapshot=Mock(return_value=SimpleNamespace(clean=True, orders=())),
             )
             with operator.ShallowStopRetestJournal(root, "v20-shallow", ACCOUNT) as retest:
-                with patch.object(operator, "load_kill_switch",
-                                  return_value=({"state": "HALTED"}, None)):
+                with patch("TradingSystemLab.stage8_robot.trading_safety_gate.load_kill_switch",
+                           return_value=({"state": "HALTED"}, None)):
                     outcome = operator.prove_shallow_prior_post_and_flat(
                         journal=retest, reader=broker,
                         source_sha=SHA, symbol="CNYRUBF",
@@ -371,8 +371,8 @@ class TrialOperatorTests(unittest.TestCase):
             key, old = self._create_real_ack_shallow_fixture(root, checkpoint=False)
             broker = SimpleNamespace(authenticate=Mock(), snapshot=Mock())
             with operator.ShallowStopRetestJournal(root, "v20-shallow", ACCOUNT) as retest:
-                with patch.object(operator, "load_kill_switch",
-                                  return_value=({"state": "HALTED"}, None)):
+                with patch("TradingSystemLab.stage8_robot.trading_safety_gate.load_kill_switch",
+                           return_value=({"state": "HALTED"}, None)):
                     with self.assertRaisesRegex(
                         V20FinamBlocked, "SHALLOW_RETEST_PRIOR_BROKER_POST_INVALID",
                     ):
