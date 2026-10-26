@@ -17,7 +17,7 @@
 | V20-05 | Offline и Windows acceptance | Сигналы, M15/NEXT_OPEN, stop grid, sizing/ГО, комиссии, SLTP, идемпотентность, restart/recovery и изоляция | PASS: 05.1–05.4 PASS OFFLINE; 05.5 NATIVE WINDOWS PASS (URIU-PC, 64/64, 23.10.2026) |
 | V20-06 | FINAM READONLY на трёх V20-счетах | Токен↔счёт, equity, ГО/тик, позиции/заявки/исполнения без изменения у брокера | PASS INTEL: 06.1–06.4, три счёта и N4 12/12; funded money, позиции и заявки сверены GET-only |
 | V20-07 | Intel staging при LIVE off | Pinned SHA, изолированные состояние/логи, три Disabled Task, check/start/stop/restart, H1 без изменений | PASS INTEL 24.10.2026: 07.1–07.4; три Tasks Disabled, LIVE OFF |
-| V20-08 | Санкционированная пробная сделка и отдельный LIVE каждого робота | Каждая проба только с разрешением; исполнение/защита/выход/комиссии/reconcile; отдельное разрешение на штатный LIVE | **08.1 IN PROGRESS**: trading DPAPI 3/3, N4 12/12, frozen 5/5, FINAM NEXT_OPEN 4/4 Shallow PASS; финальный Kill Switch test и конкретный pretrade-путь пока не приняты. 08.2–08.5 NOT STARTED; отдельные разрешения обязательны |
+| V20-08 | Санкционированная пробная сделка и отдельный LIVE каждого робота | Каждая проба только с разрешением; исполнение/защита/выход/комиссии/reconcile; отдельное разрешение на штатный LIVE | **08.1 IN PROGRESS**: trading DPAPI 3/3, N4 12/12, frozen 5/5, FINAM NEXT_OPEN 4/4 Shallow PASS; финальный Kill Switch regression принят Intel 26.10; конкретный текущий frozen signal pretrade ещё не принят. 08.2–08.5 NOT STARTED; отдельные разрешения обязательны |
 
 Последовательность: **V20-01 → V20-02 → V20-03 → V20-04 → V20-05 → V20-06 → V20-07 → V20-08**.
 
