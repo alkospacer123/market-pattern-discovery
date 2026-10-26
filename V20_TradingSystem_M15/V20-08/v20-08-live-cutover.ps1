@@ -87,7 +87,7 @@ if($mode -eq 'verify'){
     return
 }
 if($mode -eq 'check'){
-    foreach($name in $names){[void](observe $name)}
+    foreach($name in $names){observe $name | Write-Output}
     return
 }
 if($mode -eq 'halt'){
