@@ -130,7 +130,32 @@ v20_08_1_tasks_modified=no
 - SQLite `state/v20-real-intents.sqlite3` открывается строго `mode=ro`. Если файла нет — фиксируется `PASS_NOT_INITIALIZED_NO_INTENTS`, **не выдается это за приёмку реального ledger**, создание остаётся в существующем H1 StateStore только в 08.2. Если есть — сверяются точная database_identity/робот/счёт и отсутствие любых intents/fills/рисковых остатков, `execution_halt`, израсходованного trial permit. Любая несверенная запись → HOLD без обхода.
 - Печатаются только безопасные PASS/HOLD-коды, без account_id/токена/ключей; `orders=zero, live=off, tasks_modified=no` только при полном успехе. Это **не армирование трёх аккаунтов и не подтверждение разрешённой конкретной заявки**.
 
-Новая Windows-проверка **НЕ ЗАПУЩЕНА на Intel / NOT PASS** до фактического вывода оператора. Результаты ранее принятых финальных Kill Switch fake 10 уникальных, candidate fake 3/3 и реального FINAM `PASS_NO_FROZEN_SIGNAL_NO_ORDER` остаются без повторных проверок. Следующий пункт только существующий **08.1 → 08.2**, с разовыми конкретными разрешениями и последующим единым 08.4 LIVE-окном.
+Новая Windows-проверка **PASS 3/3 Intel** по фактическому stdout оператора (подробности далее). Результаты ранее принятых финальных Kill Switch fake 10 уникальных, candidate fake 3/3 и реального FINAM `PASS_NO_FROZEN_SIGNAL_NO_ORDER` остаются без повторных проверок. Следующий пункт только существующий **08.1 → 08.2**, с разовыми конкретными разрешениями и последующим единым 08.4 LIVE-окном.
+
+## 26.10.2026 — фактический Intel pretrial READONLY PASS 3/3 (все три отдельных FINAM-счёта)
+
+Оператор запустил точный Git blob `6535919c848994108cc21eb635559b8271a919bd` (`Verify-Three-Pretrial-Readiness.ps1`) с итогом:
+
+```text
+v20_08_1_v20-shallow=PASS_ACCOUNT_GET_ONLY
+v20_08_1_v20-obv=PASS_ACCOUNT_GET_ONLY
+v20_08_1_v20-inside=PASS_ACCOUNT_GET_ONLY
+v20_08_1_worker=pass_get_only_3_of_3
+v20_08_1_shallow_ledger=PASS_NOT_INITIALIZED_NO_INTENTS
+v20_08_1_shallow_kill_switch=PASS_UNARMED_NOT_INSTALLED
+v20_08_1_obv_ledger=PASS_NOT_INITIALIZED_NO_INTENTS
+v20_08_1_obv_kill_switch=PASS_UNARMED_NOT_INSTALLED
+v20_08_1_inside_ledger=PASS_NOT_INITIALIZED_NO_INTENTS
+v20_08_1_inside_kill_switch=PASS_UNARMED_NOT_INSTALLED
+v20_08_1_three_pretrial_readonly=PASS_3_OF_3_NO_ORDER
+v20_08_1_orders=zero
+v20_08_1_live=off
+v20_08_1_tasks_modified=no
+```
+
+Это **физический Intel PASS**: все три отдельные broker snapshots чисты; SID/account binding и все три Disabled placeholder Tasks соответствуют ранее установленному; локальных `v20-real-intents.sqlite3` и H1 Kill Switch ещё **нет**, что штатно для никогда не активированного staging. Нельзя выдавать `PASS_NOT_INITIALIZED` за успешное создание базы или `PASS_UNARMED_NOT_INSTALLED` за установку экстренного останова. Предыдущие фактические FINAM N4 12/12, real NEXT_OPEN 4/4, frozen fake 3/3 остаются принятыми; повторять не нужно.
+
+**Следующий конкретный 08.1 шаг:** безопасно создать по одному пустому изолированному реальному V20 StateStore на каждый счёт через неизменённый H1 класс и установить собственный Kill Switch исключительно **HALTED**, не включая Task или заявки. После физической верификации можно закрыть локальную предторговую готовность 08.1 и перейти к узкому permit каждого настоящего сигнала в 08.2. Без явного конкретного entry_key/side/quantity не создавать пробный ордер, и LIVE по-прежнему отдельно в 08.4.
 
 ## Граница разрешений
 
