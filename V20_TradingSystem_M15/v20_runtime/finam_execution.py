@@ -1402,6 +1402,30 @@ def run_v20_single_trial_cycle(
                 journal.store.put("execution_halt", "STOP_EXIT_FEES_PENDING_ACCEPTANCE")
                 return {"state": "STOP_EXIT_BROKER_FLAT_UNDER_ACCEPTANCE",
                         "orders": 0}
+        if isinstance(proof, dict):
+            # Acceptance-only early MANUAL exit in FINAM terminal. The frozen
+            # 3rd-session exit and SL/TP rules of autonomous LIVE are unchanged.
+            # Never cancel an active stop implicitly, nor claim that flat
+            # alone proves canceled stop, fills, fees or complete acceptance.
+            if proof.get("account_sha256") != journal.account_hash:
+                raise V20FinamBlocked("MANUAL_EXIT_PROTECTED_PROOF_ACCOUNT_INVALID")
+            unexpected_active = [
+                o for o in current.orders if o.active
+                and (o.kind != "SLTP" or o.order_id != proof.get("broker_stop_id"))
+            ]
+            if unexpected_active:
+                raise V20FinamBlocked("MANUAL_EXIT_OTHER_ACTIVE_ORDER_RECONCILE")
+            if any(o.active for o in current.orders):
+                return {"state": "MANUAL_EXIT_FLAT_ACTIVE_STOP_CANCEL_IN_TERMINAL",
+                        "orders": 0}
+            journal.store.put("manual_flat:" + key, {
+                "status": "FLAT_NO_ACTIVE_ORDERS_FEES_UNVERIFIED",
+                "account_sha256": journal.account_hash,
+                "broker_stop_id": proof.get("broker_stop_id"),
+            })
+            journal.store.put("execution_halt", "MANUAL_EXIT_PENDING_BROKER_ACCEPTANCE")
+            return {"state": "MANUAL_EXIT_BROKER_FLAT_UNDER_ACCEPTANCE",
+                    "orders": 0}
         return {"state": "ENTRY_NO_POSITION_RECONCILIATION_REQUIRED",
                 "orders": 0}
 
