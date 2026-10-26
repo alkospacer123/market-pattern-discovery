@@ -12,6 +12,7 @@ from datetime import datetime, timedelta, timezone
 from decimal import Decimal, InvalidOperation
 import json
 import hashlib
+import logging
 import os
 from pathlib import Path
 import re
@@ -136,7 +137,9 @@ def create_exact_permit_on_signal(*, authorized_path: Path, permit_path: Path,
             fh.write("\n")
             fh.flush()
             os.fsync(fh.fileno())
-        print("v20_08_2_exact_permit=ONE_REAL_FROZEN_SIGNAL_APPROVED", flush=True)
+        print("v20_08_2_exact_permit=" + (
+            "ONE_TECHNICAL_TRIAL_APPROVED" if technical_acceptance
+            else "ONE_REAL_FROZEN_SIGNAL_APPROVED"), flush=True)
     return on_signal
 
 
@@ -253,6 +256,9 @@ def run(*, root: Path, robot: str, symbol: str, fee: str,
             or not secret or not re.fullmatch(r"[a-f0-9]{64}", scope)
             or hashlib.sha256(account.encode()).hexdigest() != scope):
         raise V20FinamBlocked("TRIAL_OPERATOR_ACCOUNT_SCOPE_INVALID")
+    # Original H1 transport auto-renews HTTP 401 once. Its warning embeds
+    # the private account path; do not expose it in operator console/logs.
+    logging.getLogger("TradingSystemLab.stage8_robot.finam_api").setLevel(logging.ERROR)
     api = FinamAPI(secret)
     reader = V20FinamReadAdapter(
         api=api, robot_id=robot, account_id=account,
@@ -314,7 +320,7 @@ def run(*, root: Path, robot: str, symbol: str, fee: str,
             return supervised_cycle(
                 sender, symbol=symbol, cost=cost, mode=mode,
                 permit_on_signal=permit_on_signal,
-                wait_for_signal=opening and permit_on_signal is not None,
+                wait_for_signal=(mode == "trial" and permit_on_signal is not None),
             )
         finally:
             # HALTED inhibits NEW entries only; active FINAM SLTP/exit
