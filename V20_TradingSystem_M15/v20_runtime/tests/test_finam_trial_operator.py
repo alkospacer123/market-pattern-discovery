@@ -7,11 +7,13 @@ import hashlib
 import os
 from pathlib import Path
 from tempfile import TemporaryDirectory
-from unittest.mock import patch
+from unittest.mock import Mock, patch
+from types import SimpleNamespace
 import unittest
 
 from V20_TradingSystem_M15.v20_runtime import finam_trial_operator as operator
-from V20_TradingSystem_M15.v20_runtime.finam_execution import V20FinamBlocked
+import V20_TradingSystem_M15.v20_runtime.finam_execution as execution
+from V20_TradingSystem_M15.v20_runtime.finam_execution import V20FinamBlocked, V20SingleTradeTransport
 
 
 UTC = datetime(2026, 10, 26, 7, 15, 5, tzinfo=timezone.utc)
@@ -69,6 +71,36 @@ class TrialOperatorTests(unittest.TestCase):
             )
         self.assertEqual(state, "STOP_EXIT_BROKER_FLAT_UNDER_ACCEPTANCE")
         self.assertEqual(flags, [False])
+
+    def test_actual_clock_elapsed_rejects_delayed_market_post(self):
+        # The earlier M15 snapshot is fresh at 10:15:05, but several broker
+        # reads may delay the irreversible POST beyond the allowed 60 seconds.
+        class LateClock(datetime):
+            @classmethod
+            def now(cls, tz=None):
+                return datetime(2026, 10, 26, 7, 17, tzinfo=timezone.utc)
+        never_post = Mock(side_effect=AssertionError("market order MUST NOT POST"))
+        sender = object.__new__(V20SingleTradeTransport)
+        sender.journal = SimpleNamespace(instance_root=Path("/fake-v20lab/robots/shallow"))
+        sender.reader = SimpleNamespace(
+            account_id=ACCOUNT, api=SimpleNamespace(place_order=never_post)
+        )
+        with patch.object(
+            sender, "_entry", return_value={"entry_at": "2026-10-26T10:15:00"}
+        ), patch.object(
+            execution, "datetime", LateClock
+        ), patch(
+            "TradingSystemLab.stage8_robot.trading_safety_gate.load_kill_switch",
+            return_value=({"state": "ARMED"}, None)
+        ):
+            with self.assertRaisesRegex(
+                V20FinamBlocked, "TRIAL_ENTRY_ACTUAL_NEXT_OPEN_EXPIRED"
+            ):
+                sender.submit_entry_once(
+                    key="fake", snapshot=None,
+                    now=datetime(2026, 10, 26, 7, 15, 5, tzinfo=timezone.utc),
+                )
+        never_post.assert_not_called()
 
     def test_missing_precise_permit_refuses_without_finam_network(self):
         with TemporaryDirectory() as tmp:
