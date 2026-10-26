@@ -123,14 +123,18 @@ need (Test-Path -LiteralPath $launchPath -PathType Leaf) 'V20_LIVE_LAUNCHER_MISS
 noguardlink $launchPath
 need ((blob $launchPath) -eq $launcherBlob) 'V20_LIVE_LAUNCHER_CHANGED'
 $cutoverPath=Join-Path $prepared 'v20-08-live-cutover.ps1'
-$cutoverBlob='f88680cce18d01c8f325866ab0c88cb45866e5b2'
-if($mode -eq 'install' -and -not (Test-Path -LiteralPath $cutoverPath)){
+$cutoverBlob='f24b60bfa26bd7c8cb12aabb2e653ae7b7721ca5'
+$oldCutoverBlob='f88680cce18d01c8f325866ab0c88cb45866e5b2'
+$present=(Test-Path -LiteralPath $cutoverPath -PathType Leaf)
+if($present){noguardlink $cutoverPath}
+$upgrade=($present -and (blob $cutoverPath) -eq $oldCutoverBlob)
+if($mode -eq 'install' -and (-not $present -or $upgrade)){
     $tmp=$cutoverPath+'.download'
     need (-not (Test-Path -LiteralPath $tmp)) 'V20_LIVE_CUTOVER_PARTIAL'
     try {
-        Invoke-WebRequest -Uri ('https://raw.githubusercontent.com/alkospacer123/market-pattern-discovery/c631d993b324b2d701c72505fe32e8c208a37f91/V20_TradingSystem_M15/V20-08/v20-08-live-cutover.ps1') -OutFile $tmp -UseBasicParsing -ErrorAction Stop
+        Invoke-WebRequest -Uri ('https://raw.githubusercontent.com/alkospacer123/market-pattern-discovery/ad18a3bb5dccd7f8ab6796b2b58c3f110b234368/V20_TradingSystem_M15/V20-08/v20-08-live-cutover.ps1') -OutFile $tmp -UseBasicParsing -ErrorAction Stop
         need ((blob $tmp) -eq $cutoverBlob) 'V20_LIVE_CUTOVER_REMOTE_HASH'
-        Move-Item -LiteralPath $tmp -Destination $cutoverPath
+        Move-Item -LiteralPath $tmp -Destination $cutoverPath -Force
     } finally {
         if(Test-Path -LiteralPath $tmp){Remove-Item -LiteralPath $tmp -Force}
     }
