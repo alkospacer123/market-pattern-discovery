@@ -165,7 +165,33 @@ v20_08_1_tasks_modified=no
 
 Перед изменениями скрипт проверяет закреплённые Git blobs H1 `state.py`, `operations.py`, `trading_safety_gate.py` (фактический `main`), собственные 3 разных SID-bound account SHA и три **Disabled** V20 placeholder Tasks. **Не расшифровывает DPAPI, не вызывает FINAM, не создаёт permit, не вызывает POST/SLTP, не включает Task и не устанавливает ARMED.** В конце обязательные `PASS_H1_CREATED_EMPTY/PASS_EXISTING_CLEAN`, `PASS_HALTED` для 3/3, `v20_08_1_finam=NO_NETWORK`, `orders=zero`, `live=off`.
 
-**Статус: подготовлено в Draft PR; на Intel НЕ ЗАПУЩЕНО, физический PASS НЕ заявлен.** Установленный V20 staging остаётся неизменным до отдельного операторского вызова. После физического PASS можно закрывать только локальную безопасность 08.1 и переходить к подтверждению конкретного разового permit/реальной frozen-сделки 08.2, а не автономному LIVE.
+**Статус: физически принято на Intel, PASS 3/3; подробный stdout и граница готовности — ниже.** Установленный V20 staging остаётся неизменным до отдельного операторского вызова. После физического PASS можно закрывать только локальную безопасность 08.1 и переходить к подтверждению конкретного разового permit/реальной frozen-сделки 08.2, а не автономному LIVE.
+
+## 26.10.2026 — физический Intel PASS: три реальные SQLite-базы и HALTED Kill Switch
+
+Оператор запустил Git blob `8216c28527d505df689caa6e3946da7b3f8bbf4d` (`Initialize-Three-Pretrial-Safety.ps1`) на Intel после принятого `PASS_3_OF_3_NO_ORDER`. Фактический stdout:
+
+```text
+v20_08_1_shallow_ledger=PASS_H1_CREATED_EMPTY
+v20_08_1_shallow_kill_switch=PASS_HALTED
+v20_08_1_obv_ledger=PASS_H1_CREATED_EMPTY
+v20_08_1_obv_kill_switch=PASS_HALTED
+v20_08_1_inside_ledger=PASS_H1_CREATED_EMPTY
+v20_08_1_inside_kill_switch=PASS_HALTED
+v20_08_1_three_local_safety=PASS_3_OF_3_HALTED
+v20_08_1_finam=NO_NETWORK
+v20_08_1_orders=zero
+v20_08_1_live=off
+v20_08_1_tasks_modified=no
+```
+
+**PASS физически:** для каждого из трёх раздельных инстансов созданы пустой реальный H1 `StateStore` и собственный H1 Kill Switch `HALTED`; SID-bound FINAM счета ранее отдельно сверены и остаются flat с нулём broker orders. Выключенные Tasks и действующие H1/M15 не изменялись. Новый код инициализатора повторно без причины не запускать.
+
+**08.1 — техническая предторговая готовность трёх инстансов PASS (NO ORDER / LIVE OFF).** Приняты: account/token 3/3, N4 authority 12/12, FINAM M15 NEXT_OPEN 4/4 и real frozen no-signal read, привязка 3/3 свежих flat accounts и 3/3 чистых пустых SQLite/своих HALTED Kill Switch, готовые переиспользованные H1 risk/grid/SLTP/однократная заявка/reconciliation и согласованный владельцем потолок риска 1,5% капитала собственного счёта.
+
+**Граница PASS:** это не разрешение на брокерский POST и не факт открытия, защиты либо закрытия конкретной позиции. Точный entry_key, сигнал/сторона, исполнимая цена, количество, конкретные актуальные комиссии, свободное ГО и денежный риск повторно проверяются **для каждой единственной разрешённой заявки внутри 08.2** при текущих данных FINAM и без искусственного сигнала. Три Kill Switch не ARM, но будут временно ARMED только после точного отдельного подтверждения владельца для конкретной пробы. Новый Task LIVE и 08.4 пока не разрешены.
+
+**Дальше по тому же roadmap:** 08.2 Shallow → OBV → Inside, по одному индивидуально разрешённому реальному frozen-сигналу/счёту; 08.3 сверка всех трёх; 08.4 один согласованный операторский LIVE cutover 1→2→3 после отдельного разрешения.
 
 ## Граница разрешений
 
