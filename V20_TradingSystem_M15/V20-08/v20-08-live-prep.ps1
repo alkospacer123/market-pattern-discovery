@@ -122,6 +122,22 @@ if($mode -eq 'install' -and -not (Test-Path -LiteralPath $launchPath)){
 need (Test-Path -LiteralPath $launchPath -PathType Leaf) 'V20_LIVE_LAUNCHER_MISSING'
 noguardlink $launchPath
 need ((blob $launchPath) -eq $launcherBlob) 'V20_LIVE_LAUNCHER_CHANGED'
+$cutoverPath=Join-Path $prepared 'v20-08-live-cutover.ps1'
+$cutoverBlob='2c1cbda7de3abd64dc1fc9ee16f463ed5e5e82cd'
+if($mode -eq 'install' -and -not (Test-Path -LiteralPath $cutoverPath)){
+    $tmp=$cutoverPath+'.download'
+    need (-not (Test-Path -LiteralPath $tmp)) 'V20_LIVE_CUTOVER_PARTIAL'
+    try {
+        Invoke-WebRequest -Uri ('https://raw.githubusercontent.com/alkospacer123/market-pattern-discovery/3bf0e85748db675aa481f2d6afd030ade4a2b5e3/V20_TradingSystem_M15/V20-08/v20-08-live-cutover.ps1') -OutFile $tmp -UseBasicParsing -ErrorAction Stop
+        need ((blob $tmp) -eq $cutoverBlob) 'V20_LIVE_CUTOVER_REMOTE_HASH'
+        Move-Item -LiteralPath $tmp -Destination $cutoverPath
+    } finally {
+        if(Test-Path -LiteralPath $tmp){Remove-Item -LiteralPath $tmp -Force}
+    }
+}
+need (Test-Path -LiteralPath $cutoverPath -PathType Leaf) 'V20_LIVE_CUTOVER_MISSING'
+noguardlink $cutoverPath
+need ((blob $cutoverPath) -eq $cutoverBlob) 'V20_LIVE_CUTOVER_CHANGED'
 $utf8=New-Object System.Text.UTF8Encoding($false)
 $costs=[ordered]@{USDRUBF='8.34';CNYRUBF='2.02';GLDRUBF='3.64';IMOEXF='4.16'}
 $observed=@()
