@@ -31,7 +31,7 @@ function sourcecheck([string]$name){
     need ($LASTEXITCODE -eq 0 -and
           (($result -join '|') -match ('v20_08_4_'+$name+'=PASS_VERIFY_NO_FINAM'))) 'V20_LIVE_SOURCE_AND_SID_VERIFY_FAILED'
 }
-function cycleproof([string]$name,[datetimeoffset]$after,[bool]$print=$false) {
+function cycleproof([string]$name,[datetimeoffset]$after,[bool]$print=$false,[bool]$requirearmed=$false) {
     $task=boundtask $name
     $info=Get-ScheduledTaskInfo -TaskName $name -TaskPath '\' -ErrorAction Stop
     $log=Join-Path $root ('robots\'+$name.Substring(4)+'\logs\live-m15.jsonl')
@@ -62,6 +62,13 @@ function cycleproof([string]$name,[datetimeoffset]$after,[bool]$print=$false) {
     if($task.State -ne 'Running' -or
        $task.Actions[0].Arguments -ine (expected $name) -or
        $null -eq $latest -or $latest.state -match '^HALT' ){return $false}
+    if($requirearmed){
+        $switchPath=Join-Path $root ('robots\'+$name.Substring(4)+'\safety\stage8-trading-kill-switch.json')
+        if(-not (Test-Path -LiteralPath $switchPath -PathType Leaf)){return $false}
+        try{$switch=Get-Content -LiteralPath $switchPath -Raw -Encoding UTF8 | ConvertFrom-Json}
+        catch{return $false}
+        if($switch.schema_id -ne 'stage8_trading_kill_switch.v1' -or $switch.state -ne 'ARMED'){return $false}
+    }
     $utc=[datetimeoffset]::UtcNow
     $age=($utc-$latest.utc).TotalSeconds
     return ($latest.utc -ge $after.AddSeconds(-5) -and $age -ge -5 -and $age -le 90)
@@ -70,7 +77,7 @@ function observe([string]$name) {
     # Task Scheduler + fresh per-robot H1-style cycle is the authority.
     # WMI/CIM Python command-line enumeration can omit running child
     # processes and caused a false-negative despite broker cycle logs.
-    $ok=cycleproof $name (([datetimeoffset]::UtcNow).AddSeconds(-90)) $true
+    $ok=cycleproof $name (([datetimeoffset]::UtcNow).AddSeconds(-90)) $true $true
     Write-Output ('v20_08_4_'+$name+'_healthy='+$ok)
 }
 function readonly([string]$name) {
@@ -182,7 +189,7 @@ try {
     # Final 3/3 check within the same operator window, not just after each
     # sequential start. Recheck the first and second processes as well.
     foreach($name in $names) {
-        need (cycleproof $name (([datetimeoffset]::UtcNow).AddSeconds(-90))) 'V20_LIVE_FINAL_THREE_TASK_CYCLE_PROOF_FAILED'
+        need (cycleproof $name (([datetimeoffset]::UtcNow).AddSeconds(-90)) $false $true) 'V20_LIVE_FINAL_THREE_TASK_CYCLE_PROOF_FAILED'
         $probe=@(readonly $name)
         need (($probe -join '|') -match 'v20_08_4_order_posts=zero') 'V20_LIVE_FINAL_FINAM_GET_FAILED'
     }
