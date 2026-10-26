@@ -142,7 +142,20 @@ try {
               (($output -join '|') -match ('v20_08_4_switch=ARMED_'+$name+'_BROKER_CLEAN'))) 'V20_LIVE_ARM_BROKER_PROOF_FAILED'
         Write-Output ('v20_08_4_'+$name+'=PASS_TASK_RUNNING_ACCOUNT_BOUND_ARMED')
     }
-    Write-Output 'v20_08_4_live=PASS_ACTIVATED_3_OF_3_TASKS_AND_PROCESSES'
+    # Final 3/3 check within the same operator window, not just after each
+    # sequential start. Recheck the first and second processes as well.
+    foreach($name in $names) {
+        $task=boundtask $name
+        $workers=@(Get-CimInstance Win32_Process -Filter "Name='python.exe' OR Name='pythonw.exe'" -ErrorAction Stop | Where-Object {
+            $_.CommandLine -and $_.CommandLine.Contains('v20_runtime.finam_live') -and $_.CommandLine.Contains($name)
+        })
+        need ($task.State -eq 'Running' -and
+              $task.Actions[0].Arguments -ieq (expected $name) -and
+              $workers.Count -eq 1) 'V20_LIVE_FINAL_THREE_PROCESS_PROOF_FAILED'
+        $probe=@(readonly $name)
+        need (($probe -join '|') -match 'v20_08_4_order_posts=zero') 'V20_LIVE_FINAL_FINAM_GET_FAILED'
+    }
+    Write-Output 'v20_08_4_live=PASS_ACTIVATED_3_OF_3_TASKS_PROCESSES_AND_FINAM_READONLY'
 } catch {
     # Preserve all broker stops. Existing live processes continue tracking
     # exits while all new entries are halted; never cancel SLTP on failure.
