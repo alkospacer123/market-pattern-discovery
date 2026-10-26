@@ -715,6 +715,13 @@ class V20SingleTradeTransport:
         if (switch_error or not isinstance(switch, dict)
                 or switch.get("state") != "ARMED"):
             raise V20FinamBlocked("TRIAL_ENTRY_V20_KILL_SWITCH_NOT_ARMED")
+        # The caller's 'now' may be a few FINAM roundtrips old. Recheck the
+        # ACTUAL wall clock directly before the irreversible one-shot POST.
+        entry_open = datetime.fromisoformat(payload["entry_at"])
+        actual_post_time = datetime.now(timezone.utc)
+        due = entry_open.replace(tzinfo=ZoneInfo("Europe/Moscow")).astimezone(timezone.utc)
+        if not timedelta(0) <= actual_post_time-due <= timedelta(seconds=60):
+            raise V20FinamBlocked("TRIAL_ENTRY_ACTUAL_NEXT_OPEN_EXPIRED")
         with self.journal.store.transaction():
             if self.journal.store.get("trial_authority_consumed") is not None:
                 raise V20FinamBlocked("TRIAL_ALREADY_CONSUMED")
