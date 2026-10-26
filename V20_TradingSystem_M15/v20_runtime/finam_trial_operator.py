@@ -19,7 +19,7 @@ import time
 
 from TradingSystemLab.stage8_robot.finam_api import FinamAPI
 from TradingSystemLab.stage8_robot.trading_safety_gate import (
-    emergency_halt, load_kill_switch,
+    emergency_halt, load_kill_switch, write_kill_switch,
 )
 
 from .finam_execution import (
@@ -126,6 +126,22 @@ def create_exact_permit_on_signal(*, authorized_path: Path, permit_path: Path,
     return on_signal
 
 
+
+def arm_one_approved_trial(instance_root: Path) -> None:
+    """Temporary ARMED entry gate, confined to one approved 08.2 supervised trial.
+
+    The enclosing run() always returns this gate to HALTED in its finally.
+    No Windows Tasks, unrelated V20 instances or H1 runtime are modified.
+    """
+    switch, err = load_kill_switch(instance_root)
+    if err or switch is None or switch.get("state") != "HALTED":
+        raise V20FinamBlocked("TRIAL_OPERATOR_PREARM_SWITCH_NOT_HALTED")
+    write_kill_switch(instance_root, "ARMED", allow_arm=True)
+    switch, err = load_kill_switch(instance_root)
+    if err or switch is None or switch.get("state") != "ARMED":
+        raise V20FinamBlocked("TRIAL_OPERATOR_ARM_RESULT_UNVERIFIED")
+
+
 TERMINAL = {
     "BROKER_FLAT_NO_ACTIVE_STOP",
     "STOP_EXIT_BROKER_FLAT_UNDER_ACCEPTANCE",
@@ -205,7 +221,7 @@ def supervised_cycle(
 
 
 def run(*, root: Path, robot: str, symbol: str, fee: str,
-        source_sha: str, mode: str) -> str:
+        source_sha: str, mode: str, arm_for_trial: bool = False) -> str:
     robot, symbol, cost = _inputs(robot, symbol, fee, source_sha)
     if mode not in ("trial", "follow"):
         raise V20FinamBlocked("TRIAL_OPERATOR_MODE_INVALID")
@@ -262,10 +278,13 @@ def run(*, root: Path, robot: str, symbol: str, fee: str,
                 )
             else:
                 raise V20FinamBlocked("TRIAL_OPERATOR_PERMIT_MISSING")
-            switch, err = load_kill_switch(journal.instance_root)
-            if mode == "trial" and (err or switch["state"] != "ARMED"):
-                raise V20FinamBlocked("TRIAL_OPERATOR_SWITCH_NOT_ARMED")
-            if mode == "follow" and not journal.store.all_intents():
+            if mode == "trial":
+                if arm_for_trial is not True:
+                    raise V20FinamBlocked("TRIAL_OPERATOR_EXPLICIT_ARM_FLAG_REQUIRED")
+                if journal.store.all_intents():
+                    raise V20FinamBlocked("TRIAL_OPERATOR_ENTRY_ALREADY_PREPARED")
+                arm_one_approved_trial(journal.instance_root)
+            elif journal.store.all_intents() == []:
                 raise V20FinamBlocked("TRIAL_OPERATOR_NO_ENTRY_TO_FOLLOW")
             reader.authenticate()
             return supervised_cycle(
@@ -287,12 +306,13 @@ def main() -> int:
     parser.add_argument("--full-roundtrip-cost", required=True)
     parser.add_argument("--source-sha", required=True)
     parser.add_argument("--mode", choices=("trial", "follow"), required=True)
+    parser.add_argument("--arm-for-trial", action="store_true", default=False)
     args = parser.parse_args()
     try:
         result = run(
             root=Path(args.root), robot=args.robot, symbol=args.symbol,
             fee=args.full_roundtrip_cost, source_sha=args.source_sha,
-            mode=args.mode,
+            mode=args.mode, arm_for_trial=args.arm_for_trial,
         )
     except (Exception, KeyboardInterrupt) as exc:
         code = str(exc)
