@@ -18,7 +18,7 @@ function sidof([string]$value){
     }catch{return ''}
 }
 function expected([string]$name){
-    return '-noprofile -noninteractive -executionpolicy remotesigned -file "'+$launcher+'" -mode run -robot '+$name
+    return '-noprofile -noninteractive -executionpolicy bypass -file "'+$launcher+'" -mode run -robot '+$name
 }
 function boundtask([string]$name) {
     $task=Get-ScheduledTask -TaskName $name -TaskPath '\' -ErrorAction Stop
