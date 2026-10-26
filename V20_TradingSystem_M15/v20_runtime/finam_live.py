@@ -36,10 +36,9 @@ from .h1_state_journal import ROBOT_STRATEGIES
 from .offline_planner import N4, OfflinePlanner, STEP
 
 SYMBOLS = ("USDRUBF", "CNYRUBF", "GLDRUBF", "IMOEXF")
-DEFAULT_COSTS = {"USDRUBF": "8.34", "CNYRUBF": "2.02",
-                 "GLDRUBF": "3.64", "IMOEXF": "4.16"}
 AUTH_SCHEMA = "v20.08.4.live_authorization.v1"
-POLL_SECONDS = 3
+POLL_SECONDS = 30
+FAST_RECONCILIATION_SECONDS = 3
 
 
 class V20LiveJournal(V20TradeJournal):
@@ -241,8 +240,18 @@ def _follow_existing(sender: V20LiveTransport, now: datetime, snapshot) -> str:
                     "account_sha256": journal.account_hash})
                 _close_flat(journal, key)
                 return "STOP_EXECUTED_FLAT"
-            # A nonterminal market entry may still be awaiting fill; do not
-            # place another market order or infer a clean account from it.
+            # A newly ACKed market order can be awaiting its first fill. Never
+            # interpret it as a free instrument or submit another order.
+            from TradingSystemLab.stage8_robot.production_broker_state import unique_order_by_client_id
+            order = unique_order_by_client_id(
+                list(snapshot.orders), compact_client_order_id(key))
+            submission = journal.store.get("entry_submission:" + key)
+            if isinstance(submission, dict) and order is not None:
+                since = datetime.fromisoformat(submission["submitted_at"])
+                age = now.astimezone(timezone.utc) - since.astimezone(timezone.utc)
+                if (timedelta(0) <= age <= timedelta(seconds=60)
+                        and row["status"] == "ACK"):
+                    return "ENTRY_ACK_AWAIT_BROKER_FILL"
             raise V20FinamBlocked("V20_LIVE_UNEXPLAINED_FLAT_RECONCILE")
         journal.reconcile_order(key=key, snapshot=snapshot)
         if journal.store.intent(key + ":frozen-exit") is not None:
@@ -317,10 +326,12 @@ def run_cycle(sender: V20LiveTransport, now: datetime) -> str:
         row["payload"]["symbol"] for row in _entries(journal)
         if not journal.store.get("flat_cleanup:" + row["idempotency_key"])
     }
-    same_session = {
-        journal.store.intent(key)["payload"]["symbol"]
-        for key in journal.store.get("session_entries", {}).get(day, [])
-    }
+    same_session = set()
+    for key in journal.store.get("session_entries", {}).get(day, []):
+        previous = journal.store.intent(key)
+        if previous is None or previous["payload"].get("kind") != "ENTRY":
+            raise V20FinamBlocked("V20_LIVE_SESSION_INDEX_CORRUPT")
+        same_session.add(previous["payload"]["symbol"])
     for symbol in SYMBOLS:
         if symbol in current_open or symbol in same_session:
             continue
@@ -332,7 +343,8 @@ def run_cycle(sender: V20LiveTransport, now: datetime) -> str:
                 reader, symbol=symbol, from_utc=now-timedelta(days=20),
                 now=now, cost_per_contract=cost)
         except V20FinamBlocked as exc:
-            if str(exc) in ("NEXT_OPEN_CURRENT_OPEN_MISSING", "M15_CURRENT_OPEN_NOT_PUBLISHED"):
+            if str(exc) in ("NEXT_OPEN_CURRENT_OPEN_MISSING", "M15_CURRENT_OPEN_NOT_PUBLISHED",
+                            "M15_NEW_OPEN_NOT_PUBLISHED", "M15_NEW_OPEN_MISSING"):
                 continue
             raise
         if draft is None:
@@ -392,7 +404,10 @@ def run(*, root: Path, robot: str, source: str, once: bool = False) -> int:
                                     "state": state}, sort_keys=True)+"\n")
             if once:
                 return 0
-            time.sleep(POLL_SECONDS)
+            time.sleep(FAST_RECONCILIATION_SECONDS if state in (
+                "ENTRY_ACK_NEEDS_FILL_AND_STOP", "ENTRY_ACK_AWAIT_BROKER_FILL",
+                "STOP_ACK_NEEDS_BROKER_PROOF", "FROZEN_EXIT_ACK_KEEP_STOP_UNTIL_FLAT",
+                "EXIT_POSTED_AWAIT_BROKER_FLAT") else POLL_SECONDS)
 
 
 def main() -> int:
