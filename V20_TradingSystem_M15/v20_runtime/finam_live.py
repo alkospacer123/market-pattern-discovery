@@ -341,10 +341,11 @@ def run_cycle(sender: V20LiveTransport, now: datetime) -> str:
         try:
             draft = propose_finam_m15_next_open(
                 reader, symbol=symbol, from_utc=now-timedelta(days=20),
-                now=now, cost_per_contract=cost)
+                now=now, cost_per_contract=cost,
+                broker_ownership=lambda snap: _ownership(journal, snap))
         except V20FinamBlocked as exc:
-            if str(exc) in ("NEXT_OPEN_CURRENT_OPEN_MISSING", "M15_CURRENT_OPEN_NOT_PUBLISHED",
-                            "M15_NEW_OPEN_NOT_PUBLISHED", "M15_NEW_OPEN_MISSING"):
+            if str(exc) in ("M15_NEXT_OPEN_WITNESS_MISSING",
+                            "M15_FINAL_COMPLETED_BAR_MISSING"):
                 continue
             raise
         if draft is None:
