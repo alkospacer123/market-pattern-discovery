@@ -121,5 +121,42 @@ class PreapprovedIntentTests(unittest.TestCase):
         self.assertFalse((self.root/"robots"/"shallow"/"state"/"v20-real-intents.sqlite3").exists())
 
 
+    def test_technical_one_shot_posts_only_on_fresh_pretrade_not_old_m15_open(self):
+        """Fake FINAM: a 15-minute old M15 reference is not a delayed live signal."""
+        import json
+        from V20_TradingSystem_M15.v20_runtime.finam_trial_operator import TechnicalTrialJournal
+        old_signal, old_entry, authority, snap = self.proposal()
+        from dataclasses import replace
+        old_bar = old_entry.entry_bar_open-timedelta(minutes=15)
+        signal = replace(old_signal, signal_bar_open=old_bar-timedelta(minutes=15))
+        entry = replace(old_entry, entry_bar_open=old_bar)
+        with TechnicalTrialJournal(self.root, fixture.ROBOT, fixture.ACCOUNT) as journal:
+            with patch.object(execution, "datetime", fixture.OfflineTestClock):
+                key = journal.prepare_entry(signal=signal, entry=entry,
+                                            authority=authority, snapshot=snap)
+                journal.store.put("technical_acceptance:" + key, {
+                    "kind": "TECHNICAL_ACCEPTANCE_NOT_FROZEN_SIGNAL",
+                    "robot_id": fixture.ROBOT, "account_sha256": fixture.HASH,
+                    "symbol": "USDRUBF", "direction": "LONG", "max_quantity": 1,
+                    "prepared_at_utc": fixture.OPEN_UTC.isoformat(),
+                })
+                permit_path = fixture.TrialBoundaryTests.approval(self, journal, key)
+                record = json.loads(permit_path.read_text(encoding="utf-8"))
+                record["trial_kind"] = "TECHNICAL_ACCEPTANCE_NOT_STRATEGY_SIGNAL"
+                record["authorized_operations"] = ["ENTRY", "PROTECTIVE_STOP"]
+                permit_path.write_text(json.dumps(record), encoding="utf-8")
+                sender = V20SingleTradeTransport(
+                    journal=journal, reader=self.reader, accepted_commit=fixture.CODE_SHA,
+                    trial_permit_path=permit_path,
+                )
+                with patch("TradingSystemLab.stage8_robot.trading_safety_gate.load_kill_switch",
+                           return_value=({"state": "ARMED"}, None)):
+                    sender.submit_entry_once(key=key, snapshot=snap, now=fixture.OPEN_UTC)
+                self.assertEqual(self.api.order_posts, 1)
+                with self.assertRaises(V20FinamBlocked):
+                    sender.submit_entry_once(key=key, snapshot=snap, now=fixture.OPEN_UTC)
+                self.assertEqual(self.api.order_posts, 1)
+
+
 if __name__ == "__main__":
     unittest.main()
