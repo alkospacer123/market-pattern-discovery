@@ -16,9 +16,12 @@ import logging
 import os
 from pathlib import Path
 import re
+import sqlite3
 import time
 
 from TradingSystemLab.stage8_robot.finam_api import FinamAPI
+from TradingSystemLab.stage8_robot.broker import compact_client_order_id
+from TradingSystemLab.stage8_robot.production_broker_state import unique_order_by_client_id
 from TradingSystemLab.stage8_robot.trading_safety_gate import (
     emergency_halt, load_kill_switch, write_kill_switch,
 )
@@ -38,6 +41,105 @@ class TechnicalTrialJournal(V20TradeJournal):
     schema = "v20.h1_state_store.technical_acceptance.v1"
     mode = "V20_TECHNICAL_ACCEPTANCE_ONLY"
 
+
+class ShallowStopRetestJournal(TechnicalTrialJournal):
+    """One new Shallow stop proof; NEVER mutate or reuse its earlier POST ledger."""
+    state_file = "v20-technical-shallow-retest.sqlite3"
+    schema = "v20.h1_state_store.shallow_stop_retest.v1"
+
+
+def prove_shallow_prior_post_and_flat(*, journal: ShallowStopRetestJournal,
+                                      reader: V20FinamReadAdapter,
+                                      source_sha: str, symbol: str) -> str:
+    """GET-only owner-bounded retry gate using unchanged H1 broker observers.
+
+    H1 InstanceLock is already held by the retest journal. The old database is
+    opened SQLite URI mode=ro and NOT rewritten or reset. A previous confirmed
+    broker POST (not a PRE-POST expiry) is mandatory. Real FINAM must be FLAT.
+    """
+    if (not isinstance(journal, ShallowStopRetestJournal)
+            or journal.robot_id != "v20-shallow" or symbol != "CNYRUBF"):
+        raise V20FinamBlocked("SHALLOW_RETEST_ROBOT_OR_SYMBOL_INVALID")
+    from TradingSystemLab.stage8_robot.trading_safety_gate import load_kill_switch
+    switch, err = load_kill_switch(journal.instance_root)
+    if err or not switch or switch.get("state") != "HALTED":
+        raise V20FinamBlocked("SHALLOW_RETEST_REQUIRES_HALTED")
+    old = journal.instance_root / "state" / TechnicalTrialJournal.state_file
+    first_permit = journal.instance_root / "safety" / "v20-single-trial-approval.json"
+    if (not old.is_file() or old.is_symlink()
+            or not first_permit.is_file() or first_permit.is_symlink()
+            or first_permit.parent.is_symlink()):
+        raise V20FinamBlocked("SHALLOW_RETEST_PRIOR_PROOF_MISSING")
+    try:
+        permission = json.loads(first_permit.read_text(encoding="utf-8"))
+        with sqlite3.connect(old.as_uri() + "?mode=ro", uri=True) as db:
+            def get_state(key):
+                item = db.execute("SELECT value FROM state WHERE key=?", (key,)).fetchone()
+                return json.loads(item[0]) if item else None
+            identity = get_state("database_identity")
+            rows = db.execute(
+                "SELECT idempotency_key,payload,status,broker_order_id FROM intents"
+            ).fetchall()
+            old_fills = db.execute("SELECT COUNT(*) FROM fills").fetchone()[0]
+            if len(rows) != 1:
+                raise V20FinamBlocked("SHALLOW_RETEST_PRIOR_INTENTS_NOT_SINGLE")
+            entry_key, text_payload, status, broker_id = rows[0]
+            entry = json.loads(text_payload)
+            if (not isinstance(permission, dict)
+                    or permission.get("schema") != "v20.08.2.single_trial.v1"
+                    or permission.get("scope") != "ONE_SPECIFIC_APPROVED_TRIAL"
+                    or permission.get("source_commit") != source_sha
+                    or permission.get("robot_id") != journal.robot_id
+                    or permission.get("account_sha256") != journal.account_hash
+                    or permission.get("entry_key") != entry_key
+                    or permission.get("instrument") != "CNYRUBF"
+                    or permission.get("direction") != "LONG"
+                    or permission.get("max_quantity") != 1
+                    or permission.get("trial_kind") !=
+                        "TECHNICAL_ACCEPTANCE_NOT_STRATEGY_SIGNAL"
+                    or identity != {
+                        **journal.identity,
+                        "schema_id": TechnicalTrialJournal.schema,
+                    }
+                    or not isinstance(entry_key, str)
+                    or not isinstance(broker_id, str) or not broker_id
+                    or status != "ACK"
+                    or entry.get("kind") != "ENTRY"
+                    or entry.get("robot_id") != journal.robot_id
+                    or entry.get("account_sha256") != journal.account_hash
+                    or entry.get("symbol") != "CNYRUBF"
+                    or entry.get("direction") != "LONG"
+                    or entry.get("quantity") != 1
+                    or get_state("trial_authority_consumed") != entry_key
+                    or get_state("entry_submission:" + entry_key) is None
+                    or get_state("execution_halt") != "BROKER_ORDER_MISMATCH"
+                    or get_state("protected_fill:" + entry_key) is not None
+                    or old_fills):
+                raise V20FinamBlocked("SHALLOW_RETEST_PRIOR_BROKER_POST_INVALID")
+    except (sqlite3.Error, OSError, UnicodeError, ValueError, TypeError) as exc:
+        raise V20FinamBlocked("SHALLOW_RETEST_PRIOR_READONLY_INVALID") from exc
+    reader.authenticate()
+    observed = reader.snapshot(now=datetime.now(timezone.utc))
+    if not observed.clean:
+        raise V20FinamBlocked("SHALLOW_RETEST_ACCOUNT_NOT_FLAT")
+    original = unique_order_by_client_id(
+        list(observed.orders), compact_client_order_id(entry_key),
+    )
+    if (original is not None
+            and (original.order_id != broker_id or original.kind != "REGULAR"
+                 or original.symbol != "CNYRUBF@RTSX"
+                 or original.side != "SIDE_BUY")):
+        raise V20FinamBlocked("SHALLOW_RETEST_PRIOR_BROKER_ID_MISMATCH")
+    # Only NEW isolated SQLite is annotated; the old journal/permit is intact.
+    journal.store.put("shallow_previous_client_order_id",
+                      compact_client_order_id(entry_key))
+    journal.store.put("shallow_retest_prior_proof", {
+        "previous_broker_order_sha256": hashlib.sha256(broker_id.encode()).hexdigest(),
+        "original_technical_sqlite": TechnicalTrialJournal.state_file,
+        "account_sha256": journal.account_hash,
+        "broker_flat_readonly": True,
+    })
+    return "PASS_PRIOR_REAL_POST_PRESERVED_BROKER_FLAT"
 
 def _inputs(robot: str, symbol: str, fee: str, source_sha: str) -> tuple[str, str, Decimal]:
     if robot not in ROBOT_STRATEGIES or symbol not in N4:
@@ -281,11 +383,12 @@ def supervised_cycle(
     Existing H1/V20 ledger prevents a duplicate after process restart.
     Existing FINAM stop remains on broker while a third-session exit is due.
     """
-    if mode not in ("trial", "follow", "technical", "technical_follow"):
+    if mode not in ("trial", "follow", "technical", "technical_follow",
+                    "technical_retest"):
         raise V20FinamBlocked("TRIAL_OPERATOR_MODE_INVALID")
     clock = now_utc if now_utc is not None else lambda: datetime.now(timezone.utc)
-    allow_entry = mode in ("trial", "technical")
-    technical = mode in ("technical", "technical_follow")
+    allow_entry = mode in ("trial", "technical", "technical_retest")
+    technical = mode in ("technical", "technical_follow", "technical_retest")
     iterations = 0
     while True:
         now = clock()
@@ -347,10 +450,13 @@ def supervised_cycle(
 def run(*, root: Path, robot: str, symbol: str, fee: str,
         source_sha: str, mode: str, arm_for_trial: bool = False) -> str:
     robot, symbol, cost = _inputs(robot, symbol, fee, source_sha)
-    if mode not in ("trial", "follow", "technical", "technical_follow", "technical_recover"):
+    if mode not in ("trial", "follow", "technical", "technical_follow",
+                    "technical_recover", "technical_retest"):
         raise V20FinamBlocked("TRIAL_OPERATOR_MODE_INVALID")
-    technical = mode in ("technical", "technical_follow", "technical_recover")
-    opening = mode in ("trial", "technical")
+    retest = mode == "technical_retest"
+    technical = mode in ("technical", "technical_follow", "technical_recover",
+                         "technical_retest")
+    opening = mode in ("trial", "technical", "technical_retest")
     if not root.is_absolute() or root.name.casefold() != "v20lab":
         raise V20FinamBlocked("TRIAL_OPERATOR_ROOT_INVALID")
     account = os.environ.get("V20_FINAM_ACCOUNT", "")
@@ -369,14 +475,26 @@ def run(*, root: Path, robot: str, symbol: str, fee: str,
         expected_account_hash=scope,
     )
     # Journal/InstanceLock is shared between submit, follow and recovery.
-    journal_type = TechnicalTrialJournal if technical else V20TradeJournal
+    journal_type = (ShallowStopRetestJournal if retest else
+                    TechnicalTrialJournal if technical else V20TradeJournal)
     with journal_type(root, robot, account) as journal:
-        permit = journal.instance_root / "safety" / "v20-single-trial-approval.json"
+        permit = journal.instance_root / "safety" / (
+            "v20-shallow-stop-retest-approval.json" if retest
+            else "v20-single-trial-approval.json"
+        )
         sender = V20SingleTradeTransport(
             journal=journal, reader=reader, accepted_commit=source_sha,
             trial_permit_path=permit,
         )
         try:
+            if retest:
+                if not arm_for_trial:
+                    raise V20FinamBlocked("SHALLOW_RETEST_EXPLICIT_FLAG_REQUIRED")
+                witness = prove_shallow_prior_post_and_flat(
+                    journal=journal, reader=reader, source_sha=source_sha,
+                    symbol=symbol,
+                )
+                print("v20_08_2_shallow_retest_gate=" + witness, flush=True)
             if mode == "technical_recover":
                 if arm_for_trial:
                     raise V20FinamBlocked("TECHNICAL_RECOVERY_MUST_NOT_ARM")
@@ -446,7 +564,9 @@ def main() -> int:
     parser.add_argument("--symbol", choices=tuple(sorted(N4)), required=True)
     parser.add_argument("--full-roundtrip-cost", required=True)
     parser.add_argument("--source-sha", required=True)
-    parser.add_argument("--mode", choices=("trial", "follow", "technical", "technical_follow", "technical_recover"), required=True)
+    parser.add_argument("--mode", choices=("trial", "follow", "technical",
+                                           "technical_follow", "technical_recover",
+                                           "technical_retest"), required=True)
     parser.add_argument("--arm-for-trial", action="store_true", default=False)
     args = parser.parse_args()
     try:
