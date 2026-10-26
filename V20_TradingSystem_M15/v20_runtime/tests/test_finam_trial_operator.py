@@ -16,6 +16,7 @@ from V20_TradingSystem_M15.v20_runtime import finam_trial_operator as operator
 import V20_TradingSystem_M15.v20_runtime.finam_execution as execution
 from V20_TradingSystem_M15.v20_runtime.finam_execution import V20FinamBlocked, V20SingleTradeTransport
 from TradingSystemLab.stage8_robot.execution_grid import initial_projection
+from TradingSystemLab.stage8_robot.broker import compact_client_order_id
 from V20_TradingSystem_M15.v20_runtime.offline_planner import FrozenSignal, ProposedEntry
 from V20_TradingSystem_M15.v20_runtime.account_risk import AccountAuthority
 
@@ -295,6 +296,93 @@ class TrialOperatorTests(unittest.TestCase):
             switch, err = load_kill_switch(root / "robots" / "shallow")
             self.assertIsNone(err)
             self.assertEqual(switch["state"], "HALTED")
+
+
+    def _create_real_ack_shallow_fixture(self, root, *, checkpoint=True):
+        """H1-owned first technical SQLite: ACKed POST, no SLTP, no fake broker POST."""
+        with operator.TechnicalTrialJournal(root, "v20-shallow", ACCOUNT) as old:
+            key = "v20:v20-shallow:" + HASH[:16] + ":first-real-broker-ack"
+            payload = {
+                "kind": "ENTRY", "robot_id": "v20-shallow",
+                "account_sha256": HASH, "symbol": "CNYRUBF",
+                "direction": "LONG", "quantity": 1,
+            }
+            self.assertTrue(old.store.persist_intent(key, payload))
+            old.store.transition_intent(key, "ACK", "old-broker-entry-1")
+            old.store.put("trial_authority_consumed", key)
+            old.store.put("execution_halt", "BROKER_ORDER_MISMATCH")
+            if checkpoint:
+                old.store.put("entry_submission:" + key, {
+                    "account_sha256": HASH,
+                    "submitted_at": UTC.isoformat(),
+                })
+            safety = old.instance_root / "safety"
+            safety.mkdir(parents=True, exist_ok=True)
+            (safety / "v20-single-trial-approval.json").write_text(
+                json.dumps({
+                    "schema": "v20.08.2.single_trial.v1",
+                    "scope": "ONE_SPECIFIC_APPROVED_TRIAL",
+                    "source_commit": SHA,
+                    "robot_id": "v20-shallow",
+                    "account_sha256": HASH,
+                    "entry_key": key,
+                    "instrument": "CNYRUBF",
+                    "direction": "LONG",
+                    "max_quantity": 1,
+                    "trial_kind": "TECHNICAL_ACCEPTANCE_NOT_STRATEGY_SIGNAL",
+                }), encoding="utf-8",
+            )
+            return key, old.state_path
+
+    def test_shallow_retest_proves_original_real_post_without_modifying_it(self):
+        with TemporaryDirectory() as tmp:
+            root = Path(tmp) / "v20lab"
+            root.mkdir()
+            key, original_path = self._create_real_ack_shallow_fixture(root)
+            before = original_path.read_bytes()
+            broker = SimpleNamespace(
+                authenticate=Mock(),
+                snapshot=Mock(return_value=SimpleNamespace(clean=True, orders=())),
+            )
+            with operator.ShallowStopRetestJournal(root, "v20-shallow", ACCOUNT) as retest:
+                with patch.object(operator, "load_kill_switch",
+                                  return_value=({"state": "HALTED"}, None)):
+                    outcome = operator.prove_shallow_prior_post_and_flat(
+                        journal=retest, reader=broker,
+                        source_sha=SHA, symbol="CNYRUBF",
+                    )
+                self.assertEqual(outcome, "PASS_PRIOR_REAL_POST_PRESERVED_BROKER_FLAT")
+                self.assertEqual(
+                    retest.store.get("shallow_previous_client_order_id"),
+                    compact_client_order_id(key),
+                )
+                self.assertEqual(retest.store.all_intents(), [])
+                broker.authenticate.assert_called_once()
+                broker.snapshot.assert_called_once()
+            self.assertEqual(original_path.read_bytes(), before)
+            with operator.TechnicalTrialJournal(root, "v20-shallow", ACCOUNT) as original:
+                self.assertEqual(original.store.intent(key)["status"], "ACK")
+                self.assertEqual(original.store.get("trial_authority_consumed"), key)
+
+    def test_shallow_retest_rejects_missing_original_post_proof(self):
+        with TemporaryDirectory() as tmp:
+            root = Path(tmp) / "v20lab"
+            root.mkdir()
+            key, old = self._create_real_ack_shallow_fixture(root, checkpoint=False)
+            broker = SimpleNamespace(authenticate=Mock(), snapshot=Mock())
+            with operator.ShallowStopRetestJournal(root, "v20-shallow", ACCOUNT) as retest:
+                with patch.object(operator, "load_kill_switch",
+                                  return_value=({"state": "HALTED"}, None)):
+                    with self.assertRaisesRegex(
+                        V20FinamBlocked, "SHALLOW_RETEST_PRIOR_BROKER_POST_INVALID",
+                    ):
+                        operator.prove_shallow_prior_post_and_flat(
+                            journal=retest, reader=broker,
+                            source_sha=SHA, symbol="CNYRUBF",
+                        )
+                self.assertIsNone(retest.store.get("shallow_previous_client_order_id"))
+                self.assertEqual(retest.store.all_intents(), [])
+            broker.authenticate.assert_not_called()
 
 
 if __name__ == "__main__":
