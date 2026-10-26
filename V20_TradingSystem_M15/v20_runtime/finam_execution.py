@@ -33,7 +33,7 @@ from TradingSystemLab.stage8_robot.margin import (
 )
 from TradingSystemLab.stage8_robot.production_broker_state import (
     BrokerOrderView, order_views, position_quantities, unique_order_by_client_id,
-    _validate_production_sltp,
+    _validate_production_sltp, _contracts,
 )
 from TradingSystemLab.stage8_robot.production_runtime import _load_registry, RuntimeAction
 
@@ -198,7 +198,8 @@ class V20FinamReadAdapter:
         side = "SIDE_BUY" if direction == "LONG" else "SIDE_SELL"
         if (order is None or order.kind != "REGULAR"
                 or order.symbol != row["finam_symbol"] or order.side != side
-                or order.request.get("quantity") != {"value": str(requested_quantity)}):
+                or _contracts(order.request.get("quantity"),
+                              "STAGE8_12_4_ORDER_QUANTITY_INVALID") != requested_quantity):
             raise V20FinamBlocked("ENTRY_ORDER_BROKER_PROOF_MISSING")
         start = submitted_at.astimezone(timezone.utc)
         end = now.astimezone(timezone.utc)
@@ -437,7 +438,10 @@ class V20TradeJournal(IsolatedReferenceJournal):
         wire = intent["payload"]["wire"]
         if (found.kind != "REGULAR"
                 or found.symbol != wire["symbol"] or found.side != wire["side"]
-                or found.request.get("quantity") != wire["quantity"]
+                or _contracts(found.request.get("quantity"),
+                              "STAGE8_12_4_ORDER_QUANTITY_INVALID") !=
+                   _contracts(wire["quantity"],
+                              "STAGE8_12_4_ORDER_QUANTITY_INVALID")
                 or found.request.get("client_order_id") != wire["client_order_id"]):
             self.store.put("execution_halt", "BROKER_ORDER_MISMATCH")
             raise V20FinamBlocked("BROKER_ORDER_MISMATCH")
