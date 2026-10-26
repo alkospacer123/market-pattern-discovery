@@ -224,6 +224,8 @@ def run(*, root: Path, robot: str, symbol: str, fee: str,
                 sender._permit(key=key, kind="ENTRY" if mode == "trial" else "PROTECTIVE_STOP")
             elif mode == "trial":
                 grant_path = journal.instance_root / "safety" / "v20-first-signal-approval.json"
+                if not grant_path.is_file() or grant_path.is_symlink():
+                    raise V20FinamBlocked("TRIAL_OPERATOR_PERMIT_MISSING")
                 permit_on_signal = create_exact_permit_on_signal(
                     authorized_path=grant_path, permit_path=permit, robot=robot,
                     account_hash=scope, symbol=symbol, source_sha=source_sha,
