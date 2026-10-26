@@ -70,7 +70,8 @@ function observe([string]$name) {
     # Task Scheduler + fresh per-robot H1-style cycle is the authority.
     # WMI/CIM Python command-line enumeration can omit running child
     # processes and caused a false-negative despite broker cycle logs.
-    [void](cycleproof $name ([datetimeoffset]::UtcNow.AddSeconds(-90)) $true)
+    $ok=cycleproof $name (([datetimeoffset]::UtcNow).AddSeconds(-90)) $true
+    Write-Output ('v20_08_4_'+$name+'_healthy='+$ok)
 }
 function readonly([string]$name) {
     $result=@(& powershell.exe -noprofile -noninteractive -executionpolicy bypass -file $launcher -mode readonly -robot $name 2>&1)
@@ -171,7 +172,7 @@ try {
             if(cycleproof $name $started){$proved=$true;break}
             Start-Sleep -Seconds 1
         }
-        if(-not $proved){[void](cycleproof $name $started $true)}
+        if(-not $proved){$health=cycleproof $name $started $true;Write-Output ('v20_08_4_'+$name+'_healthy='+$health)}
         need $proved 'V20_LIVE_RUNNING_TASK_WITH_FRESH_CYCLE_NOT_CONFIRMED'
         $output=@(& powershell.exe -noprofile -noninteractive -executionpolicy bypass -file $launcher -mode arm -robot $name 2>&1)
         need ($LASTEXITCODE -eq 0 -and
@@ -181,7 +182,7 @@ try {
     # Final 3/3 check within the same operator window, not just after each
     # sequential start. Recheck the first and second processes as well.
     foreach($name in $names) {
-        need (cycleproof $name ([datetimeoffset]::UtcNow.AddSeconds(-90))) 'V20_LIVE_FINAL_THREE_TASK_CYCLE_PROOF_FAILED'
+        need (cycleproof $name (([datetimeoffset]::UtcNow).AddSeconds(-90))) 'V20_LIVE_FINAL_THREE_TASK_CYCLE_PROOF_FAILED'
         $probe=@(readonly $name)
         need (($probe -join '|') -match 'v20_08_4_order_posts=zero') 'V20_LIVE_FINAL_FINAM_GET_FAILED'
     }
