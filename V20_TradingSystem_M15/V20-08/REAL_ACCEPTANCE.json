@@ -3,7 +3,7 @@
   "as_of": "2026-10-26",
   "source": "Intel URIU-PC owner FINAM history/order screenshots and exact operator stdout in conversation; not independent live API capture from GitHub",
   "execution": "PASS_3_OF_3_REAL_ENTRY_AND_PROVEN_BROKER_100_PERCENT_SLTP_MANUAL_FLAT",
-  "accounting": "PARTIAL_ACTUAL_COMMISSIONS_NOT_SEPARATELY_VERIFIED",
+  "accounting": "ACCEPTED_WITH_TARIFF_RESERVE_ACTUAL_FEES_TO_BE_OBSERVED_ON_FUTURE_LIVE_TRADES",
   "automated_live": "OFF_TASKS_DISABLED",
   "strategy_timing": "TECHNICAL_TRIAL_ONLY_FROZEN_NEXT_OPEN_LIVE_NOT_YET_OBSERVED",
   "market": "CNYRUBF",
@@ -87,21 +87,22 @@
   "gross_result_rub": "-10",
   "limitations": [
     "Stop triggers/execution were not tested: broker SLTP 100% active/proven and then manually cancelled after owner flattening",
-    "Roundtrip commission charged by FINAM not independently confirmed, budget of 2.02 RUB/contract used",
+    "Historical technical-trial commissions not individually reconciled by explicit owner decision; the 2.02 RUB budget is a reserve, not measured fees",
     "Technical exception entry is not proof of frozen strategy LIVE NEXT_OPEN execution",
     "Production V20 M15 runner and Windows Task live cutover were not yet installed; m15_runner.py remains OFFLINE_ONLY"
   ],
   "roadmap": {
     "08.1": "PASS_PRETRADE_INTEL",
     "08.2": "PASS_3_OF_3_BROKER_EXECUTION_SLTP_MANUAL_EXIT",
-    "08.3": "EXECUTION_PASS_3_OF_3_FINANCIAL_PARTIAL_ACTUAL_FEES_MISSING",
+    "08.3": "PASS_OWNER_ACCEPTED_TECHNICAL_3_OF_3_AND_TARIFF_COST_MODEL",
     "08.4": "NOT_STARTED_LIVE_OFF",
     "08.5": "NOT_STARTED"
   },
   "acceptance_report": "V20-08/ACCEPTANCE_08_3_RU.md",
   "actual_commission_verification": {
-    "status": "NOT_AVAILABLE_FROM_OWNER_EVIDENCE",
-    "method": "GET-only FINAM trades/account statement for three existing executions; do not create new orders",
+    "status": "OWNER_ACCEPTED_NO_ADDITIONAL_FEE_RECONCILIATION_FOR_08_3",
+    "method": "Use existing full roundtrip tariff/risk reserve. Observe actual fees on later LIVE trades.",
     "net_pnl_rub": null
-  }
+  },
+  "owner_decision": "2026-10-26: accept 08.3 without checking individual technical trial fee debits; use full tariff and costs in live sizing, record actuals on future live trades"
 }
