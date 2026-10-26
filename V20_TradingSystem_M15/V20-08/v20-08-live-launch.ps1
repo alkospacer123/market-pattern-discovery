@@ -74,7 +74,7 @@ foreach($spec in @(
 $task=Get-ScheduledTask -TaskName $robot -TaskPath '\' -ErrorAction Stop
 $action=@($task.Actions)
 need ($action.Count -eq 1 -and (sidof ([string]$task.Principal.UserId)) -eq $sid) 'V20_LIVE_TASK_SID_INVALID'
-$expected='-noprofile -noninteractive -executionpolicy remotesigned -file "'+$self+'" -mode run -robot '+$robot
+$expected='-noprofile -noninteractive -executionpolicy bypass -file "'+$self+'" -mode run -robot '+$robot
 $taskLive=($action[0].Execute -ieq 'powershell.exe' -and
            $action[0].Arguments -ieq $expected -and
            $action[0].WorkingDirectory -ieq $instance)
