@@ -274,9 +274,20 @@ v20_08_2_tasks_modified=no
 
 - `V20-08/invoke-offline-trial-operator-tests.ps1`: Git blob `23397a966aeda13de3659e9e2a8c819fc94b5753`, проверяет **8** направленных fake-only сценариев (5 ранее Intel PASS + 3 новых/расширенных по первому сигналу, owner scope, ожиданию M15). Source pin `e9de4acd8582009c93d67dcac299cabf51eae08e`. **Новая версия на Intel NOT RUN / NOT PASS**; предыдущие 5 успешны и не отменяются.
 - `V20-08/Install-Offline-Trial-Operator.ps1`: новый Git blob `e9b18cc3a5614172e3c677d7005876b0d4e4ae5f` позволяет строгое обновление двух ранее pinned/проверенных V20 Python-файлов в `C:\V20Lab\pretrade-08\trial-runtime-08`, без токенов, изменения broker/tasks/journals. **Новый upgrade Intel NOT RUN**; предыдущая установка `PASS_PINNED_IMPORT_ONLY` сохраняется.
-- `V20-08/Approve-Three-First-Frozen-Trials.ps1`: Git blob `903f3b96663753697d75335176e85e1bdf13c28f`, только создаёт три локальных scope `v20-first-signal-approval.json` при пустом собственном H1 SQLite, Kill Switch HALTED и Tasks Disabled; подписанное владельцем право уже зафиксировано в этой беседе, но самих scope на Intel ещё **НЕТ**. По умолчанию CNYRUBF для каждой стратегии, остальные N4 разрешены только явным выбором инструмента до создания scope. После этого ARM/запуск операторского процесса — отдельное действие в существующем 08.2, не 08.4.
+- `V20-08/Approve-Three-First-Frozen-Trials.ps1`: Git blob `903f3b96663753697d75335176e85e1bdf13c28f`, только создаёт три локальных scope `v20-first-signal-approval.json` при пустом собственном H1 SQLite, Kill Switch HALTED и Tasks Disabled; явное разрешение владельца уже зафиксировано в этой беседе, но самих scope на Intel ещё **НЕТ**. По умолчанию CNYRUBF для каждой стратегии, остальные N4 разрешены только явным выбором инструмента до создания scope. После этого ARM/запуск операторского процесса — отдельное действие в существующем 08.2, не 08.4.
 
 **Подтверждённый результат на сегодняшний момент**: 08.1 PASS 3/3; 08.2 offline runtime первой версии установлен на Intel, первые 5/5 targeted fake PASS, ни одного настоящего FINAM order/trade/stop. Пользовательское разрешение на пробные сделки и будущий общий LIVE получено. 08.2 реальная проба и 08.3 брокерская приёмка всех трёх — ещё НЕ выполнены, поэтому LIVE НЕ ВКЛЮЧЁН.
+
+## 26.10.2026 — один offline-подготовительный запуск перед первой пробой
+
+Вместо трёх отдельных Intel-команд подготовлен только **один** `V20-08/Invoke-08-2-Offline-Prep.ps1`, Git blob `1e4878854b803017a2e861dec832e12afea00c9c` с pinned child-source commit `1e6b8cc89c9c8d7b66b7cfeea7837e464cb03f78`.
+
+Строго в указанном порядке и только после совпадения SHA:
+1. Запуск **8** новых fake-only тестов (5 ранее принятых + 3 новой операционной привязки).
+2. Upgrade **только** двух строго известных Git-pinned V20 Python-модулей в изолированном `pretrade-08\trial-runtime-08` (не меняя H1, frozen и действующий GET-only reader).
+3. Запись трёх узких однократных разрешений владельца для CNYRUBF по собственным FINAM account hashes; при этом H1 StateStore остаются пустыми, Kill Switch строго `HALTED`, V20 Tasks Disabled.
+
+Весь процесс — без подключения к FINAM, без расшифровки DPAPI, без заявок, без ARM, без Task mutations. **Новая команда подготовлена и GitHub hash-verified; на Intel НЕ ЗАПУЩЕНА и PASS не заявлен.** Только после её физического PASS можно приступить к адресному операторскому DPAPI trial-старту Shallow, затем OBV/Inside. Общий LIVE владельцем разрешён, но не включается до завершения всех 08.2/08.3.
 
 ## Граница разрешений
 
