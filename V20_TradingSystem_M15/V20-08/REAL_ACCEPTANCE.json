@@ -1,0 +1,101 @@
+{
+  "schema": "v20.08.real_acceptance.v1",
+  "as_of": "2026-10-26",
+  "source": "Intel URIU-PC owner FINAM history/order screenshots and exact operator stdout in conversation; not independent live API capture from GitHub",
+  "execution": "PASS_3_OF_3_REAL_ENTRY_AND_PROVEN_BROKER_100_PERCENT_SLTP_MANUAL_FLAT",
+  "accounting": "PARTIAL_ACTUAL_COMMISSIONS_NOT_SEPARATELY_VERIFIED",
+  "automated_live": "OFF_TASKS_DISABLED",
+  "strategy_timing": "TECHNICAL_TRIAL_ONLY_FROZEN_NEXT_OPEN_LIVE_NOT_YET_OBSERVED",
+  "market": "CNYRUBF",
+  "contract_economics": {
+    "tick_size": "0.001",
+    "tick_value_rub": "1",
+    "quantity_per_trial": 1,
+    "source": "H1 TradingSystemLab/stage8_robot/production_instrument_registry.csv"
+  },
+  "risk_guard": {
+    "per_account_risk": "1.5% realized equity",
+    "technical_full_roundtrip_cost_per_contract_rub": "2.02",
+    "original_h1_stop_grid": "UNCHANGED",
+    "initial_stop": "2x ATR14 Wilder",
+    "risk_realized_live_not_observed": true
+  },
+  "robots": {
+    "v20-shallow": {
+      "result": "PASS_REAL_ENTRY_STOP_PROVEN_100_PERCENT_MANUAL_FLAT",
+      "execution_type": "TECHNICAL_ACCEPTANCE_NOT_STRATEGY_SIGNAL",
+      "history": {
+        "buy": "12.101",
+        "sell": "12.100",
+        "gross_rub": "-1"
+      },
+      "source_commit": "91e85ca434eb28618e5d9053870118b36e7c925a",
+      "test_report": "PASS_2_OF_2_PINNED_FAKE_PLUS_FINAM_REAL",
+      "proof": [
+        "PASS_PRIOR_REAL_POST_PRESERVED_BROKER_FLAT",
+        "ENTRY_ACK_NEEDS_FILL_AND_STOP",
+        "STOP_ACK_NEEDS_BROKER_PROOF",
+        "STOP_NOW_BROKER_PROVEN",
+        "TECHNICAL_SLTP_CONFIRMED_AWAIT_MANUAL_CLOSE",
+        "MANUAL_EXIT_BROKER_FLAT_UNDER_ACCEPTANCE"
+      ],
+      "first_attempt": "BROKER_ORDER_MISMATCH_THEN_OWNER_MANUAL_FLAT_PRESERVED_ORIGINAL_SQLITE",
+      "second_attempt": "NEW_ONE_TIME_SQLITE_AND_PERMIT",
+      "terminal_open_orders": 0,
+      "terminal_stop_status": "CANCELLED_AFTER_OWNER_EXIT",
+      "commission_rub": null
+    },
+    "v20-obv": {
+      "result": "PASS_REAL_ENTRY_STOP_PROVEN_100_PERCENT_MANUAL_FLAT",
+      "execution_type": "TECHNICAL_ACCEPTANCE_NOT_STRATEGY_SIGNAL",
+      "history": {
+        "buy": "12.098",
+        "sell": "12.089",
+        "gross_rub": "-9"
+      },
+      "proof": [
+        "ENTRY_ACK_NEEDS_FILL_AND_STOP",
+        "STOP_ACK_NEEDS_BROKER_PROOF",
+        "STOP_NOW_BROKER_PROVEN",
+        "TECHNICAL_SLTP_CONFIRMED_AWAIT_MANUAL_CLOSE",
+        "MANUAL_EXIT_BROKER_FLAT_UNDER_ACCEPTANCE"
+      ],
+      "terminal_open_orders": 0,
+      "terminal_stop_status": "CANCELLED_AFTER_OWNER_EXIT",
+      "commission_rub": null
+    },
+    "v20-inside": {
+      "result": "PASS_REAL_ENTRY_STOP_PROVEN_100_PERCENT_MANUAL_FLAT",
+      "execution_type": "TECHNICAL_ACCEPTANCE_NOT_STRATEGY_SIGNAL",
+      "history": {
+        "buy": "12.092",
+        "sell": "12.092",
+        "gross_rub": "0"
+      },
+      "proof": [
+        "ENTRY_ACK_NEEDS_FILL_AND_STOP",
+        "STOP_ACK_NEEDS_BROKER_PROOF",
+        "STOP_NOW_BROKER_PROVEN",
+        "TECHNICAL_SLTP_CONFIRMED_AWAIT_MANUAL_CLOSE",
+        "MANUAL_EXIT_BROKER_FLAT_UNDER_ACCEPTANCE"
+      ],
+      "terminal_open_orders": 0,
+      "terminal_stop_status": "CANCELLED_AFTER_OWNER_EXIT",
+      "commission_rub": null
+    }
+  },
+  "gross_result_rub": "-10",
+  "limitations": [
+    "Stop triggers/execution were not tested: broker SLTP 100% active/proven and then manually cancelled after owner flattening",
+    "Roundtrip commission charged by FINAM not independently confirmed, budget of 2.02 RUB/contract used",
+    "Technical exception entry is not proof of frozen strategy LIVE NEXT_OPEN execution",
+    "Production V20 M15 runner and Windows Task live cutover were not yet installed; m15_runner.py remains OFFLINE_ONLY"
+  ],
+  "roadmap": {
+    "08.1": "PASS_PRETRADE_INTEL",
+    "08.2": "PASS_3_OF_3_BROKER_EXECUTION_SLTP_MANUAL_EXIT",
+    "08.3": "TECHNICAL_PASS_3_OF_3_FINANCIAL_FEES_PENDING",
+    "08.4": "NOT_STARTED_LIVE_OFF",
+    "08.5": "NOT_STARTED"
+  }
+}
