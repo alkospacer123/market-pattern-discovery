@@ -702,9 +702,15 @@ class V20SingleTradeTransport:
                     or approval.get("trial_kind") != "TECHNICAL_ACCEPTANCE_NOT_STRATEGY_SIGNAL"
                     or self.journal.state_file != "v20-technical-acceptance.sqlite3"):
                 raise V20FinamBlocked("TECHNICAL_ENTRY_ACCOUNT_OR_PERMIT_INVALID")
+            # 'now' is the START of this M15/FINAM cycle, captured before
+            # multiple broker GETs and before this durable prepared_at_utc.
+            # Comparing it to that later timestamp falsely makes EVERY
+            # successful technical preparation look expired (negative age).
+            # Use the actual clock; keep the <=60s pre-POST freshness gate.
             prepared_utc = datetime.fromisoformat(technical["prepared_at_utc"])
+            observed_now = datetime.now(timezone.utc)
             if (prepared_utc.tzinfo is None or
-                    not timedelta(0) <= now.astimezone(timezone.utc)-prepared_utc
+                    not timedelta(0) <= observed_now-prepared_utc
                     <= timedelta(seconds=60)):
                 raise V20FinamBlocked("TECHNICAL_ENTRY_PRETRADE_EXPIRED")
         else:
@@ -759,7 +765,12 @@ class V20SingleTradeTransport:
             if self.journal.store.get("trial_authority_consumed") is not None:
                 raise V20FinamBlocked("TRIAL_ALREADY_CONSUMED")
             self.journal.store.put("trial_authority_consumed", key)
-            self.journal.record_submission_boundary(key, at=now)
+            # The technical pretrade is freshly checked above, so its
+            # broker-history checkpoint must use this same real time, not
+            # the older cycle timestamp. Keep frozen NEXT_OPEN unchanged.
+            self.journal.record_submission_boundary(
+                key, at=actual_post_time if technical is not None else now,
+            )
         try:
             ack = self.reader.api.place_order(self.reader.account_id, payload["wire"])
         except FinamOrderRejected:
