@@ -89,5 +89,37 @@ class PreapprovedIntentTests(unittest.TestCase):
             self.assertEqual(self.api.order_posts, 0)
 
 
+    def test_technical_single_contract_has_separate_h1_state_and_no_post(self):
+        """One operator-approved technical entry never alters LIVE/frozen ledger."""
+        from V20_TradingSystem_M15.v20_runtime.finam_trial_operator import TechnicalTrialJournal
+        with TechnicalTrialJournal(self.root, fixture.ROBOT, fixture.ACCOUNT) as journal:
+            key = journal.preview_entry_key(self.proposal()[1])
+            fixture.TrialBoundaryTests.approval(self, journal, key)
+            sender = V20SingleTradeTransport(
+                journal=journal, reader=self.reader, accepted_commit=fixture.CODE_SHA,
+                trial_permit_path=journal.instance_root/"safety"/"v20-single-trial-approval.json",
+            )
+            with patch.object(execution, "datetime", fixture.OfflineTestClock):
+                with patch("TradingSystemLab.stage8_robot.trading_safety_gate.load_kill_switch",
+                           return_value=({"state": "ARMED"}, None)):
+                    with patch.object(execution, "propose_finam_m15_next_open",
+                                      return_value=self.proposal()):
+                        result = prepare_finam_single_trial(
+                            sender, symbol="USDRUBF",
+                            from_utc=fixture.OPEN_UTC-timedelta(hours=1),
+                            now=fixture.OPEN_UTC, cost_per_contract=Decimal("2"),
+                            technical_acceptance=True,
+                        )
+            self.assertEqual(result["quantity"], 1)
+            self.assertEqual(journal.store.intent(key)["payload"]["quantity"], 1)
+            marker = journal.store.get("technical_acceptance:" + key)
+            self.assertEqual(marker["kind"], "TECHNICAL_ACCEPTANCE_NOT_FROZEN_SIGNAL")
+            self.assertEqual(marker["max_quantity"], 1)
+            self.assertLessEqual(Decimal(marker["reserved_risk_rub"]), Decimal("675"))
+            self.assertEqual(self.api.order_posts, 0)
+            self.assertEqual(self.api.stop_posts, 0)
+        self.assertFalse((self.root/"robots"/"shallow"/"state"/"v20-real-intents.sqlite3").exists())
+
+
 if __name__ == "__main__":
     unittest.main()
