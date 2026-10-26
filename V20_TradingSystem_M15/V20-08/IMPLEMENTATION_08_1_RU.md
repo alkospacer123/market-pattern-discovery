@@ -320,40 +320,25 @@ v20_08_1_orders=zero
 
 Владелец подтвердил **тот же** `Единый дневной` на `v20-shallow/obv/inside`; это исключает повторное выяснение broker tariff, и `V20FinamReadAdapter.authority` / H1 `reserve_entry` уже принимают нужный конкретный roundtrip cash cost. Новая комиссия, движок/параметры не создаются, H1 не трогаем. В 08.1 для **других N4** текущие биржевые registration fees по конкретным USDRUBF, GLDRUBF, IMOEXF остаются **not proven by CNY H1 trade** и не подменяются CNY 0,58 ₽. При будущей пробе применяем фактическую актуальную ставку инструмента и выведенный отдельным H1 источником брокерский тариф; cost=0 и чисто исследовательский C1 недопустимы. Сам H1 `production_service.py` не содержит полноценного accounting-ledger commissions/funding, это историческая финансовая сверка, не автоматизированный live PnL отчёт. Не требуется возвращаться к проверке уже пройденных SQLite/FINAM N4/frozen тестов. 08.1 всё ещё IN_PROGRESS до actual in-session NEXT_OPEN и exact trade preflight, 08.2/08.4 без торгового разрешения.
 
-## 26.10.2026 — `-Mode witness -Robot v20-shallow`: PowerShell 5.1 StrictMode single-array error; точечный фикс
+## 26.10.2026 — физический Intel FINAM M15 NEXT_OPEN PASS 4/4, предыдущие промежуточные записи заменены
 
-Оператор запустил source-pinned `Invoke-DPAPI-Finam-Readonly.ps1` (предыдущий blob `db2b665fa3591ccc67ff77646da3b84dd4b617d1`) `-Mode witness -Robot v20-shallow`. PowerShell выдал `Не удается найти свойство "Count" для этого объекта` / `PropertyNotFoundStrict`, после чего внешняя операторская команда `v20_next_open_not_confirmed`. **Нет результата FINAM M15, нет наблюдаемого бара, нет заявки**. Время оператора **26.10.2026 08:16 МСК**, до выбранной активной торговой границы **10:30 МСК**. Отсутствие `NEXT_OPEN` PASS здесь не является негативным биржевым свидетельством.
+Оператор запустил установленный `C:\V20Lab\pretrade-08\invoke-dpapi-finam-readonly.ps1 -Mode witness -Robot v20-shallow` на активной M15 границе и передал фактический stdout (точное время свечи, цены и сами бары в консольном результате не раскрывались):
 
-Конкретный дефект: `$names = if ($Robot -eq 'all') { @(...) } else { @($Robot) }` в Windows PowerShell 5.1 возвращает через pipeline scalar `String` в одноэлементном случае; под `Set-StrictMode -Version Latest` `$names.Count` отсутствует. Случай `-Robot all` выдаёт три значения → массив, что объясняет ранее PASS GET/authority 3/3. Исправлена только `V20-08/Invoke-DPAPI-Finam-Readonly.ps1`:
-```powershell
-$names = @('v20-shallow','v20-obv','v20-inside')
-if ($Robot -ne 'all') { $names = @($Robot) }
+```text
+v20_08_1_finam_worker_selftest=pass_readonly_no_order
+v20_08_1_n4_authority_gate=pass_synthetic_get_only
+v20_08_1_v20-shallow=PASS_NEXT_OPEN_4_OF_4
+v20_08_1_open_cnyrubf=PASS
+v20_08_1_open_gldrubf=PASS
+v20_08_1_open_imoexf=PASS
+v20_08_1_open_usdrubf=PASS
+v20_08_1_orders=zero
+v20_08_1_live=off
+v20_08_1_worker=pass_one_account_witness_mode
+v20_08_1_live=off
+v20_08_1_tasks_modified=no
 ```
-Оба пути теперь являются массивами. Не менялись FINAM H1 / trading API, DPAPI, реальные SQLite, Tasks, стратегии, стопы, токены, риск или frozen code. Source commit `babc8cc8e48e882518ce690a0348bbff48db1b2f`, script exact Git blob `c6737df7d22ba4b7aedb07d4b1bd6bbe86af8362`. GitHub readback static array check PASS; **Intel single-account GET-only physical rerun not run yet**. Для точечной проверки исправленной ветки достаточен `-Mode preflight -Robot v20-shallow` (только FINAM GET account/orders, один токен), затем в активную M15 границу отдельный `-Mode witness -Robot v20-shallow`. Уже подтверждённые 3/3, N4 12/12, original frozen 5/5, journal path 5/5 не повторять. 08.1 IN_PROGRESS, NO LIVE authorization.
 
-## 26.10.2026 — физический FINAM NEXT_OPEN witness 3/4, USDRUBF HOLD
+Итого **FINAM M15 NEXT_OPEN — PASS_N4_4_OF_4_IN_ONE_LIVE_WITNESS**, физически для `v20-shallow`: 4 текущих Open и завершённые предыдущие бары, проверка сетки и окна первой минуты через H1 GET. Ранее промежуточные HOLD и отладочные сообщения этого шага больше **не являются актуальным статусом** и удалены из текущей реализации; источник предыдущих Git-коммитов сохраняется в Git history. Исправленный и принятый single-robot PowerShell launcher: `V20-08/Invoke-DPAPI-Finam-Readonly.ps1`, Git blob `c6737df7d22ba4b7aedb07d4b1bd6bbe86af8362`; повторная физическая проверка preflight Shallow прошла `PASS_ACCOUNT_GET_ONLY`. Не повторять избыточные GET-only witness или предыдущие 34 уникальных synthetic теста.
 
-Оператор запустил исправленный `Invoke-DPAPI-Finam-Readonly.ps1 -Mode witness -Robot v20-shallow` (Git script blob `c6737df7d22ba4b7aedb07d4b1bd6bbe86af8362`). В отличие от двух прежних остановок launcher/тайминга, **реальный GET FINAM M15 произошёл**. Вывод: `finam_worker_selftest=pass_readonly_no_order`; `n4_authority_gate=pass_synthetic_get_only`; `v20-shallow=HOLD_NEXT_OPEN_BROKER_WITNESS`; `open_cnyrubf=PASS`, `open_gldrubf=PASS`, `open_imoexf=PASS`, `open_usdrubf=M15_NEXT_OPEN_WITNESS_MISSING`; `orders=zero`, `live=off`. Launcher `WORKER_READONLY_CHECK_FAILED` — **предусмотренная fail-closed реакция на частичный свидетель**, а не исключение Python и не broker-order rejection.
-
-Проверен фактический GitHub источник `v20_runtime/finam_execution.py`: `M15_NEXT_OPEN_WITNESS_MISSING` формируется только когда FINAM GET /v1/instruments/{symbol}/bars с TIME_FRAME_M15 не вернул **ни одной** свечи с точным current M15 open-timestamp для USDRUBF. Данные других трёх полностью прошли: открытый новый Open в <=60s, он на ценовой сетке, предыдущая завершённая M15 свеча присутствовала и валидна. Причина отсутствия свечи USDRUBF **не установлена** (отсутствие сделок, задержка публикации и иные причины нельзя различить без новых наблюдений). Это не является доказательством нарушения замороженных стратегий, но **USDRUBF НЕ PASS**, **overall N4 4/4 НЕ PASS**, 08.1 IN_PROGRESS.
-
-Решение: **не менять код и frozen NEXT_OPEN** на основании одного отсутствующего нового бара, не подменять Open предыдущим Close, не создавать пустую синтетическую свечу и не отправлять заявку для USDRUBF. Три PASS не требуют повторного подтверждения. Следующее минимальное наблюдение — повтор одного GET-only `witness` на следующей активной M15 границе (несколько секунд после начала, пока не истекла первая минута); локальный launcher повторно прочтёт N4, но менять методологию/сервисы/календарь нет оснований. При повторном USDRUBF HOLD отделить instrument-specific issue от V20/NEXT_OPEN shared code. Операторский GET-only сценарий, три Task Disabled, H1 не изменён, LIVE не разрешён.
-
-## 26.10.2026 — второй реальный FINAM M15 witness 3/4; N4 покрыты 4/4 ПО РАЗНЫМ свечам
-
-Вторая операторская команда `Invoke-DPAPI-Finam-Readonly.ps1 -Mode witness -Robot v20-shallow` выполнена на активной M15 границе; фактический stdout: `finam_worker_selftest=pass_readonly_no_order`, `n4_authority_gate=pass_synthetic_get_only`, `v20-shallow=HOLD_NEXT_OPEN_BROKER_WITNESS`, `open_cnyrubf=PASS`, `open_gldrubf=M15_NEXT_OPEN_WITNESS_MISSING`, `open_imoexf=PASS`, `open_usdrubf=PASS`, `orders=zero`, `live=off`. `V20_08_1_WORKER_READONLY_CHECK_FAILED` — штатный fail-closed результат, потому что **агрегатный diagnostic witness требует все четыре Open одновременно**. На второй попытке USDRUBF уже PASS, но GLDRUBF отсутствовал в ответе FINAM для нового временного интервала.
-
-Строгое объединение ДВУХ физических измерений по независимым M15 границам:
-
-| N4 | Первый текущий M15 Open | Второй текущий M15 Open | Хотя бы раз подтверждён |
-|---|---|---|---|
-| CNYRUBF | PASS | PASS | YES |
-| GLDRUBF | PASS | M15_NEXT_OPEN_WITNESS_MISSING | YES |
-| IMOEXF | PASS | PASS | YES |
-| USDRUBF | M15_NEXT_OPEN_WITNESS_MISSING | PASS | YES |
-
-**Итог:** `N4_DISTINCT_SYMBOL_NEXT_OPEN_OBSERVED=4_OF_4_ACROSS_TWO_BOUNDARIES`; `SIMULTANEOUS_NEXT_OPEN_4_OF_4=NOT_PROVEN`; `NEXT_OPEN_RELIABILITY_EVERY_BOUNDARY=NOT_PROVEN`. Все четыре инструмента фактически хотя бы раз дали своевременный REST FINAM current Open плюс валидный завершённый предыдущий M15 бар. Нельзя объявить `PASS_NEXT_OPEN_4_OF_4` на отдельном запуске, поскольку такого stdout **не было**. Отсутствие REST-свечи с текущей меткой **не доказывает**, были ли сделки, задержка публикации либо другая причина.
-
-**Операционное решение 08.1:** Trading signal/frozen NEXT_OPEN определяется **для конкретного инструмента**, а не требует одновременной пригодности всех N4. Существующий `read_finam_m15_boundary` уже fail-closed: при отсутствии его current Open он не создаёт сигнал и не выставляет заявку для этого инструмента; чужие доступные инструменты не должны блокироваться в штатном per-symbol executor. Жёсткий `4_OF_4` — только агрегатный **разовый diagnostic worker**, он не является доказанным техническим требованием замороженного V20 тестера на каждую свечу. Повторять четырёхинструментный witness до случайного одновременного 4/4 не требуется, не ослаблять stop/risk/Next_Open и не синтезировать Open из Close. В рамках 08.1 переходить к реальному конкретно наблюдаемому сигналу: fresh M15+FINAM деньги/маржа/тариф по инструменту + frozen ATR14 и H1 R15/2ATR/grid SLTP preflight, затем только отдельно разрешённый 08.2.
-
-Задача `08.1` остаётся **IN_PROGRESS** до этого предзаявочного допуска. Имеющаяся RUN команда проверяла только `v20-shallow`, не подтверждала реальный per-symbol live workflow на двух других роботах; проверенные общие H1/FINAM N4 и DPAPI 3/3 остаются действительными. Комиссии/защитный стоп/реальный order permit данным GET свидетелем не проверялись. `H1`, `IntradayLab`, `Control Center`, реальные Task/секреты/SQLite untouched.
+**Ограничение статуса:** этот GET-only witness не доказывает, что фактический frozen сигнал был сформирован для всех трёх стратегий и прошёл предзаявочную проверку, не устанавливает комиссии и не разрешает торговые операции. **V20-08.1 IN_PROGRESS**: следующий адресный допуск — реальный сигнал (когда возникнет) → H1 исполнимый 2×ATR14 Wilder SL, стоимость тика/комиссии, R15/GO и 100% SLTP/kill switch/idempotency, без реальной заявки. V20-08.2 однократная пробная сделка — только после отдельного точного разрешения; 08.4 LIVE — отдельно. `H1`, `IntradayLab`, токены, реальные SQLite и Windows Tasks не менялись.
