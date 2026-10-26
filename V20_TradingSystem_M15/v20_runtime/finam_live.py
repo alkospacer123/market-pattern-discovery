@@ -331,7 +331,7 @@ def run_cycle(sender: V20LiveTransport, now: datetime) -> str:
     msk = now.astimezone(ZoneInfo("Europe/Moscow"))
     if msk.minute % 15 or msk.second >= 60:
         return "WAIT_NEXT_M15_OPEN"
-    day = OfflinePlanner._session_key(msk.replace(tzinfo=None)).isoformat()
+    day = OfflinePlanner._session_key(msk.replace(tzinfo=None, second=0, microsecond=0)).isoformat()
     if len(journal.store.get("session_entries", {}).get(day, [])) >= 2:
         return "SESSION_ENTRY_LIMIT_REACHED"
     current_open = {
