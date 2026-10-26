@@ -361,7 +361,8 @@ def run_cycle(sender: V20LiveTransport, now: datetime) -> str:
     return "NO_FROZEN_SIGNAL"
 
 
-def run(*, root: Path, robot: str, source: str, once: bool = False) -> int:
+def run(*, root: Path, robot: str, source: str, once: bool = False,
+        readonly: bool = False) -> int:
     account = os.environ.get("V20_FINAM_ACCOUNT", "")
     token = os.environ.get("V20_FINAM_TOKEN", "")
     scope = os.environ.get("V20_FINAM_ACCOUNT_SHA256", "")
@@ -372,6 +373,20 @@ def run(*, root: Path, robot: str, source: str, once: bool = False) -> int:
             or hashlib.sha256(account.encode()).hexdigest() != scope):
         raise V20FinamBlocked("V20_LIVE_SCOPE_INVALID")
     logging.getLogger("TradingSystemLab.stage8_robot.finam_api").setLevel(logging.ERROR)
+    if readonly:
+        # Separate GET-only health path deliberately does not acquire the
+        # live H1 InstanceLock or consult/change its safety switch.
+        reader = V20FinamReadAdapter(
+            api=FinamAPI(token), robot_id=robot, account_id=account,
+            expected_account_hash=scope)
+        reader.authenticate()
+        snap = reader.snapshot(now=datetime.now(timezone.utc))
+        print("v20_08_4_readonly=" + robot + " ACCOUNT_BOUND", flush=True)
+        print("v20_08_4_positions=" + str(len(snap.positions)), flush=True)
+        print("v20_08_4_active_orders=" + str(sum(o.active for o in snap.orders)),
+              flush=True)
+        print("v20_08_4_order_posts=zero", flush=True)
+        return 0
     with V20LiveJournal(root, robot, account) as journal:
         api = FinamAPI(token)
         reader = V20FinamReadAdapter(
@@ -417,10 +432,12 @@ def main() -> int:
     parser.add_argument("--robot", choices=sorted(ROBOT_STRATEGIES), required=True)
     parser.add_argument("--source-commit", required=True)
     parser.add_argument("--once", action="store_true")
+    parser.add_argument("--readonly", action="store_true")
     args = parser.parse_args()
     try:
         return run(root=args.root, robot=args.robot,
-                   source=args.source_commit, once=args.once)
+                   source=args.source_commit, once=args.once,
+                   readonly=args.readonly)
     except Exception as exc:
         label = str(exc)
         print("v20_08_4_live=HOLD_" + (
