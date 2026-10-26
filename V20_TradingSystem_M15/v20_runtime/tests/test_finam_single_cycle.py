@@ -19,6 +19,12 @@ from test_finam_m15_boundary import FakeFinam as BarFake, bar
 
 
 class CycleTests(unittest.TestCase):
+    def setUp(self):
+        guard = patch("TradingSystemLab.stage8_robot.trading_safety_gate.load_kill_switch",
+                      return_value=({"state": "ARMED"}, None))
+        guard.start()
+        self.addCleanup(guard.stop)
+
     def test_third_observed_session_gap_allowed_for_exit_not_entry(self):
         api = BarFake()
         api.rows = [
