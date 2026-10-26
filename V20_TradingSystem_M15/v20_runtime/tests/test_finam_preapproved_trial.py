@@ -158,5 +158,108 @@ class PreapprovedIntentTests(unittest.TestCase):
                 self.assertEqual(self.api.order_posts, 1)
 
 
+    def _technical_prepost(self, journal):
+        """Existing FakeFinam/H1 journal, one on-grid contract, no POST."""
+        import json
+        from dataclasses import replace
+        from V20_TradingSystem_M15.v20_runtime.finam_trial_operator import (
+            TechnicalTrialJournal,
+        )
+        signal, entry, authority, snap = self.proposal()
+        entry = replace(entry, quantity=1)
+        with patch.object(execution, "datetime", fixture.OfflineTestClock):
+            key = journal.prepare_entry(
+                signal=signal, entry=entry, authority=authority, snapshot=snap,
+            )
+        permit = fixture.TrialBoundaryTests.approval(self, journal, key)
+        body = json.loads(permit.read_text(encoding="utf-8"))
+        body["trial_kind"] = "TECHNICAL_ACCEPTANCE_NOT_STRATEGY_SIGNAL"
+        body["authorized_operations"] = ["ENTRY", "PROTECTIVE_STOP"]
+        permit.write_text(json.dumps(body), encoding="utf-8")
+        journal.store.put("technical_acceptance:" + key, {
+            "kind": "TECHNICAL_ACCEPTANCE_NOT_FROZEN_SIGNAL",
+            "account_sha256": fixture.HASH, "robot_id": fixture.ROBOT,
+            "symbol": "USDRUBF", "direction": "LONG", "max_quantity": 1,
+            "prepared_at_utc": fixture.OPEN_UTC.isoformat(),
+        })
+        sender = V20SingleTradeTransport(
+            journal=journal, reader=self.reader, accepted_commit=fixture.CODE_SHA,
+            trial_permit_path=permit,
+        )
+        return key, sender, snap, permit
+
+    def test_technical_current_clock_not_earlier_cycle_clock(self):
+        from V20_TradingSystem_M15.v20_runtime.finam_trial_operator import TechnicalTrialJournal
+        with TechnicalTrialJournal(self.root, fixture.ROBOT, fixture.ACCOUNT) as journal:
+            key, sender, snap, _ = self._technical_prepost(journal)
+            journal.store.put("technical_acceptance:" + key, {
+                **journal.store.get("technical_acceptance:" + key),
+                "prepared_at_utc": (fixture.OPEN_UTC + timedelta(seconds=5)).isoformat(),
+            })
+            class LaterClock(datetime):
+                @classmethod
+                def now(cls, tz=None):
+                    return fixture.OPEN_UTC + timedelta(seconds=7)
+            with patch.object(execution, "datetime", LaterClock):
+                with patch("TradingSystemLab.stage8_robot.trading_safety_gate.load_kill_switch",
+                           return_value=({"state": "ARMED"}, None)):
+                    sender.submit_entry_once(
+                        key=key, snapshot=snap, now=fixture.OPEN_UTC,
+                    )
+            self.assertEqual(self.api.order_posts, 1)
+            self.assertEqual(journal.store.intent(key)["status"], "ACK")
+            record = journal.store.get("entry_submission:" + key)
+            self.assertIsNotNone(record)
+            self.assertEqual(record["account_sha256"], fixture.HASH)
+
+    def test_recover_only_unsubmitted_technical_intent_after_broker_flat(self):
+        from V20_TradingSystem_M15.v20_runtime.finam_trial_operator import (
+            TechnicalTrialJournal, recover_unsubmitted_technical,
+        )
+        from TradingSystemLab.stage8_robot.trading_safety_gate import write_kill_switch
+        with TechnicalTrialJournal(self.root, fixture.ROBOT, fixture.ACCOUNT) as journal:
+            key, sender, snap, permit = self._technical_prepost(journal)
+            write_kill_switch(journal.instance_root, "HALTED")
+            done = recover_unsubmitted_technical(
+                journal=journal, reader=self.reader, sender=sender, permit=permit,
+                robot=fixture.ROBOT, symbol="USDRUBF",
+            )
+            self.assertEqual(
+                done, "PASS_PREPOST_ONLY_FINAM_TWICE_FLAT_NEW_ENTRY_STILL_OFF",
+            )
+            self.assertEqual(journal.store.all_intents(), [])
+            self.assertEqual(journal.store.get("risk_reservations"), {})
+            self.assertEqual(journal.store.get("session_entries"), {})
+            self.assertEqual(
+                journal.store.get("technical_unposted_aborts")[0]["entry_key"], key,
+            )
+            self.assertFalse(permit.exists())
+            self.assertEqual(self.api.order_posts, 0)
+            self.assertEqual(self.api.stop_posts, 0)
+
+    def test_recovery_refuses_if_post_checkpoint_present(self):
+        from V20_TradingSystem_M15.v20_runtime.finam_trial_operator import (
+            TechnicalTrialJournal, recover_unsubmitted_technical,
+        )
+        from TradingSystemLab.stage8_robot.trading_safety_gate import write_kill_switch
+        with TechnicalTrialJournal(self.root, fixture.ROBOT, fixture.ACCOUNT) as journal:
+            key, sender, snap, permit = self._technical_prepost(journal)
+            write_kill_switch(journal.instance_root, "HALTED")
+            journal.store.put("entry_submission:" + key, {
+                "submitted_at": fixture.OPEN_UTC.isoformat(),
+                "account_sha256": fixture.HASH,
+            })
+            with self.assertRaisesRegex(
+                V20FinamBlocked, "TECHNICAL_RECOVERY_POST_OR_STATE_UNCERTAIN",
+            ):
+                recover_unsubmitted_technical(
+                    journal=journal, reader=self.reader, sender=sender, permit=permit,
+                    robot=fixture.ROBOT, symbol="USDRUBF",
+                )
+            self.assertTrue(permit.is_file())
+            self.assertEqual(len(journal.store.all_intents()), 1)
+            self.assertEqual(self.api.order_posts, 0)
+
+
 if __name__ == "__main__":
     unittest.main()
