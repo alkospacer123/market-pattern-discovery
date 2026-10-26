@@ -115,7 +115,10 @@ def create_exact_permit_on_signal(*, authorized_path: Path, permit_path: Path,
             "robot_id": robot,
             "account_sha256": account_hash,
             "entry_key": key,
-            "authorized_operations": ["ENTRY", "PROTECTIVE_STOP", "FROZEN_EXIT"],
+            "authorized_operations": (
+                ["ENTRY", "PROTECTIVE_STOP"] if technical_acceptance
+                else ["ENTRY", "PROTECTIVE_STOP", "FROZEN_EXIT"]
+            ),
             "explicit_owner_approval": True,
             "instrument": symbol,
             "direction": proposal.direction,
