@@ -706,6 +706,15 @@ class V20SingleTradeTransport:
                           now: datetime) -> str:
         """One H1 market POST, after durable UNCERTAIN checkpoint. Never retry."""
         payload = self._entry(key, snapshot=snapshot, now=now)
+        # Preparation checked ARMED, but a separate operator may HALT between
+        # durable intent creation and this final irreversible market POST.
+        # Re-read the V20 instance's own H1 kill switch immediately before
+        # marking the one-shot trial authority consumed. Fail closed on loss.
+        from TradingSystemLab.stage8_robot.trading_safety_gate import load_kill_switch
+        switch, switch_error = load_kill_switch(self.journal.instance_root)
+        if (switch_error or not isinstance(switch, dict)
+                or switch.get("state") != "ARMED"):
+            raise V20FinamBlocked("TRIAL_ENTRY_V20_KILL_SWITCH_NOT_ARMED")
         with self.journal.store.transaction():
             if self.journal.store.get("trial_authority_consumed") is not None:
                 raise V20FinamBlocked("TRIAL_ALREADY_CONSUMED")
