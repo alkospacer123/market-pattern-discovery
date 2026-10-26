@@ -287,7 +287,35 @@ v20_08_2_tasks_modified=no
 2. Upgrade **только** двух строго известных Git-pinned V20 Python-модулей в изолированном `pretrade-08\trial-runtime-08` (не меняя H1, frozen и действующий GET-only reader).
 3. Запись трёх узких однократных разрешений владельца для CNYRUBF по собственным FINAM account hashes; при этом H1 StateStore остаются пустыми, Kill Switch строго `HALTED`, V20 Tasks Disabled.
 
-Весь процесс — без подключения к FINAM, без расшифровки DPAPI, без заявок, без ARM, без Task mutations. **Новая команда подготовлена и GitHub hash-verified; на Intel НЕ ЗАПУЩЕНА и PASS не заявлен.** Только после её физического PASS можно приступить к адресному операторскому DPAPI trial-старту Shallow, затем OBV/Inside. Общий LIVE владельцем разрешён, но не включается до завершения всех 08.2/08.3.
+Весь процесс — без подключения к FINAM, без расшифровки DPAPI, без заявок, без ARM, без Task mutations. **Команда физически выполнена на Intel 26.10.2026: `v20_08_2_offline_prep=PASS_3_ACTIONS`, 8/8 новых fake-only PASS, trial runtime обновлён и три owner grants записаны в HALTED-состоянии (подробности ниже).** Только после её физического PASS можно приступить к адресному операторскому DPAPI trial-старту Shallow, затем OBV/Inside. Общий LIVE владельцем разрешён, но не включается до завершения всех 08.2/08.3.
+
+## 26.10.2026 — физический Intel offline prep PASS_3_ACTIONS, owner grants 3/3
+
+Получен фактический вывод PowerShell на Intel, exact wrapper blob `1e4878854b803017a2e861dec832e12afea00c9c`:
+
+```text
+Ran 8 tests in 0.124s
+OK
+v20_08_2_trial_operator=PASS_FAKE_8_OF_8
+v20_08_2_finam=NO_NETWORK
+v20_08_2_orders=zero
+v20_08_2_source_pin=e9de4acd8582009c93d67dcac299cabf51eae08e
+v20_08_2_trial_source=PASS_PINNED_IMPORT_ONLY
+v20_08_2_source_commit=e9de4acd8582009c93d67dcac299cabf51eae08e
+v20_08_2_shallow_owner_scope=PASS_FIRST_REAL_SIGNAL_ONE_ENTRY
+v20_08_2_obv_owner_scope=PASS_FIRST_REAL_SIGNAL_ONE_ENTRY
+v20_08_2_inside_owner_scope=PASS_FIRST_REAL_SIGNAL_ONE_ENTRY
+v20_08_2_first_signal_scopes=PASS_3_OF_3_HALTED
+v20_08_2_offline_prep=PASS_3_ACTIONS
+v20_08_2_finam=NO_NETWORK
+v20_08_2_orders=zero
+v20_08_2_live=off
+v20_08_2_tasks_modified=no
+```
+
+**Принят PASS Intel 8/8 + 3 offline-действия.** В `C:\V20Lab\pretrade-08\trial-runtime-08` установлен общий V20/H1 пробный Python оператор и сохранён точный исходный SHA. Для трёх индивидуальных FINAM-счетов сформированы *пока не расходованные* разрешения на первый настоящий сигнал CNYRUBF по 1,5% своего капитала. Ни один точный сигнал/entry_key или торговая заявка ещё не сформированы: `orders=zero`, `LIVE=OFF`, Kill Switch HALTED. Повторять эту проверку без конкретной причины не требуется.
+
+**Далее:** минимально подключить уже установленный Python supervised operator к каждому собственному DPAPI-токену через ограниченный V20 PowerShell launcher; проверить scope/код/таски/kill switch и безопасное сопровождение. Не заменять GET-only launcher. При первом authorised Shallow входе реальный FINAM MARKET POST и SLTP исполняются только по уже предоставленному владельцем точному ограничению/действующему frozen-сигналу. После 08.2 trial и брокерской приёмки Shallow, аналогично OBV и Inside. Общий LIVE ещё не запущен, не считать 08.3/08.4 PASS.
 
 ## Граница разрешений
 
