@@ -160,7 +160,7 @@ foreach($name in @('v20-shallow','v20-obv','v20-inside')){
         risk_fraction='0.015'
         initial_stop_atr='2'
         signals='FROZEN_COMPLETED_M15_NEXT_OPEN'
-        symbols=@('USDRUBF','CNYRUBF','GLDRUBF','IMOEXF')
+        symbols=@('CNYRUBF','GLDRUBF','IMOEXF','USDRUBF')
         roundtrip_cost_rub=$costs
     }
     $json=ConvertTo-Json -InputObject $record -Depth 8
