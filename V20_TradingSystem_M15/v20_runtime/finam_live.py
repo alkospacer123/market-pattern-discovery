@@ -362,6 +362,11 @@ def run_cycle(sender: V20LiveTransport, now: datetime) -> str:
                             "M15_FINAL_COMPLETED_BAR_MISSING"):
                 continue
             raise
+        except ValueError as exc:
+            if str(exc) == "INSUFFICIENT_RISK_OR_MARGIN_CAPACITY":
+                journal.store.put("live_decision:" + symbol, boundary_id)
+                continue
+            raise
         if draft is None:
             journal.store.put("live_decision:" + symbol, boundary_id)
             continue
