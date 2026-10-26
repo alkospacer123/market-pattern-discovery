@@ -1,0 +1,73 @@
+{
+  "schema": "v20.08.5.production_freeze.v1",
+  "accepted_at_msk": "2026-10-26",
+  "scope": "V20_TradingSystem_M15 ONLY; H1 and IntradayLab M15 paused and untouched",
+  "github_main_sha_at_review": "6f352acfac7ebdfabba73e143c4dfea3a6e48507",
+  "draft_pr": 567,
+  "deployed_v20_code_source_commit": "dd55f201b3e9a92ce5fa3f927289f5a5ef89366d",
+  "installed_pinned_modules": {
+    "v20_runtime/finam_execution.py": "9ca194c61aa9db003d298fd1a3e93cc7f8bb23c4",
+    "v20_runtime/finam_live.py": "fa256995f5f4f100f380fb952f51e2671ba31120",
+    "V20-08/v20-08-live-launch.ps1": "c161a15d87c2bfc85939f4f570b3f79013c3c665"
+  },
+  "symbols": [
+    "USDRUBF",
+    "CNYRUBF",
+    "GLDRUBF",
+    "IMOEXF"
+  ],
+  "robot_names": [
+    "v20-shallow",
+    "v20-obv",
+    "v20-inside"
+  ],
+  "per_robot_independent_finam_accounts": 3,
+  "trading_rules": {
+    "strategies": [
+      "SHALLOW_PULLBACK",
+      "OBV_PRESSURE",
+      "INSIDE_DAY_RELEASE"
+    ],
+    "timeframe": "M15",
+    "only_completed_bars": true,
+    "entry": "NEXT_OPEN",
+    "initial_stop": "2_ATR14_WILDER_EXECUTABLE_GRID",
+    "other_exit": "FIRST_OPEN_OF_THIRD_OBSERVED_SESSION",
+    "risk_per_entry_fraction": "0.015",
+    "max_new_entries_per_session": 2,
+    "max_entries_per_symbol_per_session": 1,
+    "max_positions_per_symbol": 1,
+    "costs": "EXISTING_H1_FULL_TARIFF_RESERVES; LIVE_ACTUAL_FEES_OBSERVED_AFTER_FILLS"
+  },
+  "physical_intel_evidence": {
+    "status": "PASS_3_OF_3_TASK_RUNNING_SWITCH_ARMED_RECENT_HEALTHY_CYCLE",
+    "v20-shallow": {
+      "task": "Running",
+      "kill_switch": "ARMED",
+      "cycle": "WAIT_NEXT_M15_OPEN",
+      "fresh_seconds": 9,
+      "healthy": true
+    },
+    "v20-obv": {
+      "task": "Running",
+      "kill_switch": "ARMED",
+      "cycle": "WAIT_NEXT_M15_OPEN",
+      "fresh_seconds": 2,
+      "healthy": true
+    },
+    "v20-inside": {
+      "task": "Running",
+      "kill_switch": "ARMED",
+      "cycle": "WAIT_NEXT_M15_OPEN",
+      "fresh_seconds": 25,
+      "healthy": true
+    },
+    "evidence_origin": "Owner Intel PowerShell output; real strategic entry/exit not observed yet"
+  },
+  "limitations": [
+    "First autonomous frozen strategy fill, active protective order, closed LIVE trade and net realized fees remain unobserved",
+    "Windows Tasks currently use Interactive principals and opened three console windows; do not close windows while running",
+    "V20-08.5 operator and backup script is uninstalled / not Intel-accepted until the user executes offline acceptance",
+    "H1 and M15 must not be activated or modified"
+  ]
+}
