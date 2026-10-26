@@ -10,7 +10,7 @@ $live=Join-Path $root 'pretrade-08\live-runtime-08'
 $h1=Join-Path $root 'source-raw'
 $python=Join-Path $root '.venv-raw\scripts\python.exe'
 $receipt=Join-Path $root 'pretrade-08\DPAPI_TRADING_BINDINGS_REPORT.json'
-$pin='0d245f2c5680a48548edb48fa2b6148cbd203e0d'
+$pin='dd55f201b3e9a92ce5fa3f927289f5a5ef89366d'
 function need([bool]$yes,[string]$errorCode) {if(-not $yes){throw $errorCode}}
 function noguardlink([string]$path){
     if(Test-Path -LiteralPath $path){need (-not ((Get-Item -LiteralPath $path -Force).Attributes -band [IO.FileAttributes]::ReparsePoint)) 'V20_LIVE_REPARSE_BLOCKED'}
@@ -52,7 +52,7 @@ $package=Join-Path $live 'V20_TradingSystem_M15\v20_runtime'
 need (Test-Path -LiteralPath $package -PathType Container) 'V20_LIVE_PACKAGE_MISSING'
 $objects=@(
     @('v20_runtime/finam_execution.py','9ca194c61aa9db003d298fd1a3e93cc7f8bb23c4'),
-    @('v20_runtime/finam_live.py','30999d909feed368fa5eb67081fb41736c1d3a41'),
+    @('v20_runtime/finam_live.py','fa256995f5f4f100f380fb952f51e2671ba31120'),
     @('v20_runtime/tests/test_finam_live.py','c765f9b6a18873eba32e8564e589325638c69cb8')
 )
 foreach($row in $objects){
@@ -107,12 +107,12 @@ $prepared=Join-Path $root 'pretrade-08\live-08'
 New-Item -ItemType Directory -Path $prepared -Force | Out-Null
 noguardlink $prepared
 $launchPath=Join-Path $prepared 'v20-08-live-launch.ps1'
-$launcherBlob='b76ab9c25d05a6ed14bada35ea14891aceb3fc03'
+$launcherBlob='8703f0c70d9f4e2099d4c36ba0363575f568bfe2'
 if($mode -eq 'install' -and -not (Test-Path -LiteralPath $launchPath)){
     $tmp=$launchPath+'.download'
     need (-not (Test-Path -LiteralPath $tmp)) 'V20_LIVE_LAUNCHER_PARTIAL'
     try {
-        Invoke-WebRequest -Uri ('https://raw.githubusercontent.com/alkospacer123/market-pattern-discovery/b5074126c6f7edecf9bb18998927dc1990eacd68/V20_TradingSystem_M15/V20-08/v20-08-live-launch.ps1') -OutFile $tmp -UseBasicParsing -ErrorAction Stop
+        Invoke-WebRequest -Uri ('https://raw.githubusercontent.com/alkospacer123/market-pattern-discovery/85b47ed8c68d2473594ddecbb86dbc582aa80917/V20_TradingSystem_M15/V20-08/v20-08-live-launch.ps1') -OutFile $tmp -UseBasicParsing -ErrorAction Stop
         need ((blob $tmp) -eq $launcherBlob) 'V20_LIVE_LAUNCHER_REMOTE_HASH'
         Move-Item -LiteralPath $tmp -Destination $launchPath
     } finally {
@@ -123,12 +123,12 @@ need (Test-Path -LiteralPath $launchPath -PathType Leaf) 'V20_LIVE_LAUNCHER_MISS
 noguardlink $launchPath
 need ((blob $launchPath) -eq $launcherBlob) 'V20_LIVE_LAUNCHER_CHANGED'
 $cutoverPath=Join-Path $prepared 'v20-08-live-cutover.ps1'
-$cutoverBlob='3ee2a36e9e08250da7a74d9eacfd5f9beb6c45b7'
+$cutoverBlob='f4a0014b03e9ef1f7b345df0f809d5d7277711c1'
 if($mode -eq 'install' -and -not (Test-Path -LiteralPath $cutoverPath)){
     $tmp=$cutoverPath+'.download'
     need (-not (Test-Path -LiteralPath $tmp)) 'V20_LIVE_CUTOVER_PARTIAL'
     try {
-        Invoke-WebRequest -Uri ('https://raw.githubusercontent.com/alkospacer123/market-pattern-discovery/ae1595676d2b11c20b864ea51db2d9195e36dec5/V20_TradingSystem_M15/V20-08/v20-08-live-cutover.ps1') -OutFile $tmp -UseBasicParsing -ErrorAction Stop
+        Invoke-WebRequest -Uri ('https://raw.githubusercontent.com/alkospacer123/market-pattern-discovery/987fc2f4462187617b60c35c33cb747ede101747/V20_TradingSystem_M15/V20-08/v20-08-live-cutover.ps1') -OutFile $tmp -UseBasicParsing -ErrorAction Stop
         need ((blob $tmp) -eq $cutoverBlob) 'V20_LIVE_CUTOVER_REMOTE_HASH'
         Move-Item -LiteralPath $tmp -Destination $cutoverPath
     } finally {
