@@ -46,6 +46,33 @@ jobs:
             if (@($errors).Count -ne 0) { Write-Error ('V20_PS_PARSE_FAILED ' + $script); exit 1 }
           }
           Write-Output 'V20_08_5_POWERSHELL_PARSE=PASS_5_OF_5_NO_EXECUTION'
+      - name: SQLite snapshot via Windows PowerShell 5.1 native invocation
+        shell: powershell
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $operator = Get-Content -LiteralPath 'V20_TradingSystem_M15/V20-08/v20-08-live-operator.ps1' -Raw
+          $pattern = '(?s)\$code=@''\r?\n(?<source>.*?)\r?\n''@'
+          $match = [regex]::Match($operator, $pattern)
+          if (-not $match.Success) { throw 'V20_08_5_BACKUP_SOURCE_MISSING' }
+          $folder = Join-Path $env:RUNNER_TEMP 'v20-ps51-sqlite'
+          New-Item -ItemType Directory -Path $folder -Force | Out-Null
+          $helper = Join-Path $folder 'backup.py'
+          $maker = Join-Path $folder 'make.py'
+          $source = Join-Path $folder 'source.sqlite3'
+          $copy = Join-Path $folder 'copy.sqlite3'
+          [io.file]::WriteAllText($helper, $match.Groups['source'].Value, [text.utf8encoding]::new($false))
+          $fixture = @'
+          import json, sqlite3, sys
+          with sqlite3.connect(sys.argv[1]) as db:
+              db.execute("CREATE TABLE state (key TEXT PRIMARY KEY, value TEXT)")
+              db.execute("INSERT INTO state VALUES (?,?)", ("database_identity", json.dumps({"synthetic": True})))
+          '@
+          [io.file]::WriteAllText($maker, $fixture, [text.utf8encoding]::new($false))
+          & python -B $maker $source
+          if ($LASTEXITCODE -ne 0) { throw 'V20_08_5_FIXTURE_FAILED' }
+          & python -B $helper $source $copy
+          if ($LASTEXITCODE -ne 0 -or -not (Test-Path -LiteralPath $copy)) { throw 'V20_08_5_NATIVE_PS51_BACKUP_FAILED' }
+          Write-Output 'V20_08_5_BACKUP_NATIVE_WINDOWS_POWERSHELL_51=PASS'
       - name: Only new V20 LIVE syntax and scoped mock tests
         shell: pwsh
         env:
