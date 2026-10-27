@@ -274,6 +274,10 @@
       "sha256": "2196127ad265200286eb188a5b4ca4d8b88e84357ba76fb50917da4463346842"
     },
     {
+      "path": "docs/CC02_INTEL_REAL_SOURCE_PREVIEW_20261027.md",
+      "sha256": "ea7ef9acd117a38286f4490c6e4686f39996b54688e4e77980236db6ca42077e"
+    },
+    {
       "path": "docs/CC03_ACCEPTANCE_REPORT.md",
       "sha256": "9089f327b2436f0c5249d3664d9689079ece47b12039bd4ff29f07e9503125d5"
     },
