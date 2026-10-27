@@ -211,3 +211,27 @@ Actual OS identity, audit, trusted broker source, execution binding and
 physical approval remain separate. Existing 12 UI buttons stay disabled.
 The user requested: monitoring then control acceptance, then ARMED, not
 an immediate ARM. Do not touch V20/H1/IntradayLab modules or active robots.
+
+## CC-02 manual refresh of genuine V20 worker source — 27.10.2026
+
+Intel 8502 monitoring initial physical PASS: `cc02_export=PUBLISHED_CC_OWNED`,
+`cc02_receiver=PASS_3_OF_3`, exact per-robot running/HALTED,
+real 10 JSONL events each; no live ARM. Single published snapshots do
+**not** automatically refresh in the installed Streamlit process.
+
+To make the operator's existing manual `Обновить данные` button fetch
+**new** telemetry, add `cc/v20_manual_export.py`. Only on a deliberate
+button click under the existing cross-process gate, launch the approved
+immutable CC-only `deployment/v20_live_export.py --publish` via a fixed
+Python path. Its sole external V20 operation is the existing immutable
+`-mode check`; it may return intentional `HEALTH_PARTIAL`. The UI then
+reads through the unchanged native NTFS policy/pinned-root receiver.
+No background polling, Task mutations, FINAM API, SQLite trading state,
+or live-control calls. Source hash/availability/timeout/export failures
+fail closed and never assert fresh heartbeat.
+
+Code and hosted CI are **not physical Intel acceptance**. Validate that
+clicking Refresh advances source cycle timestamps on the installed 8502
+process without touching H1/V20. Separate CC-07 adapter and command
+authorization are still required before any START/PAUSE/STOP/RESTART,
+and explicit owner ARM comes last.
