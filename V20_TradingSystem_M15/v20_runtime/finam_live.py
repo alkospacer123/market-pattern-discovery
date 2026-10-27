@@ -24,6 +24,8 @@ from zoneinfo import ZoneInfo
 from fractions import Fraction
 
 from TradingSystemLab.stage8_robot.broker import compact_client_order_id
+from TradingSystemLab.stage8_robot.account_cleanliness import TERMINAL_ORDER_STATUSES
+from TradingSystemLab.stage8_robot.production_broker_state import unique_order_by_client_id
 from TradingSystemLab.stage8_robot.execution_grid import project_stop
 from TradingSystemLab.stage8_robot.finam_api import FinamAPI, FinamServerError, FinamTimeout, FinamRateLimit
 from TradingSystemLab.stage8_robot.production_runtime import _load_registry
@@ -226,7 +228,23 @@ def _follow_existing(sender: V20LiveTransport, now: datetime, snapshot) -> str:
                 raise V20FinamBlocked("V20_LIVE_ENTRY_RECONCILIATION_REQUIRED")
             exit_intent = journal.store.intent(key + ":frozen-exit")
             proof = journal.store.get("protected_fill:" + key)
-            if exit_intent is not None and isinstance(proof, dict):
+            stop = next((o for o in snapshot.orders
+                         if isinstance(proof, dict)
+                         and o.order_id == proof.get("broker_stop_id")
+                         and o.kind == "SLTP" and o.symbol == finam_symbol), None)
+            # H1 _flat_cleanup_and_exit: a proved broker-flat position is
+            # authoritative whether it was flattened by SLTP, a planned
+            # frozen exit or manual broker action. Never cancel an active
+            # stop until broker-flat and the exact stop ID are proven.
+            if (stop is not None and stop.status in {"FILLED", "EXECUTED", "SL_EXECUTED"}
+                    and not any(o.active and o.symbol == finam_symbol
+                                for o in snapshot.orders)):
+                journal.store.put("flat_cleanup:" + key, {
+                    "status": "STOP_EXECUTED_FINAM_FLAT",
+                    "account_sha256": journal.account_hash})
+                _close_flat(journal, key)
+                return "STOP_EXECUTED_FLAT"
+            if isinstance(proof, dict):
                 existing_cancel = journal.store.intent(key + ":cancel-after-flat")
                 if existing_cancel is not None and any(
                     o.active and o.kind == "SLTP" and o.symbol == finam_symbol
@@ -240,18 +258,6 @@ def _follow_existing(sender: V20LiveTransport, now: datetime, snapshot) -> str:
                 if status == "BROKER_FLAT_NO_ACTIVE_STOP":
                     _close_flat(journal, key)
                 return status
-            stop = next((o for o in snapshot.orders
-                         if isinstance(proof, dict)
-                         and o.order_id == proof.get("broker_stop_id")
-                         and o.kind == "SLTP" and o.symbol == finam_symbol), None)
-            if (stop is not None and stop.status in {"FILLED", "EXECUTED"}
-                    and not any(o.active and o.symbol == finam_symbol
-                                for o in snapshot.orders)):
-                journal.store.put("flat_cleanup:" + key, {
-                    "status": "STOP_EXECUTED_FINAM_FLAT",
-                    "account_sha256": journal.account_hash})
-                _close_flat(journal, key)
-                return "STOP_EXECUTED_FLAT"
             # A newly ACKed market order can be awaiting its first fill. Never
             # interpret it as a free instrument or submit another order.
             from TradingSystemLab.stage8_robot.production_broker_state import unique_order_by_client_id
@@ -266,8 +272,30 @@ def _follow_existing(sender: V20LiveTransport, now: datetime, snapshot) -> str:
                     return "ENTRY_ACK_AWAIT_BROKER_FILL"
             raise V20FinamBlocked("V20_LIVE_UNEXPLAINED_FLAT_RECONCILE")
         journal.reconcile_order(key=key, snapshot=snapshot)
-        if journal.store.intent(key + ":frozen-exit") is not None:
-            # Never retransmit exit. Keep its active stop until broker-flat.
+        exit_intent = journal.store.intent(key + ":frozen-exit")
+        if exit_intent is not None:
+            # H1 _reconcile_intents: a terminal rejected/cancelled exit with
+            # exposure is a fault, NOT indefinitely "awaiting broker flat".
+            # Keep the existing protective SLTP untouched; never retry POST.
+            exit_order = unique_order_by_client_id(
+                list(snapshot.orders), compact_client_order_id(key + ":frozen-exit"))
+            if exit_order is not None:
+                wire = exit_intent["payload"]["wire"]
+                from TradingSystemLab.stage8_robot.production_broker_state import _contracts
+                if (exit_order.kind != "REGULAR"
+                        or exit_order.order_id != exit_intent["broker_order_id"]
+                        or exit_order.symbol != wire["symbol"]
+                        or exit_order.side != wire["side"]
+                        or _contracts(exit_order.request.get("quantity"),
+                                      "V20_EXIT_QTY_INVALID") !=
+                           _contracts(wire["quantity"], "V20_EXIT_QTY_INVALID")):
+                    raise V20FinamBlocked("V20_LIVE_EXIT_BROKER_IDENTITY_MISMATCH")
+                if exit_order.status in TERMINAL_ORDER_STATUSES - {"FILLED", "EXECUTED"}:
+                    journal.store.put("execution_halt", "FROZEN_EXIT_BROKER_TERMINAL_WITH_POSITION")
+                    raise V20FinamBlocked("V20_LIVE_EXIT_TERMINAL_POSITION_STILL_OPEN")
+            elif exit_intent["status"] == "ACK":
+                raise V20FinamBlocked("V20_LIVE_EXIT_ACK_MISSING_BROKER_PROOF")
+            # No retransmission of an UNCERTAIN exit; keep the active stop.
             return "EXIT_POSTED_AWAIT_BROKER_FLAT"
         stop_intent = journal.store.intent(key + ":stop")
         if stop_intent is None:
@@ -487,7 +515,11 @@ def run(*, root: Path, robot: str, source: str, once: bool = False,
                 # non-transient order/stop/ownership and state failures.
                 transient = isinstance(exc, (FinamServerError, FinamTimeout, FinamRateLimit))
                 if not transient:
-                    emergency_halt(journal.instance_root)
+                    # H1 keeps the durable HALT stable; a repeating fault
+                    # must not publish a new kill-switch generation every 3s.
+                    current, switch_error = load_kill_switch(journal.instance_root)
+                    if switch_error or current is None or current["state"] != "HALTED":
+                        emergency_halt(journal.instance_root)
                 label = str(exc)
                 state = label if re.fullmatch(r"[A-Z0-9_]{1,100}", label) else type(exc).__name__
                 with output.open("a", encoding="utf-8") as f:
