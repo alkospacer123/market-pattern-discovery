@@ -1036,14 +1036,27 @@ class V20SingleTradeTransport:
         entry = self.journal.store.intent(key)
         proof = self.journal.store.get("protected_fill:" + key)
         exit_intent = self.journal.store.intent(key + ":frozen-exit")
-        if (entry is None or not isinstance(proof, dict)
-                or exit_intent is None
-                or exit_intent["status"] not in {"ACK", "UNCERTAIN", "RECONCILED"}
+        if entry is None or not isinstance(proof, dict):
+            raise V20FinamBlocked("FLAT_CLEANUP_ENTRY_UNVERIFIED")
+        # H1 permits cleanup after an independently confirmed manual close,
+        # not only after its own EMERGENCY_EXIT_REQUIRED. This extra path is
+        # LIVE-only; technical single-trial acceptance stays manual/failclosed.
+        if exit_intent is None:
+            if (not getattr(self, "_live_mode", False)
+                    or entry["status"] != "RECONCILED"
+                    or proof.get("account_sha256") != self.journal.account_hash):
+                raise V20FinamBlocked("FLAT_CLEANUP_MANUAL_BROKER_PROOF_REQUIRED")
+        elif (exit_intent["status"] not in {"ACK", "UNCERTAIN", "RECONCILED"}
                 or exit_intent["payload"].get("kind") != "FROZEN_EXIT"):
-            raise V20FinamBlocked("FLAT_CLEANUP_ENTRY_EXIT_UNVERIFIED")
+            raise V20FinamBlocked("FLAT_CLEANUP_EXIT_INTENT_UNVERIFIED")
         symbol = entry["payload"]["finam_symbol"]
         if current.positions.get(symbol, 0) != 0:
             raise V20FinamBlocked("FLAT_CLEANUP_POSITION_OPEN")
+        if (exit_intent is None and any(
+                o.active and o.kind == "REGULAR" and o.symbol == symbol
+                for o in current.orders)):
+            # A still-open entry could fill again after manual flattening.
+            raise V20FinamBlocked("FLAT_CLEANUP_ACTIVE_ENTRY_REQUIRES_RECONCILIATION")
         active = [o for o in current.orders if o.active and o.kind == "SLTP"
                   and o.symbol == symbol]
         if not active:
