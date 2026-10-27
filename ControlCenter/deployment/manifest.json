@@ -94,6 +94,10 @@
       "sha256": "2cdd7b45bdce24ba9c6d994a2bfcd8b26d2789c840b7b8d21ca63a3b77fbfed7"
     },
     {
+      "path": "cc/v20_command_channel.py",
+      "sha256": "ee08c94c60eff88f723d6fb84a55ee3557d91a47fb52084a6dd62bce50e219a9"
+    },
+    {
       "path": "cc/v20_contract.py",
       "sha256": "4cad0bd5524b6cc3ea47f97fd8fb32ada5d2a2f35923d77cc85aab520583246e"
     },
@@ -159,7 +163,7 @@
     },
     {
       "path": "ci/windows_acceptance.py",
-      "sha256": "0f3d6382159aeb208c4b1c585011ecff761c7b07ec3ca3f13c334cf6c158c5b4"
+      "sha256": "2a8da8df347bf17a47a62fd1ea651a3bcf804aa39d9271fb51c0d2fbdc6da4ae"
     },
     {
       "path": "controller/__init__.py",
@@ -168,6 +172,10 @@
     {
       "path": "controller/cc07-v20-operator.ps1",
       "sha256": "b5f80b208a3781534fc9af76786efaff50f0d2d9c4e3332b0cf704929dfb4450"
+    },
+    {
+      "path": "controller/cc07_command_worker.py",
+      "sha256": "c8117851620c1020eb6b453e63561cda1cc476f31906fb25c88b157d1e70f71b"
     },
     {
       "path": "controller/v20_control.py",
@@ -232,6 +240,10 @@
     {
       "path": "deployment/Verify.ps1",
       "sha256": "4c490b244267b5831a9cb620882821d5708084289512e1d0cce72d2e70ce3c81"
+    },
+    {
+      "path": "deployment/cc07-install-channel.ps1",
+      "sha256": "4a15c8bcfdb539e04277c27f35e11777e30258b183022df1a12441d43f631682"
     },
     {
       "path": "deployment/cc07-install-operator.ps1",
@@ -407,7 +419,7 @@
     },
     {
       "path": "docs/V20_CONTROL_CENTER_ROADMAP.md",
-      "sha256": "3560021fad28a94c25eff22b2fff1366ac2cf280a6707a41b69f4542f0e694f5"
+      "sha256": "a87c32ae20a4d9b01b4f3e4e8149c34906eb61f8eb06ecc82b52d6357f7e3ebc"
     },
     {
       "path": "docs/browser-check.json",
@@ -495,7 +507,19 @@
     },
     {
       "path": "tests/test_cc03_source.py",
-      "sha256": "74c79f1385e1c293c036061a9fd3a719203cb5c794b63cb6673555c1604fed27"
+      "sha256": "f2f80b9440015992c84316aa42c8656a82aaf3d5df8d5500ec01e59d8ae74e73"
+    },
+    {
+      "path": "tests/test_cc07_channel_install.py",
+      "sha256": "bafbe9f4df12463619f5c09f5316e77fbaee985bb15b806bc11034ff4580b28f"
+    },
+    {
+      "path": "tests/test_cc07_command_channel.py",
+      "sha256": "4a4eb4d2dd2610ca0dc5e42a803de0119b1388ce42a2d5a02c8a640fb479329b"
+    },
+    {
+      "path": "tests/test_cc07_command_worker.py",
+      "sha256": "c07679a3cdecdf3bea375d5037109e40fb7737d54cdb0d155ac76f6ff38ddd49"
     },
     {
       "path": "tests/test_cc07_install.py",
@@ -615,7 +639,7 @@
     },
     {
       "path": "v20_app.py",
-      "sha256": "5da08dbf83baa1ace41e27cda6da7d37641800ff148c44104a58fdbec11592c5"
+      "sha256": "85d0aded13168de58d698edd7cbf8a442529fb1b720b662d5cc61dd96a401066"
     }
   ]
 }
