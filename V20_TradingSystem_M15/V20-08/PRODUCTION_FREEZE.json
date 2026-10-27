@@ -6,10 +6,10 @@
   "draft_pr": 567,
   "deployed_v20_code_source_commit": "dd55f201b3e9a92ce5fa3f927289f5a5ef89366d",
   "installed_pinned_modules": {
-    "v20_runtime/finam_execution.py": "9ca194c61aa9db003d298fd1a3e93cc7f8bb23c4",
-    "v20_runtime/finam_live.py": "e39a00267c91ea35dbe83d27b26d6b62179b2429",
-    "V20-08/v20-08-live-launch.ps1": "5193f70e2c5663077e35653b89f4c28201ff04cb",
-    "V20-08/v20-08-live-operator.ps1": "e0fd05423899a02fee5861a176b0f72f7ee3bf5c"
+    "v20_runtime/finam_execution.py": "0d5ee2c6eb7195ec9f59aa82a2881bfb0a058827",
+    "v20_runtime/finam_live.py": "519710efffbedfdfc236e9c063c2c9dda6f475f5",
+    "V20-08/v20-08-live-launch.ps1": "93fc1ce4aded6c40453da14deb4846e10da1b14f",
+    "V20-08/v20-08-live-operator.ps1": "6f539f9c421efb56d492f1c903b998b4e8f4a9ca"
   },
   "symbols": [
     "USDRUBF",
@@ -63,5 +63,26 @@
     "V20-08.5 operator and SQLite backup physically accepted on Intel via recovery-v3 output; standalone restart is not independently exercised because active healthy trading tasks must not be interrupted.",
     "Original 05:00 FINAM 5xx endpoint was not identified from sanitized error log; only failure class FinamServerError confirmed."
   ],
-  "authorization_original_source_commit": "dd55f201b3e9a92ce5fa3f927289f5a5ef89366d"
+  "authorization_original_source_commit": "dd55f201b3e9a92ce5fa3f927289f5a5ef89366d",
+  "pre_20261027_flat_h1_parity_update_installed_blobs": {
+    "v20_runtime/finam_execution.py": "9ca194c61aa9db003d298fd1a3e93cc7f8bb23c4",
+    "v20_runtime/finam_live.py": "e39a00267c91ea35dbe83d27b26d6b62179b2429",
+    "V20-08/v20-08-live-launch.ps1": "5193f70e2c5663077e35653b89f4c28201ff04cb",
+    "V20-08/v20-08-live-operator.ps1": "e0fd05423899a02fee5861a176b0f72f7ee3bf5c"
+  },
+  "current_intel_release": "H1_PARITY_FLAT_UPDATE_20261027",
+  "current_intel_release_acceptance": {
+    "receipt": "v20_update_install=PASS_3_OF_3_NEW_H1_PARITY_RELEASE_RUNNING_HALTED_FINAM_FLAT",
+    "source": "Owner PowerShell output 2026-10-27 (actual Intel host)",
+    "tasks": "RUNNING_3_OF_3",
+    "kill_switches": "HALTED_3_OF_3",
+    "new_entries": "OFF_3_OF_3",
+    "broker": "FINAM_GET_ONLY_ZERO_POSITIONS_ZERO_ACTIVE_ORDERS_3_OF_3",
+    "frozen_strategies": "UNMODIFIED",
+    "sqlite_online_snapshot": "C:\\V20Lab\\backup-08\\v20-live-20261027T122311Z",
+    "H1_touched": false,
+    "IntradayLab_M15_touched": false,
+    "next": "Control Center separate project; then approved natural one full entry/stop/followup/exit cycle; then fresh encrypted off-host FULL portable ZIP and full docs update"
+  },
+  "live_new_entries_authorized": false
 }
