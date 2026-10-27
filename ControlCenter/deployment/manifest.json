@@ -499,7 +499,7 @@
     },
     {
       "path": "tests/test_cc07_install.py",
-      "sha256": "b8651978b0ab158c2d2d367e2c2d848ed0b71be6ce93ee198a4e5f234a5f525e"
+      "sha256": "fd802aed96b809877743f4ec173a1399857096c2955a8939f5920f3b8d767ac0"
     },
     {
       "path": "tests/test_cc07_operator_stage.py",
