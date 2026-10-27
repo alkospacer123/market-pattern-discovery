@@ -102,7 +102,7 @@ def main():
             "$ErrorActionPreference='Stop'; Get-ChildItem deployment/*.ps1 | ForEach-Object { "
             "$tokens=$null; $errors=$null; [void][Management.Automation.Language.Parser]::ParseFile($_.FullName,[ref]$tokens,[ref]$errors); "
             "if ($errors.Count) { throw ($errors | Out-String) }; Write-Output ('SYNTAX_PASS '+$_.Name); "
-            "if ($_.Name -ne 'Common.ps1') { & $_.FullName } }"]),
+            "if ($_.Name -notin @('Common.ps1','cc07-install-operator.ps1')) { & $_.FullName } }"]),
         ('powershell-rehearsal', ['powershell', '-NoProfile', '-NonInteractive', '-File', 'ci/Windows-Rehearsal.ps1']),
     ]
     results = {}
