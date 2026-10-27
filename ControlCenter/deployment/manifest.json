@@ -166,6 +166,10 @@
       "sha256": "0d18aaa98c4b893800a9768b43fba777b9fac45371e4d768a1592146e74b5681"
     },
     {
+      "path": "controller/cc07-v20-operator.ps1",
+      "sha256": "9efffc82aea44d8428b7b4f1f8b67f330b018c1027a89860372c82b1ef09059e"
+    },
+    {
       "path": "controller/v20_control.py",
       "sha256": "6ebfa76af3f3bb9d378b60ff34c3ca04ceefbb93795d2fadc45f94a9b76dafa3"
     },
@@ -399,7 +403,7 @@
     },
     {
       "path": "docs/V20_CONTROL_CENTER_ROADMAP.md",
-      "sha256": "24c82311704e9e552666f3e9f73c6c94cb46d7b6f3c227b26f3808151f8f2854"
+      "sha256": "42c9239d0ac5fc683348135711d423d8c4e265754bea7ad4af67708b333df7c6"
     },
     {
       "path": "docs/browser-check.json",
@@ -488,6 +492,10 @@
     {
       "path": "tests/test_cc03_source.py",
       "sha256": "bbe012daa3210e2a69d185ad07548a7a74c844c3a4586be893f2c085da3f0163"
+    },
+    {
+      "path": "tests/test_cc07_operator_stage.py",
+      "sha256": "39f11c5cc5a652194f9986dd708a1355d1645457b2c8b10e9300a24c2deb5612"
     },
     {
       "path": "tests/test_ci_paths.py",
