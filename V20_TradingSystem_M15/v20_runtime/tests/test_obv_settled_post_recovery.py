@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import importlib.util
+from contextlib import closing
 import json
 from pathlib import Path
 import sqlite3
@@ -18,7 +19,7 @@ ENTRY = "v20:obv:fake-entry"
 
 
 def fixture(db: Path, *, initial_halt=recovery.MARKER, risk="PASS", stop="80.92") -> None:
-    with sqlite3.connect(db) as con:
+    with closing(sqlite3.connect(db)) as con, con:
         con.execute("CREATE TABLE state(key TEXT PRIMARY KEY,value TEXT NOT NULL)")
         con.execute("CREATE TABLE intents(idempotency_key TEXT PRIMARY KEY,payload TEXT NOT NULL,status TEXT NOT NULL,broker_order_id TEXT)")
         identity = {"schema_id":"v20.h1_state_store.real_intents.v1",
@@ -50,7 +51,7 @@ def fixture(db: Path, *, initial_halt=recovery.MARKER, risk="PASS", stop="80.92"
 
 
 def halt_value(db: Path) -> object:
-    with sqlite3.connect(db) as con:
+    with closing(sqlite3.connect(db)) as con, con:
         return json.loads(con.execute("SELECT value FROM state WHERE key='execution_halt'").fetchone()[0])
 
 
@@ -59,15 +60,15 @@ class ObvSettledCheckpointTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as root:
             db=Path(root)/"state.sqlite3"
             fixture(db)
-            with sqlite3.connect(db) as con:
+            with closing(sqlite3.connect(db)) as con, con:
                 before=con.execute("SELECT key,value FROM state ORDER BY key").fetchall()
                 old_intents=con.execute("SELECT * FROM intents ORDER BY idempotency_key").fetchall()
             recovery.recover_sqlite(db, False)
-            with sqlite3.connect(db) as con:
+            with closing(sqlite3.connect(db)) as con, con:
                 self.assertEqual(con.execute("SELECT key,value FROM state ORDER BY key").fetchall(),before)
             recovery.recover_sqlite(db, True)
             self.assertIsNone(halt_value(db))
-            with sqlite3.connect(db) as con:
+            with closing(sqlite3.connect(db)) as con, con:
                 after=con.execute("SELECT key,value FROM state ORDER BY key").fetchall()
                 self.assertEqual({k:v for k,v in before if k!="execution_halt"},
                                  {k:v for k,v in after if k!="execution_halt"})
