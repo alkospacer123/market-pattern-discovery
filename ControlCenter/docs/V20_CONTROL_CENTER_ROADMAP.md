@@ -299,3 +299,12 @@ Owner approved development exclusively inside ControlCenter. This is **source-st
 - Installer is two-mode (`check` / `install`) and refuses to overwrite existing files or directories. Exact blob, owner and ACL validation are mandatory. Native Windows parser test guards syntax before physical use.
 - Next physical step: install only under elevated, explicitly operator-approved Intel session, verify `cc07_install=pass_cc_owned`; only then connect the non-admin 8502 UI to a tightly scoped IPC endpoint. Do not turn Streamlit into an administrator or perform direct shell commands on UI clicks.
 - Owner explicitly authorized subsequent tests of all buttons and ARM; live trade-enabling actions still need independent broker-flat evidence and a matching narrowly-scoped audit release. Running this installer is **not** an ARM event.
+
+## CC-07B Intel physical install PASS — 27.10.2026
+
+- User-provided actual elevated Intel PowerShell completed the pinned CC-only installer with `cc07_install=pass_cc_owned`, controller blob `91a83e388978ded33525357397716d5fd509fc2a`, `cc07_audit=protected`, `cc07_release=not_created`, `cc07_actions=not_executed`, `cc07_no_arm_no_task_no_broker_mutation=yes`.
+- Source CI run #40568367681 on exact PR commit `65bc9d2dd4daa5600f5ab57f6923b7fb8b00634f`: `completed/success`. Repo `main` unchanged.
+- Installed CC-only executor: `C:\Control Center\cc07-operator\cc07-v20-operator.ps1`; installed CC-only audit directory: `C:\Control Center\data\control-audit`. Installation did not run any V20 command and did not activate/start/pause/stop/restart any worker.
+- Next acceptance: invoke installed executor `-mode preview` per robot and verify exact pinned blob and audit ACL, READONLY only. This is distinct from the earlier preview acceptance of a downloaded copy.
+- UI 8502 control buttons remain disabled; no production IPC bridge, non-admin Streamlit deployment or live release is installed. No ARM executed. A separate controller IPC step is required before any GUI control.
+- Operator permissions for future tests and ARM do not remove the independent current protection: no action can proceed without the required verified state and protected release. Never claim a trade action has occurred without a physical, post-action witness.
