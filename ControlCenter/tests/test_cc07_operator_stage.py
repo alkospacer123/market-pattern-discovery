@@ -54,3 +54,78 @@ def test_windows_powershell_native_parser():
                           '-command',command],
                          capture_output=True,text=True,timeout=15,check=False)
     assert child.returncode == 0, child.stdout+child.stderr
+
+
+def test_halted_check_requires_exact_native_exit_and_brokerless_proof():
+    """Regression: PowerShell's stderr must not abort before checking HALTED proof."""
+    assert "$ErrorActionPreference='Continue'" in SCRIPT
+    assert '$checkexit=$lastexitcode' in SCRIPT
+    assert "V20_08_5_HEALTH_PARTIAL" in SCRIPT
+    assert "HALTED_NO_NEW_ENTRIES" in SCRIPT
+    assert "$checkexit -eq 1" in SCRIPT
+    assert "$checkexit -eq 0" in SCRIPT
+    assert "cc07_check_not_expected_halted_partial" in SCRIPT
+    assert "cc07_armed_check_failed" in SCRIPT
+    assert "cc07_stock_readonly_banner_missing" in SCRIPT
+    assert "cc07_cycle_stale" in SCRIPT
+
+
+def test_native_halted_partial_and_negative_cases_without_real_v20(tmp_path):
+    """Run extracted PowerShell function against mocked child (no V20 access)."""
+    import os
+    import subprocess
+    import pytest
+    if os.name != "nt":
+        pytest.skip("native Windows PowerShell only")
+    payload = r'''
+$ErrorActionPreference='Stop'
+$source=get-content -literalpath $env:cc07_source_file -raw -encoding utf8
+$start=$source.indexof('function proof {')
+$end=$source.indexof('function flat {')
+if($start -lt 0 -or $end -le $start){throw 'proof_not_found'}
+invoke-expression $source.substring($start,$end-$start)
+function need([bool]$condition,[string]$code){if(-not $condition){throw $code}}
+$robot='v20-shallow'
+$operator='do-not-touch-v20.ps1'
+function powershell.exe {
+    'NO_ORDER_NO_CANCEL_NO_FINAM_API_NO_SQLITE_OPEN_NO_TASK_MUTATION_NO_REARM=YES'
+    'v20_08_5_v20-shallow_task='+$script:mocktask
+    'v20_08_5_v20-shallow_switch=HALTED'
+    'v20_08_5_v20-shallow_age_seconds='+$script:mockage
+    'v20_08_5_v20-shallow_cycle=HALTED'
+    'v20_08_5_v20-shallow_cycle_code=HALTED_NO_NEW_ENTRIES'
+    if($script:mockerror){
+        write-error $script:mockerror
+    }
+    $global:lastexitcode=$script:mockexit
+}
+function testcase([string]$name,[int]$exit,[string]$err,[string]$task,[string]$age,[bool]$shouldpass){
+    $script:mockexit=$exit
+    $script:mockerror=$err
+    $script:mocktask=$task
+    $script:mockage=$age
+    $passed=$false
+    try{$status=proof;$passed=($status -ceq 'HALTED')}catch{$passed=$false}
+    if($passed -ne $shouldpass){throw ('cc07_native_wrong_result_'+$name)}
+    write-output ('cc07_native_'+$name+'=pass')
+}
+testcase 'expected_halted' 1 'V20_08_5_HEALTH_PARTIAL' 'Running' '12' $true
+testcase 'unexpected_nonzero' 1 'NOT_A_HEALTH_PARTIAL' 'Running' '12' $false
+testcase 'healthy_exit_but_halted' 0 '' 'Running' '12' $false
+testcase 'stale_halted' 1 'V20_08_5_HEALTH_PARTIAL' 'Running' '120' $false
+testcase 'not_running' 1 'V20_08_5_HEALTH_PARTIAL' 'Ready' '12' $false
+'''
+    script = tmp_path / "cc07-native-proof-test.ps1"
+    script.write_text(payload, encoding="utf-8-sig")
+    environment = os.environ.copy()
+    environment["cc07_source_file"] = str(PATH)
+    completed = subprocess.run(
+        ["powershell.exe", "-noprofile", "-noninteractive",
+         "-executionpolicy", "bypass", "-file", str(script)],
+        cwd=tmp_path, env=environment,
+        capture_output=True, text=True, timeout=25, check=False
+    )
+    assert completed.returncode == 0, completed.stdout + completed.stderr
+    for case in ("expected_halted", "unexpected_nonzero",
+                 "healthy_exit_but_halted", "stale_halted", "not_running"):
+        assert "cc07_native_" + case + "=pass" in completed.stdout
