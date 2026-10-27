@@ -320,13 +320,9 @@ def _follow_existing(sender: V20LiveTransport, now: datetime, snapshot) -> str:
 def run_cycle(sender: V20LiveTransport, now: datetime) -> str:
     journal, reader = sender.journal, sender.reader
     _safe_auth(sender.auth_path, journal=journal, source=sender.source)
-    # H1 FinamAPI already retries GET 5xx/timeout. A further temporary
-    # READONLY snapshot failure is not an uncertain order submission and
-    # must neither arm new orders nor permanently stop all three bots.
-    try:
-        snapshot = reader.snapshot(now=now)
-    except (FinamServerError, FinamTimeout, FinamRateLimit):
-        return "FINAM_READ_TEMPORARILY_UNAVAILABLE_NO_NEW_ENTRIES"
+    # H1 handles any FINAM cycle read failure in the shared outer loop:
+    # record a fault, retry in 3 seconds, and do not submit a new entry.
+    snapshot = reader.snapshot(now=now)
     state = _follow_existing(sender, now, snapshot)
     if state != "BROKER_RECONCILED_PROTECTION_PASS":
         return state
@@ -368,11 +364,6 @@ def run_cycle(sender: V20LiveTransport, now: datetime) -> str:
                             "M15_FINAL_COMPLETED_BAR_MISSING"):
                 continue
             raise
-        except (FinamServerError, FinamTimeout, FinamRateLimit):
-            # Only the signal-proposal/read path is covered. H1 order POST
-            # uncertainty, cancel/exit and broker stop errors still propagate
-            # to the emergency HALT/reconciliation mechanism unchanged.
-            return "FINAM_M15_READ_UNAVAILABLE_NO_NEW_ENTRIES"
         except ValueError as exc:
             if str(exc) == "INSUFFICIENT_RISK_OR_MARGIN_CAPACITY":
                 journal.store.put("live_decision:" + symbol, boundary_id)
@@ -489,16 +480,24 @@ def run(*, root: Path, robot: str, source: str, once: bool = False,
             now = datetime.now(timezone.utc)
             try:
                 state = run_cycle(sender, now)
-            except BaseException as exc:
-                # A failure cannot result in re-posting a market order. The
-                # H1 broker-side protective stop must remain untouched.
-                emergency_halt(journal.instance_root)
+            except Exception as exc:
+                # Reuse H1 ProductionService.run(): a failed FINAM cycle
+                # records a fault and retries after 3s, never exits its Task.
+                # Preserve V20's stronger existing fail-closed switch for
+                # non-transient order/stop/ownership and state failures.
+                transient = isinstance(exc, (FinamServerError, FinamTimeout, FinamRateLimit))
+                if not transient:
+                    emergency_halt(journal.instance_root)
                 label = str(exc)
                 state = label if re.fullmatch(r"[A-Z0-9_]{1,100}", label) else type(exc).__name__
                 with output.open("a", encoding="utf-8") as f:
                     f.write(json.dumps({"utc": now.isoformat(), "robot": robot,
-                                        "state": "HALT_" + state}, sort_keys=True)+"\n")
-                raise
+                                        "state": ("FAULT_" if transient else "HALT_") + state},
+                                       sort_keys=True)+"\n")
+                if once:
+                    return 1
+                time.sleep(FAST_RECONCILIATION_SECONDS)
+                continue
             with output.open("a", encoding="utf-8") as f:
                 f.write(json.dumps({"utc": now.isoformat(), "robot": robot,
                                     "state": state}, sort_keys=True)+"\n")
