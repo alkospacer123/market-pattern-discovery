@@ -25,7 +25,7 @@ from fractions import Fraction
 
 from TradingSystemLab.stage8_robot.broker import compact_client_order_id
 from TradingSystemLab.stage8_robot.execution_grid import project_stop
-from TradingSystemLab.stage8_robot.finam_api import FinamAPI
+from TradingSystemLab.stage8_robot.finam_api import FinamAPI, FinamServerError, FinamTimeout, FinamRateLimit
 from TradingSystemLab.stage8_robot.production_runtime import _load_registry
 from TradingSystemLab.stage8_robot.trading_safety_gate import load_kill_switch, emergency_halt, write_kill_switch
 
@@ -320,7 +320,13 @@ def _follow_existing(sender: V20LiveTransport, now: datetime, snapshot) -> str:
 def run_cycle(sender: V20LiveTransport, now: datetime) -> str:
     journal, reader = sender.journal, sender.reader
     _safe_auth(sender.auth_path, journal=journal, source=sender.source)
-    snapshot = reader.snapshot(now=now)
+    # H1 FinamAPI already retries GET 5xx/timeout. A further temporary
+    # READONLY snapshot failure is not an uncertain order submission and
+    # must neither arm new orders nor permanently stop all three bots.
+    try:
+        snapshot = reader.snapshot(now=now)
+    except (FinamServerError, FinamTimeout, FinamRateLimit):
+        return "FINAM_READ_TEMPORARILY_UNAVAILABLE_NO_NEW_ENTRIES"
     state = _follow_existing(sender, now, snapshot)
     if state != "BROKER_RECONCILED_PROTECTION_PASS":
         return state
@@ -362,6 +368,11 @@ def run_cycle(sender: V20LiveTransport, now: datetime) -> str:
                             "M15_FINAL_COMPLETED_BAR_MISSING"):
                 continue
             raise
+        except (FinamServerError, FinamTimeout, FinamRateLimit):
+            # Only the signal-proposal/read path is covered. H1 order POST
+            # uncertainty, cancel/exit and broker stop errors still propagate
+            # to the emergency HALT/reconciliation mechanism unchanged.
+            return "FINAM_M15_READ_UNAVAILABLE_NO_NEW_ENTRIES"
         except ValueError as exc:
             if str(exc) == "INSUFFICIENT_RISK_OR_MARGIN_CAPACITY":
                 journal.store.put("live_decision:" + symbol, boundary_id)
