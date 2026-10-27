@@ -204,7 +204,9 @@ jobs:
               -not $source.Contains("HALTED_NO_NEW_ENTRIES") -or
               -not $source.Contains('Stop-ScheduledTask') -or
               -not $source.Contains('Start-ScheduledTask') -or
-              -not $source.Contains('mode backup')){
+              -not $source.Contains('mode backup') -or
+              -not $source.Contains('v20_update_new_blobs=PASS_3_OF_3_STAGED_BEFORE_TASK_STOP')){
+              
               throw 'V20_FLAT_INSTALL_CRITICAL_GUARDS_MISSING'
           }
           if($source -match " -mode arm| -mode start -robot|\s+--arm\b|\s+rearm\b" -or
