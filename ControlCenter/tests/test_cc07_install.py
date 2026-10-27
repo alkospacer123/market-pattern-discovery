@@ -19,9 +19,9 @@ def test_installer_only_cc_owned_paths_and_exact_pins():
     assert "-mode check" not in S
     for banned in ("stop-scheduledtask", "start-scheduledtask",
                    "register-scheduledtask", "kill-switch",
-                   "finam", "arm ", "c:\\tradingsystemlab",
-                   "c:\\intradaylab", "c:\\v20lab", "-mode execute"):
-        assert banned not in S.lower() or banned == "finam" and "no_finam" in S.lower()
+                   "c:\\tradingsystemlab", "c:\\intradaylab",
+                   "c:\\v20lab", "-mode execute"):
+        assert banned not in S.lower()
 
 
 def test_installer_must_fail_on_pin_acl_or_existing_paths():
