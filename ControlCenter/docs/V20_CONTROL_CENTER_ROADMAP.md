@@ -282,3 +282,11 @@ Owner approved development exclusively inside ControlCenter. This is **source-st
 - Follow-up physical acceptance: separately install the protected CC-only executor + audit directory, verify operator SID and source pins, test preview and already-HALTED PAUSE no-op. Do not execute ARM/restart/Task stop without a new explicit approval.
 - Critical isolation blocker: the V20 panel on 8502 was manually restored with elevated identity. Before any command bridge from Streamlit, run it under dedicated non-admin SID and establish authenticated narrow IPC. Never give the UI FINAM tokens, admin rights or V20 Task privileges.
 - Native Windows syntax/authority regression in CI does NOT establish physical Intel acceptance. PR #568 remains Draft, no merge.
+
+### CC-07A Intel Preview incident and fix — 27.10.2026
+
+- First physically invoked `cc07-preview-intel-20261027.ps1` aborted on Shallow: Windows PowerShell 5.1 promoted the native stock CHECK's expected `V20_08_5_HEALTH_PARTIAL` stderr into a terminating `NativeCommandError` under `ErrorActionPreference=Stop`. It did not call any V20 start/stop/restart or ARM mode.
+- Independent V20 READONLY snapshot operator had already proven three deliberately HALTED running Tasks with fresh `HALTED_NO_NEW_ENTRIES`; no evidence this was a trading failure.
+- Fix changes only ControlCenter `controller/cc07-v20-operator.ps1` proof parsing: check-only child is captured with temporary `ErrorActionPreference=Continue`, original setting is restored; full fixed README banner, single fresh task/switch/cycle proof, exact nonzero `HEALTH_PARTIAL` and `HALTED_NO_NEW_ENTRIES` are required before treating intentional HALTED as a valid preview.
+- `ARMED` still requires zero stock exit and PASS/PENDING; unexpected nonzero, stale cycle or bad Task fail closed. Added native Windows mock regression for all cases. Recheck new CI exact head before any new Intel preview.
+- Explicit owner consent for button tests and ARM is recorded. Under this project's immutable LIVE-robot boundary, CC-07 work remains only CC-owned development and non-mutating preview; no V20 live command can be dispatched from this development stage. Installing release authority, enabling ARM or STOP Task is a separate production change outside authorized ControlCenter file scope.
