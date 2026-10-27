@@ -259,7 +259,7 @@
     },
     {
       "path": "deployment/v20_live_export.py",
-      "sha256": "7a204e94fe812d597294cc76c2f2491fdbec8ad6b459ffe5ea6a76e2e07a3f34"
+      "sha256": "be0b2e71147b55302c3193cba6a71818656583fd9b337bac698bf2dffb6a497b"
     },
     {
       "path": "docs/ACCEPTANCE_REPORT.md",
