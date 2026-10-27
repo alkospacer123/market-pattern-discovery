@@ -94,3 +94,13 @@ def test_readonly_exports_do_not_arm_or_touch_tasks():
     assert "Start-ScheduledTask" not in source
     assert "Stop-ScheduledTask" not in source
     assert "FinamAPI" not in source
+
+def test_halted_worker_can_continue_protecting_position_with_pass_cycle():
+    # Intentional HALTED stops only new entries, not reconciliation/SLTP care.
+    check = official_check().replace(
+        "v20_08_5_v20-obv_cycle=HALTED", "v20_08_5_v20-obv_cycle=PASS"
+    )
+    parsed = parse_check(check)
+    assert parsed["v20-obv"]["switch"] == "HALTED"
+    assert parsed["v20-obv"]["healthy"] is False
+
