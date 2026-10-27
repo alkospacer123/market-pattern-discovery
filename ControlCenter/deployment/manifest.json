@@ -102,6 +102,10 @@
       "sha256": "70d904bba273551586dde073d0a00e396632153ee27da1edf1d3a548b7a079e4"
     },
     {
+      "path": "cc/v20_manual_export.py",
+      "sha256": "afce5064e61e94d785dd93cd4688c0f2ff2b4a94c2748b66adc399118aff4416"
+    },
+    {
       "path": "cc/v20_receiver.py",
       "sha256": "c013136cd03f02ad9956925ac805f8d9b8d958d858036276a32f76037b5d3c83"
     },
@@ -395,7 +399,7 @@
     },
     {
       "path": "docs/V20_CONTROL_CENTER_ROADMAP.md",
-      "sha256": "f17aa03b00736e88639ea8d42763f7ebf26f51268eb9cd50c95e954108af8af5"
+      "sha256": "301ca609814eb5cb03405fac3c6c92fedec1548114791b08c1f514b32ea3b0f3"
     },
     {
       "path": "docs/browser-check.json",
@@ -570,6 +574,10 @@
       "sha256": "ce2d828bd225f0e0a4c39f9fd0aba9ebbc3e1fe04cd5a1f555cf5367c1d7901f"
     },
     {
+      "path": "tests/test_v20_manual_export.py",
+      "sha256": "5bff257ab20f50ba540188f1ba5836173809edda8ed2a4799f11c3892e02d370"
+    },
+    {
       "path": "tests/test_v20_offline_journal.py",
       "sha256": "36be8c1492b35fa0a23d5453459edd20c18debbd5f15fbc059837fff7f159165"
     },
@@ -591,7 +599,7 @@
     },
     {
       "path": "v20_app.py",
-      "sha256": "94fb93695df142e2c7d88ad4b925b3ff5047d84d61ec01fea95991e7ebaae8e6"
+      "sha256": "5da08dbf83baa1ace41e27cda6da7d37641800ff148c44104a58fdbec11592c5"
     }
   ]
 }
