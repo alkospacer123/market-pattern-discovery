@@ -64,8 +64,8 @@ need ($ap.schema -eq 'v20.08.4.live_authorization.v1' -and
       $ap.account_sha256 -eq $br[0].account_sha256 -and
       $ap.owner_approved -eq $true -and $ap.risk_fraction -eq '0.015') 'V20_LIVE_APPROVAL_INVALID'
 foreach($spec in @(
-    @('finam_execution.py','9ca194c61aa9db003d298fd1a3e93cc7f8bb23c4'),
-    @('finam_live.py','e39a00267c91ea35dbe83d27b26d6b62179b2429')
+    @('finam_execution.py','0d5ee2c6eb7195ec9f59aa82a2881bfb0a058827'),
+    @('finam_live.py','519710efffbedfdfc236e9c063c2c9dda6f475f5')
 )){
     $item=Join-Path $live ('V20_TradingSystem_M15\v20_runtime\'+$spec[0])
     need (Test-Path -LiteralPath $item -PathType Leaf) 'V20_LIVE_MODULE_MISSING'
