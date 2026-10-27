@@ -459,5 +459,54 @@
       "Production live existing frozen-trade exit result and actual commissions not yet verified on broker",
       "Source-level offline proof is not physical production acceptance"
     ]
+  },
+  "frozen_strategy_entry_signal_replay_20261027": {
+    "status": "PENDING_PHYSICAL_INTEL_GET_ONLY_HISTORICAL_REPLAY",
+    "reason": "Persisted ENTRY/stop/risk PASS proves broker executions and safety, not historical signal predicates; FINAM M15 completed bars at signal times must be replayed against frozen V20 AST.",
+    "immutable_research_sources": [
+      "research_original_v20/base.py",
+      "research_original_v20/run.py",
+      "research_original_v20/legacy_v4/study_v4.py",
+      "V20-03/offline/stress_v20_03.py"
+    ],
+    "actual_entries": [
+      {
+        "robot": "v20-obv",
+        "strategy": "OBV_PRESSURE",
+        "symbol": "USDRUBF",
+        "signal_bar_msk": "2026-10-27T10:15:00",
+        "entry_msk": "2026-10-27T10:30:00",
+        "side": "SHORT",
+        "quantity": 2
+      },
+      {
+        "robot": "v20-shallow",
+        "strategy": "SHALLOW_PULLBACK",
+        "symbol": "GLDRUBF",
+        "signal_bar_msk": "2026-10-27T10:45:00",
+        "entry_msk": "2026-10-27T11:00:00",
+        "side": "SHORT",
+        "quantity": 13
+      },
+      {
+        "robot": "v20-inside",
+        "strategy": "INSIDE_DAY_RELEASE",
+        "symbol": "GLDRUBF",
+        "signal_bar_msk": "2026-10-27T10:45:00",
+        "entry_msk": "2026-10-27T11:00:00",
+        "side": "SHORT",
+        "quantity": 13
+      }
+    ],
+    "reference_only_result": "Original frozen source remains unchanged and live execution persisted frozen strategy names, but target-date signal predicates have not yet been independently replayed on actual historical FINAM bars.",
+    "audit_python_blob": "d9e5d9013f6d74c997e53308969aef84e94ab688",
+    "audit_powershell_blob": "a5e41e7cbb7743ce9beb12e12065a1efde195e5a",
+    "windows_static_checks": "40486459052 SUCCESS",
+    "intel_live_source_status": "Older pinned runtime 9ca194c61aa9db003d298fd1a3e93cc7f8bb23c4; newer draft fixes not installed. Keep worker processes running and all switches HALTED while positions remain open.",
+    "limitations": [
+      "Historical FINAM GET can differ from the original real-time broker history due later corrections or warmup-second cutoff. Log mismatch for investigation, not automatic LIVE state changes.",
+      "Broker GET historical candles requires current DPAPI-authorized token; script does not place trading orders and does not change SQLite, task or authorization."
+    ],
+    "pending": "User should run isolated historical GET-only audit on Intel and provide output; only then mark 3/3 frozen entry SIGNAL PASS or FAIL individually."
   }
 }
