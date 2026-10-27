@@ -62,9 +62,10 @@ need ($b.sha -ceq $hash -and $b.encoding -ceq 'base64') 'cc07_channel_download_m
 $bytes=[convert]::frombase64string($b.content)
 need ($bytes.length -gt 10000 -and $bytes.length -lt 25000) 'cc07_channel_worker_size'
 # Only CC-owned fresh files/directories. No replacement of existing objects.
-foreach($entry in @(@($private,'admin'),@($public,'read'),@($inbox,'write'))){
- new-item -itemtype directory -path $entry[0] -erroraction stop | out-null
- lock $entry[0] $entry[1]
+foreach($folder in @($private,$public,$inbox)){
+ $kind=if($folder -eq $public){'read'}elseif($folder -eq $inbox){'write'}else{'admin'}
+ new-item -itemtype directory -path $folder -erroraction stop | out-null
+ lock $folder $kind
 }
 $processed=join-path $inbox 'processed'
 new-item -itemtype directory -path $processed -erroraction stop | out-null
