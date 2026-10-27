@@ -151,7 +151,7 @@
     },
     {
       "path": "ci/windows_acceptance.py",
-      "sha256": "75c5ff46ad8e5de3bcef10d6b78fea31fa1164985e6dd0542aa381e10b8d66de"
+      "sha256": "0f3d6382159aeb208c4b1c585011ecff761c7b07ec3ca3f13c334cf6c158c5b4"
     },
     {
       "path": "ci/Windows-Rehearsal.ps1",
@@ -495,11 +495,11 @@
     },
     {
       "path": "tests/test_cc03_source.py",
-      "sha256": "bbe012daa3210e2a69d185ad07548a7a74c844c3a4586be893f2c085da3f0163"
+      "sha256": "74c79f1385e1c293c036061a9fd3a719203cb5c794b63cb6673555c1604fed27"
     },
     {
       "path": "tests/test_cc07_install.py",
-      "sha256": "fd802aed96b809877743f4ec173a1399857096c2955a8939f5920f3b8d767ac0"
+      "sha256": "af8c09904f5f1c0a892b4d7ef44f566481e400afa64a9780e223365ffccbc555"
     },
     {
       "path": "tests/test_cc07_operator_stage.py",
