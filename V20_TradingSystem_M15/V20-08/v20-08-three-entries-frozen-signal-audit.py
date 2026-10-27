@@ -16,7 +16,7 @@ import sqlite3
 import sys
 from zoneinfo import ZoneInfo
 
-from TradingSystemLab.stage8_robot.finam_api import FinamAPI
+from TradingSystemLab.stage8_robot.finam_api import FinamAPI, Response
 from TradingSystemLab.stage8_robot.execution_grid import initial_projection
 from TradingSystemLab.stage8_robot.production_runtime import _load_registry
 from V20_TradingSystem_M15.v20_runtime.finam_execution import (
@@ -31,6 +31,49 @@ CASES = {
     "v20-inside": ("INSIDE_DAY_RELEASE", "GLDRUBF", "SHORT", "2026-10-27T11:00:00", 13),
 }
 MSK = ZoneInfo("Europe/Moscow")
+
+
+class HistoricalAsOfAPI(FinamAPI):
+    """For a historical GET replay, remove bars that did NOT exist at the
+    original decision time. FINAM may now return a fully completed next bar
+    because its query's end_time is later than the historical observation.
+    All other response validation is delegated unchanged to V20 production.
+    """
+    def __init__(self, token, asof_utc):
+        super().__init__(token)
+        self.asof_utc = asof_utc
+
+    def _request(self, method, path, payload=None, auth=True, retries=2):
+        result = super()._request(method, path, payload, auth, retries)
+        if method != "GET" or "/bars?" not in path:
+            return result
+        if not isinstance(result.body, dict) or not isinstance(result.body.get("bars"), list):
+            return result
+        filtered = []
+        for item in result.body["bars"]:
+            if not isinstance(item, dict) or not isinstance(item.get("timestamp"), str):
+                filtered.append(item)
+                continue
+            try:
+                at = datetime.fromisoformat(item["timestamp"].replace("Z", "+00:00"))
+                if at.tzinfo is None or at.utcoffset() is None:
+                    filtered.append(item)
+                    continue
+                if at.astimezone(timezone.utc) > self.asof_utc:
+                    continue
+            except (TypeError, ValueError):
+                pass
+            filtered.append(item)
+        return Response(result.status, {**result.body, "bars": filtered}, result.request_id)
+
+    def place_order(self, *_args, **_kwargs):
+        raise RuntimeError("V20_AUDIT_TRADING_ORDER_FORBIDDEN")
+
+    def place_sltp_order(self, *_args, **_kwargs):
+        raise RuntimeError("V20_AUDIT_SLTP_ORDER_FORBIDDEN")
+
+    def cancel_order(self, *_args, **_kwargs):
+        raise RuntimeError("V20_AUDIT_CANCEL_FORBIDDEN")
 
 
 def need(condition, msg):
@@ -93,7 +136,7 @@ def main():
     # This is a later GET replay, not a byte-for-byte capture of the past GET.
     audit_now = entry_at + timedelta(seconds=30)
     reader = V20FinamReadAdapter(
-        api=FinamAPI(token), robot_id=robot, account_id=account,
+        api=HistoricalAsOfAPI(token, audit_now), robot_id=robot, account_id=account,
         expected_account_hash=account_hash,
     )
     reader.authenticate()
