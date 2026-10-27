@@ -5,6 +5,7 @@ from cc.manual_gate import export_gate
 from cc.v20_contract import ROBOTS, LABELS, unconnected, age, heartbeat_health
 from cc.v20_receiver import acquire
 from cc.v20_staging import acquire_staging
+from cc.v20_manual_export import refresh_once
 
 MSK = timezone(timedelta(hours=3))
 PAGES = ("Главная", "Журнал", "Управление")
@@ -127,6 +128,7 @@ def main():
         try:
             with export_gate() as acquired:
                 if acquired:
+                    st.session_state["v20-source-refresh"] = refresh_once()
                     primary = acquire(datetime.now(timezone.utc))
                     if any(primary[robot]["status"] == "NOT_CONNECTED" for robot in ROBOTS):
                         staging = acquire_staging(datetime.now(timezone.utc))
@@ -147,6 +149,9 @@ def main():
     now = datetime.now(timezone.utc)
     checked = st.session_state.get("v20-last-checked-at")
     last_check_view.caption("Последняя проверка: " + show_time(checked))
+    if checked is not None and st.session_state.get("v20-source-refresh") not in (
+        None, "READONLY_EXPORT_PASS", "PUBLISHER_UNAVAILABLE"):
+        st.caption("Публикация источника: " + st.session_state["v20-source-refresh"])
     previous = st.session_state.get("v20-snapshots")
     snapshots = {}
     for robot in ROBOTS:
