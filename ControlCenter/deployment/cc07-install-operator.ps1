@@ -75,6 +75,8 @@ try{
  $madeAudit=$true
  lockfolder $audit
  [io.file]::writeallbytes($script,$bytes)
+ & icacls.exe $script /inheritance:r /grant:r '*S-1-5-18:f' '*S-1-5-32-544:f' | out-null
+ need ($lastexitcode -eq 0) 'cc07_operator_acl_failed'
  pinned $script $pin
  aclprotected $dest
  aclprotected $audit
