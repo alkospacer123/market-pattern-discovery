@@ -79,8 +79,10 @@ jobs:
           $ErrorActionPreference = 'Stop'
           $recovery = Get-Content -LiteralPath 'V20_TradingSystem_M15/V20-08/v20-08-finam-read-recovery.ps1' -Raw
           $operator = 'V20_TradingSystem_M15/V20-08/v20-08-live-operator.ps1'
-          $sha = (& git.exe hash-object -- $operator).Trim()
-          if ($LASTEXITCODE -ne 0 -or $recovery -notmatch [regex]::Escape("$"+"newOperator='"+$sha+"'")) { throw 'V20_08_5_PREBACKUP_PIN_NOT_CURRENT' }
+          # v3 recovery remains an immutable pinned release; the CHECK-only
+          # operator can evolve independently without rewriting old recovery.
+          $recoveryOperatorBlob = 'e0fd05423899a02fee5861a176b0f72f7ee3bf5c'
+          if ($recovery -notmatch [regex]::Escape("$"+"newOperator='"+$recoveryOperatorBlob+"'")) { throw 'V20_08_5_PREBACKUP_PIN_CHANGED' }
           if ($recovery.Contains('-file $operator -mode backup')) { throw 'V20_08_5_PREBACKUP_STALE_OPERATOR_USED' }
           $steps = @(
             '$backupOperator=Join-Path',
@@ -98,6 +100,61 @@ jobs:
           if ($fixed.Contains('& $python -B -c $code')) { throw 'V20_08_5_PREBACKUP_PYTHON_C_REGRESSION' }
           if (-not $fixed.Contains('& $python -B $helper $sourceDb $targetDb')) { throw 'V20_08_5_PREBACKUP_PYTHON_HELPER_MISSING' }
           Write-Output 'V20_08_5_RECOVERY_PREBACKUP_PIN_AND_ORDER=PASS'
+      - name: Operator CHECK on real-shaped JSONL (Windows PowerShell 5.1, no live access)
+        shell: powershell
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $source = Get-Content -LiteralPath 'V20_TradingSystem_M15/V20-08/v20-08-live-operator.ps1' -Raw
+          $s = $source.IndexOf('function cycle-result(', [StringComparison]::Ordinal)
+          $e = $source.IndexOf('function await-cycle(', $s, [StringComparison]::Ordinal)
+          if ($s -lt 0 -or $e -le $s) { throw 'CHECK_FUNCTIONS_MISSING' }
+          function need([bool]$ok,[string]$code) { if (-not $ok) { throw $code } }
+          function exact-task([string]$name) { return [pscustomobject]@{ State='Running' } }
+          . ([scriptblock]::Create($source.Substring($s,$e-$s)))
+          $expect=@{
+            WAIT_NEXT_M15_OPEN='PASS'
+            NO_FROZEN_SIGNAL='PASS'
+            BROKER_RECONCILED_PROTECTION_PASS='PASS'
+            STOP_EXECUTED_FLAT='PASS'
+            ENTRY_ACK_AWAIT_BROKER_FILL='PENDING'
+            STOP_ACK_NEEDS_BROKER_PROOF='PENDING'
+            HALTED_NO_NEW_ENTRIES='HALTED'
+            FAULT_FinamServerError='FAIL'
+            HALT_V20_LIVE_UNOWNED_BROKER_POSITION='FAIL'
+            UNEXPECTED='UNKNOWN'
+          }
+          foreach ($state in $expect.Keys) {
+            $actual=cycle-result $state
+            if ($actual -ne $expect[$state]) { throw ('CHECK_STATUS_WRONG '+$state+' '+$actual) }
+          }
+          $root=Join-Path $env:RUNNER_TEMP 'V20Lab'
+          $base=Join-Path $root 'robots\shallow'
+          $log=Join-Path $base 'logs\live-m15.jsonl'
+          $switch=Join-Path $base 'safety\stage8-trading-kill-switch.json'
+          New-Item -ItemType Directory -Path (Split-Path $log) -Force | Out-Null
+          New-Item -ItemType Directory -Path (Split-Path $switch) -Force | Out-Null
+          '{"state":"ARMED"}' | Set-Content -LiteralPath $switch -Encoding UTF8
+          $rows=@(for($i=0;$i -lt 10;$i++){
+            @{ utc=[datetimeoffset]::UtcNow.AddSeconds(-($i+1)).ToString('o')
+               robot='v20-shallow';state='WAIT_NEXT_M15_OPEN' } | ConvertTo-Json -Compress
+          })
+          $rows | Set-Content -LiteralPath $log -Encoding UTF8
+          $lines=@(proof 'v20-shallow' $true)
+          $joined=$lines -join '|'
+          if($joined -notmatch 'v20_08_5_v20-shallow_cycle=PASS' -or
+             $joined -notmatch 'v20_08_5_v20-shallow_healthy=True' -or
+             $joined -notmatch 'v20_08_5_v20-shallow_cycle_attempts_logged=10' -or
+             $joined -notmatch 'v20_08_5_v20-shallow_cycle_01=status=PASS code=NONE' -or
+             $joined -notmatch 'v20_08_5_v20-shallow_last_cycle_attempts_found=10' -or
+             $joined -match 'WAIT_NEXT_M15_OPEN' -or
+             $lines -contains 'True') { throw ('CHECK_H1_STYLE_PASS_REGRESSION '+$joined) }
+          $rows[9]=(@{utc=[datetimeoffset]::UtcNow.ToString('o');robot='v20-shallow';state='FAULT_FinamServerError'} | ConvertTo-Json -Compress)
+          $rows | Set-Content -LiteralPath $log -Encoding UTF8
+          $failed=@(proof 'v20-shallow' $true) -join '|'
+          if($failed -notmatch 'v20_08_5_v20-shallow_cycle=FAIL' -or
+             $failed -notmatch 'v20_08_5_v20-shallow_healthy=False' -or
+             $failed -notmatch 'code=FAULT_FinamServerError') { throw ('CHECK_FAIL_HIDDEN '+$failed) }
+          Write-Output 'V20_08_5_CHECK_H1_STYLE_REAL_LOG_PASS_AND_FAIL=PASS_NO_BROKER'
       - name: Only new V20 LIVE syntax and scoped mock tests
         shell: pwsh
         env:
