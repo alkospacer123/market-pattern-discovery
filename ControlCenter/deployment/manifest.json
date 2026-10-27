@@ -95,7 +95,7 @@
     },
     {
       "path": "cc/v20_contract.py",
-      "sha256": "8a89b32788750ebc7adf9762ea5e0e43365b6b448c78d6fd57ac99d26b015212"
+      "sha256": "4cad0bd5524b6cc3ea47f97fd8fb32ada5d2a2f35923d77cc85aab520583246e"
     },
     {
       "path": "cc/v20_finam.py",
@@ -258,6 +258,10 @@
       "sha256": "c9b9a9076256e39f2833d8784b1f72edf48b859b157470554b2bfd2ccd6dcef2"
     },
     {
+      "path": "deployment/v20_live_export.py",
+      "sha256": "56b93c473ef778cfba391d7216a820ff7871da0e8061f8f0528ac18c8d8e28e7"
+    },
+    {
       "path": "docs/ACCEPTANCE_REPORT.md",
       "sha256": "379e998b908321cc76b3428d4daec1aae8ce2ea61f673100d8e7b1e5747badbc"
     },
@@ -383,7 +387,7 @@
     },
     {
       "path": "docs/V20_CONTROL_CENTER_ROADMAP.md",
-      "sha256": "c3162f793cd3be5ef3eb43ebe09cafa0c1b7d3011e2b7f4b2a49d4268270fc6a"
+      "sha256": "d78b7fbca805edd3898c09458be16b76102868306b3e52ac1cbe36a3a7d77fb1"
     },
     {
       "path": "docs/browser-check.json",
@@ -548,6 +552,10 @@
     {
       "path": "tests/test_v20_finam.py",
       "sha256": "62634913783c7931c8aac8a40501df7eb4b2d87b61934cddff5979611f3902af"
+    },
+    {
+      "path": "tests/test_v20_live_export.py",
+      "sha256": "ac811d8cd7fd9851ea6cd6d870866cab466199a4f750bff3cba0fab9a98a1903"
     },
     {
       "path": "tests/test_v20_offline_journal.py",
