@@ -8,7 +8,7 @@ from types import SimpleNamespace
 import pytest
 from streamlit.testing.v1 import AppTest
 
-from cc import v20_command_channel as channel
+import v20_command_channel as channel
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -97,7 +97,7 @@ def test_receipts_require_exact_readonly_source_and_schema(monkeypatch):
 
 
 def test_ui_has_no_direct_executor_and_only_confirmed_button_queues(monkeypatch):
-    import cc.v20_command_channel as commands
+    import v20_command_channel as commands
     seen = []
     monkeypatch.setattr(commands, "submit", lambda *args:
                         (seen.append(args) or {"decision": "QUEUED_NOT_EXECUTED",
@@ -116,7 +116,7 @@ def test_ui_has_no_direct_executor_and_only_confirmed_button_queues(monkeypatch)
     app.button(key="cc07-v20_obv-pause").click().run()
     assert seen == [("v20-obv", "pause", "cc07 pause v20-obv")]
     assert app.session_state["cc07-last-request-id"] == "f" * 32
-    assert "queued" not in str(app.session_state.get("cc07-last-receipt", "")).lower()
+    assert "cc07-last-receipt" not in app.session_state
     source = (ROOT / "v20_app.py").read_text()
     for banned in ("subprocess", "os.system", "start-scheduledtask", "stop-scheduledtask",
                    "finam_live", "cc07-v20-operator.ps1"):
