@@ -433,5 +433,31 @@
       "Treat old FAIL/HALTED incident records above as historical, not current recovery status.",
       "Current independent live broker state after these cycles and future position exit not independently verified."
     ]
+  },
+  "h1_mechanism_parity_code_review_2026_10_27": {
+    "status": "PASS_WINDOWS_CODE_LEVEL_ONLY_NOT_LIVE_DEPLOYED",
+    "source_h1_main": "6f352acfac7ebdfabba73e143c4dfea3a6e48507",
+    "branch_revision_verified": "e6b72c14977e5d08823b234979eb3f7da3ed60d3",
+    "windows_ci_run": "40478672855",
+    "windows_ci_result": "SUCCESS",
+    "windows_lifecycle_test_counts": [
+      28,
+      9,
+      2,
+      2
+    ],
+    "referenced_report": "V20-08/H1_EXECUTION_CONFORMANCE_20261027.md",
+    "patched_draft_live_executor_blob": "519710efffbedfdfc236e9c063c2c9dda6f475f5",
+    "patched_draft_execution_blob": "0d5ee2c6eb7195ec9f59aa82a2881bfb0a058827",
+    "covered": "pre-POST checkpoint resolved ONLY after exact broker+fill+100% stop+risk; partial 1-to-2 same H1 active stop ID with actual money recheck; flat cleanup after manual exit; terminal rejected/filled exit with broker exposure; error retry and non-repeating kill-switch generations",
+    "broker_calls": "ZERO_IN_OFFLINE_TEST",
+    "intel_live_deploy": "NOT_PERFORMED_DUE_TO_THREE_OPEN_POSITIONS_AND_HALTED_NEW_ENTRIES",
+    "forbidden_until": "ALL_ACCOUNTS_FINAM_GET_ONLY_FLAT_0_OPEN_POSITIONS_AND_0_ACTIVE_ORDERS_AND_BACKUP_AND_SCOPE_PINNED_PATCH",
+    "residual_limits": [
+      "H1 strategy uses H1/TRAIL1, V20 strategy uses frozen M15/NEXT_OPEN/third-session exit; these must not be made identical",
+      "Actual dynamic quantity at broker stop trigger after a partial 1-to-2 growth is not yet physically proved, H1 flags this as contractual but not physical proof",
+      "Production live existing frozen-trade exit result and actual commissions not yet verified on broker",
+      "Source-level offline proof is not physical production acceptance"
+    ]
   }
 }
