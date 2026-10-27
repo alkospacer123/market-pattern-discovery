@@ -201,5 +201,33 @@
       "intradaylab_m15_untouched": true,
       "active_strategy_broker_stop_proof": "NOT_YET_OBSERVED"
     }
+  },
+  "portable_disaster_backup_2026_10_27": {
+    "status": "PASS_EXPORT_AND_SQLITE_BACKUP_ON_INTEL",
+    "source": "Owner PowerShell stdout 27 Oct 2026, not independently restored archive",
+    "zip": "C:\\Users\\alkos\\downloads\\V20_FULL_OFFLINE_BACKUP_20261027T071840Z.zip",
+    "sha256": "6abfc449bd399f72007cea8765ca03cda1f70ad8a4e45b703cc1c598975b9ce6",
+    "sqlite_snapshot_source": "C:\\V20Lab\\backup-08\\v20-live-20261027T071839Z",
+    "sqlite_snapshot_results": {
+      "v20-shallow": "PASS",
+      "v20-obv": "PASS",
+      "v20-inside": "PASS"
+    },
+    "files_exported": {
+      "documentation_and_operations": 26,
+      "v20_live_source": 18,
+      "h1_runtime_library": 71,
+      "v20_live_scripts": 8
+    },
+    "pinned_source_check": "PASS_4_PINNED_FILES",
+    "plaintext_or_dpapi_exported": false,
+    "live_state_modified": false,
+    "limitations": [
+      "Only point-in-time snapshot; future LIVE writes not included",
+      "New PC FINAM token needs new SID/DPAPI binding",
+      "Python dependencies not packaged as installed portable runtime",
+      "Restoration and external encrypted copy not physically tested"
+    ],
+    "additional_evidence": "V20-08/PORTABLE_BACKUP_ACCEPTANCE_20261027.json"
   }
 }
