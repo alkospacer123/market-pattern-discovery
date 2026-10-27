@@ -140,14 +140,23 @@ need ($receipt.schema -eq 'v20.08.4.live_prepared.v1' -and
       @($receipt.robots).Count -eq 3) 'V20_08_5_PREP_NOT_AUTHORIZED'
 foreach($name in $selected){[void](exact-task $name)}
 if($mode -eq 'check'){
+    Write-Output '============================================================'
+    Write-Output 'V20 M15 / LIVE LOCAL READONLY — REAL WORKER CYCLES'
+    Write-Output '============================================================'
+    Write-Output ('time_local='+([datetimeoffset]::Now).ToString('yyyy-MM-dd HH:mm:ss zzz'))
+    Write-Output 'NO_ORDER_NO_CANCEL_NO_FINAM_API_NO_SQLITE_OPEN_NO_TASK_MUTATION_NO_REARM=YES'
     $valid=0
     foreach($name in $selected){
+        Write-Output ('=== '+$name+' ===')
         $lines=@(proof $name $true)
         $lines | Write-Output
         if(($lines -join '|') -match ('v20_08_5_'+$name+'_healthy=True')){$valid++}
     }
+    Write-Output 'CYCLE_COUNT_IS_LOGGED_JSONL_ATTEMPTS_NOT_H1_DURABLE_COUNTER=YES'
+    Write-Output 'INDEPENDENT_FINAM_POSITIONS_STOPS_SQLITE=NOT_CHECKED_LOCAL_ONLY'
     need ($valid -eq $selected.Count) 'V20_08_5_HEALTH_PARTIAL'
     Write-Output ('v20_08_5_check=PASS_'+$valid+'_OF_'+$selected.Count)
+    Write-Output 'NO_CHANGES_MADE_BY_THIS_SCRIPT=YES'
     return
 }
 if($mode -eq 'stop'){
