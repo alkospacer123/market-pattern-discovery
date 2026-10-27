@@ -265,3 +265,20 @@ acceptance и не разрешение ARM.
 Выполненные тесты, проверки и изменения относятся исключительно к
 `ControlCenter/`. Ни `TradingSystemLab`, ни `IntradayLab`, ни
 `V20_TradingSystem_M15` и их runtime/Task/FINAM не изменены.
+
+
+## CC-07A: independent Windows operator — staged 27.10.2026
+
+Owner approved development exclusively inside ControlCenter. This is **source-stage only**, not deployed Intel CC-07 or LIVE ARM approval.
+
+- New `controller/cc07-v20-operator.ps1` is a separate PowerShell executor. Streamlit cannot import/invoke it. Existing twelve UI controls remain disabled pending Intel acceptance.
+- Exact pinned V20 operator blob `6f539f9c421efb56d492f1c903b998b4e8f4a9ca`, launcher blob `93fc1ce4aded6c40453da14deb4846e10da1b14f`. Frozen V20 files and Tasks are unchanged.
+- Default `preview` mode is check-only and distinguishes intentional HALTED from broker failure.
+- `execute` checks Intel host, pinned stock operator, Windows Task principal SID and operator SID, admin authorization, worker freshness <=90 sec, exact console confirmation, unique request id, exclusive mutex and durable CC-only audit with fsync before/after.
+- `PAUSE` invokes stock V20 `stop` meaning HALT new entries. If already HALTED, audit no-op without touching the Task, positions or stop protection.
+- `START` and `RESTART` require separate per-request admin-owned release (<=5 minutes), FINAM GET-only FLAT and zero active orders. They both ARM. No release file is created or installed in this stage.
+- `STOP` is not V20 `stop`: first prove broker FLAT, then HALT entries, confirm FINAM FLAT again, only then stop selected Windows Task. Unknown or inconsistent broker evidence refuses action.
+- Audit directory and release are not created in this stage; a missing protected audit directory blocks every execution. Preview does not mutate live state.
+- Follow-up physical acceptance: separately install the protected CC-only executor + audit directory, verify operator SID and source pins, test preview and already-HALTED PAUSE no-op. Do not execute ARM/restart/Task stop without a new explicit approval.
+- Critical isolation blocker: the V20 panel on 8502 was manually restored with elevated identity. Before any command bridge from Streamlit, run it under dedicated non-admin SID and establish authenticated narrow IPC. Never give the UI FINAM tokens, admin rights or V20 Task privileges.
+- Native Windows syntax/authority regression in CI does NOT establish physical Intel acceptance. PR #568 remains Draft, no merge.
