@@ -166,6 +166,10 @@
       "sha256": "6ebfa76af3f3bb9d378b60ff34c3ca04ceefbb93795d2fadc45f94a9b76dafa3"
     },
     {
+      "path": "controller/v20_live_policy.py",
+      "sha256": "9296ffd63ec133602b6904144d7e43b57fbc487831fb326d16bf3525a4958ead"
+    },
+    {
       "path": "controller/v20_offline_journal.py",
       "sha256": "fc0fc223299a974e9f57ac6c4027a331323d2255845fc4b21327bced9991c4c4"
     },
@@ -391,7 +395,7 @@
     },
     {
       "path": "docs/V20_CONTROL_CENTER_ROADMAP.md",
-      "sha256": "d78b7fbca805edd3898c09458be16b76102868306b3e52ac1cbe36a3a7d77fb1"
+      "sha256": "f17aa03b00736e88639ea8d42763f7ebf26f51268eb9cd50c95e954108af8af5"
     },
     {
       "path": "docs/browser-check.json",
@@ -560,6 +564,10 @@
     {
       "path": "tests/test_v20_live_export.py",
       "sha256": "07a232da18ccdfab7a607898076ea0e3242e222be568c444dd22d5a9a4f80db6"
+    },
+    {
+      "path": "tests/test_v20_live_policy.py",
+      "sha256": "ce2d828bd225f0e0a4c39f9fd0aba9ebbc3e1fe04cd5a1f555cf5367c1d7901f"
     },
     {
       "path": "tests/test_v20_offline_journal.py",
