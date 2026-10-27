@@ -4,7 +4,7 @@
   "source": "Intel URIU-PC owner FINAM history/order screenshots and exact operator stdout in conversation; not independent live API capture from GitHub",
   "execution": "PASS_3_OF_3_REAL_ENTRY_AND_PROVEN_BROKER_100_PERCENT_SLTP_MANUAL_FLAT",
   "accounting": "ACCEPTED_WITH_TARIFF_RESERVE_ACTUAL_FEES_TO_BE_OBSERVED_ON_FUTURE_LIVE_TRADES",
-  "automated_live": "LIVE_WORKERS_RUNNING_3_OF_3_HALTED_NEW_ENTRIES_EXISTING_POSITIONS_MANAGED_AFTER_STALE_CHECKPOINT_CORRECTION",
+  "automated_live": "PASS_INSTALLED_H1_PARITY_RUNTIME_3_OF_3_RUNNING_HALTED_FINAM_FLAT_NO_NEW_ENTRIES_AWAIT_CONTROL_CENTER_AND_NEXT_APPROVED_LIVE_CYCLE",
   "strategy_timing": "FROZEN_M15_LIVE_TASKS_ARMED_NEXT_OPEN_STRATEGIC_FILL_NOT_YET_OBSERVED",
   "market": "CNYRUBF",
   "contract_economics": {
@@ -511,7 +511,7 @@
     "historical_data_note": "Replay includes only FINAM bars timestamped <= original 10:30/11:00+30sec; later-published next bar excluded. Signal still pending true Intel FINAM GET-only replay."
   },
   "h1_parity_flat_update_20261027": {
-    "status": "PREPARED_WINDOWS_CI_PASS_PENDING_INTEL_OWNER_EXECUTION",
+    "status": "PASS_3_OF_3_INTEL_INSTALLED_RUNNING_HALTED_BROKER_FLAT",
     "reason": "27 Oct three positions reported manually/automatically closed with stops removed; broker 3/3 flat not yet independently verified via host",
     "installer": "V20-08/v20-08-h1-parity-flat-update.ps1",
     "installer_blob": "70a6f71a8ffee5bcb599b9fd5f824e8253094829",
@@ -528,7 +528,34 @@
     "orders_allowed": false,
     "auto_arm": false,
     "h1_or_intradaylab_m15_mutated": false,
-    "intel_install_result": "NOT_YET_CONFIRMED",
-    "followup": "After physical installation check durable flat_cleanup and no unrelated execution_halt; only after separate explicit authorization consider ARM. Do not repeat technical trading tests."
+    "intel_install_result": "PASS_3_OF_3_NEW_H1_PARITY_RELEASE_RUNNING_HALTED_FINAM_FLAT_FROM_OWNER_PS_OUTPUT",
+    "followup": "After physical installation check durable flat_cleanup and no unrelated execution_halt; only after separate explicit authorization consider ARM. Do not repeat technical trading tests.",
+    "intel_operator_evidence": {
+      "verified_local_script_blob": "70a6f71a8ffee5bcb599b9fd5f824e8253094829",
+      "verify": "v20_update_verify=PASS_3_OF_3_FLAT_OLD_PINNED_RELEASE",
+      "pre_backup": "v20_08_5_backup=PASS path=C:\\V20Lab\\backup-08\\v20-live-20261027T122311Z",
+      "source_stage": "v20_update_new_blobs=PASS_3_OF_3_STAGED_BEFORE_TASK_STOP",
+      "install_code": "v20_update_blobs=PASS_3_OF_3_H1_PARITY_PINNED",
+      "launcher": "v20_update_launcher=PASS_3_OF_3_PINNED_NO_NETWORK",
+      "post_install_finam": [
+        "v20-shallow GET_ONLY_FLAT",
+        "v20-obv GET_ONLY_FLAT",
+        "v20-inside GET_ONLY_FLAT"
+      ],
+      "processes": [
+        "v20-shallow=PASS_RUNNING_HALTED_FRESH_NO_NEW_ENTRIES",
+        "v20-obv=PASS_RUNNING_HALTED_FRESH_NO_NEW_ENTRIES",
+        "v20-inside=PASS_RUNNING_HALTED_FRESH_NO_NEW_ENTRIES"
+      ],
+      "receipt": "v20_update_install=PASS_3_OF_3_NEW_H1_PARITY_RELEASE_RUNNING_HALTED_FINAM_FLAT",
+      "no_automatic_arm": "v20_update_auto_arm=NO"
+    },
+    "next_plan": {
+      "immediate": "ALL_3_REMAIN_HALTED_WHILE_OWNER_INSTALLS_CONTROL_CENTER_IN_SEPARATE_PROJECT",
+      "control_center": "Connect readonly status and test safe controls per separate Control Center project; do not automatically ARM/restart V20 from panel before owner returns",
+      "upon_return": "With owner approval, enable V20 trading and verify ONE natural full signal -> broker entry -> 100%-SLTP -> position management -> exit, comparing frozen rules and H1 mechanisms; no artificial shadow/multi-day stages.",
+      "after_full_live_cycle_pass": "Create new complete standalone encrypted portable FULL ZIP (source, PINs, manifest, docs, 3 online SQLite snapshots, Windows Task XML, restore runbook, archive checksum); update full passport, operator docs and disaster recovery guides",
+      "do_not_claim": "No full post-update trade roundtrip has been observed/approved, and no new FULL portable ZIP has been made from this updated release yet."
+    }
   }
 }
