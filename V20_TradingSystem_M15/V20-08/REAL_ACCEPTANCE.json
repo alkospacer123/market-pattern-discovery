@@ -98,7 +98,7 @@
     "08.2": "PASS_3_OF_3_BROKER_EXECUTION_SLTP_MANUAL_EXIT",
     "08.3": "PASS_OWNER_ACCEPTED_TECHNICAL_3_OF_3_AND_TARIFF_COST_MODEL",
     "08.4": "PASS_INTEL_3_OF_3_RUNNING_ARMED_HEALTHY_FRESH_CYCLE",
-    "08.5": "FAIL_HEALTH_3_OF_3_RECOVERY_IN_PR_PENDING_INTEL"
+    "08.5": "FAIL: ACCOUNT_FLAT_3_OF_3; BACKUP_PYTHON_C_QUOTING; H1_STYLE_FIX_IN_DRAFT_PR; INTEL_RECOVERY_PENDING"
   },
   "acceptance_report": "V20-08/ACCEPTANCE_08_3_RU.md",
   "actual_commission_verification": {
@@ -168,6 +168,17 @@
     "hypothesis": "H1 FinamServerError follows repeated GET >=500 or certain non-order POST/DELETE; exact endpoint unobserved; common FINAM service issue likely, not proven",
     "fix": "Bounded suppression of FinamServerError/Timeout/RateLimit in readonly account snapshot and frozen M15 signal proposal only; uncertain order POST/SLTP/exit still emergency HALT",
     "recovery": "V20 only pinned repair script with FINAM GET-only three-account flat preflight, SQLite online backup before any code change, exact hash upgrade then broker-clean Task rearm",
-    "recovery_executed_on_intel": false
+    "recovery_executed_on_intel": false,
+    "recovery_first_attempt": {
+      "source": "Owner Intel Windows PowerShell output",
+      "checked": "PASS_3_OF_3_HALTED_READY_SOURCE_PINNED",
+      "finam_get_only_flat": "PASS_3_OF_3",
+      "backup": "FAIL_WIN_POWERSHELL_51_PYTHON_C_QUOTING",
+      "installed_code_changed": false,
+      "windows_tasks_changed": false,
+      "orders_created": false,
+      "correction": "Pinned V20-only recovery uses a temporary .py for SQLite online backup, then replaces V20 module with H1 ProductionService.run-style 3-second fault retry; Windows PowerShell 5.1 offline mock test added",
+      "intel_recovery_pending": true
+    }
   }
 }
