@@ -31,16 +31,600 @@ function trusted([string]$path){
  }
 }
 function proof {
- $rows=@(& powershell.exe -noprofile -noninteractive -executionpolicy bypass -file $operator -mode check -robot $robot 2>&1)
- # Intentional HALTED returns HEALTH_PARTIAL: parse the individual status lines.
- $task=@($rows | where-object {$_ -match ('^v20_08_5_'+$robot+'_task=')})
- $switch=@($rows | where-object {$_ -match ('^v20_08_5_'+$robot+'_switch=')})
- $age=@($rows | where-object {$_ -match ('^v20_08_5_'+$robot+'_age_seconds=')})
- need ($task.count -eq 1 -and [string]$task[0] -match '=Running$') 'cc07_task_not_running'
- need ($switch.count -eq 1 -and [string]$switch[0] -match '=HALTED$|=ARMED$') 'cc07_switch_unknown'
- need ($age.count -eq 1 -and [string]$age[0] -match '=[0-9]+$') 'cc07_cycle_age_unknown'
- need ([int](([string]$age[0]).split('=')[-1]) -le 90) 'cc07_cycle_stale'
- return ([string]$switch[0]).split('=')[-1]
+ # Windows PowerShell 5.1 promotes stderr from a child powershell.exe into a
+ # terminating NativeCommandError when ErrorActionPreference is Stop. Only
+ # during this check-only child, collect BOTH streams and the real exit code.
+ # Never infer success just from visible status lines.
+ $previous=$ErrorActionPreference
+ try{
+  $ErrorActionPreference='Continue'
+  $rows=@(& powershell.exe -noprofile -noninteractive -executionpolicy bypass -file $operator -mode check -robot $robot 2>&1)
+  $checkexit=$lastexitcode
+ }finally{$ErrorActionPreference=$previous}
+ $lines=@($rows | foreach-object {[string]$_})
+ $task=@($lines | where-object {$_ -match ('^v20_08_5_'+$robot+'_task=')})
+ $switch=@($lines | where-object {$_ -match ('^v20_08_5_'+$robot+'_switch=')})
+ $age=@($lines | where-object {$_ -match ('^v20_08_5_'+$robot+'_age_seconds=')})
+ $cycle=@($lines | where-object {$_ -match ('^v20_08_5_'+$robot+'_cycle=')})
+ $code=@($lines | where-object {$_ -match ('^v20_08_5_'+$robot+'_cycle_code=')})
+ $banner=@($lines | where-object {$_ -ceq 'NO_ORDER_NO_CANCEL_NO_FINAM_API_NO_SQLITE_OPEN_NO_TASK_MUTATION_NO_REARM=YES'})
+ need ($banner.count -eq 1) 'cc07_stock_readonly_banner_missing'
+ need ($task.count -eq 1 -and [string]$task[0] -match '=Runningfunction flat {
+ $rows=@(& powershell.exe -noprofile -noninteractive -executionpolicy bypass -file $launcher -mode readonly -robot $robot 2>&1)
+ need ($lastexitcode -eq 0 -and ($rows -join '|') -match 'v20_08_4_positions=0' -and ($rows -join '|') -match 'v20_08_4_active_orders=0') 'cc07_broker_flat_not_proven'
+}
+function audit([string]$phase,[string]$result){
+ $log=join-path $audit 'v20-control.jsonl'
+ if(test-path -literalpath $log){trusted $log}
+ $row=[ordered]@{schema='cc.v20.audit.v1';utc=[datetimeoffset]::utcnow.tostring('o');request_id=$requestid;robot=$robot;action=$action;actor_sid=$sid;phase=$phase;result=$result}
+ $data=[text.utf8encoding]::new($false).getbytes(($row|convertto-json -compress)+[environment]::newline)
+ $stream=[io.filestream]::new($log,[io.filemode]::append,[io.fileaccess]::write,[io.fileshare]::none)
+ try{$stream.write($data,0,$data.length);$stream.flush($true)}finally{$stream.dispose()}
+}
+function release {
+ trusted $release
+ $r=get-content -literalpath $release -raw -encoding utf8 | convertfrom-json
+ need ($r.schema -ceq 'cc.v20.release.v1' -and $r.approved -ceq $true -and $r.robot -ceq $robot -and $r.action -ceq $action -and $r.request_id -ceq $requestid -and $r.actor_sid -ceq $sid) 'cc07_no_matching_release'
+ $now=[datetimeoffset]::utcnow
+ $issued=[datetimeoffset]::parse([string]$r.issued_utc)
+ $expires=[datetimeoffset]::parse([string]$r.expires_utc)
+ need ($issued -le $now.addseconds(30) -and $expires -ge $now -and $expires -le $issued.addminutes(5)) 'cc07_release_expired'
+}
+need ($env:os -ceq 'Windows_NT' -and $env:computername -ceq 'URIU-PC') 'cc07_wrong_host'
+pin $operator '6f539f9c421efb56d492f1c903b998b4e8f4a9ca'
+pin $launcher '93fc1ce4aded6c40453da14deb4846e10da1b14f'
+$sid=[security.principal.windowsidentity]::getcurrent().user.value
+$task=get-scheduledtask -taskname $robot -taskpath '\' -erroraction stop
+$taskSid=if([string]$task.principal.userid -match '^S-\d+-'){[string]$task.principal.userid}else{([security.principal.ntaccount]::new([string]$task.principal.userid)).translate([security.principal.securityidentifier]).value}
+need ($sid -ceq $taskSid) 'cc07_operator_sid_mismatch'
+$state=proof
+if($mode -eq 'preview'){
+ write-output ('cc07_preview=pass robot='+$robot+' action='+$action+' task=running switch='+$state)
+ write-output 'cc07_no_finam_no_arm_no_task_mutation=yes'
+ return
+}
+need ($requestid -cmatch '^[a-z0-9][a-z0-9-]{0,47}$') 'cc07_invalid_request_id'
+$identity=[security.principal.windowsprincipal]::new([security.principal.windowsidentity]::getcurrent())
+need ($identity.isinrole([security.principal.windowsbuiltinrole]::administrator)) 'cc07_admin_required'
+trusted $audit
+# PAUSE is the only action that cannot ARM or strand a position. All other
+# actions REQUIRE a separate fresh admin-owned approval, never UI input alone.
+if($action -ne 'pause'){release}
+$expected='cc07 '+$action+' '+$robot+' '+$requestid
+$typed=read-host ('type exactly: '+$expected)
+need ($typed -ceq $expected) 'cc07_confirmation_refused'
+$mutex=[threading.mutex]::new($false,'Global\ControlCenter_CC07_V20')
+$locked=$false
+try{
+ try{$locked=$mutex.waitone(0)}catch [threading.abandonedmutexexception]{throw 'cc07_abandoned_mutex'}
+ need $locked 'cc07_command_in_progress'
+ $log=join-path $audit 'v20-control.jsonl'
+ if(test-path -literalpath $log){
+  trusted $log
+  need ((get-item -literalpath $log).length -le 4194304) 'cc07_audit_full'
+  foreach($line in @(get-content -literalpath $log -encoding utf8)){
+   if($line){
+    $old=$line|convertfrom-json
+    need ([string]$old.request_id -cne $requestid) 'cc07_duplicate_request_id'
+   }
+  }
+ }
+ $state=proof
+ if($action -ne 'pause'){release;flat}
+ audit 'began' 'preflight_pass'
+ try{
+  if($action -eq 'pause' -and $state -ceq 'HALTED'){
+   audit 'finished' 'already_halted_no_change'
+   write-output 'cc07_result=already_halted_no_change'
+   return
+  }
+  $modeStock=if($action -in @('pause','stop')){'stop'}else{$action}
+  $rows=@(& powershell.exe -noprofile -noninteractive -executionpolicy bypass -file $operator -mode $modeStock -robot $robot 2>&1)
+  need ($lastexitcode -eq 0) 'cc07_stock_operator_failed'
+  if($action -eq 'stop'){
+   # Stop is not V20 "stop": first HALT, then fresh broker flat proof.
+   flat
+   stop-scheduledtask -taskname $robot -taskpath '\' -erroraction stop
+   $after=get-scheduledtask -taskname $robot -taskpath '\' -erroraction stop
+   need ($after.state -ne 'Running') 'cc07_task_still_running'
+  }else{
+   $after=proof
+   if($action -eq 'pause'){need ($after -ceq 'HALTED') 'cc07_pause_not_verified'}
+   if($action -in @('start','restart')){need ($after -ceq 'ARMED') 'cc07_arm_not_verified'}
+  }
+  audit 'finished' ('verified_'+$action)
+  write-output ('cc07_result=verified_'+$action)
+ }catch{
+  audit 'finished' 'unknown_outcome_reconcile_manually'
+  throw
+ }
+}finally{
+ if($locked){$mutex.releasemutex()}
+ $mutex.dispose()
+}
+) 'cc07_task_not_running'
+ need ($switch.count -eq 1 -and [string]$switch[0] -match '=HALTED$|=ARMEDfunction flat {
+ $rows=@(& powershell.exe -noprofile -noninteractive -executionpolicy bypass -file $launcher -mode readonly -robot $robot 2>&1)
+ need ($lastexitcode -eq 0 -and ($rows -join '|') -match 'v20_08_4_positions=0' -and ($rows -join '|') -match 'v20_08_4_active_orders=0') 'cc07_broker_flat_not_proven'
+}
+function audit([string]$phase,[string]$result){
+ $log=join-path $audit 'v20-control.jsonl'
+ if(test-path -literalpath $log){trusted $log}
+ $row=[ordered]@{schema='cc.v20.audit.v1';utc=[datetimeoffset]::utcnow.tostring('o');request_id=$requestid;robot=$robot;action=$action;actor_sid=$sid;phase=$phase;result=$result}
+ $data=[text.utf8encoding]::new($false).getbytes(($row|convertto-json -compress)+[environment]::newline)
+ $stream=[io.filestream]::new($log,[io.filemode]::append,[io.fileaccess]::write,[io.fileshare]::none)
+ try{$stream.write($data,0,$data.length);$stream.flush($true)}finally{$stream.dispose()}
+}
+function release {
+ trusted $release
+ $r=get-content -literalpath $release -raw -encoding utf8 | convertfrom-json
+ need ($r.schema -ceq 'cc.v20.release.v1' -and $r.approved -ceq $true -and $r.robot -ceq $robot -and $r.action -ceq $action -and $r.request_id -ceq $requestid -and $r.actor_sid -ceq $sid) 'cc07_no_matching_release'
+ $now=[datetimeoffset]::utcnow
+ $issued=[datetimeoffset]::parse([string]$r.issued_utc)
+ $expires=[datetimeoffset]::parse([string]$r.expires_utc)
+ need ($issued -le $now.addseconds(30) -and $expires -ge $now -and $expires -le $issued.addminutes(5)) 'cc07_release_expired'
+}
+need ($env:os -ceq 'Windows_NT' -and $env:computername -ceq 'URIU-PC') 'cc07_wrong_host'
+pin $operator '6f539f9c421efb56d492f1c903b998b4e8f4a9ca'
+pin $launcher '93fc1ce4aded6c40453da14deb4846e10da1b14f'
+$sid=[security.principal.windowsidentity]::getcurrent().user.value
+$task=get-scheduledtask -taskname $robot -taskpath '\' -erroraction stop
+$taskSid=if([string]$task.principal.userid -match '^S-\d+-'){[string]$task.principal.userid}else{([security.principal.ntaccount]::new([string]$task.principal.userid)).translate([security.principal.securityidentifier]).value}
+need ($sid -ceq $taskSid) 'cc07_operator_sid_mismatch'
+$state=proof
+if($mode -eq 'preview'){
+ write-output ('cc07_preview=pass robot='+$robot+' action='+$action+' task=running switch='+$state)
+ write-output 'cc07_no_finam_no_arm_no_task_mutation=yes'
+ return
+}
+need ($requestid -cmatch '^[a-z0-9][a-z0-9-]{0,47}$') 'cc07_invalid_request_id'
+$identity=[security.principal.windowsprincipal]::new([security.principal.windowsidentity]::getcurrent())
+need ($identity.isinrole([security.principal.windowsbuiltinrole]::administrator)) 'cc07_admin_required'
+trusted $audit
+# PAUSE is the only action that cannot ARM or strand a position. All other
+# actions REQUIRE a separate fresh admin-owned approval, never UI input alone.
+if($action -ne 'pause'){release}
+$expected='cc07 '+$action+' '+$robot+' '+$requestid
+$typed=read-host ('type exactly: '+$expected)
+need ($typed -ceq $expected) 'cc07_confirmation_refused'
+$mutex=[threading.mutex]::new($false,'Global\ControlCenter_CC07_V20')
+$locked=$false
+try{
+ try{$locked=$mutex.waitone(0)}catch [threading.abandonedmutexexception]{throw 'cc07_abandoned_mutex'}
+ need $locked 'cc07_command_in_progress'
+ $log=join-path $audit 'v20-control.jsonl'
+ if(test-path -literalpath $log){
+  trusted $log
+  need ((get-item -literalpath $log).length -le 4194304) 'cc07_audit_full'
+  foreach($line in @(get-content -literalpath $log -encoding utf8)){
+   if($line){
+    $old=$line|convertfrom-json
+    need ([string]$old.request_id -cne $requestid) 'cc07_duplicate_request_id'
+   }
+  }
+ }
+ $state=proof
+ if($action -ne 'pause'){release;flat}
+ audit 'began' 'preflight_pass'
+ try{
+  if($action -eq 'pause' -and $state -ceq 'HALTED'){
+   audit 'finished' 'already_halted_no_change'
+   write-output 'cc07_result=already_halted_no_change'
+   return
+  }
+  $modeStock=if($action -in @('pause','stop')){'stop'}else{$action}
+  $rows=@(& powershell.exe -noprofile -noninteractive -executionpolicy bypass -file $operator -mode $modeStock -robot $robot 2>&1)
+  need ($lastexitcode -eq 0) 'cc07_stock_operator_failed'
+  if($action -eq 'stop'){
+   # Stop is not V20 "stop": first HALT, then fresh broker flat proof.
+   flat
+   stop-scheduledtask -taskname $robot -taskpath '\' -erroraction stop
+   $after=get-scheduledtask -taskname $robot -taskpath '\' -erroraction stop
+   need ($after.state -ne 'Running') 'cc07_task_still_running'
+  }else{
+   $after=proof
+   if($action -eq 'pause'){need ($after -ceq 'HALTED') 'cc07_pause_not_verified'}
+   if($action -in @('start','restart')){need ($after -ceq 'ARMED') 'cc07_arm_not_verified'}
+  }
+  audit 'finished' ('verified_'+$action)
+  write-output ('cc07_result=verified_'+$action)
+ }catch{
+  audit 'finished' 'unknown_outcome_reconcile_manually'
+  throw
+ }
+}finally{
+ if($locked){$mutex.releasemutex()}
+ $mutex.dispose()
+}
+) 'cc07_switch_unknown'
+ need ($age.count -eq 1 -and [string]$age[0] -match '=(-?[0-9]+)function flat {
+ $rows=@(& powershell.exe -noprofile -noninteractive -executionpolicy bypass -file $launcher -mode readonly -robot $robot 2>&1)
+ need ($lastexitcode -eq 0 -and ($rows -join '|') -match 'v20_08_4_positions=0' -and ($rows -join '|') -match 'v20_08_4_active_orders=0') 'cc07_broker_flat_not_proven'
+}
+function audit([string]$phase,[string]$result){
+ $log=join-path $audit 'v20-control.jsonl'
+ if(test-path -literalpath $log){trusted $log}
+ $row=[ordered]@{schema='cc.v20.audit.v1';utc=[datetimeoffset]::utcnow.tostring('o');request_id=$requestid;robot=$robot;action=$action;actor_sid=$sid;phase=$phase;result=$result}
+ $data=[text.utf8encoding]::new($false).getbytes(($row|convertto-json -compress)+[environment]::newline)
+ $stream=[io.filestream]::new($log,[io.filemode]::append,[io.fileaccess]::write,[io.fileshare]::none)
+ try{$stream.write($data,0,$data.length);$stream.flush($true)}finally{$stream.dispose()}
+}
+function release {
+ trusted $release
+ $r=get-content -literalpath $release -raw -encoding utf8 | convertfrom-json
+ need ($r.schema -ceq 'cc.v20.release.v1' -and $r.approved -ceq $true -and $r.robot -ceq $robot -and $r.action -ceq $action -and $r.request_id -ceq $requestid -and $r.actor_sid -ceq $sid) 'cc07_no_matching_release'
+ $now=[datetimeoffset]::utcnow
+ $issued=[datetimeoffset]::parse([string]$r.issued_utc)
+ $expires=[datetimeoffset]::parse([string]$r.expires_utc)
+ need ($issued -le $now.addseconds(30) -and $expires -ge $now -and $expires -le $issued.addminutes(5)) 'cc07_release_expired'
+}
+need ($env:os -ceq 'Windows_NT' -and $env:computername -ceq 'URIU-PC') 'cc07_wrong_host'
+pin $operator '6f539f9c421efb56d492f1c903b998b4e8f4a9ca'
+pin $launcher '93fc1ce4aded6c40453da14deb4846e10da1b14f'
+$sid=[security.principal.windowsidentity]::getcurrent().user.value
+$task=get-scheduledtask -taskname $robot -taskpath '\' -erroraction stop
+$taskSid=if([string]$task.principal.userid -match '^S-\d+-'){[string]$task.principal.userid}else{([security.principal.ntaccount]::new([string]$task.principal.userid)).translate([security.principal.securityidentifier]).value}
+need ($sid -ceq $taskSid) 'cc07_operator_sid_mismatch'
+$state=proof
+if($mode -eq 'preview'){
+ write-output ('cc07_preview=pass robot='+$robot+' action='+$action+' task=running switch='+$state)
+ write-output 'cc07_no_finam_no_arm_no_task_mutation=yes'
+ return
+}
+need ($requestid -cmatch '^[a-z0-9][a-z0-9-]{0,47}$') 'cc07_invalid_request_id'
+$identity=[security.principal.windowsprincipal]::new([security.principal.windowsidentity]::getcurrent())
+need ($identity.isinrole([security.principal.windowsbuiltinrole]::administrator)) 'cc07_admin_required'
+trusted $audit
+# PAUSE is the only action that cannot ARM or strand a position. All other
+# actions REQUIRE a separate fresh admin-owned approval, never UI input alone.
+if($action -ne 'pause'){release}
+$expected='cc07 '+$action+' '+$robot+' '+$requestid
+$typed=read-host ('type exactly: '+$expected)
+need ($typed -ceq $expected) 'cc07_confirmation_refused'
+$mutex=[threading.mutex]::new($false,'Global\ControlCenter_CC07_V20')
+$locked=$false
+try{
+ try{$locked=$mutex.waitone(0)}catch [threading.abandonedmutexexception]{throw 'cc07_abandoned_mutex'}
+ need $locked 'cc07_command_in_progress'
+ $log=join-path $audit 'v20-control.jsonl'
+ if(test-path -literalpath $log){
+  trusted $log
+  need ((get-item -literalpath $log).length -le 4194304) 'cc07_audit_full'
+  foreach($line in @(get-content -literalpath $log -encoding utf8)){
+   if($line){
+    $old=$line|convertfrom-json
+    need ([string]$old.request_id -cne $requestid) 'cc07_duplicate_request_id'
+   }
+  }
+ }
+ $state=proof
+ if($action -ne 'pause'){release;flat}
+ audit 'began' 'preflight_pass'
+ try{
+  if($action -eq 'pause' -and $state -ceq 'HALTED'){
+   audit 'finished' 'already_halted_no_change'
+   write-output 'cc07_result=already_halted_no_change'
+   return
+  }
+  $modeStock=if($action -in @('pause','stop')){'stop'}else{$action}
+  $rows=@(& powershell.exe -noprofile -noninteractive -executionpolicy bypass -file $operator -mode $modeStock -robot $robot 2>&1)
+  need ($lastexitcode -eq 0) 'cc07_stock_operator_failed'
+  if($action -eq 'stop'){
+   # Stop is not V20 "stop": first HALT, then fresh broker flat proof.
+   flat
+   stop-scheduledtask -taskname $robot -taskpath '\' -erroraction stop
+   $after=get-scheduledtask -taskname $robot -taskpath '\' -erroraction stop
+   need ($after.state -ne 'Running') 'cc07_task_still_running'
+  }else{
+   $after=proof
+   if($action -eq 'pause'){need ($after -ceq 'HALTED') 'cc07_pause_not_verified'}
+   if($action -in @('start','restart')){need ($after -ceq 'ARMED') 'cc07_arm_not_verified'}
+  }
+  audit 'finished' ('verified_'+$action)
+  write-output ('cc07_result=verified_'+$action)
+ }catch{
+  audit 'finished' 'unknown_outcome_reconcile_manually'
+  throw
+ }
+}finally{
+ if($locked){$mutex.releasemutex()}
+ $mutex.dispose()
+}
+) 'cc07_cycle_age_unknown'
+ $seconds=[int](([string]$age[0]).split('=')[-1])
+ need ($seconds -ge -5 -and $seconds -le 90) 'cc07_cycle_stale'
+ need ($cycle.count -eq 1) 'cc07_cycle_unverified'
+ $switchstate=([string]$switch[0]).split('=')[-1]
+ if($switchstate -ceq 'HALTED'){
+  # HEALTH_PARTIAL is acceptable ONLY with fresh HALTED_NO_NEW_ENTRIES,
+  # the complete stock proof and its exact intentionally nonzero status.
+  need ($checkexit -eq 1 -and ($lines -join '|') -match 'V20_08_5_HEALTH_PARTIAL' -and
+   [string]$cycle[0] -match '=HALTEDfunction flat {
+ $rows=@(& powershell.exe -noprofile -noninteractive -executionpolicy bypass -file $launcher -mode readonly -robot $robot 2>&1)
+ need ($lastexitcode -eq 0 -and ($rows -join '|') -match 'v20_08_4_positions=0' -and ($rows -join '|') -match 'v20_08_4_active_orders=0') 'cc07_broker_flat_not_proven'
+}
+function audit([string]$phase,[string]$result){
+ $log=join-path $audit 'v20-control.jsonl'
+ if(test-path -literalpath $log){trusted $log}
+ $row=[ordered]@{schema='cc.v20.audit.v1';utc=[datetimeoffset]::utcnow.tostring('o');request_id=$requestid;robot=$robot;action=$action;actor_sid=$sid;phase=$phase;result=$result}
+ $data=[text.utf8encoding]::new($false).getbytes(($row|convertto-json -compress)+[environment]::newline)
+ $stream=[io.filestream]::new($log,[io.filemode]::append,[io.fileaccess]::write,[io.fileshare]::none)
+ try{$stream.write($data,0,$data.length);$stream.flush($true)}finally{$stream.dispose()}
+}
+function release {
+ trusted $release
+ $r=get-content -literalpath $release -raw -encoding utf8 | convertfrom-json
+ need ($r.schema -ceq 'cc.v20.release.v1' -and $r.approved -ceq $true -and $r.robot -ceq $robot -and $r.action -ceq $action -and $r.request_id -ceq $requestid -and $r.actor_sid -ceq $sid) 'cc07_no_matching_release'
+ $now=[datetimeoffset]::utcnow
+ $issued=[datetimeoffset]::parse([string]$r.issued_utc)
+ $expires=[datetimeoffset]::parse([string]$r.expires_utc)
+ need ($issued -le $now.addseconds(30) -and $expires -ge $now -and $expires -le $issued.addminutes(5)) 'cc07_release_expired'
+}
+need ($env:os -ceq 'Windows_NT' -and $env:computername -ceq 'URIU-PC') 'cc07_wrong_host'
+pin $operator '6f539f9c421efb56d492f1c903b998b4e8f4a9ca'
+pin $launcher '93fc1ce4aded6c40453da14deb4846e10da1b14f'
+$sid=[security.principal.windowsidentity]::getcurrent().user.value
+$task=get-scheduledtask -taskname $robot -taskpath '\' -erroraction stop
+$taskSid=if([string]$task.principal.userid -match '^S-\d+-'){[string]$task.principal.userid}else{([security.principal.ntaccount]::new([string]$task.principal.userid)).translate([security.principal.securityidentifier]).value}
+need ($sid -ceq $taskSid) 'cc07_operator_sid_mismatch'
+$state=proof
+if($mode -eq 'preview'){
+ write-output ('cc07_preview=pass robot='+$robot+' action='+$action+' task=running switch='+$state)
+ write-output 'cc07_no_finam_no_arm_no_task_mutation=yes'
+ return
+}
+need ($requestid -cmatch '^[a-z0-9][a-z0-9-]{0,47}$') 'cc07_invalid_request_id'
+$identity=[security.principal.windowsprincipal]::new([security.principal.windowsidentity]::getcurrent())
+need ($identity.isinrole([security.principal.windowsbuiltinrole]::administrator)) 'cc07_admin_required'
+trusted $audit
+# PAUSE is the only action that cannot ARM or strand a position. All other
+# actions REQUIRE a separate fresh admin-owned approval, never UI input alone.
+if($action -ne 'pause'){release}
+$expected='cc07 '+$action+' '+$robot+' '+$requestid
+$typed=read-host ('type exactly: '+$expected)
+need ($typed -ceq $expected) 'cc07_confirmation_refused'
+$mutex=[threading.mutex]::new($false,'Global\ControlCenter_CC07_V20')
+$locked=$false
+try{
+ try{$locked=$mutex.waitone(0)}catch [threading.abandonedmutexexception]{throw 'cc07_abandoned_mutex'}
+ need $locked 'cc07_command_in_progress'
+ $log=join-path $audit 'v20-control.jsonl'
+ if(test-path -literalpath $log){
+  trusted $log
+  need ((get-item -literalpath $log).length -le 4194304) 'cc07_audit_full'
+  foreach($line in @(get-content -literalpath $log -encoding utf8)){
+   if($line){
+    $old=$line|convertfrom-json
+    need ([string]$old.request_id -cne $requestid) 'cc07_duplicate_request_id'
+   }
+  }
+ }
+ $state=proof
+ if($action -ne 'pause'){release;flat}
+ audit 'began' 'preflight_pass'
+ try{
+  if($action -eq 'pause' -and $state -ceq 'HALTED'){
+   audit 'finished' 'already_halted_no_change'
+   write-output 'cc07_result=already_halted_no_change'
+   return
+  }
+  $modeStock=if($action -in @('pause','stop')){'stop'}else{$action}
+  $rows=@(& powershell.exe -noprofile -noninteractive -executionpolicy bypass -file $operator -mode $modeStock -robot $robot 2>&1)
+  need ($lastexitcode -eq 0) 'cc07_stock_operator_failed'
+  if($action -eq 'stop'){
+   # Stop is not V20 "stop": first HALT, then fresh broker flat proof.
+   flat
+   stop-scheduledtask -taskname $robot -taskpath '\' -erroraction stop
+   $after=get-scheduledtask -taskname $robot -taskpath '\' -erroraction stop
+   need ($after.state -ne 'Running') 'cc07_task_still_running'
+  }else{
+   $after=proof
+   if($action -eq 'pause'){need ($after -ceq 'HALTED') 'cc07_pause_not_verified'}
+   if($action -in @('start','restart')){need ($after -ceq 'ARMED') 'cc07_arm_not_verified'}
+  }
+  audit 'finished' ('verified_'+$action)
+  write-output ('cc07_result=verified_'+$action)
+ }catch{
+  audit 'finished' 'unknown_outcome_reconcile_manually'
+  throw
+ }
+}finally{
+ if($locked){$mutex.releasemutex()}
+ $mutex.dispose()
+}
+ -and
+   $code.count -eq 1 -and [string]$code[0] -match '=HALTED_NO_NEW_ENTRIESfunction flat {
+ $rows=@(& powershell.exe -noprofile -noninteractive -executionpolicy bypass -file $launcher -mode readonly -robot $robot 2>&1)
+ need ($lastexitcode -eq 0 -and ($rows -join '|') -match 'v20_08_4_positions=0' -and ($rows -join '|') -match 'v20_08_4_active_orders=0') 'cc07_broker_flat_not_proven'
+}
+function audit([string]$phase,[string]$result){
+ $log=join-path $audit 'v20-control.jsonl'
+ if(test-path -literalpath $log){trusted $log}
+ $row=[ordered]@{schema='cc.v20.audit.v1';utc=[datetimeoffset]::utcnow.tostring('o');request_id=$requestid;robot=$robot;action=$action;actor_sid=$sid;phase=$phase;result=$result}
+ $data=[text.utf8encoding]::new($false).getbytes(($row|convertto-json -compress)+[environment]::newline)
+ $stream=[io.filestream]::new($log,[io.filemode]::append,[io.fileaccess]::write,[io.fileshare]::none)
+ try{$stream.write($data,0,$data.length);$stream.flush($true)}finally{$stream.dispose()}
+}
+function release {
+ trusted $release
+ $r=get-content -literalpath $release -raw -encoding utf8 | convertfrom-json
+ need ($r.schema -ceq 'cc.v20.release.v1' -and $r.approved -ceq $true -and $r.robot -ceq $robot -and $r.action -ceq $action -and $r.request_id -ceq $requestid -and $r.actor_sid -ceq $sid) 'cc07_no_matching_release'
+ $now=[datetimeoffset]::utcnow
+ $issued=[datetimeoffset]::parse([string]$r.issued_utc)
+ $expires=[datetimeoffset]::parse([string]$r.expires_utc)
+ need ($issued -le $now.addseconds(30) -and $expires -ge $now -and $expires -le $issued.addminutes(5)) 'cc07_release_expired'
+}
+need ($env:os -ceq 'Windows_NT' -and $env:computername -ceq 'URIU-PC') 'cc07_wrong_host'
+pin $operator '6f539f9c421efb56d492f1c903b998b4e8f4a9ca'
+pin $launcher '93fc1ce4aded6c40453da14deb4846e10da1b14f'
+$sid=[security.principal.windowsidentity]::getcurrent().user.value
+$task=get-scheduledtask -taskname $robot -taskpath '\' -erroraction stop
+$taskSid=if([string]$task.principal.userid -match '^S-\d+-'){[string]$task.principal.userid}else{([security.principal.ntaccount]::new([string]$task.principal.userid)).translate([security.principal.securityidentifier]).value}
+need ($sid -ceq $taskSid) 'cc07_operator_sid_mismatch'
+$state=proof
+if($mode -eq 'preview'){
+ write-output ('cc07_preview=pass robot='+$robot+' action='+$action+' task=running switch='+$state)
+ write-output 'cc07_no_finam_no_arm_no_task_mutation=yes'
+ return
+}
+need ($requestid -cmatch '^[a-z0-9][a-z0-9-]{0,47}$') 'cc07_invalid_request_id'
+$identity=[security.principal.windowsprincipal]::new([security.principal.windowsidentity]::getcurrent())
+need ($identity.isinrole([security.principal.windowsbuiltinrole]::administrator)) 'cc07_admin_required'
+trusted $audit
+# PAUSE is the only action that cannot ARM or strand a position. All other
+# actions REQUIRE a separate fresh admin-owned approval, never UI input alone.
+if($action -ne 'pause'){release}
+$expected='cc07 '+$action+' '+$robot+' '+$requestid
+$typed=read-host ('type exactly: '+$expected)
+need ($typed -ceq $expected) 'cc07_confirmation_refused'
+$mutex=[threading.mutex]::new($false,'Global\ControlCenter_CC07_V20')
+$locked=$false
+try{
+ try{$locked=$mutex.waitone(0)}catch [threading.abandonedmutexexception]{throw 'cc07_abandoned_mutex'}
+ need $locked 'cc07_command_in_progress'
+ $log=join-path $audit 'v20-control.jsonl'
+ if(test-path -literalpath $log){
+  trusted $log
+  need ((get-item -literalpath $log).length -le 4194304) 'cc07_audit_full'
+  foreach($line in @(get-content -literalpath $log -encoding utf8)){
+   if($line){
+    $old=$line|convertfrom-json
+    need ([string]$old.request_id -cne $requestid) 'cc07_duplicate_request_id'
+   }
+  }
+ }
+ $state=proof
+ if($action -ne 'pause'){release;flat}
+ audit 'began' 'preflight_pass'
+ try{
+  if($action -eq 'pause' -and $state -ceq 'HALTED'){
+   audit 'finished' 'already_halted_no_change'
+   write-output 'cc07_result=already_halted_no_change'
+   return
+  }
+  $modeStock=if($action -in @('pause','stop')){'stop'}else{$action}
+  $rows=@(& powershell.exe -noprofile -noninteractive -executionpolicy bypass -file $operator -mode $modeStock -robot $robot 2>&1)
+  need ($lastexitcode -eq 0) 'cc07_stock_operator_failed'
+  if($action -eq 'stop'){
+   # Stop is not V20 "stop": first HALT, then fresh broker flat proof.
+   flat
+   stop-scheduledtask -taskname $robot -taskpath '\' -erroraction stop
+   $after=get-scheduledtask -taskname $robot -taskpath '\' -erroraction stop
+   need ($after.state -ne 'Running') 'cc07_task_still_running'
+  }else{
+   $after=proof
+   if($action -eq 'pause'){need ($after -ceq 'HALTED') 'cc07_pause_not_verified'}
+   if($action -in @('start','restart')){need ($after -ceq 'ARMED') 'cc07_arm_not_verified'}
+  }
+  audit 'finished' ('verified_'+$action)
+  write-output ('cc07_result=verified_'+$action)
+ }catch{
+  audit 'finished' 'unknown_outcome_reconcile_manually'
+  throw
+ }
+}finally{
+ if($locked){$mutex.releasemutex()}
+ $mutex.dispose()
+}
+) 'cc07_check_not_expected_halted_partial'
+ }else{
+  # An ARMED worker needs a FULL successful stock check, not PARTIAL.
+  need ($checkexit -eq 0 -and [string]$cycle[0] -match '=(PASS|PENDING)function flat {
+ $rows=@(& powershell.exe -noprofile -noninteractive -executionpolicy bypass -file $launcher -mode readonly -robot $robot 2>&1)
+ need ($lastexitcode -eq 0 -and ($rows -join '|') -match 'v20_08_4_positions=0' -and ($rows -join '|') -match 'v20_08_4_active_orders=0') 'cc07_broker_flat_not_proven'
+}
+function audit([string]$phase,[string]$result){
+ $log=join-path $audit 'v20-control.jsonl'
+ if(test-path -literalpath $log){trusted $log}
+ $row=[ordered]@{schema='cc.v20.audit.v1';utc=[datetimeoffset]::utcnow.tostring('o');request_id=$requestid;robot=$robot;action=$action;actor_sid=$sid;phase=$phase;result=$result}
+ $data=[text.utf8encoding]::new($false).getbytes(($row|convertto-json -compress)+[environment]::newline)
+ $stream=[io.filestream]::new($log,[io.filemode]::append,[io.fileaccess]::write,[io.fileshare]::none)
+ try{$stream.write($data,0,$data.length);$stream.flush($true)}finally{$stream.dispose()}
+}
+function release {
+ trusted $release
+ $r=get-content -literalpath $release -raw -encoding utf8 | convertfrom-json
+ need ($r.schema -ceq 'cc.v20.release.v1' -and $r.approved -ceq $true -and $r.robot -ceq $robot -and $r.action -ceq $action -and $r.request_id -ceq $requestid -and $r.actor_sid -ceq $sid) 'cc07_no_matching_release'
+ $now=[datetimeoffset]::utcnow
+ $issued=[datetimeoffset]::parse([string]$r.issued_utc)
+ $expires=[datetimeoffset]::parse([string]$r.expires_utc)
+ need ($issued -le $now.addseconds(30) -and $expires -ge $now -and $expires -le $issued.addminutes(5)) 'cc07_release_expired'
+}
+need ($env:os -ceq 'Windows_NT' -and $env:computername -ceq 'URIU-PC') 'cc07_wrong_host'
+pin $operator '6f539f9c421efb56d492f1c903b998b4e8f4a9ca'
+pin $launcher '93fc1ce4aded6c40453da14deb4846e10da1b14f'
+$sid=[security.principal.windowsidentity]::getcurrent().user.value
+$task=get-scheduledtask -taskname $robot -taskpath '\' -erroraction stop
+$taskSid=if([string]$task.principal.userid -match '^S-\d+-'){[string]$task.principal.userid}else{([security.principal.ntaccount]::new([string]$task.principal.userid)).translate([security.principal.securityidentifier]).value}
+need ($sid -ceq $taskSid) 'cc07_operator_sid_mismatch'
+$state=proof
+if($mode -eq 'preview'){
+ write-output ('cc07_preview=pass robot='+$robot+' action='+$action+' task=running switch='+$state)
+ write-output 'cc07_no_finam_no_arm_no_task_mutation=yes'
+ return
+}
+need ($requestid -cmatch '^[a-z0-9][a-z0-9-]{0,47}$') 'cc07_invalid_request_id'
+$identity=[security.principal.windowsprincipal]::new([security.principal.windowsidentity]::getcurrent())
+need ($identity.isinrole([security.principal.windowsbuiltinrole]::administrator)) 'cc07_admin_required'
+trusted $audit
+# PAUSE is the only action that cannot ARM or strand a position. All other
+# actions REQUIRE a separate fresh admin-owned approval, never UI input alone.
+if($action -ne 'pause'){release}
+$expected='cc07 '+$action+' '+$robot+' '+$requestid
+$typed=read-host ('type exactly: '+$expected)
+need ($typed -ceq $expected) 'cc07_confirmation_refused'
+$mutex=[threading.mutex]::new($false,'Global\ControlCenter_CC07_V20')
+$locked=$false
+try{
+ try{$locked=$mutex.waitone(0)}catch [threading.abandonedmutexexception]{throw 'cc07_abandoned_mutex'}
+ need $locked 'cc07_command_in_progress'
+ $log=join-path $audit 'v20-control.jsonl'
+ if(test-path -literalpath $log){
+  trusted $log
+  need ((get-item -literalpath $log).length -le 4194304) 'cc07_audit_full'
+  foreach($line in @(get-content -literalpath $log -encoding utf8)){
+   if($line){
+    $old=$line|convertfrom-json
+    need ([string]$old.request_id -cne $requestid) 'cc07_duplicate_request_id'
+   }
+  }
+ }
+ $state=proof
+ if($action -ne 'pause'){release;flat}
+ audit 'began' 'preflight_pass'
+ try{
+  if($action -eq 'pause' -and $state -ceq 'HALTED'){
+   audit 'finished' 'already_halted_no_change'
+   write-output 'cc07_result=already_halted_no_change'
+   return
+  }
+  $modeStock=if($action -in @('pause','stop')){'stop'}else{$action}
+  $rows=@(& powershell.exe -noprofile -noninteractive -executionpolicy bypass -file $operator -mode $modeStock -robot $robot 2>&1)
+  need ($lastexitcode -eq 0) 'cc07_stock_operator_failed'
+  if($action -eq 'stop'){
+   # Stop is not V20 "stop": first HALT, then fresh broker flat proof.
+   flat
+   stop-scheduledtask -taskname $robot -taskpath '\' -erroraction stop
+   $after=get-scheduledtask -taskname $robot -taskpath '\' -erroraction stop
+   need ($after.state -ne 'Running') 'cc07_task_still_running'
+  }else{
+   $after=proof
+   if($action -eq 'pause'){need ($after -ceq 'HALTED') 'cc07_pause_not_verified'}
+   if($action -in @('start','restart')){need ($after -ceq 'ARMED') 'cc07_arm_not_verified'}
+  }
+  audit 'finished' ('verified_'+$action)
+  write-output ('cc07_result=verified_'+$action)
+ }catch{
+  audit 'finished' 'unknown_outcome_reconcile_manually'
+  throw
+ }
+}finally{
+ if($locked){$mutex.releasemutex()}
+ $mutex.dispose()
+}
+) 'cc07_armed_check_failed'
+ }
+ return $switchstate
 }
 function flat {
  $rows=@(& powershell.exe -noprofile -noninteractive -executionpolicy bypass -file $launcher -mode readonly -robot $robot 2>&1)
