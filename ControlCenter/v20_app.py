@@ -6,6 +6,7 @@ from cc.v20_contract import ROBOTS, LABELS, unconnected, age, heartbeat_health
 from cc.v20_receiver import acquire
 from cc.v20_staging import acquire_staging
 from cc.v20_manual_export import refresh_once
+from cc.v20_command_channel import gateway_ready, confirmation, submit, receipt
 
 MSK = timezone(timedelta(hours=3))
 PAGES = ("Главная", "Журнал", "Управление")
@@ -109,22 +110,62 @@ def journal(snapshots):
 
 
 def controls():
-    """CC-07 preview only: disabled buttons; no callbacks or controller import."""
+    """CC-07 UI: create intent only; broker/Tasks belong to separate controller."""
     st.subheader("Управление")
-    st.info("Отключено. START/RESTART у V20 могут перевести HALTED в ARMED — до отдельной приёмки кнопки не активируем.")
+    connected = st.session_state.get("cc07-gateway-ready") is True
+    if not connected:
+        st.info("Управляющий канал не подключён. Кнопки отключены. Нажмите «Обновить данные» после приёмки отдельного оператора.")
+        typed = ""
+    else:
+        st.warning("START и RESTART разрешают реальную торговлю (ARMED). STOP останавливает Task только после брокерского FLAT. PAUSE запрещает новые входы и сохраняет сопровождение.")
+        typed = st.text_input(
+            "Для подтверждения введите: cc07 действие имя-робота",
+            value="", key="cc07-action-confirm",
+            placeholder="cc07 pause v20-shallow",
+        )
     for robot in ROBOTS:
         st.markdown("**" + LABELS[robot] + "**")
         columns = st.columns(4)
+        local_id = robot.lower().replace("_", "-")
         for column, action in zip(columns, ("START", "PAUSE", "STOP", "RESTART")):
+            name = action.lower()
+            phrase = confirmation(local_id, name)
             with column:
-                st.button(action, key="cc07-" + robot.lower() + "-" + action.lower(),
-                          disabled=True, use_container_width=True)
-    st.caption("Кнопки заблокированы. Нет обработчиков, торговых полномочий или изменения Windows Tasks. Действующее управление — только после отдельной приёмки CC-07.")
-
+                clicked = st.button(
+                    action, key="cc07-" + local_id + "-" + name,
+                    disabled=not (connected and typed == phrase),
+                    use_container_width=True,
+                )
+                if clicked:
+                    answer = submit(local_id, name, typed)
+                    st.session_state["cc07-last-response"] = answer
+                    if answer["decision"] == "QUEUED_NOT_EXECUTED":
+                        st.session_state["cc07-last-request-id"] = answer["request_id"]
+                        st.session_state.pop("cc07-last-receipt", None)
+    answer = st.session_state.get("cc07-last-response")
+    if answer is not None:
+        if answer["decision"] == "QUEUED_NOT_EXECUTED":
+            st.info("Запрос передан независимому контроллеру. Это НЕ подтверждение исполнения. Проверьте результат через «Обновить данные».")
+        else:
+            st.error("Запрос отклонён: " + answer["decision"])
+    result = st.session_state.get("cc07-last-receipt")
+    if result is not None:
+        if result["decision"] == "EXECUTED":
+            st.success("Исполнение подтверждено независимым контроллером. Проверьте состояние робота и FINAM.")
+        elif result["decision"] == "ACCEPTED_NOT_EXECUTED":
+            st.info("Запрос принят, исполнение пока не подтверждено.")
+        else:
+            st.warning("Результат отдельного контроллера: " + result["decision"])
+    st.caption("Один запрос на одну кнопку. Потенциально опасные действия проверяются исполнителем независимо; Streamlit не запускает процессы и не получает торговые полномочия.")
 
 def main():
     now = datetime.now(timezone.utc)
     if refresh:
+        # Single explicit user refresh; no background gateway polling.
+        st.session_state["cc07-gateway-ready"] = gateway_ready()
+        last_request = st.session_state.get("cc07-last-request-id")
+        if last_request is not None:
+            st.session_state["cc07-last-receipt"] = receipt(last_request)
         try:
             with export_gate() as acquired:
                 if acquired:
