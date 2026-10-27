@@ -109,8 +109,21 @@ if($mode -eq 'verify'){
     Write-Output 'v20_08_5_recovery_verify=PASS_READONLY_NO_MUTATION'
     return
 }
-# Consistent SQLite snapshot is mandatory BEFORE changing any installed code.
-$backup=@(& powershell.exe -noprofile -noninteractive -executionpolicy bypass -file $operator -mode backup -robot all 2>&1)
+# Stage the already accepted FIXED operator without replacing the installed
+# stale operator before the safety backup. The old installed operator still
+# calls python -c and is never suitable for a recovery backup.
+$backupOperator=Join-Path $stage 'v20-08-live-operator-prebackup.ps1'
+if(Test-Path -LiteralPath $backupOperator){
+    need ((hash $backupOperator) -eq $newOperator) 'V20_08_5_RECOVERY_BACKUP_OPERATOR_CONFLICT'
+}else{
+    $req=Invoke-RestMethod -Uri ('https://api.github.com/repos/alkospacer123/market-pattern-discovery/git/blobs/'+$newOperator) -Headers @{'user-agent'='v20lab'} -ErrorAction Stop
+    need ($req.sha -eq $newOperator -and $req.encoding -eq 'base64') 'V20_08_5_RECOVERY_BACKUP_OPERATOR_REMOTE_MISMATCH'
+    [IO.File]::WriteAllBytes($backupOperator,[convert]::FromBase64String($req.content))
+    need ((hash $backupOperator) -eq $newOperator) 'V20_08_5_RECOVERY_BACKUP_OPERATOR_HASH'
+}
+Write-Output 'v20_08_5_recovery_prebackup_operator=PASS_PINNED_NEW_VERSION'
+# Consistent SQLite snapshot is mandatory BEFORE changing installed LIVE code.
+$backup=@(& powershell.exe -noprofile -noninteractive -executionpolicy bypass -file $backupOperator -mode backup -robot all 2>&1)
 $backup | Write-Output
 need ($LASTEXITCODE -eq 0 -and ($backup -join '|') -match 'v20_08_5_backup=PASS path=') 'V20_08_5_RECOVERY_BACKUP_FAIL'
 foreach($pair in @(
