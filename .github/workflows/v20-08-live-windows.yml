@@ -163,4 +163,10 @@ jobs:
           python -m py_compile V20_TradingSystem_M15/v20_runtime/finam_live.py V20_TradingSystem_M15/v20_runtime/finam_execution.py V20_TradingSystem_M15/v20_runtime/tests/test_finam_live.py
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           python -m unittest -v V20_TradingSystem_M15.v20_runtime.tests.test_finam_live V20_TradingSystem_M15.v20_runtime.tests.test_finam_protected_recovery V20_TradingSystem_M15.v20_runtime.tests.test_obv_settled_post_recovery V20_TradingSystem_M15.v20_runtime.tests.test_three_protected_post_recovery V20_TradingSystem_M15.v20_runtime.tests.test_h1_live_parity
-          exit $LASTEXITCODE
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          foreach ($case in @('test_finam_frozen_exit.py','test_finam_manual_flat.py','test_finam_order_state_regression.py','test_finam_single_cycle.py')) {
+            python -m unittest discover -s V20_TradingSystem_M15/v20_runtime/tests -p $case -v
+            if ($LASTEXITCODE -ne 0) { throw ('V20_H1_LIFECYCLE_PARITY_FAIL '+$case) }
+          }
+          Write-Output 'V20_H1_LIFECYCLE_FOUR_EXISTING_REGRESSIONS=PASS'
+          exit 0
