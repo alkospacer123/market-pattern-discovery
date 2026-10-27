@@ -48,7 +48,8 @@ def parse_strict(raw, keys, maximum):
                 raise ValueError("CC07_DUPLICATE_KEY")
             d[name] = value
         return d
-    obj = json.loads(raw.decode("utf-8"), object_pairs_hook=pairs)
+    obj = json.loads(raw.decode("utf-8"), object_pairs_hook=pairs,
+                     parse_constant=lambda _: (_ for _ in ()).throw(ValueError("CC07_NONFINITE_JSON")))
     if type(obj) is not dict or set(obj) != keys:
         raise ValueError("CC07_SCHEMA_FIELDS")
     return obj
