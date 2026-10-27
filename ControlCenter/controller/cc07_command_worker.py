@@ -212,7 +212,24 @@ def invoke_installed(row, actor_sid):
             RELEASE.unlink()
 
 
-def process_one(path, cfg):
+def already_dispatched():
+    """Persistent replay latch: even an interrupted request cannot auto-repeat."""
+    if not AUDIT.exists():
+        return set()
+    if AUDIT.is_symlink() or AUDIT.stat().st_size > 4 * 1024 * 1024:
+        raise ValueError("CC07_JOURNAL_INVALID")
+    result = set()
+    for line in AUDIT.read_bytes().splitlines():
+        row = parse_strict(line, {"utc", "request_id", "robot", "action", "decision"}, 1024)
+        if row["decision"] == "DISPATCH_BEGIN":
+            if type(row["request_id"]) is not str or not HEX.fullmatch(row["request_id"]):
+                raise ValueError("CC07_JOURNAL_CORRUPT")
+            result.add(row["request_id"])
+    return result
+
+
+def process_one(path, cfg, seen):
+
     rid = path.stem
     if not HEX.fullmatch(rid):
         return
@@ -223,7 +240,10 @@ def process_one(path, cfg):
         action, robot = row["action"], row["robot"]
         # Record acceptance before calling the independent operator. Do not
         # re-execute a request after any ambiguous crash/post-check result.
+        if rid in seen:
+            raise ValueError("CC07_REPLAY_REFUSED")
         log_event(rid, robot, action, "DISPATCH_BEGIN")
+        seen.add(rid)  # latch after fsync and before the external action
         outcome = invoke_installed(row, cfg["operator_sid"])
     except (OSError, ValueError, subprocess.SubprocessError, TimeoutError):
         outcome = "FAILED_UNKNOWN" if action in ACTIONS else "REFUSED"
@@ -247,6 +267,7 @@ def serve():
     cfg = policy()
     if not (INBOX / "processed").is_dir():
         raise ValueError("CC07_PROCESSED_UNAVAILABLE")
+    seen = already_dispatched()
     # Strictly no auto-ARM, Task start/stop or FINAM contact at startup.
     print("cc07_gateway=running_no_initial_action", flush=True)
     while True:
@@ -263,7 +284,7 @@ def serve():
         if len(pending) > MAX_PENDING:
             raise ValueError("CC07_INBOX_BACKPRESSURE")
         for item in pending:
-            process_one(item, cfg)
+            process_one(item, cfg, seen)
         time.sleep(4)
 
 
