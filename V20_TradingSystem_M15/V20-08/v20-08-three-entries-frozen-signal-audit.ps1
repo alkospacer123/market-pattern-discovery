@@ -17,7 +17,7 @@ $python=Join-Path $root '.venv-raw\scripts\python.exe'
 $live=Join-Path $root 'pretrade-08\live-runtime-08'
 $h1=Join-Path $root 'source-raw'
 $script=Join-Path $env:USERPROFILE 'downloads\v20-08-three-entries-frozen-signal-audit.py'
-$expected='d9e5d9013f6d74c997e53308969aef84e94ab688'
+$expected='619d8031645b6e07c1360a8d5865976954b1d23c'
 need ((Test-Path -LiteralPath $python -PathType Leaf) -and
       (Test-Path -LiteralPath $launcher -PathType Leaf) -and
       (Test-Path -LiteralPath $h1 -PathType Container)) 'V20_AUDIT_DEPENDENCIES_MISSING'
