@@ -66,18 +66,25 @@ function workers(){
         $_.CommandLine -match 'V20_TradingSystem_M15[.]v20_runtime[.]finam_live' -and
         $_.CommandLine -match '--robot\s+v20-(shallow|obv|inside)'})
 }
-function patch([string]$path,[string]$old,[string]$new){
-    need ((hash $path) -eq $old) 'V20_UPDATE_CURRENT_BLOB_CHANGED'
+function prefetch([string]$path,[string]$new){
+    # Download while all V20 processes still run HALTED: network failure
+    # must not stop the already-running existing-position management.
+    $temp=$path+'.v20-download'
+    if(Test-Path -LiteralPath $temp){
+        need ((hash $temp) -eq $new) 'V20_UPDATE_STAGED_BLOB_CONFLICT'
+        return
+    }
     $blob=Invoke-RestMethod -Uri ('https://api.github.com/repos/alkospacer123/market-pattern-discovery/git/blobs/'+$new) -Headers @{'user-agent'='v20lab'} -ErrorAction Stop
     need ($blob.sha -eq $new -and $blob.encoding -eq 'base64') 'V20_UPDATE_REMOTE_BLOB_MISMATCH'
+    [IO.File]::WriteAllBytes($temp,[convert]::FromBase64String($blob.content))
+    need ((hash $temp) -eq $new) 'V20_UPDATE_DOWNLOADED_HASH_MISMATCH'
+}
+function patch([string]$path,[string]$old,[string]$new){
+    need ((hash $path) -eq $old) 'V20_UPDATE_CURRENT_BLOB_CHANGED'
     $temp=$path+'.v20-download'
-    need (-not (Test-Path -LiteralPath $temp)) 'V20_UPDATE_PARTIAL_DOWNLOAD_ALREADY_EXISTS'
-    try {
-        [IO.File]::WriteAllBytes($temp,[convert]::FromBase64String($blob.content))
-        need ((hash $temp) -eq $new) 'V20_UPDATE_DOWNLOADED_HASH_MISMATCH'
-        Move-Item -LiteralPath $temp -Destination $path -Force -ErrorAction Stop
-        need ((hash $path) -eq $new) 'V20_UPDATE_INSTALLED_HASH_MISMATCH'
-    }finally {if(Test-Path -LiteralPath $temp){Remove-Item -LiteralPath $temp -Force}}
+    need ((hash $temp) -eq $new) 'V20_UPDATE_STAGED_BLOB_MISMATCH'
+    Move-Item -LiteralPath $temp -Destination $path -Force -ErrorAction Stop
+    need ((hash $path) -eq $new) 'V20_UPDATE_INSTALLED_HASH_MISMATCH'
 }
 need ($env:OS -eq 'Windows_NT' -and $env:COMPUTERNAME -ceq 'URIU-PC') 'V20_UPDATE_WRONG_HOST'
 need ((Test-Path -LiteralPath $python -PathType Leaf) -and
@@ -107,6 +114,10 @@ $back=@(& powershell.exe -noprofile -noninteractive -executionpolicy bypass -fil
 $back | Write-Output
 need ($LASTEXITCODE -eq 0 -and ($back -join '|') -match 'v20_08_5_backup=PASS path=') 'V20_UPDATE_PREBACKUP_FAILED'
 Write-Output 'v20_update_prebackup=PASS_3_OF_3_SQLITE'
+prefetch $execution $newExec
+prefetch $worker $newWorker
+prefetch $launcher $newLauncher
+Write-Output 'v20_update_new_blobs=PASS_3_OF_3_STAGED_BEFORE_TASK_STOP'
 # Keep the three kill switches HALTED while stopping ONLY their own Tasks.
 foreach($name in $names){
     $t=task $name
