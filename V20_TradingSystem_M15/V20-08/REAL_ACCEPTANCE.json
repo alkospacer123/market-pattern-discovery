@@ -4,7 +4,7 @@
   "source": "Intel URIU-PC owner FINAM history/order screenshots and exact operator stdout in conversation; not independent live API capture from GitHub",
   "execution": "PASS_3_OF_3_REAL_ENTRY_AND_PROVEN_BROKER_100_PERCENT_SLTP_MANUAL_FLAT",
   "accounting": "ACCEPTED_WITH_TARIFF_RESERVE_ACTUAL_FEES_TO_BE_OBSERVED_ON_FUTURE_LIVE_TRADES",
-  "automated_live": "FAIL_ALL_THREE_POSTFILL_HALT_20261027_PENDING_SAFE_EXISTING_POSITION_RECOVERY",
+  "automated_live": "LIVE_WORKERS_RUNNING_3_OF_3_HALTED_NEW_ENTRIES_EXISTING_POSITIONS_MANAGED_AFTER_STALE_CHECKPOINT_CORRECTION",
   "strategy_timing": "FROZEN_M15_LIVE_TASKS_ARMED_NEXT_OPEN_STRATEGIC_FILL_NOT_YET_OBSERVED",
   "market": "CNYRUBF",
   "contract_economics": {
@@ -357,7 +357,81 @@
     "draft_runtime_fix": "V20_TradingSystem_M15/v20_runtime/finam_execution.py blob 47cf12adf0ae7d7ada33c2ebe56840678777c7fb not deployed on Intel",
     "one_time_incident_only_recovery": "V20-08/v20-08-three-protected-post-recovery.py blob aeaab958f711cb39a2386f9c4700056b77b76b5a",
     "windows_ci": "40474767269 SUCCESS",
-    "intel_execution": "NOT_YET_PERFORMED",
-    "instructions": "All 3 tasks remain running, all 3 kill switches HALTED. Backup SQLite first; on each robot verify fresh broker GET and strict completed fill/stop/risk proof; atomically clear one resolved UNKNOWN_POST marker; DO NOT arm/stop/restart/cancel and keep frozen strategy unchanged; verify trailing logs. Never activate new entries with old installed runtime."
+    "intel_execution": "PASS_3_OF_3_OWNER_EVIDENCE_ONE_KEY_ONLY_2026-10-27T08:44Z",
+    "instructions": "All 3 tasks remain running, all 3 kill switches HALTED. Backup SQLite first; on each robot verify fresh broker GET and strict completed fill/stop/risk proof; atomically clear one resolved UNKNOWN_POST marker; DO NOT arm/stop/restart/cancel and keep frozen strategy unchanged; verify trailing logs. Never activate new entries with old installed runtime.",
+    "incident_recovery_result": {
+      "status": "PASS_3_OF_3_EXISTING_POSITION_FOLLOWUP_RESTORED_SWITCH_HALTED",
+      "evidence": "Owner Intel PowerShell 2026-10-27, recovery script output and first post-fix live-m15.jsonl records",
+      "backup": {
+        "status": "PASS_3_OF_3_SQLITE_SNAPSHOT",
+        "path": "C:\\V20Lab\\backup-08\\v20-live-20261027T084345Z"
+      },
+      "source_blob": "aeaab958f711cb39a2386f9c4700056b77b76b5a",
+      "robots": {
+        "v20-shallow": {
+          "finam": "PASS_GET_ONLY_ONE_POSITION_ONE_ORDER_NO_POST",
+          "pre_existing_position_proof": "PASS_RECONCILED_ENTRY_AND_100_PERCENT_SLTP_PROOF_RISK_PASS",
+          "sqlite_update": "RESOLVED_ONLY_ONE_KEY",
+          "first_success_cycle": "2026-10-27T08:43:55.739626+00:00 HALTED_NO_NEW_ENTRIES"
+        },
+        "v20-obv": {
+          "finam": "PASS_GET_ONLY_ONE_POSITION_ONE_ORDER_NO_POST",
+          "pre_existing_position_proof": "PASS_RECONCILED_ENTRY_AND_100_PERCENT_SLTP_PROOF_RISK_PASS",
+          "sqlite_update": "RESOLVED_ONLY_ONE_KEY",
+          "first_success_cycle": "2026-10-27T08:44:03.467170+00:00 HALTED_NO_NEW_ENTRIES"
+        },
+        "v20-inside": {
+          "finam": "PASS_GET_ONLY_ONE_POSITION_ONE_ORDER_NO_POST",
+          "pre_existing_position_proof": "PASS_RECONCILED_ENTRY_AND_100_PERCENT_SLTP_PROOF_RISK_PASS",
+          "sqlite_update": "RESOLVED_ONLY_ONE_KEY",
+          "first_success_cycle": "2026-10-27T08:44:07.881083+00:00 HALTED_NO_NEW_ENTRIES"
+        }
+      },
+      "notes": [
+        "No code files installed, no Windows Task stop/restart, no Kill Switch ARM; all workers continue with HALTED gate.",
+        "Existing positions and broker stops not cancelled/replaced/reposted.",
+        "Post-fix HALTED_NO_NEW_ENTRIES proves first normal cycle passed `_follow_existing` and reached entry prohibition, not yet proves eventual frozen third-session or broker stop fill.",
+        "The common permanent code fix is only in Draft PR #567 finam_execution.py blob 47cf12adf0ae7d7ada33c2ebe56840678777c7fb; do not restart or ARM any robot with old installed runtime.",
+        "Treat old FAIL/HALTED incident records above as historical, not current recovery status.",
+        "Current independent live broker state after these cycles and future position exit not independently verified."
+      ]
+    }
+  },
+  "current_situation_2026_10_27_0844_utc": {
+    "status": "PASS_3_OF_3_EXISTING_POSITION_FOLLOWUP_RESTORED_SWITCH_HALTED",
+    "evidence": "Owner Intel PowerShell 2026-10-27, recovery script output and first post-fix live-m15.jsonl records",
+    "backup": {
+      "status": "PASS_3_OF_3_SQLITE_SNAPSHOT",
+      "path": "C:\\V20Lab\\backup-08\\v20-live-20261027T084345Z"
+    },
+    "source_blob": "aeaab958f711cb39a2386f9c4700056b77b76b5a",
+    "robots": {
+      "v20-shallow": {
+        "finam": "PASS_GET_ONLY_ONE_POSITION_ONE_ORDER_NO_POST",
+        "pre_existing_position_proof": "PASS_RECONCILED_ENTRY_AND_100_PERCENT_SLTP_PROOF_RISK_PASS",
+        "sqlite_update": "RESOLVED_ONLY_ONE_KEY",
+        "first_success_cycle": "2026-10-27T08:43:55.739626+00:00 HALTED_NO_NEW_ENTRIES"
+      },
+      "v20-obv": {
+        "finam": "PASS_GET_ONLY_ONE_POSITION_ONE_ORDER_NO_POST",
+        "pre_existing_position_proof": "PASS_RECONCILED_ENTRY_AND_100_PERCENT_SLTP_PROOF_RISK_PASS",
+        "sqlite_update": "RESOLVED_ONLY_ONE_KEY",
+        "first_success_cycle": "2026-10-27T08:44:03.467170+00:00 HALTED_NO_NEW_ENTRIES"
+      },
+      "v20-inside": {
+        "finam": "PASS_GET_ONLY_ONE_POSITION_ONE_ORDER_NO_POST",
+        "pre_existing_position_proof": "PASS_RECONCILED_ENTRY_AND_100_PERCENT_SLTP_PROOF_RISK_PASS",
+        "sqlite_update": "RESOLVED_ONLY_ONE_KEY",
+        "first_success_cycle": "2026-10-27T08:44:07.881083+00:00 HALTED_NO_NEW_ENTRIES"
+      }
+    },
+    "notes": [
+      "No code files installed, no Windows Task stop/restart, no Kill Switch ARM; all workers continue with HALTED gate.",
+      "Existing positions and broker stops not cancelled/replaced/reposted.",
+      "Post-fix HALTED_NO_NEW_ENTRIES proves first normal cycle passed `_follow_existing` and reached entry prohibition, not yet proves eventual frozen third-session or broker stop fill.",
+      "The common permanent code fix is only in Draft PR #567 finam_execution.py blob 47cf12adf0ae7d7ada33c2ebe56840678777c7fb; do not restart or ARM any robot with old installed runtime.",
+      "Treat old FAIL/HALTED incident records above as historical, not current recovery status.",
+      "Current independent live broker state after these cycles and future position exit not independently verified."
+    ]
   }
 }
