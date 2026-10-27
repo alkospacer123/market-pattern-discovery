@@ -11,6 +11,9 @@ import unittest
 from contextlib import ExitStack
 from datetime import datetime, timezone
 
+from TradingSystemLab.stage8_robot.finam_api import (
+    FinamServerError, FinamTimeout, FinamRateLimit, FinamUncertainSubmission,
+)
 from V20_TradingSystem_M15.v20_runtime.finam_live import (
     AUTH_SCHEMA, SYMBOLS, _safe_auth, _ownership, run_cycle, V20FinamBlocked,
 )
@@ -157,6 +160,59 @@ class LiveAdmissionTests(unittest.TestCase):
                                  sorted(SYMBOLS))
                 self.assertEqual(run_cycle(sender, now), "NO_FROZEN_SIGNAL")
                 self.assertEqual(propose.call_count, 4)
+
+    def test_transient_broker_get_failures_never_submit_and_do_not_halt(self):
+        for error in (FinamServerError("HTTP_503:account"),
+                      FinamTimeout("account"), FinamRateLimit("orders")):
+            with self.subTest(type=type(error).__name__), TemporaryDirectory() as tmp:
+                journal = self.fake_journal(Path(tmp))
+                sender = SimpleNamespace(
+                    journal=journal, reader=SimpleNamespace(snapshot=lambda **k: (_ for _ in ()).throw(error)),
+                    auth_path=Path(tmp)/"none", source="0"*40)
+                now = datetime(2026, 10, 27, 2, 0, 10, tzinfo=timezone.utc)
+                with patch("V20_TradingSystem_M15.v20_runtime.finam_live._safe_auth"), patch(
+                    "V20_TradingSystem_M15.v20_runtime.finam_live._follow_existing"
+                ) as follow:
+                    self.assertEqual(run_cycle(sender, now),
+                                     "FINAM_READ_TEMPORARILY_UNAVAILABLE_NO_NEW_ENTRIES")
+                    follow.assert_not_called()
+                    self.assertEqual(journal.store.values, {})
+
+    def test_transient_m15_signal_get_failure_skips_boundary_without_entry(self):
+        with TemporaryDirectory() as tmp:
+            journal = self.fake_journal(Path(tmp))
+            reader = SimpleNamespace(snapshot=lambda **k: SimpleNamespace(positions={}, orders=[]))
+            sender = SimpleNamespace(journal=journal, reader=reader,
+                                     auth={"roundtrip_cost_rub": {x: "2.02" for x in SYMBOLS}},
+                                     auth_path=Path(tmp)/"none", source="0"*40)
+            now = datetime(2026, 10, 27, 2, 0, 10, tzinfo=timezone.utc)
+            with ExitStack() as stack:
+                stack.enter_context(patch("V20_TradingSystem_M15.v20_runtime.finam_live._safe_auth"))
+                stack.enter_context(patch(
+                    "V20_TradingSystem_M15.v20_runtime.finam_live._follow_existing",
+                    return_value="BROKER_RECONCILED_PROTECTION_PASS"))
+                stack.enter_context(patch(
+                    "V20_TradingSystem_M15.v20_runtime.finam_live.load_kill_switch",
+                    return_value=({"state": "ARMED"}, None)))
+                proposer = stack.enter_context(patch(
+                    "V20_TradingSystem_M15.v20_runtime.finam_live.propose_finam_m15_next_open",
+                    side_effect=FinamServerError("HTTP_503:bars")))
+                self.assertEqual(run_cycle(sender, now),
+                                 "FINAM_M15_READ_UNAVAILABLE_NO_NEW_ENTRIES")
+                self.assertEqual(proposer.call_count, 1)
+                self.assertEqual(journal.store.values, {})
+
+    def test_order_post_uncertainty_and_broker_invariants_are_not_swallowed(self):
+        with TemporaryDirectory() as tmp:
+            journal = self.fake_journal(Path(tmp))
+            sender = SimpleNamespace(
+                journal=journal,
+                reader=SimpleNamespace(snapshot=lambda **k: (_ for _ in ()).throw(
+                    FinamUncertainSubmission("RECONCILIATION_REQUIRED"))),
+                auth_path=Path(tmp)/"none", source="0"*40)
+            with patch("V20_TradingSystem_M15.v20_runtime.finam_live._safe_auth"):
+                with self.assertRaises(FinamUncertainSubmission):
+                    run_cycle(sender, datetime(2026, 10, 27, 2, 0, 10, tzinfo=timezone.utc))
 
     def test_foreign_active_order_is_refused(self):
         with TemporaryDirectory() as tmp:
