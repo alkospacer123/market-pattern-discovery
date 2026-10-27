@@ -284,5 +284,34 @@
       "other_robots": "Owner set Shallow and Inside HALTED_NEW_ENTRIES_WORKER_UNTOUCHED"
     },
     "incident_only_recovery_script": "V20-08/v20-08-obv-settled-post-recovery.py"
+  },
+  "live_two_gld_entries_2026_10_27": {
+    "source": "Owner four FINAM app screenshots at 11:05 and 11:15 MSK, as provided in V20 conversation",
+    "evidence": "Two different FINAM accounts hold GLDRUBF SHORT 13 each, one stop order each shown ACTIVE 100%",
+    "account_mapping": "Shallow/Inside likely from separate accounts, not independently verified by V20 SQLite identity",
+    "entry_1": {
+      "symbol": "GLDRUBF",
+      "direction": "SHORT",
+      "quantity": 13,
+      "approx_entry": "10361.4",
+      "active_stop": "10408.0",
+      "stop_record_time_msk": "11:00:17"
+    },
+    "entry_2": {
+      "symbol": "GLDRUBF",
+      "direction": "SHORT",
+      "quantity": 13,
+      "approx_entry": "10361.6",
+      "active_stop": "10408.2",
+      "stop_record_time_msk": "11:00:35"
+    },
+    "cross_strategy_same_boundary": "Possible and permitted by independent M15 accounts, frozen signal replay pending",
+    "requested_pause": "Owner reported stop commands for v20-shallow and v20-inside PASS HALTED_NEW_ENTRIES_WORKER_UNTOUCHED; pause command execution time was not logged in output",
+    "safety_open_question": "Verify actual SQLite entry_submission UTC occurred BEFORE kill switch updated_utc, and actual order/position SLTP broker identity. If after, immediate cross-robot pause gate defect.",
+    "common_prepost_halt": "Both may encounter known stale UNKNOWN_POST_REQUIRE_BROKER_RECONCILIATION. No code patch installed; future automatic third-session exit may be blocked if durable halt persists.",
+    "diagnostic": "V20-08/v20-08-multi-position-readonly.py read-only state/intent/log timestamps for all three",
+    "broker_readonly": "NOT_YET_INDEPENDENTLY_RECHECKED_AFTER_SCREENSHOTS",
+    "current_worker_health": "NOT_YET_RECHECKED_AFTER_11_00",
+    "risk_assessment": "NOT_YET_RETRIEVED_FROM_SQLITE"
   }
 }
