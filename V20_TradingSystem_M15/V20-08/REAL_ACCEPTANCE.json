@@ -4,7 +4,7 @@
   "source": "Intel URIU-PC owner FINAM history/order screenshots and exact operator stdout in conversation; not independent live API capture from GitHub",
   "execution": "PASS_3_OF_3_REAL_ENTRY_AND_PROVEN_BROKER_100_PERCENT_SLTP_MANUAL_FLAT",
   "accounting": "ACCEPTED_WITH_TARIFF_RESERVE_ACTUAL_FEES_TO_BE_OBSERVED_ON_FUTURE_LIVE_TRADES",
-  "automated_live": "PASS_3_OF_3_TASK_RUNNING_KILL_SWITCH_ARMED_FRESH_HEALTHY_CYCLES",
+  "automated_live": "HALTED_3_OF_3_AFTER_2026_10_27_05_00_MSK_FINAM_SERVER_ERROR",
   "strategy_timing": "FROZEN_M15_LIVE_TASKS_ARMED_NEXT_OPEN_STRATEGIC_FILL_NOT_YET_OBSERVED",
   "market": "CNYRUBF",
   "contract_economics": {
@@ -90,14 +90,15 @@
     "Historical technical-trial commissions not individually reconciled by explicit owner decision; the 2.02 RUB budget is a reserve, not measured fees",
     "Technical exception entry is not proof of frozen strategy LIVE NEXT_OPEN execution",
     "First autonomous frozen signal, FINAM fill and resulting broker-proven SLTP in production are not yet observed; technical trial SLTP 3/3 remains separate",
-    "PowerShell windows appear on the operator desktop because original Windows Tasks are Interactive; do not close them while LIVE; background UI treatment requires its own safe, flat-account Task restart."
+    "PowerShell windows appear on the operator desktop because original Windows Tasks are Interactive; do not close them while LIVE; background UI treatment requires its own safe, flat-account Task restart.",
+    "27.10.2026 05:00 MSK: all V20 processes stopped with FINAM server error; recovery not yet executed; former 08.4 Running/ARMED is only historical proof"
   ],
   "roadmap": {
     "08.1": "PASS_PRETRADE_INTEL",
     "08.2": "PASS_3_OF_3_BROKER_EXECUTION_SLTP_MANUAL_EXIT",
     "08.3": "PASS_OWNER_ACCEPTED_TECHNICAL_3_OF_3_AND_TARIFF_COST_MODEL",
     "08.4": "PASS_INTEL_3_OF_3_RUNNING_ARMED_HEALTHY_FRESH_CYCLE",
-    "08.5": "IN_PROGRESS_OPERATOR_BACKUP_RUNBOOK_OFFLINE_PREPARED_PENDING_INTEL"
+    "08.5": "FAIL_HEALTH_3_OF_3_RECOVERY_IN_PR_PENDING_INTEL"
   },
   "acceptance_report": "V20-08/ACCEPTANCE_08_3_RU.md",
   "actual_commission_verification": {
@@ -135,6 +136,38 @@
     },
     "execution_scope": "LIVE_AUTHORIZED_BUT_NO_FROZEN_NEXT_OPEN_FILL_YET_OBSERVED",
     "h1_modified": false,
-    "intradaylab_m15_modified": false
+    "intradaylab_m15_modified": false,
+    "historical_acceptance_preserved": true,
+    "current_status": "NOT_RUNNING_AFTER_SIMULTANEOUS_FINAM_SERVER_ERROR"
+  },
+  "live_failure_2026_10_27": {
+    "observed_msk": "2026-10-27 05:00",
+    "source": "Intel operator v20-08.5 check stdout from owner",
+    "robots": {
+      "v20-shallow": {
+        "task": "Ready",
+        "kill_switch": "HALTED",
+        "last_state": "HALT_FinamServerError",
+        "last_utc": "2026-10-27T02:00:11.357212+00:00"
+      },
+      "v20-obv": {
+        "task": "Ready",
+        "kill_switch": "HALTED",
+        "last_state": "HALT_FinamServerError",
+        "last_utc": "2026-10-27T02:00:27.029675+00:00"
+      },
+      "v20-inside": {
+        "task": "Ready",
+        "kill_switch": "HALTED",
+        "last_state": "HALT_FinamServerError",
+        "last_utc": "2026-10-27T02:00:22.887663+00:00"
+      }
+    },
+    "live_health": "FAIL_3_OF_3_READY_HALTED",
+    "backup": "NOT_ATTEMPTED_DUE_TO_CHECK_FAILED",
+    "hypothesis": "H1 FinamServerError follows repeated GET >=500 or certain non-order POST/DELETE; exact endpoint unobserved; common FINAM service issue likely, not proven",
+    "fix": "Bounded suppression of FinamServerError/Timeout/RateLimit in readonly account snapshot and frozen M15 signal proposal only; uncertain order POST/SLTP/exit still emergency HALT",
+    "recovery": "V20 only pinned repair script with FINAM GET-only three-account flat preflight, SQLite online backup before any code change, exact hash upgrade then broker-clean Task rearm",
+    "recovery_executed_on_intel": false
   }
 }
