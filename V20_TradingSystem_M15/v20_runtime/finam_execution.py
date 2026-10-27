@@ -606,6 +606,13 @@ class V20TradeJournal(IsolatedReferenceJournal):
             elif not getattr(self, "live_runtime", False):
                 # Technical acceptance remains single-use and fee-gated.
                 self.store.put("execution_halt", "ACTUAL_FINAM_FEE_AUTHORITY_PENDING")
+            elif self.store.get("execution_halt") == "UNKNOWN_POST_REQUIRE_BROKER_RECONCILIATION":
+                # The pre-POST H1 uncertain checkpoint protected against
+                # duplicate entries until FINAM proved the exact order,
+                # fills AND active 100%-SLTP. That evidence is now durable.
+                # Clear only this resolved checkpoint, never a genuine risk,
+                # fill-history, broker-ownership or stop error.
+                self.store.put("execution_halt", None)
             # Autonomous V20 LIVE uses already-reserved complete roundtrip
             # tariff costs. Actual broker fees will be recorded on LIVE fills.
         return observation
