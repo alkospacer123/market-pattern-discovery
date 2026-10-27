@@ -96,7 +96,7 @@ def example(*, pos=0, exit_status=None, stop_status="NEW"):
                                   broker_id="exit-100",key=KEY+":frozen-exit"))
     snapshot=SimpleNamespace(positions={SYMBOL: pos} if pos else {},orders=stops,
                              account_hash=ACCOUNT_HASH,robot_id="v20-obv")
-    reader=SimpleNamespace(snapshot=Mock(return_value=snapshot),
+    reader=SimpleNamespace(account_id="synthetic-obv",snapshot=Mock(return_value=snapshot),
                            _fresh=Mock(), api=SimpleNamespace(cancel_order=Mock(return_value={"order_id":"stop-100"})))
     sender=SimpleNamespace(journal=journal,reader=reader,
                            cancel_stop_after_flat_once=Mock(return_value="CANCEL_ACK_REQUIRE_BROKER_NO_STOP_CONFIRMATION"),
@@ -154,7 +154,7 @@ class H1ParityTests(unittest.TestCase):
                           return_value={"instrument":"USDRUBF","direction":"SHORT","max_quantity":2}):
             self.assertEqual(transport.cancel_stop_after_flat_once(
                 key=KEY,snapshot=snap,now=NOW),"CANCEL_ACK_REQUIRE_BROKER_NO_STOP_CONFIRMATION")
-            sender.reader.api.cancel_order.assert_called_once_with(sender.reader.account_id if hasattr(sender.reader,"account_id") else None, "stop-100")
+            sender.reader.api.cancel_order.assert_called_once_with("synthetic-obv", "stop-100")
 
     def test_technical_transport_manual_flat_does_not_autocancel(self):
         journal,sender,snap=example()
