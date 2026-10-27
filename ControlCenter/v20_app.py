@@ -132,7 +132,7 @@ def controls():
             phrase = confirmation(local_id, name)
             with column:
                 clicked = st.button(
-                    action, key="cc07-" + local_id + "-" + name,
+                    action, key="cc07-" + robot.lower() + "-" + name,
                     disabled=not (connected and typed == phrase),
                     use_container_width=True,
                 )
