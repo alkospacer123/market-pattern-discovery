@@ -110,7 +110,7 @@ def journal(snapshots):
 def controls():
     """CC-07 preview only: disabled buttons; no callbacks or controller import."""
     st.subheader("Управление")
-    st.info("Управление пока отключено. START/RESTART у V20 могут перевести HALTED в ARMED — до отдельной приёмки кнопки не активируем.")
+    st.info("Отключено. START/RESTART у V20 могут перевести HALTED в ARMED — до отдельной приёмки кнопки не активируем.")
     for robot in ROBOTS:
         st.markdown("**" + LABELS[robot] + "**")
         columns = st.columns(4)
