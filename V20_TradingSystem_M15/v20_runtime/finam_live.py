@@ -290,7 +290,7 @@ def _follow_existing(sender: V20LiveTransport, now: datetime, snapshot) -> str:
                                       "V20_EXIT_QTY_INVALID") !=
                            _contracts(wire["quantity"], "V20_EXIT_QTY_INVALID")):
                     raise V20FinamBlocked("V20_LIVE_EXIT_BROKER_IDENTITY_MISMATCH")
-                if exit_order.status in TERMINAL_ORDER_STATUSES - {"FILLED", "EXECUTED"}:
+                if exit_order.status in TERMINAL_ORDER_STATUSES:
                     journal.store.put("execution_halt", "FROZEN_EXIT_BROKER_TERMINAL_WITH_POSITION")
                     raise V20FinamBlocked("V20_LIVE_EXIT_TERMINAL_POSITION_STILL_OPEN")
             elif exit_intent["status"] == "ACK":
