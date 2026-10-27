@@ -76,7 +76,7 @@ function healthy([string]$name){
     if($switch.state -ne 'ARMED'){return $false}
     $line=Get-Content -LiteralPath (Join-Path $instance 'logs\live-m15.jsonl') -Tail 1 -Encoding UTF8 | ConvertFrom-Json
     $age=([datetimeoffset]::UtcNow-[datetimeoffset]::Parse([string]$line.utc,[globalization.cultureinfo]::InvariantCulture)).TotalSeconds
-    return ($line.robot -eq $name -and [string]$line.state -notmatch '^HALT' -and $age -ge -5 -and $age -le 90)
+    return ($line.robot -eq $name -and [string]$line.state -notmatch '^(HALT|FAULT|FINAM_)' -and $age -ge -5 -and $age -le 90)
 }
 need ($env:OS -eq 'Windows_NT' -and $env:COMPUTERNAME -eq 'URIU-PC') 'V20_08_5_RECOVERY_WRONG_HOST'
 $sid=[Security.Principal.WindowsIdentity]::GetCurrent().User.Value
