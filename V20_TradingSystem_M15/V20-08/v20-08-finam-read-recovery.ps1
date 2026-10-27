@@ -12,11 +12,11 @@ $operator=Join-Path $stage 'v20-08-live-operator.ps1'
 $module=Join-Path $root 'pretrade-08\live-runtime-08\V20_TradingSystem_M15\v20_runtime\finam_live.py'
 $names=@('v20-shallow','v20-obv','v20-inside')
 $oldModule='fa256995f5f4f100f380fb952f51e2671ba31120'
-$newModule='9fe0d5b14955cd731b26a4c1d15773060e6585de'
+$newModule='e39a00267c91ea35dbe83d27b26d6b62179b2429'
 $oldLauncher='c161a15d87c2bfc85939f4f570b3f79013c3c665'
-$newLauncher='c2e3ec4508304c33e0fa87735654d3bffd8eedb8'
+$newLauncher='5193f70e2c5663077e35653b89f4c28201ff04cb'
 $oldOperator='23cd63a460e4e5af17b07e9953e3b14695509cb3'
-$newOperator='1e09f70519e8d38be9f7577b84432f0f7c106208'
+$newOperator='e0fd05423899a02fee5861a176b0f72f7ee3bf5c'
 $expectedSource='dd55f201b3e9a92ce5fa3f927289f5a5ef89366d'
 function need([bool]$pass,[string]$reason){if(-not $pass){throw $reason}}
 function hash([string]$path){
@@ -123,13 +123,13 @@ $astTokens=$null
 [void][Management.Automation.Language.Parser]::ParseFile($operator,[ref]$astTokens,[ref]$astErrors)
 need (@($astErrors).Count -eq 0) 'V20_08_5_RECOVERY_OPERATOR_SYNTAX_ERROR'
 $py=Join-Path $root '.venv-raw\scripts\python.exe'
-& $py -B -c "import ast,pathlib,sys;ast.parse(pathlib.Path(sys.argv[1]).read_text(encoding='utf-8'))" $module
+& $py -B -m ast $module | Out-Null
 need ($LASTEXITCODE -eq 0) 'V20_08_5_RECOVERY_PY_SYNTAX_ERROR'
 foreach($name in $names){
     $ok=@(& powershell.exe -noprofile -noninteractive -executionpolicy bypass -file $launcher -mode verify -robot $name 2>&1)
     need ($LASTEXITCODE -eq 0 -and ($ok -join '|') -match ('v20_08_4_'+$name+'=PASS_VERIFY_NO_FINAM')) 'V20_08_5_RECOVERY_LAUNCHER_HASH_FAIL'
 }
-Write-Output 'v20_08_5_recovery_patch=PASS_NEW_FINAM_READ_SOURCE_AND_LAUNCHER'
+Write-Output 'v20_08_5_recovery_patch=PASS_H1_RETRY_SOURCE_AND_LAUNCHER'
 # Recheck broker flat immediately before restart. A non-flat account is a HOLD.
 foreach($name in $names){readflat $name}
 try {
