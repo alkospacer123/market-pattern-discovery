@@ -33,7 +33,8 @@ def refresh_once():
         result = subprocess.run(
             [str(PYTHON), "-I", "-B", str(PUBLISHER), "--publish"],
             stdout=subprocess.PIPE, stderr=subprocess.DEVNULL,
-            timeout=90, check=False, creationflags=subprocess.CREATE_NO_WINDOW,
+            timeout=90, check=False,
+            creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0),
         )
         output = result.stdout.decode("utf-8", errors="replace")
         if result.returncode != 0 or len(output) > 4096 or any(
