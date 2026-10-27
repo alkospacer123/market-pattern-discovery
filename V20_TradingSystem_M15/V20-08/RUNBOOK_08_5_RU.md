@@ -14,6 +14,8 @@
 
 ## Оператор V20-08.5
 
+**READONLY CHECK 27.10.2026 — H1-совместимое отображение циклов (обновление только оператора, не LIVE worker):** последняя запись V20 `WAIT_NEXT_M15_OPEN` означает успешно выполненный цикл без нового входа, но в `-mode check` теперь выводится `cycle=PASS`, `cycle_01..cycle_10=status=PASS code=NONE`, `last_cycle_utc`, `cycle_attempts_logged`, `healthy`, `check=PASS_3_OF_3`. Ошибки `FAULT/HALT` отображаются как FAIL, неполностью подтверждённые торговые фазы — PENDING. `cycle_attempts_logged` — число JSONL-записей с начала локального файла, **не** долговременный H1 SQLite `production_service_cycle_count`; CHECK не осуществляет FINAM API, открытия SQLite, изменения Windows Tasks и Kill Switch. Изменён только `V20-08/v20-08-live-operator.ps1` в Draft PR #567, физическая установка новой версии на Intel должна подтверждаться отдельно. 
+
 Новый **V20-only** скрипт `V20-08/v20-08-live-operator.ps1` разворачивается отдельно в `c:\v20lab\pretrade-08\live-08\`, при установке существующие задачи, стопы, DPAPI, состояния и процессы не изменяются.
 
 Единый вызов: `powershell.exe -noprofile -executionpolicy bypass -file 'c:\v20lab\pretrade-08\live-08\v20-08-live-operator.ps1' -mode check -robot all`.
