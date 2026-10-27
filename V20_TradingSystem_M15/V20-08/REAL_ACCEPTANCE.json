@@ -1,10 +1,10 @@
 {
   "schema": "v20.08.real_acceptance.v1",
-  "as_of": "2026-10-26",
+  "as_of": "2026-10-27",
   "source": "Intel URIU-PC owner FINAM history/order screenshots and exact operator stdout in conversation; not independent live API capture from GitHub",
   "execution": "PASS_3_OF_3_REAL_ENTRY_AND_PROVEN_BROKER_100_PERCENT_SLTP_MANUAL_FLAT",
   "accounting": "ACCEPTED_WITH_TARIFF_RESERVE_ACTUAL_FEES_TO_BE_OBSERVED_ON_FUTURE_LIVE_TRADES",
-  "automated_live": "HALTED_3_OF_3_AFTER_2026_10_27_05_00_MSK_FINAM_SERVER_ERROR",
+  "automated_live": "PASS_3_OF_3_RUNNING_ARMED_FRESH_CYCLES_AFTER_H1_STYLE_RECOVERY",
   "strategy_timing": "FROZEN_M15_LIVE_TASKS_ARMED_NEXT_OPEN_STRATEGIC_FILL_NOT_YET_OBSERVED",
   "market": "CNYRUBF",
   "contract_economics": {
@@ -91,14 +91,15 @@
     "Technical exception entry is not proof of frozen strategy LIVE NEXT_OPEN execution",
     "First autonomous frozen signal, FINAM fill and resulting broker-proven SLTP in production are not yet observed; technical trial SLTP 3/3 remains separate",
     "PowerShell windows appear on the operator desktop because original Windows Tasks are Interactive; do not close them while LIVE; background UI treatment requires its own safe, flat-account Task restart.",
-    "27.10.2026 05:00 MSK: all V20 processes stopped with FINAM server error; recovery not yet executed; former 08.4 Running/ARMED is only historical proof"
+    "27.10.2026: recovery v3 confirmed LIVE_RUNNING_ARMED_FRESH_3_OF_3, but no autonomous frozen strategy trade/stop trigger yet; watch actual broker reports at first strategy fill, no artificial tests.",
+    "Original 05:00 simultaneous FINAM server-error endpoint was not logged; source code fixed H1-style fault/retry loop, but exact upstream FINAM response path remains unknown."
   ],
   "roadmap": {
     "08.1": "PASS_PRETRADE_INTEL",
     "08.2": "PASS_3_OF_3_BROKER_EXECUTION_SLTP_MANUAL_EXIT",
     "08.3": "PASS_OWNER_ACCEPTED_TECHNICAL_3_OF_3_AND_TARIFF_COST_MODEL",
     "08.4": "PASS_INTEL_3_OF_3_RUNNING_ARMED_HEALTHY_FRESH_CYCLE",
-    "08.5": "FAIL: ACCOUNT_FLAT_3_OF_3; BACKUP_PYTHON_C_QUOTING; H1_STYLE_FIX_IN_DRAFT_PR; INTEL_RECOVERY_PENDING"
+    "08.5": "PASS_INTEL_3_OF_3_GET_ONLY_FLAT_SQLITE_BACKUP_H1_RETRY_PATCH_RUNNING_ARMED_FRESH_CYCLES"
   },
   "acceptance_report": "V20-08/ACCEPTANCE_08_3_RU.md",
   "actual_commission_verification": {
@@ -138,7 +139,7 @@
     "h1_modified": false,
     "intradaylab_m15_modified": false,
     "historical_acceptance_preserved": true,
-    "current_status": "NOT_RUNNING_AFTER_SIMULTANEOUS_FINAM_SERVER_ERROR"
+    "current_status": "RECOVERED_2026_10_27_3_OF_3_RUNNING_ARMED_FRESH_CYCLES"
   },
   "live_failure_2026_10_27": {
     "observed_msk": "2026-10-27 05:00",
@@ -168,7 +169,7 @@
     "hypothesis": "H1 FinamServerError follows repeated GET >=500 or certain non-order POST/DELETE; exact endpoint unobserved; common FINAM service issue likely, not proven",
     "fix": "Bounded suppression of FinamServerError/Timeout/RateLimit in readonly account snapshot and frozen M15 signal proposal only; uncertain order POST/SLTP/exit still emergency HALT",
     "recovery": "V20 only pinned repair script with FINAM GET-only three-account flat preflight, SQLite online backup before any code change, exact hash upgrade then broker-clean Task rearm",
-    "recovery_executed_on_intel": false,
+    "recovery_executed_on_intel": true,
     "recovery_first_attempt": {
       "source": "Owner Intel Windows PowerShell output",
       "checked": "PASS_3_OF_3_HALTED_READY_SOURCE_PINNED",
@@ -179,6 +180,26 @@
       "orders_created": false,
       "correction": "Pinned V20-only recovery uses a temporary .py for SQLite online backup, then replaces V20 module with H1 ProductionService.run-style 3-second fault retry; Windows PowerShell 5.1 offline mock test added",
       "intel_recovery_pending": true
+    },
+    "recovery_final": {
+      "completed_at_utc_approx": "2026-10-27T06:17:06Z",
+      "evidence_source": "User-provided exact native Windows PowerShell stdout; no independent remote Intel inspection",
+      "source_script_blob": "1a813bb93f8ff0ebf5b9aa4b1ec636d61125e7f5",
+      "source_script_local_name": "v20-08-finam-read-recovery-v3.ps1",
+      "preflight": "PASS_3_OF_3_HALTED_READY_SOURCE_PINNED",
+      "finam_before": "PASS_GET_ONLY_FLAT_3_OF_3",
+      "sqlite_backup": "PASS_3_OF_3_SQLITE_SNAPSHOT",
+      "sqlite_backup_path": "C:\\V20Lab\\backup-08\\v20-live-20261027T061706Z",
+      "patch": "PASS_H1_RETRY_SOURCE_AND_LAUNCHER",
+      "finam_after": "PASS_GET_ONLY_FLAT_3_OF_3",
+      "activation": "PASS_RUNNING_ARMED_3_OF_3",
+      "poststart": "PASS_3_OF_3_RUNNING_ARMED_FRESH_CYCLES",
+      "installed_live_module_blob": "e39a00267c91ea35dbe83d27b26d6b62179b2429",
+      "installed_launcher_blob": "5193f70e2c5663077e35653b89f4c28201ff04cb",
+      "installed_operator_blob": "e0fd05423899a02fee5861a176b0f72f7ee3bf5c",
+      "h1_main_untouched": true,
+      "intradaylab_m15_untouched": true,
+      "active_strategy_broker_stop_proof": "NOT_YET_OBSERVED"
     }
   }
 }
