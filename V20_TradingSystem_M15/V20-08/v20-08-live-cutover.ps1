@@ -61,7 +61,7 @@ function cycleproof([string]$name,[datetimeoffset]$after,[bool]$print=$false,[bo
     }
     if($task.State -ne 'Running' -or
        $task.Actions[0].Arguments -ine (expected $name) -or
-       $null -eq $latest -or $latest.state -match '^HALT' ){return $false}
+       $null -eq $latest -or $latest.state -match '^(HALT|FAULT|FINAM_)' ){return $false}
     if($requirearmed){
         $switchPath=Join-Path $root ('robots\'+$name.Substring(4)+'\safety\stage8-trading-kill-switch.json')
         if(-not (Test-Path -LiteralPath $switchPath -PathType Leaf)){return $false}
