@@ -87,6 +87,35 @@ def sid_for_file(path):
     return value
 
 
+def verify_acl(path, permitted_write_sids):
+    """Read effective file DACL; deny untrusted write-eligible grants."""
+    allowed = {"S-1-5-18", "S-1-5-32-544", *permitted_write_sids}
+    for value in allowed:
+        if not re.fullmatch(r"S-[0-9]+(?:-[0-9]+)+", value):
+            raise ValueError("CC07_ACL_SID_INVALID")
+    name = str(path).replace("'", "''")
+    trusted = ",".join("'" + sid + "'" for sid in sorted(allowed))
+    code = (
+        "$a=get-acl -literalpath '" + name + "' -erroraction stop;"
+        "$ok=@(" + trusted + ");"
+        "$write=[int64][security.accesscontrol.filesystemrights]::write -bor "
+        "[int64][security.accesscontrol.filesystemrights]::delete -bor "
+        "[int64][security.accesscontrol.filesystemrights]::changepermissions -bor "
+        "[int64][security.accesscontrol.filesystemrights]::takeownership;"
+        "foreach($ace in $a.getaccessrules($true,$true,"
+        "[security.principal.securityidentifier])){"
+        "if($ace.accesscontroltype -eq 'Allow' -and "
+        "([int64]$ace.filesystemrights -band $write) -and "
+        "$ace.identityreference.value -notin $ok){throw 'untrusted_writer'}};"
+        "'CC07_ACL_PASS'"
+    )
+    check = subprocess.run(["powershell.exe", "-noprofile",
+                            "-noninteractive", "-command", code],
+                           capture_output=True, text=True, timeout=12, check=False)
+    if check.returncode != 0 or check.stdout.strip() != "CC07_ACL_PASS":
+        raise ValueError("CC07_ACL_NOT_PROTECTED")
+
+
 def validate_directory(path, owner):
     if not path.is_dir() or path.is_symlink() or sid_for_file(path) != owner:
         raise ValueError("CC07_FOLDER_OWNER_INVALID")
@@ -108,13 +137,16 @@ def policy():
     if not 0 < (utc(row["expires_at"]) - now).total_seconds() <= 86400:
         raise ValueError("CC07_POLICY_EXPIRED")
     admin_sids = {"S-1-5-18", "S-1-5-32-544"}
-    for path in (DATA, PRIVATE, POLICY, PUBLIC, AUDIT.parent):
+    for path in (DATA.parent, DATA, PRIVATE, POLICY, PUBLIC, AUDIT.parent):
         if path.is_symlink() or sid_for_file(path) not in admin_sids:
             raise ValueError("CC07_ADMIN_PATH_UNTRUSTED")
+        verify_acl(path, set())
     if sid_for_file(INBOX) not in admin_sids or INBOX.is_symlink() or not INBOX.is_dir():
         raise ValueError("CC07_INBOX_UNTRUSTED")
+    verify_acl(INBOX, {row["panel_sid"]})
     if sid_for_file(OPERATOR) not in admin_sids or OPERATOR.is_symlink() or git_blob(OPERATOR) != EXPECTED_BLOB:
         raise ValueError("CC07_OPERATOR_UNPINNED")
+    verify_acl(OPERATOR, set())
     # Effective identity is attested by the actual OS, not any panel/JSON flag.
     actor = subprocess.run(
         ["powershell.exe", "-noprofile", "-noninteractive", "-command",
