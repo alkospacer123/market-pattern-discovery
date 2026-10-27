@@ -73,6 +73,31 @@ jobs:
           & python -B $helper $source $copy
           if ($LASTEXITCODE -ne 0 -or -not (Test-Path -LiteralPath $copy)) { throw 'V20_08_5_NATIVE_PS51_BACKUP_FAILED' }
           Write-Output 'V20_08_5_BACKUP_NATIVE_WINDOWS_POWERSHELL_51=PASS'
+      - name: Regression - recovery uses pinned fixed operator BEFORE SQLite backup
+        shell: powershell
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $recovery = Get-Content -LiteralPath 'V20_TradingSystem_M15/V20-08/v20-08-finam-read-recovery.ps1' -Raw
+          $operator = 'V20_TradingSystem_M15/V20-08/v20-08-live-operator.ps1'
+          $sha = (& git.exe hash-object -- $operator).Trim()
+          if ($LASTEXITCODE -ne 0 -or $recovery -notmatch [regex]::Escape("$"+"newOperator='"+$sha+"'")) { throw 'V20_08_5_PREBACKUP_PIN_NOT_CURRENT' }
+          if ($recovery.Contains('-file $operator -mode backup')) { throw 'V20_08_5_PREBACKUP_STALE_OPERATOR_USED' }
+          $steps = @(
+            '$backupOperator=Join-Path',
+            'hash $backupOperator',
+            '-file $backupOperator -mode backup',
+            'patch-file ([string]$pair[0])'
+          )
+          $before = -1
+          foreach ($step in $steps) {
+            $offset = $recovery.IndexOf($step, $before+1, [StringComparison]::Ordinal)
+            if ($offset -le $before) { throw ('V20_08_5_PREBACKUP_ORDER_FAIL '+$step) }
+            $before = $offset
+          }
+          $fixed = Get-Content -LiteralPath $operator -Raw
+          if ($fixed.Contains('& $python -B -c $code')) { throw 'V20_08_5_PREBACKUP_PYTHON_C_REGRESSION' }
+          if (-not $fixed.Contains('& $python -B $helper $sourceDb $targetDb')) { throw 'V20_08_5_PREBACKUP_PYTHON_HELPER_MISSING' }
+          Write-Output 'V20_08_5_RECOVERY_PREBACKUP_PIN_AND_ORDER=PASS'
       - name: Only new V20 LIVE syntax and scoped mock tests
         shell: pwsh
         env:
