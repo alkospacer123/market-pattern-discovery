@@ -4,7 +4,7 @@
   "source": "Intel URIU-PC owner FINAM history/order screenshots and exact operator stdout in conversation; not independent live API capture from GitHub",
   "execution": "PASS_3_OF_3_REAL_ENTRY_AND_PROVEN_BROKER_100_PERCENT_SLTP_MANUAL_FLAT",
   "accounting": "ACCEPTED_WITH_TARIFF_RESERVE_ACTUAL_FEES_TO_BE_OBSERVED_ON_FUTURE_LIVE_TRADES",
-  "automated_live": "FAIL_PARTIAL_OBV_HALTED_20261027T0748Z_SHALLOW_AND_INSIDE_PASS_LOCAL_CHECK",
+  "automated_live": "FAIL_ALL_THREE_POSTFILL_HALT_20261027_PENDING_SAFE_EXISTING_POSITION_RECOVERY",
   "strategy_timing": "FROZEN_M15_LIVE_TASKS_ARMED_NEXT_OPEN_STRATEGIC_FILL_NOT_YET_OBSERVED",
   "market": "CNYRUBF",
   "contract_economics": {
@@ -313,5 +313,51 @@
     "broker_readonly": "NOT_YET_INDEPENDENTLY_RECHECKED_AFTER_SCREENSHOTS",
     "current_worker_health": "NOT_YET_RECHECKED_AFTER_11_00",
     "risk_assessment": "NOT_YET_RETRIEVED_FROM_SQLITE"
+  },
+  "live_failure_all_three_postfill_2026_10_27": {
+    "status": "FAIL_ALL_THREE_DURABLE_PRE_POST_MARKER_NOT_CLEARED",
+    "evidence": "Owner 27.10.2026 full multi-readonly SQLite and FINAM read-only outputs, 1 broker position and 1 active broker order per robot, 0 POST by readonly",
+    "observed_utc_approx": "2026-10-27T08:29:54Z",
+    "robots": {
+      "v20-shallow": {
+        "instrument": "GLDRUBF",
+        "side": "SHORT",
+        "qty": 13,
+        "stop": "10408.0",
+        "actual_risk_rub": "653.52",
+        "single_trade_cap_rub": "674.9826",
+        "risk": "PASS",
+        "last_log": "HALT_V20_LIVE_POST_FILL_RISK_HALTED",
+        "new_entries": "HALTED"
+      },
+      "v20-obv": {
+        "instrument": "USDRUBF",
+        "side": "SHORT",
+        "qty": 2,
+        "stop": "80.92",
+        "actual_risk_rub": "616.68",
+        "single_trade_cap_rub": "674.83470",
+        "risk": "PASS",
+        "last_log": "HALT_V20_LIVE_POST_FILL_RISK_HALTED",
+        "new_entries": "HALTED"
+      },
+      "v20-inside": {
+        "instrument": "GLDRUBF",
+        "side": "SHORT",
+        "qty": 13,
+        "stop": "10408.2",
+        "actual_risk_rub": "652.62",
+        "single_trade_cap_rub": "674.96970",
+        "risk": "PASS",
+        "last_log": "HALT_V20_LIVE_POST_FILL_RISK_HALTED",
+        "new_entries": "HALTED"
+      }
+    },
+    "root_cause": "V20 record_submission_boundary writes H1-style durable UNKNOWN_POST_REQUIRE_BROKER_RECONCILIATION; V20 observer did not clear this specific marker after FINAM broker exact fill + active SLTP100% + actual risk PASS (while preserving genuinely uncertain errors).",
+    "draft_runtime_fix": "V20_TradingSystem_M15/v20_runtime/finam_execution.py blob 47cf12adf0ae7d7ada33c2ebe56840678777c7fb not deployed on Intel",
+    "one_time_incident_only_recovery": "V20-08/v20-08-three-protected-post-recovery.py blob aeaab958f711cb39a2386f9c4700056b77b76b5a",
+    "windows_ci": "40474767269 SUCCESS",
+    "intel_execution": "NOT_YET_PERFORMED",
+    "instructions": "All 3 tasks remain running, all 3 kill switches HALTED. Backup SQLite first; on each robot verify fresh broker GET and strict completed fill/stop/risk proof; atomically clear one resolved UNKNOWN_POST marker; DO NOT arm/stop/restart/cancel and keep frozen strategy unchanged; verify trailing logs. Never activate new entries with old installed runtime."
   }
 }
