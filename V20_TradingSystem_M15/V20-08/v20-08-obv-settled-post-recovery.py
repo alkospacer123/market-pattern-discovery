@@ -7,6 +7,7 @@ manual unhalt or database reset.
 from __future__ import annotations
 
 import argparse
+from contextlib import closing
 from datetime import datetime, timedelta, timezone
 from decimal import Decimal
 import json
@@ -162,21 +163,23 @@ def inspect_state(conn: sqlite3.Connection) -> None:
 
 def recover_sqlite(db: Path, execute: bool) -> None:
     uri = db.as_uri() + ("?mode=rw" if execute else "?mode=ro")
-    with sqlite3.connect(uri, uri=True, timeout=12) as conn:
-        conn.execute("PRAGMA busy_timeout=12000")
-        if execute:
-            conn.execute("BEGIN IMMEDIATE")
-        else:
-            conn.execute("PRAGMA query_only=ON")
-        inspect_state(conn)
-        if not execute:
-            return
-        # ONE existing key is changed to JSON null. Does not touch
-        # entries, stop intents, fills, reservations, kill switch or Tasks.
-        cursor = conn.execute("UPDATE state SET value='null' WHERE key='execution_halt' AND value=?",
-                              (json.dumps(MARKER),))
-        require(cursor.rowcount == 1, "ATOMIC_MARKER_CONFLICT")
-        conn.commit()
+    # sqlite3 connection context manager commits/rolls back but does NOT close.
+    # Explicitly close the database handle (Windows keeps its files locked).
+    with closing(sqlite3.connect(uri, uri=True, timeout=12)) as conn:
+        with conn:
+            conn.execute("PRAGMA busy_timeout=12000")
+            if execute:
+                conn.execute("BEGIN IMMEDIATE")
+            else:
+                conn.execute("PRAGMA query_only=ON")
+            inspect_state(conn)
+            if not execute:
+                return
+            # ONE existing key is changed to JSON null. Does not touch
+            # entries, stop intents, fills, reservations, kill switch or Tasks.
+            cursor = conn.execute("UPDATE state SET value='null' WHERE key='execution_halt' AND value=?",
+                                  (json.dumps(MARKER),))
+            require(cursor.rowcount == 1, "ATOMIC_MARKER_CONFLICT")
         print("v20_obv_recovery_durable_stale_checkpoint=RESOLVED_ONLY_ONE_KEY", flush=True)
 
 
