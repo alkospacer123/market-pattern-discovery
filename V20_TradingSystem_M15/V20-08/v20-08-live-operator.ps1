@@ -83,7 +83,8 @@ function await-cycle([string]$name,[datetimeoffset]$started){
             $last=Get-Content -LiteralPath $path -Tail 1 -Encoding UTF8 | ConvertFrom-Json
             $stamp=[datetimeoffset]::Parse([string]$last.utc,[globalization.cultureinfo]::InvariantCulture)
             if($last.robot -eq $name -and $stamp -ge $started.AddSeconds(-5) -and
-               [string]$last.state -notmatch '^HALT'){return}
+               ([string]$last.state -eq 'HALTED_NO_NEW_ENTRIES' -or
+                [string]$last.state -notmatch '^HALT')){return}
         }
         Start-Sleep -Seconds 1
     }
