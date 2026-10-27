@@ -37,3 +37,20 @@ def test_not_called_by_streamlit_or_legacy_h1():
     assert "'c:\\intradaylab" not in SCRIPT.lower()
     assert "mode='preview'" in SCRIPT
     assert not re.search(r'(^|\n)\s*(register-scheduledtask|start-scheduledtask|remove-item)\b',SCRIPT,re.I)
+
+def test_windows_powershell_native_parser():
+    import os
+    import subprocess
+    import pytest
+    if os.name != 'nt':
+        pytest.skip('native Windows PowerShell parser only')
+    # Syntax only: ParseFile NEVER executes the operator or accesses FINAM.
+    literal=str(PATH).replace("'", "''")
+    command=("$errors=$null;$tokens=$null;"
+             "[void][system.management.automation.language.parser]::parsefile('"
+             +literal+"',[ref]$tokens,[ref]$errors);"
+             "if($errors.count -ne 0){$errors|out-string|write-output;exit 1}")
+    child=subprocess.run(['powershell.exe','-noprofile','-noninteractive',
+                          '-command',command],
+                         capture_output=True,text=True,timeout=15,check=False)
+    assert child.returncode == 0, child.stdout+child.stderr
