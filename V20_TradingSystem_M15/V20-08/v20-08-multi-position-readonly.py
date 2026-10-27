@@ -38,6 +38,8 @@ def ledger(robot, strategy):
         print(prefix + "identity=PASS")
         s = json.loads(switch.read_text(encoding="utf-8-sig"))
         print(prefix + "switch=" + str(s.get("state")))
+        print(prefix + "switch_updated_utc=" + str(s.get("updated_utc")))
+        print(prefix + "switch_generation=" + str(s.get("generation")))
         row = db.execute("SELECT value FROM state WHERE key='execution_halt'").fetchone()
         flag = json.loads(row[0]) if row else None
         print(prefix + "execution_halt=" + str(flag))
@@ -50,6 +52,12 @@ def ledger(robot, strategy):
             for field in ("symbol","direction","entry_at","quantity","atr14","initial_stop"):
                 print(tag + field + "=" + str(payload.get(field)))
             print(tag + "status=" + str(status))
+            submission = db.execute("SELECT value FROM state WHERE key=?",("entry_submission:"+key,)).fetchone()
+            if submission:
+                submitted=json.loads(submission[0])
+                print(tag + "submitted_at_utc=" + str(submitted.get("submitted_at")))
+            else:
+                print(tag + "submitted_at_utc=NO_DURABLE_SUBMISSION")
             stop = next((st for st in rows if st[0] == key+":stop"),None)
             print(tag + "stop_intent_status=" + (str(stop[2]) if stop else "MISSING"))
             protected = db.execute("SELECT value FROM state WHERE key=?",("protected_fill:"+key,)).fetchone()
