@@ -57,7 +57,7 @@ function proof([string]$name,[bool]$verbose=$false){
     need ($null -ne $last) 'V20_08_5_LAST_CYCLE_MISSING'
     $age=([datetimeoffset]::UtcNow-[datetimeoffset]::Parse([string]$last.utc,[globalization.cultureinfo]::InvariantCulture)).TotalSeconds
     $healthy=($t.State -eq 'Running' -and $switch.state -eq 'ARMED' -and
-              [string]$last.state -notmatch '^HALT' -and $age -ge -5 -and $age -le 90)
+              [string]$last.state -notmatch '^(HALT|FAULT|FINAM_)' -and $age -ge -5 -and $age -le 90)
     Write-Output ('v20_08_5_'+$name+'_task='+$t.State)
     Write-Output ('v20_08_5_'+$name+'_switch='+$switch.state)
     Write-Output ('v20_08_5_'+$name+'_cycle='+[string]$last.state)
@@ -84,7 +84,7 @@ function await-cycle([string]$name,[datetimeoffset]$started){
             $stamp=[datetimeoffset]::Parse([string]$last.utc,[globalization.cultureinfo]::InvariantCulture)
             if($last.robot -eq $name -and $stamp -ge $started.AddSeconds(-5) -and
                ([string]$last.state -eq 'HALTED_NO_NEW_ENTRIES' -or
-                [string]$last.state -notmatch '^HALT')){return}
+                [string]$last.state -notmatch '^(HALT|FAULT|FINAM_)')){return}
         }
         Start-Sleep -Seconds 1
     }
