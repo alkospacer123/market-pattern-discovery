@@ -259,7 +259,7 @@
     },
     {
       "path": "deployment/v20_live_export.py",
-      "sha256": "56b93c473ef778cfba391d7216a820ff7871da0e8061f8f0528ac18c8d8e28e7"
+      "sha256": "7a204e94fe812d597294cc76c2f2491fdbec8ad6b459ffe5ea6a76e2e07a3f34"
     },
     {
       "path": "docs/ACCEPTANCE_REPORT.md",
@@ -555,7 +555,7 @@
     },
     {
       "path": "tests/test_v20_live_export.py",
-      "sha256": "ac811d8cd7fd9851ea6cd6d870866cab466199a4f750bff3cba0fab9a98a1903"
+      "sha256": "07a232da18ccdfab7a607898076ea0e3242e222be568c444dd22d5a9a4f80db6"
     },
     {
       "path": "tests/test_v20_offline_journal.py",
