@@ -4,7 +4,7 @@
   "source": "Intel URIU-PC owner FINAM history/order screenshots and exact operator stdout in conversation; not independent live API capture from GitHub",
   "execution": "PASS_3_OF_3_REAL_ENTRY_AND_PROVEN_BROKER_100_PERCENT_SLTP_MANUAL_FLAT",
   "accounting": "ACCEPTED_WITH_TARIFF_RESERVE_ACTUAL_FEES_TO_BE_OBSERVED_ON_FUTURE_LIVE_TRADES",
-  "automated_live": "PASS_3_OF_3_RUNNING_ARMED_FRESH_CYCLES_AFTER_H1_STYLE_RECOVERY",
+  "automated_live": "FAIL_PARTIAL_OBV_HALTED_20261027T0748Z_SHALLOW_AND_INSIDE_PASS_LOCAL_CHECK",
   "strategy_timing": "FROZEN_M15_LIVE_TASKS_ARMED_NEXT_OPEN_STRATEGIC_FILL_NOT_YET_OBSERVED",
   "market": "CNYRUBF",
   "contract_economics": {
@@ -229,5 +229,43 @@
       "Restoration and external encrypted copy not physically tested"
     ],
     "additional_evidence": "V20-08/PORTABLE_BACKUP_ACCEPTANCE_20261027.json"
+  },
+  "live_health_2026_10_27_10_48_msk": {
+    "status": "FAIL_PARTIAL_2_OF_3_OBV_HALTED",
+    "evidence": "Owner Intel local V20-08.5 CHECK output, does NOT independently read FINAM or SQLite",
+    "observed_utc": "2026-10-27T07:48:22.962586+00:00",
+    "robots": {
+      "v20-shallow": {
+        "task": "Running",
+        "kill_switch": "ARMED",
+        "cycle": "PASS",
+        "healthy": true,
+        "logged_attempts": 860
+      },
+      "v20-obv": {
+        "task": "Running",
+        "kill_switch": "HALTED",
+        "cycle": "FAIL",
+        "code": "HALT_V20_LIVE_POST_FILL_RISK_HALTED",
+        "healthy": false,
+        "logged_attempts": 1103
+      },
+      "v20-inside": {
+        "task": "Running",
+        "kill_switch": "ARMED",
+        "cycle": "PASS",
+        "healthy": true,
+        "logged_attempts": 854
+      }
+    },
+    "broker_open_position": "NOT_YET_CHECKED",
+    "broker_active_sltp": "NOT_YET_CHECKED",
+    "durable_execution_halt_reason": "NOT_YET_READ",
+    "protective_order_note": "Code observed_protected_entry checks active matching 100% stop before post-fill HALT, but recent broker state is NOT proven by local log",
+    "operational_rule": "NO START, RESTART, ARM, FULL STOP or stop cancellation for OBV until owner FINAM READONLY + SQLite risk reason and active SLTP are verified.",
+    "code_issue": "Current V20 record_submission_boundary unconditionally stores UNKNOWN_POST_REQUIRE_BROKER_RECONCILIATION; no clear after proven broker order + fill + 100% stop found in deployed source. A minimal conditional release is prepared only in draft PR, not installed.",
+    "draft_fix_blob": "47cf12adf0ae7d7ada33c2ebe56840678777c7fb",
+    "diagnostic_script_blob": "3d71194b27b063db3448a8144aa634b582325453",
+    "next_step": "read FINAM broker position and stop now; read-only diagnostics on OBV SQLite; then determine exact root and safe operator handling"
   }
 }
