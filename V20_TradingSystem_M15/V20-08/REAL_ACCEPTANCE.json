@@ -499,14 +499,15 @@
       }
     ],
     "reference_only_result": "Original frozen source remains unchanged and live execution persisted frozen strategy names, but target-date signal predicates have not yet been independently replayed on actual historical FINAM bars.",
-    "audit_python_blob": "d9e5d9013f6d74c997e53308969aef84e94ab688",
-    "audit_powershell_blob": "a5e41e7cbb7743ce9beb12e12065a1efde195e5a",
-    "windows_static_checks": "40486459052 SUCCESS",
+    "audit_python_blob": "619d8031645b6e07c1360a8d5865976954b1d23c",
+    "audit_powershell_blob": "b4d5b3cb560e866e92edf031be86b33cb8a7dad9",
+    "windows_static_checks": "40487143971 SUCCESS native Windows 5.1 PS syntax, Python AST, exact pin, synthetic historical as-of future bar filtering, no trade POST methods",
     "intel_live_source_status": "Older pinned runtime 9ca194c61aa9db003d298fd1a3e93cc7f8bb23c4; newer draft fixes not installed. Keep worker processes running and all switches HALTED while positions remain open.",
     "limitations": [
       "Historical FINAM GET can differ from the original real-time broker history due later corrections or warmup-second cutoff. Log mismatch for investigation, not automatic LIVE state changes.",
       "Broker GET historical candles requires current DPAPI-authorized token; script does not place trading orders and does not change SQLite, task or authorization."
     ],
-    "pending": "User should run isolated historical GET-only audit on Intel and provide output; only then mark 3/3 frozen entry SIGNAL PASS or FAIL individually."
+    "pending": "User should run isolated historical GET-only audit on Intel and provide output; only then mark 3/3 frozen entry SIGNAL PASS or FAIL individually.",
+    "historical_data_note": "Replay includes only FINAM bars timestamped <= original 10:30/11:00+30sec; later-published next bar excluded. Signal still pending true Intel FINAM GET-only replay."
   }
 }
