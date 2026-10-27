@@ -88,8 +88,10 @@ def journal(snapshots):
     for robot in ROBOTS:
         report = snapshots[robot]
         with st.expander(LABELS[robot] + " · " + healthy_label(report), expanded=False):
+            if report.get("reason") == "LOCAL_REPORT":
+                st.caption("Источник V20 LIVE: реальные проходы live-m15.jsonl; не журнал сделок FINAM.")
             if report["events"]:
-                # Show newest first; the source contract accepts at most ten completed events.
+                # Show newest first; the source contract accepts up to ten worker attempts.
                 recent = tuple(reversed(report["events"][-10:]))
                 st.dataframe([{"Время": show_time(event["at"]),
                                "Цикл": event["cycle"], "Результат": event["result"],
@@ -108,7 +110,7 @@ def journal(snapshots):
 def controls():
     """CC-07 preview only: disabled buttons; no callbacks or controller import."""
     st.subheader("Управление")
-    st.info("Отключено. Управляющие команды не авторизованы; роботы остаются STAGING · LIVE OFF.")
+    st.info("Управление пока отключено. START/RESTART у V20 могут перевести HALTED в ARMED — до отдельной приёмки кнопки не активируем.")
     for robot in ROBOTS:
         st.markdown("**" + LABELS[robot] + "**")
         columns = st.columns(4)
