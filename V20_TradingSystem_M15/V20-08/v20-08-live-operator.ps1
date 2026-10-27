@@ -38,6 +38,26 @@ function call-launcher([string]$name,[string]$action){
     need ($LASTEXITCODE -eq 0) ('V20_08_5_'+$action.ToUpperInvariant()+'_FAILED')
     return $lines
 }
+# Present the outcome of each real V20 worker loop like H1 check:
+# WAIT_NEXT_M15_OPEN is a successful reconciled polling cycle, not an error.
+# A state that still needs broker fill/SLTP proof is explicitly PENDING.
+function cycle-result([string]$state){
+    if($state -in @(
+        'WAIT_NEXT_M15_OPEN','NO_FROZEN_SIGNAL','SESSION_ENTRY_LIMIT_REACHED',
+        'BROKER_RECONCILED_PROTECTION_PASS','BROKER_FLAT_NO_ACTIVE_STOP',
+        'STOP_EXECUTED_FLAT'
+    )){return 'PASS'}
+    if($state -in @(
+        'ENTRY_ACK_NEEDS_FILL_AND_STOP','ENTRY_ACK_AWAIT_BROKER_FILL',
+        'STOP_ACK_NEEDS_BROKER_PROOF','EXIT_POSTED_AWAIT_BROKER_FLAT',
+        'FROZEN_EXIT_ACK_KEEP_STOP_UNTIL_FLAT',
+        'STOP_CANCEL_WAIT_BROKER_NO_RETRANSMIT',
+        'CANCEL_ACK_REQUIRE_BROKER_NO_STOP_CONFIRMATION'
+    )){return 'PENDING'}
+    if($state -eq 'HALTED_NO_NEW_ENTRIES'){return 'HALTED'}
+    if($state -match '^(HALT_|FAULT_|FINAM_)'){return 'FAIL'}
+    return 'UNKNOWN'
+}
 function proof([string]$name,[bool]$verbose=$false){
     $t=exact-task $name
     $instance=Join-Path $root ('robots\'+$name.Substring(4))
@@ -55,25 +75,44 @@ function proof([string]$name,[bool]$verbose=$false){
         }catch{}
     }
     need ($null -ne $last) 'V20_08_5_LAST_CYCLE_MISSING'
+    $lastStatus=cycle-result ([string]$last.state)
     $age=([datetimeoffset]::UtcNow-[datetimeoffset]::Parse([string]$last.utc,[globalization.cultureinfo]::InvariantCulture)).TotalSeconds
     $healthy=($t.State -eq 'Running' -and $switch.state -eq 'ARMED' -and
-              [string]$last.state -notmatch '^(HALT|FAULT|FINAM_)' -and $age -ge -5 -and $age -le 90)
+              $lastStatus -in @('PASS','PENDING') -and $age -ge -5 -and $age -le 90)
     Write-Output ('v20_08_5_'+$name+'_task='+$t.State)
     Write-Output ('v20_08_5_'+$name+'_switch='+$switch.state)
-    Write-Output ('v20_08_5_'+$name+'_cycle='+[string]$last.state)
+    # This count is local JSONL attempts since the log began, not the
+    # durable H1 production_service_cycle_count counter.
+    [long]$logged=0
+    foreach($line in [IO.File]::ReadLines($log)){
+        if(-not [string]::IsNullOrWhiteSpace($line)){$logged++}
+    }
+    Write-Output ('v20_08_5_'+$name+'_cycle_attempts_logged='+$logged)
+    Write-Output ('v20_08_5_'+$name+'_cycle='+$lastStatus)
+    Write-Output ('v20_08_5_'+$name+'_last_cycle_utc='+[string]$last.utc)
+    if($lastStatus -ne 'PASS'){
+        Write-Output ('v20_08_5_'+$name+'_cycle_code='+[string]$last.state)
+    }
     Write-Output ('v20_08_5_'+$name+'_age_seconds='+[math]::Round($age))
     Write-Output ('v20_08_5_'+$name+'_healthy='+$healthy)
     if($verbose){
+        $index=0
+        $found=0
         foreach($line in $lines){
             try{
                 $row=$line | ConvertFrom-Json -ErrorAction Stop
                 if($row.robot -eq $name -and $row.utc -and $row.state){
-                    Write-Output ('v20_08_5_'+$name+'_history='+$row.utc+' '+$row.state)
+                    $index++
+                    $result=cycle-result ([string]$row.state)
+                    $code=if($result -eq 'PASS'){'NONE'}else{[string]$row.state}
+                    Write-Output ('v20_08_5_'+$name+'_cycle_'+('{0:D2}' -f $index)+'=status='+$result+' code='+$code)
+                    $found++
                 }
             }catch{}
         }
+        Write-Output ('v20_08_5_'+$name+'_last_cycle_attempts_found='+$found)
+        Write-Output ('v20_08_5_'+$name+'_latest_cycle_attempt_status='+$lastStatus)
     }
-    return $healthy
 }
 function await-cycle([string]$name,[datetimeoffset]$started){
     for($i=0;$i -lt 95;$i++){
