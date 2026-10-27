@@ -174,6 +174,33 @@ class H1ProtectedHandoffTests(unittest.TestCase):
             self.assertEqual(len(journal.store.all_fills()), 1)
         self.assertEqual(api.calls.count("trades"), 2)
 
+    def test_live_exact_protected_fill_releases_only_resolved_pre_post_checkpoint(self):
+        # The pre-POST UNCERTAIN marker cannot outlive full broker proof.
+        from V20_TradingSystem_M15.v20_runtime.finam_live import V20LiveJournal
+        with V20LiveJournal(self.root, ROBOT, ACCOUNT) as journal:
+            key = journal.prepare_entry(**initial_case())
+            reader, snap, now, _ = self.setup_broker(journal, key, include_stop=True)
+            self.assertEqual(journal.store.get("execution_halt"),
+                             "UNKNOWN_POST_REQUIRE_BROKER_RECONCILIATION")
+            observation = journal.observe_protected_entry(
+                key=key, reader=reader, snapshot=snap, now=now)
+            self.assertEqual(observation["risk_assessment"]["status"], "PASS")
+            self.assertIsNone(journal.store.get("execution_halt"))
+            self.assertEqual(journal.store.intent(key)["status"], "RECONCILED")
+            self.assertEqual(observation["broker_stop_percent"], "100")
+
+    def test_live_protected_fill_never_clears_other_durable_halt_reason(self):
+        from V20_TradingSystem_M15.v20_runtime.finam_live import V20LiveJournal
+        with V20LiveJournal(self.root, ROBOT, ACCOUNT) as journal:
+            key = journal.prepare_entry(**initial_case())
+            reader, snap, now, _ = self.setup_broker(journal, key, include_stop=True)
+            journal.store.put("execution_halt", "OPERATOR_REQUIRED_UNRELATED_ERROR")
+            observation = journal.observe_protected_entry(
+                key=key, reader=reader, snapshot=snap, now=now)
+            self.assertEqual(observation["risk_assessment"]["status"], "PASS")
+            self.assertEqual(journal.store.get("execution_halt"),
+                             "OPERATOR_REQUIRED_UNRELATED_ERROR")
+
     def test_broker_fill_without_active_stop_never_becomes_durable_protected(self):
         with V20TradeJournal(self.root, ROBOT, ACCOUNT) as journal:
             key = journal.prepare_entry(**initial_case())
