@@ -185,3 +185,29 @@ CC07_INTEL_OFFLINE_ACCEPTANCE=PASS
 - Pure CC journal contract adds observation result classifications PENDING, HALTED and UNKNOWN alongside PASS/FAULT, never changing a V20 trading rule. Last-cycle timestamp is taken from worker log, not UI refresh time.
 - Control buttons remain disabled. V20-08 start/restart may ARM; V20-08 stop HALTs entries while keeping workers running. STOP Windows Task requires separate flat/protection rule. No LIVE activation, merge, or Windows Task changes performed.
 - Current status: CC-02 source prepared for native Windows CI and physical readonly acceptance; CC-06/07 LIVE not authorized; CC-08 runtime acceptance pending.
+
+## CC-07 live control semantics — 27.10.2026: OFFLINE policy, no execution
+
+Intel CC-02 physical output: Shallow 3272, OBV 3221, Inside 3276 worker
+attempts; 10 recent authentic JSONL events each; `cc02_receiver=PASS_3_OF_3`.
+Every Task was RUNNING, each Kill Switch HALTED. No ARM or Task mutation.
+
+The source-backed operator V20-08.5 is **unchanged**. Defined future actions:
+
+- **PAUSE** = stock V20 `-mode stop`: HALT *new entries*, workers continue
+  managing existing positions and their protective SLTP. Flat proof not required.
+- **STOP** = HALT new entries, then stop a worker Task **only after** current
+  independent broker GET-only confirmation of zero positions and zero active
+  orders, and an identity/Task verification. Never abandon a live position.
+- **START** = stock V20 `-mode start`: can start the worker and then **ARM**.
+  This is trading authorization, never a harmless button self-test.
+- **RESTART** = stock V20 `-mode restart`: broker FLAT prerequisite and
+  **ARM** afterwards. Never restart while protection is active.
+
+The new `controller/v20_live_policy.py` and tests are *pure OFFLINE*
+semantic/preflight checks only. They never call PowerShell, FINAM or Task
+APIs and return `REFUSED_NO_LIVE_ADAPTER` even when all checks pass.
+Actual OS identity, audit, trusted broker source, execution binding and
+physical approval remain separate. Existing 12 UI buttons stay disabled.
+The user requested: monitoring then control acceptance, then ARMED, not
+an immediate ARM. Do not touch V20/H1/IntradayLab modules or active robots.
