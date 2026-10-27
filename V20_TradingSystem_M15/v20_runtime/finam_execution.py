@@ -542,11 +542,43 @@ class V20TradeJournal(IsolatedReferenceJournal):
             direction, exact_average - side * 2 * Fraction(reservation.atr14),
             reservation.price_step,
         )
+        # H1 PR #493 (ProductionRuntime._confirm_candidate_entry): once
+        # initial partial fill is protected, later 1->2 fills must retain the
+        # SAME verified active broker 100%-SLTP, not cancel/repost an order
+        # just because the combined FINAM VWAP has shifted.
+        prior = self.store.get("protected_fill:" + key)
+        stop_to_verify = projected_stop
+        h1_growth = False
+        if prior is not None:
+            previous_quantity = prior.get("filled_quantity") if isinstance(prior, dict) else None
+            if (type(previous_quantity) is not int or previous_quantity < 1
+                    or prior.get("account_sha256") != self.account_hash
+                    or prior.get("broker_order_id") != intent["broker_order_id"]
+                    or previous_quantity > reservation.quantity
+                    or previous_quantity > filled):
+                self.store.put("execution_halt", "POSITION_GROWTH_PRIOR_PROOF_MISMATCH")
+                raise V20FinamBlocked("POSITION_GROWTH_PRIOR_PROOF_MISMATCH")
+            if (previous_quantity == filled
+                    and prior.get("fill_set_sha256") != history["fill_set_sha256"]):
+                self.store.put("execution_halt", "FINAM_FILL_SET_CHANGED_WITHOUT_QUANTITY_CHANGE")
+                raise V20FinamBlocked("FINAM_FILL_SET_CHANGED_WITHOUT_QUANTITY_CHANGE")
+            previous_assessment = prior.get("risk_assessment") or {}
+            h1_growth = (filled > previous_quantity
+                         or prior.get("h1_same_stop_growth_observed") is True)
+            if h1_growth:
+                if (previous_assessment.get("status") != "PASS"
+                        or (previous_assessment.get("stop_conforms") is not True
+                            and prior.get("h1_same_stop_growth_observed") is not True)):
+                    self.store.put("execution_halt", "POSITION_GROWTH_STOP_PROOF_INVALID")
+                    raise V20FinamBlocked("POSITION_GROWTH_STOP_PROOF_INVALID")
+                stop_to_verify = Decimal(str(prior["installed_stop"]))
         try:
             stop = reader.inspect_protective_stop(
                 snapshot, entry_key=key, symbol=symbol, direction=direction,
-                stop_price=projected_stop, now=now,
+                stop_price=stop_to_verify, now=now,
             )
+            if prior is not None and stop.order_id != prior.get("broker_stop_id"):
+                raise V20FinamBlocked("POSITION_GROWTH_STOP_ORDER_ID_CHANGED")
         except Exception:
             self.store.put("execution_halt", "OPEN_POSITION_PROTECTION_UNVERIFIED")
             raise
@@ -555,7 +587,7 @@ class V20TradeJournal(IsolatedReferenceJournal):
         assessment = revalue_fill(
             reservation,
             [(int(f["quantity"]), f["price"], "0") for f in facts],
-            installed_stop=projected_stop,
+            installed_stop=stop_to_verify,
             other_reserved_risk=sum(
                 (RiskReservation.restore(r).reserved_risk for k, r in
                  self.store.get("risk_reservations", {}).items() if k != key),
@@ -588,8 +620,11 @@ class V20TradeJournal(IsolatedReferenceJournal):
                 "broker_stop_id": stop.order_id,
                 "fill_set_sha256": history["fill_set_sha256"],
                 "filled_quantity": filled, "average_exact": str(exact_average),
-                "installed_stop": str(projected_stop),
+                "installed_stop": str(stop_to_verify),
                 "broker_stop_percent": "100",
+                "h1_same_stop_growth_observed": h1_growth,
+                "h1_stop_coverage_contractual_100pct": True,
+                "h1_stop_growth_physically_proven": False,
                 "risk_assessment": assessment,
                 "fees_status": "BUDGETED_ONLY_NOT_ACTUAL",
                 "observed_at_utc": now.astimezone(timezone.utc).isoformat(),
