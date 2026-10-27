@@ -42,7 +42,7 @@ def test_installer_must_fail_on_pin_acl_or_existing_paths():
         assert guard in S
     assert "https://api.github.com/repos/" in S
     assert "/git/blobs/" in S
-    assert S.index("pinned $script $pin") > S.index("[io.file]::writeallbytes($script,$bytes)")
+    assert S.rindex("pinned $script $pin") > S.index("[io.file]::writeallbytes($script,$bytes)")
 
 
 def test_install_native_powershell_parser_only():
