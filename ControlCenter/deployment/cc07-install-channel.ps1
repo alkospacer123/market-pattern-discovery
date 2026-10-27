@@ -12,7 +12,7 @@ $inbox=join-path $data 'cc07-inbox'
 $public=join-path $data 'cc07-public'
 $private=join-path $data 'private'
 $policy=join-path $private 'cc07-gateway-policy.json'
-$hash='90cdf2242f5fb37398b4c8c5a748c0e5b4ae7062'
+$hash='8ac883f48f79f8b2b5e7b90abd57e13d5cd9b942'
 $source='https://api.github.com/repos/alkospacer123/market-pattern-discovery/git/blobs/'
 function need([bool]$ok,[string]$code){if(-not $ok){throw $code}}
 function plain([string]$path){
