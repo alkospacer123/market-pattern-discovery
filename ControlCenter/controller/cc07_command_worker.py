@@ -145,13 +145,20 @@ def policy():
     if sid_for_file(INBOX) not in admin_sids or INBOX.is_symlink() or not INBOX.is_dir():
         raise ValueError("CC07_INBOX_UNTRUSTED")
     verify_acl(INBOX, {row["panel_sid"]})
+    processed = INBOX / "processed"
+    if processed.is_symlink() or not processed.is_dir() or sid_for_file(processed) not in admin_sids:
+        raise ValueError("CC07_PROCESSED_UNTRUSTED")
+    verify_acl(processed, set())
     if sid_for_file(OPERATOR) not in admin_sids or OPERATOR.is_symlink() or git_blob(OPERATOR) != EXPECTED_BLOB:
         raise ValueError("CC07_OPERATOR_UNPINNED")
     verify_acl(OPERATOR, set())
     # Effective identity is attested by the actual OS, not any panel/JSON flag.
     actor = subprocess.run(
         ["powershell.exe", "-noprofile", "-noninteractive", "-command",
-         "[security.principal.windowsidentity]::getcurrent().user.value"],
+         "$w=[security.principal.windowsidentity]::getcurrent();"
+         "$p=[security.principal.windowsprincipal]::new($w);"
+         "if(-not $p.isinrole([security.principal.windowsbuiltinrole]::administrator))"
+         "{throw 'cc07_worker_elevation_required'};$w.user.value"],
         capture_output=True, text=True, timeout=8, check=False,
     )
     if actor.returncode != 0 or actor.stdout.strip() != row["operator_sid"]:
