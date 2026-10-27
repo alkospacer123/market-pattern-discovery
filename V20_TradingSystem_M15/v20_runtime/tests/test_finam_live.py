@@ -8,14 +8,14 @@ from unittest.mock import patch
 import hashlib
 import json
 import unittest
-from contextlib import ExitStack
+from contextlib import ExitStack, nullcontext
 from datetime import datetime, timezone
 
 from TradingSystemLab.stage8_robot.finam_api import (
     FinamServerError, FinamTimeout, FinamRateLimit, FinamUncertainSubmission,
 )
 from V20_TradingSystem_M15.v20_runtime.finam_live import (
-    AUTH_SCHEMA, SYMBOLS, _safe_auth, _ownership, run_cycle, V20FinamBlocked,
+    AUTH_SCHEMA, SYMBOLS, _safe_auth, _ownership, run_cycle, run, V20FinamBlocked,
 )
 
 
@@ -173,8 +173,8 @@ class LiveAdmissionTests(unittest.TestCase):
                 with patch("V20_TradingSystem_M15.v20_runtime.finam_live._safe_auth"), patch(
                     "V20_TradingSystem_M15.v20_runtime.finam_live._follow_existing"
                 ) as follow:
-                    self.assertEqual(run_cycle(sender, now),
-                                     "FINAM_READ_TEMPORARILY_UNAVAILABLE_NO_NEW_ENTRIES")
+                    with self.assertRaises(type(error)):
+                        run_cycle(sender, now)
                     follow.assert_not_called()
                     self.assertEqual(journal.store.values, {})
 
@@ -197,8 +197,8 @@ class LiveAdmissionTests(unittest.TestCase):
                 proposer = stack.enter_context(patch(
                     "V20_TradingSystem_M15.v20_runtime.finam_live.propose_finam_m15_next_open",
                     side_effect=FinamServerError("HTTP_503:bars")))
-                self.assertEqual(run_cycle(sender, now),
-                                 "FINAM_M15_READ_UNAVAILABLE_NO_NEW_ENTRIES")
+                with self.assertRaises(FinamServerError):
+                    run_cycle(sender, now)
                 self.assertEqual(proposer.call_count, 1)
                 self.assertEqual(journal.store.values, {})
 
@@ -213,6 +213,87 @@ class LiveAdmissionTests(unittest.TestCase):
             with patch("V20_TradingSystem_M15.v20_runtime.finam_live._safe_auth"):
                 with self.assertRaises(FinamUncertainSubmission):
                     run_cycle(sender, datetime(2026, 10, 27, 2, 0, 10, tzinfo=timezone.utc))
+
+    def test_h1_style_broker_fault_retry_keeps_process_and_existing_switch(self):
+        class EndAfterRecoveredCycle(BaseException):
+            pass
+
+        with TemporaryDirectory() as tmp:
+            root = Path(tmp) / "V20Lab"
+            robot = "v20-shallow"
+            instance = root / "robots" / "shallow"
+            (instance / "logs").mkdir(parents=True)
+            journal = self.fake_journal(instance)
+            account = "v20-test-account"
+            env = {
+                "V20_FINAM_ACCOUNT": account,
+                "V20_FINAM_TOKEN": "synthetic-token",
+                "V20_FINAM_ACCOUNT_SHA256": hashlib.sha256(account.encode()).hexdigest(),
+            }
+            reader = SimpleNamespace(authenticate=lambda: None)
+            cycle = [FinamServerError("HTTP_503:GET"),
+                     "WAIT_NEXT_M15_OPEN"]
+            with ExitStack() as stack:
+                stack.enter_context(patch.dict("os.environ", env))
+                stack.enter_context(patch("V20_TradingSystem_M15.v20_runtime.finam_live.V20LiveJournal",
+                                          return_value=nullcontext(journal)))
+                stack.enter_context(patch("V20_TradingSystem_M15.v20_runtime.finam_live.FinamAPI"))
+                stack.enter_context(patch("V20_TradingSystem_M15.v20_runtime.finam_live.V20FinamReadAdapter",
+                                          return_value=reader))
+                stack.enter_context(patch("V20_TradingSystem_M15.v20_runtime.finam_live.V20LiveTransport"))
+                run_mock = stack.enter_context(patch(
+                    "V20_TradingSystem_M15.v20_runtime.finam_live.run_cycle",
+                    side_effect=cycle))
+                halt = stack.enter_context(patch(
+                    "V20_TradingSystem_M15.v20_runtime.finam_live.emergency_halt"))
+                sleep = stack.enter_context(patch(
+                    "V20_TradingSystem_M15.v20_runtime.finam_live.time.sleep",
+                    side_effect=[None, EndAfterRecoveredCycle()]))
+                with self.assertRaises(EndAfterRecoveredCycle):
+                    run(root=root, robot=robot, source="0" * 40)
+                self.assertEqual(run_mock.call_count, 2)
+                self.assertEqual([x.args[0] for x in sleep.call_args_list], [3, 30])
+                halt.assert_not_called()
+            rows = [json.loads(x) for x in
+                    (instance/"logs"/"live-m15.jsonl").read_text(encoding="utf-8").splitlines()]
+            self.assertEqual([row["state"] for row in rows],
+                             ["FAULT_FinamServerError", "WAIT_NEXT_M15_OPEN"])
+
+    def test_h1_style_unsafe_fault_halts_entries_but_does_not_terminate_process(self):
+        class EndAfterSecondCycle(BaseException):
+            pass
+
+        with TemporaryDirectory() as tmp:
+            root = Path(tmp) / "V20Lab"
+            instance = root / "robots" / "shallow"
+            (instance / "logs").mkdir(parents=True)
+            account = "v20-test-account"
+            journal = self.fake_journal(instance)
+            env = {
+                "V20_FINAM_ACCOUNT": account, "V20_FINAM_TOKEN": "synthetic-token",
+                "V20_FINAM_ACCOUNT_SHA256": hashlib.sha256(account.encode()).hexdigest(),
+            }
+            with ExitStack() as stack:
+                stack.enter_context(patch.dict("os.environ", env))
+                stack.enter_context(patch("V20_TradingSystem_M15.v20_runtime.finam_live.V20LiveJournal",
+                                          return_value=nullcontext(journal)))
+                stack.enter_context(patch("V20_TradingSystem_M15.v20_runtime.finam_live.FinamAPI"))
+                stack.enter_context(patch("V20_TradingSystem_M15.v20_runtime.finam_live.V20FinamReadAdapter",
+                                          return_value=SimpleNamespace(authenticate=lambda: None)))
+                stack.enter_context(patch("V20_TradingSystem_M15.v20_runtime.finam_live.V20LiveTransport"))
+                cycles = stack.enter_context(patch("V20_TradingSystem_M15.v20_runtime.finam_live.run_cycle",
+                                                   side_effect=[V20FinamBlocked("V20_LIVE_UNOWNED_BROKER_POSITION"),
+                                                                "HALTED_NO_NEW_ENTRIES"]))
+                halted = stack.enter_context(patch("V20_TradingSystem_M15.v20_runtime.finam_live.emergency_halt"))
+                stack.enter_context(patch("V20_TradingSystem_M15.v20_runtime.finam_live.time.sleep",
+                                          side_effect=[None, EndAfterSecondCycle()]))
+                with self.assertRaises(EndAfterSecondCycle):
+                    run(root=root, robot="v20-shallow", source="0" * 40)
+                self.assertEqual(cycles.call_count, 2)
+                halted.assert_called_once_with(instance)
+            lines=(instance/"logs"/"live-m15.jsonl").read_text(encoding="utf-8").splitlines()
+            self.assertEqual([json.loads(row)["state"] for row in lines],
+                             ["HALT_V20_LIVE_UNOWNED_BROKER_POSITION","HALTED_NO_NEW_ENTRIES"])
 
     def test_foreign_active_order_is_refused(self):
         with TemporaryDirectory() as tmp:
