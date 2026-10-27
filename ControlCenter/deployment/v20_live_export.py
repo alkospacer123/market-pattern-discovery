@@ -96,7 +96,8 @@ def parse_check(output):
             raise ValueError("CC02_BAD_TASK_OR_SWITCH")
         if fields["healthy"] not in ("True", "False"):
             raise ValueError("CC02_BAD_HEALTH_FLAG")
-        # HALTED blocks new entries, but an existing position may still\n        # produce PASS/PENDING protection cycles. Never require a HALTED result.\n        if switch == "HALTED" and fields["healthy"] != "False":
+        # HALTED stops new entries but still permits PASS/PENDING protection cycles.
+        if switch == "HALTED" and fields["healthy"] != "False":
             raise ValueError("CC02_HALTED_NOT_CONSISTENT")
         count = fields["cycle_attempts_logged"]
         if not count.isdecimal() or len(count) > 12 or int(count) < 1:
