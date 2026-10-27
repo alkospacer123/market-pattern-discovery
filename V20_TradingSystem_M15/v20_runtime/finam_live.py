@@ -260,7 +260,6 @@ def _follow_existing(sender: V20LiveTransport, now: datetime, snapshot) -> str:
                 return status
             # A newly ACKed market order can be awaiting its first fill. Never
             # interpret it as a free instrument or submit another order.
-            from TradingSystemLab.stage8_robot.production_broker_state import unique_order_by_client_id
             order = unique_order_by_client_id(
                 list(snapshot.orders), compact_client_order_id(key))
             submission = journal.store.get("entry_submission:" + key)
