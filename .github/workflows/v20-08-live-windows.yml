@@ -155,6 +155,28 @@ jobs:
              $failed -notmatch 'v20_08_5_v20-shallow_healthy=False' -or
              $failed -notmatch 'code=FAULT_FinamServerError') { throw ('CHECK_FAIL_HIDDEN '+$failed) }
           Write-Output 'V20_08_5_CHECK_H1_STYLE_REAL_LOG_PASS_AND_FAIL=PASS_NO_BROKER'
+      - name: One-shot historical signal audit source & syntax (no broker)
+        shell: powershell
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $ps='V20_TradingSystem_M15/V20-08/v20-08-three-entries-frozen-signal-audit.ps1'
+          $py='V20_TradingSystem_M15/V20-08/v20-08-three-entries-frozen-signal-audit.py'
+          $tok=$null
+          $err=$null
+          [void][System.Management.Automation.Language.Parser]::ParseFile((Resolve-Path -LiteralPath $ps).Path,[ref]$tok,[ref]$err)
+          if (@($err).Count -ne 0) { throw 'V20_SIGNAL_AUDIT_PS_PARSE_FAILED' }
+          & python -B -m ast $py | Out-Null
+          if ($LASTEXITCODE -ne 0) { throw 'V20_SIGNAL_AUDIT_PY_AST_FAILED' }
+          $source=(Get-Content -LiteralPath $ps -Raw)
+          $sha=(& git.exe hash-object -- $py).Trim()
+          if ($LASTEXITCODE -ne 0 -or -not $source.Contains("$"+"expected='"+$sha+"'")) { throw 'V20_SIGNAL_AUDIT_PIN_INVALID' }
+          $code=Get-Content -LiteralPath $py -Raw
+          if (-not $code.Contains('completed_signal(symbol, strategy, boundary.completed') -or
+              -not $code.Contains('read_finam_m15_boundary(') -or
+              -not $code.Contains('mode=ro') -or
+              $code.Contains('.place_order(') -or $code.Contains('.cancel_order(') -or
+              $code.Contains('.place_sltp_order(')) { throw 'V20_SIGNAL_AUDIT_NOT_GET_ONLY' }
+          Write-Output 'V20_FROZEN_SIGNAL_HISTORICAL_AUDIT_PS51_AND_PY_AST=PASS_NO_FINAM'
       - name: Only new V20 LIVE syntax and scoped mock tests
         shell: pwsh
         env:
