@@ -4,6 +4,7 @@ This uses a fully in-memory FINAM fake, with no token, network or orders.
 """
 from __future__ import annotations
 
+from dataclasses import replace
 from datetime import datetime, timedelta, timezone
 from decimal import Decimal
 from pathlib import Path
@@ -200,6 +201,81 @@ class H1ProtectedHandoffTests(unittest.TestCase):
             self.assertEqual(observation["risk_assessment"]["status"], "PASS")
             self.assertEqual(journal.store.get("execution_halt"),
                              "OPERATOR_REQUIRED_UNRELATED_ERROR")
+
+    def test_h1_493_partial_fill_growth_same_active_100pct_stop_no_second_post(self):
+        """Reproduce 1->2 growth where VWAP shifts and stop must not be reposted."""
+        from V20_TradingSystem_M15.v20_runtime.finam_live import V20LiveJournal
+
+        class GrowingFake(FakeFinam):
+            quantity = 1
+
+            def account(self, account_id):
+                result = super().account(account_id)
+                result["positions"][0]["quantity"] = value(str(self.quantity))
+                return result
+
+            def orders(self, account_id):
+                result = super().orders(account_id)
+                result["orders"][0]["status"] = (
+                    "PARTIAL_FILL" if self.quantity == 1 else "FILLED")
+                return result
+
+            def trades(self, account_id, *, start=None, end=None, limit=1000):
+                result = super().trades(account_id, start=start, end=end, limit=limit)
+                if self.quantity == 2:
+                    second = dict(result["trades"][0])
+                    second["trade_id"] = "broker-fill-growth-002"
+                    second["price"] = value("85.10")
+                    result["trades"].append(second)
+                return result
+
+        with V20LiveJournal(self.root, ROBOT, ACCOUNT) as journal:
+            case = initial_case()
+            case["entry"] = replace(case["entry"], quantity=2)
+            key = journal.prepare_entry(**case)
+            now = datetime.now(timezone.utc)
+            journal.record_submission_boundary(key, at=now-timedelta(seconds=10))
+            api = GrowingFake(key, journal.store.intent(key)["payload"]["wire"],
+                              include_stop=True)
+            api.timestamp = (now-timedelta(seconds=3)).isoformat()
+            reader = V20FinamReadAdapter(
+                api=api, robot_id=ROBOT, account_id=ACCOUNT,
+                expected_account_hash=SHA)
+            reader.authenticate()
+            one = reader.snapshot(now=now)
+            self.assertEqual(journal.reconcile_order(key=key, snapshot=one),
+                             "BROKER_ACK_NO_FILL_OR_SLTP_PROOF")
+            first = journal.observe_protected_entry(
+                key=key, reader=reader, snapshot=one, now=now)
+            self.assertEqual(first["filled_quantity"], 1)
+            self.assertEqual(first["installed_stop"], "84.80")
+            self.assertTrue(first["risk_assessment"]["stop_conforms"])
+            self.assertEqual(journal.store.intent(key)["status"], "PARTIAL_FILL")
+            self.assertIsNone(journal.store.get("execution_halt"))
+
+            api.quantity = 2
+            later = now + timedelta(seconds=2)
+            two = reader.snapshot(now=later)
+            journal.reconcile_order(key=key, snapshot=two)
+            grown = journal.observe_protected_entry(
+                key=key, reader=reader, snapshot=two, now=later)
+            self.assertEqual(grown["filled_quantity"], 2)
+            self.assertEqual(grown["installed_stop"], "84.80")
+            self.assertNotEqual(grown["risk_assessment"]["projected_stop"],
+                                grown["installed_stop"])
+            self.assertEqual(grown["risk_assessment"]["status"], "PASS")
+            self.assertTrue(grown["h1_same_stop_growth_observed"])
+            self.assertFalse(grown["h1_stop_growth_physically_proven"])
+            self.assertEqual(journal.store.intent(key)["status"], "RECONCILED")
+            self.assertIsNone(journal.store.get("execution_halt"))
+            self.assertEqual(len(journal.store.all_fills()), 2)
+            self.assertEqual([x for x in api.calls if x == "stop_post"], [])
+
+            repeated = journal.observe_protected_entry(
+                key=key, reader=reader, snapshot=two, now=later)
+            self.assertEqual(repeated["installed_stop"], "84.80")
+            self.assertEqual(len(journal.store.all_fills()), 2)
+            self.assertIsNone(journal.store.get("execution_halt"))
 
     def test_broker_fill_without_active_stop_never_becomes_durable_protected(self):
         with V20TradeJournal(self.root, ROBOT, ACCOUNT) as journal:
