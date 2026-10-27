@@ -258,14 +258,31 @@
         "logged_attempts": 854
       }
     },
-    "broker_open_position": "NOT_YET_CHECKED",
-    "broker_active_sltp": "NOT_YET_CHECKED",
-    "durable_execution_halt_reason": "NOT_YET_READ",
+    "broker_open_position": "FINAM_GET_1_USDRUBF_SHORT_2_MATCHED_OWNER_SCREENSHOT",
+    "broker_active_sltp": "FINAM_GET_ACTIVE_ORDER_1_OWNER_APP_ACTIVE_SLTP_100_PERCENT_80_92",
+    "durable_execution_halt_reason": "UNKNOWN_POST_REQUIRE_BROKER_RECONCILIATION",
     "protective_order_note": "Code observed_protected_entry checks active matching 100% stop before post-fill HALT, but recent broker state is NOT proven by local log",
     "operational_rule": "NO START, RESTART, ARM, FULL STOP or stop cancellation for OBV until owner FINAM READONLY + SQLite risk reason and active SLTP are verified.",
     "code_issue": "Current V20 record_submission_boundary unconditionally stores UNKNOWN_POST_REQUIRE_BROKER_RECONCILIATION; no clear after proven broker order + fill + 100% stop found in deployed source. A minimal conditional release is prepared only in draft PR, not installed.",
     "draft_fix_blob": "47cf12adf0ae7d7ada33c2ebe56840678777c7fb",
     "diagnostic_script_blob": "3d71194b27b063db3448a8144aa634b582325453",
-    "next_step": "read FINAM broker position and stop now; read-only diagnostics on OBV SQLite; then determine exact root and safe operator handling"
+    "next_step": "One-time minimal OBV stale checkpoint resolution WITHOUT rearm/restart/stop/order cancellation only after current broker GET-only and repeating broker protection proof; worker stays HALTED and may manage frozen third-session exit. Do not update loaded live code while position remains open.",
+    "owner_followup_evidence": {
+      "screenshot": "FINAM owner app, USDRUBF SHORT 2 at 80.62, active stop 100% trigger 80.92",
+      "broker_readonly": "PASS_ACCOUNT_BOUND_POSITIONS_1_ACTIVE_ORDERS_1_ORDER_POSTS_ZERO",
+      "sqlite_identity": "PASS_OBV",
+      "entry": "USDRUBF SHORT 2 RECONCILED at 2026-10-27T10:30:00 MSK",
+      "stop": "ACK, installed 80.92, 100 percent, conforms to projected 2ATR",
+      "risk": {
+        "status": "PASS",
+        "actual_rub": "616.68",
+        "limit_per_trade_rub": "674.83470",
+        "account_cap_rub": "2699.3388"
+      },
+      "halt": "UNKNOWN_POST_REQUIRE_BROKER_RECONCILIATION",
+      "observed_log": "HALT_V20_LIVE_POST_FILL_RISK_HALTED repeated",
+      "other_robots": "Owner set Shallow and Inside HALTED_NEW_ENTRIES_WORKER_UNTOUCHED"
+    },
+    "incident_only_recovery_script": "V20-08/v20-08-obv-settled-post-recovery.py"
   }
 }
