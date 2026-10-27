@@ -6,7 +6,7 @@ from cc.v20_contract import ROBOTS, LABELS, unconnected, age, heartbeat_health
 from cc.v20_receiver import acquire
 from cc.v20_staging import acquire_staging
 from cc.v20_manual_export import refresh_once
-from cc.v20_command_channel import gateway_ready, confirmation, submit, receipt
+from v20_command_channel import gateway_ready, confirmation, submit, receipt
 
 MSK = timezone(timedelta(hours=3))
 PAGES = ("Главная", "Журнал", "Управление")
