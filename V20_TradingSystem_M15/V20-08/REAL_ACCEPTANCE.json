@@ -509,5 +509,26 @@
     ],
     "pending": "User should run isolated historical GET-only audit on Intel and provide output; only then mark 3/3 frozen entry SIGNAL PASS or FAIL individually.",
     "historical_data_note": "Replay includes only FINAM bars timestamped <= original 10:30/11:00+30sec; later-published next bar excluded. Signal still pending true Intel FINAM GET-only replay."
+  },
+  "h1_parity_flat_update_20261027": {
+    "status": "PREPARED_WINDOWS_CI_PASS_PENDING_INTEL_OWNER_EXECUTION",
+    "reason": "27 Oct three positions reported manually/automatically closed with stops removed; broker 3/3 flat not yet independently verified via host",
+    "installer": "V20-08/v20-08-h1-parity-flat-update.ps1",
+    "installer_blob": "70a6f71a8ffee5bcb599b9fd5f824e8253094829",
+    "frozen_h1_reference_commit": "6f352acfac7ebdfabba73e143c4dfea3a6e48507",
+    "draft_pr": 567,
+    "target_blobs": {
+      "finam_execution.py": "0d5ee2c6eb7195ec9f59aa82a2881bfb0a058827",
+      "finam_live.py": "519710efffbedfdfc236e9c063c2c9dda6f475f5",
+      "v20-08-live-launch.ps1": "93fc1ce4aded6c40453da14deb4846e10da1b14f"
+    },
+    "windows_ci": "40502106567 SUCCESS, including native Windows 5.1 parse, pin test and mock LIVE H1 parity regressions",
+    "requires": "Owner Intel -mode verify PASS_3_OF_3_FLAT_OLD_PINNED_RELEASE, then -mode install",
+    "procedure": "GET-only FINAM FLAT 3/3, HALTED3/3, SQLite online backups, download hashes BEFORE stopping tasks, stop ONLY V20 Tasks, verify no V20 python workers, patch 3 V20-only files, verify syntax/launcher/FINAM FLAT, start ONLY V20 Tasks still HALTED, verify fresh HALTED_NO_NEW_ENTRIES 3/3 and FINAM 0 positions 0 orders",
+    "orders_allowed": false,
+    "auto_arm": false,
+    "h1_or_intradaylab_m15_mutated": false,
+    "intel_install_result": "NOT_YET_CONFIRMED",
+    "followup": "After physical installation check durable flat_cleanup and no unrelated execution_halt; only after separate explicit authorization consider ARM. Do not repeat technical trading tests."
   }
 }
