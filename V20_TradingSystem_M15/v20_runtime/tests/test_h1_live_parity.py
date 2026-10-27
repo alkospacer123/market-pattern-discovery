@@ -20,9 +20,9 @@ from TradingSystemLab.stage8_robot.broker import compact_client_order_id
 from TradingSystemLab.stage8_robot.production_broker_state import BrokerOrderView
 
 from V20_TradingSystem_M15.v20_runtime.finam_live import (
-    _follow_existing, V20FinamBlocked,
+    _follow_existing, V20FinamBlocked, V20LiveTransport,
 )
-from V20_TradingSystem_M15.v20_runtime.finam_execution import V20LiveTransport, V20SingleTradeTransport
+from V20_TradingSystem_M15.v20_runtime.finam_execution import V20SingleTradeTransport
 
 KEY = "live-20261027-test-entry"
 STOP_KEY = KEY + ":stop"
