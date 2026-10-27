@@ -177,6 +177,41 @@ jobs:
               $code.Contains('.place_order(') -or $code.Contains('.cancel_order(') -or
               $code.Contains('.place_sltp_order(')) { throw 'V20_SIGNAL_AUDIT_NOT_GET_ONLY' }
           Write-Output 'V20_FROZEN_SIGNAL_HISTORICAL_AUDIT_PS51_AND_PY_AST=PASS_NO_FINAM'
+      - name: Flat-only pinned update parses on Windows 5.1 and cannot auto arm
+        shell: powershell
+        run: |
+          $ErrorActionPreference='Stop'
+          $script='V20_TradingSystem_M15/V20-08/v20-08-h1-parity-flat-update.ps1'
+          $launcher='V20_TradingSystem_M15/V20-08/v20-08-live-launch.ps1'
+          $errors=$null
+          $tokens=$null
+          [void][System.Management.Automation.Language.Parser]::ParseFile((Resolve-Path -LiteralPath $script).Path,[ref]$tokens,[ref]$errors)
+          if(@($errors).Count -ne 0){throw 'V20_FLAT_INSTALL_PS51_PARSE_FAIL'}
+          $source=Get-Content -LiteralPath $script -Raw
+          $entry=Get-Content -LiteralPath $launcher -Raw
+          $executionHash=(& git.exe hash-object -- 'V20_TradingSystem_M15/v20_runtime/finam_execution.py').Trim()
+          $workerHash=(& git.exe hash-object -- 'V20_TradingSystem_M15/v20_runtime/finam_live.py').Trim()
+          $launcherHash=(& git.exe hash-object -- $launcher).Trim()
+          foreach($pin in @($executionHash,$workerHash,$launcherHash)){
+              if($LASTEXITCODE -ne 0 -or -not $source.Contains($pin)){throw ('V20_FLAT_INSTALL_PIN_DIVERGED '+$pin)}
+          }
+          if(-not $entry.Contains($executionHash) -or -not $entry.Contains($workerHash)){
+              throw 'V20_FLAT_INSTALL_LAUNCHER_RUNTIME_PIN_DIVERGED'
+          }
+          if(-not $source.Contains("v20_update_auto_arm=NO") -or
+              -not $source.Contains("v20_08_4_positions=0") -or
+              -not $source.Contains("v20_08_4_active_orders=0") -or
+              -not $source.Contains("HALTED_NO_NEW_ENTRIES") -or
+              -not $source.Contains('Stop-ScheduledTask') -or
+              -not $source.Contains('Start-ScheduledTask') -or
+              -not $source.Contains('mode backup')){
+              throw 'V20_FLAT_INSTALL_CRITICAL_GUARDS_MISSING'
+          }
+          if($source -match " -mode arm| -mode start -robot|\s+--arm\b|\s+rearm\b" -or
+              $source -match '(?i)cancel_order|place_order|submit_entry_once'){
+              throw 'V20_FLAT_INSTALL_MUST_NOT_ARM_OR_TRADE'
+          }
+          Write-Output 'V20_FLAT_H1_PARITY_INSTALL_PIN_AND_GUARDS=PASS_PS51_OFFLINE'
       - name: Only new V20 LIVE syntax and scoped mock tests
         shell: pwsh
         env:
