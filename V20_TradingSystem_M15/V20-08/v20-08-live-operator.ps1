@@ -147,10 +147,15 @@ with sqlite3.connect(src.as_uri()+"?mode=ro",uri=True) as original:
             raise SystemExit("V20_08_5_BACKUP_IDENTITY_FAIL")
 print("V20_08_5_SQLITE_SNAPSHOT_PASS")
 '@
+    # Windows PowerShell 5.1 strips embedded quotes from Python -c
+    # native arguments. Execute the exact existing SQLite backup code from
+    # an isolated temporary .py file instead; never touch LIVE source or DB.
+    $helper=Join-Path $destination 'sqlite-snapshot-v20.py'
+    [io.file]::WriteAllText($helper,$code,[text.utf8encoding]::new($false))
     foreach($name in $selected){
         $sourceDb=Join-Path $root ('robots\'+$name.Substring(4)+'\state\v20-real-intents.sqlite3')
         $targetDb=Join-Path $destination ($name+'.sqlite3')
-        & $python -B -c $code $sourceDb $targetDb
+        & $python -B $helper $sourceDb $targetDb
         need ($LASTEXITCODE -eq 0) 'V20_08_5_BACKUP_DB_FAILED'
         $sourceLog=Join-Path $root ('robots\'+$name.Substring(4)+'\logs\live-m15.jsonl')
         if(Test-Path -LiteralPath $sourceLog){Get-Content -LiteralPath $sourceLog -Tail 100 -Encoding UTF8 | Set-Content -LiteralPath (Join-Path $destination ($name+'-last100.jsonl')) -Encoding UTF8}
