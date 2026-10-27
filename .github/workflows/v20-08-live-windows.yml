@@ -162,5 +162,5 @@ jobs:
         run: |
           python -m py_compile V20_TradingSystem_M15/v20_runtime/finam_live.py V20_TradingSystem_M15/v20_runtime/finam_execution.py V20_TradingSystem_M15/v20_runtime/tests/test_finam_live.py
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-          python -m unittest -v V20_TradingSystem_M15.v20_runtime.tests.test_finam_live V20_TradingSystem_M15.v20_runtime.tests.test_finam_protected_recovery
+          python -m unittest -v V20_TradingSystem_M15.v20_runtime.tests.test_finam_live V20_TradingSystem_M15.v20_runtime.tests.test_finam_protected_recovery V20_TradingSystem_M15.v20_runtime.tests.test_obv_settled_post_recovery
           exit $LASTEXITCODE
