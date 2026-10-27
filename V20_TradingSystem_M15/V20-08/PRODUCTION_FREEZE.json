@@ -1,14 +1,15 @@
 {
   "schema": "v20.08.5.production_freeze.v1",
-  "accepted_at_msk": "2026-10-26",
+  "accepted_at_msk": "2026-10-27",
   "scope": "V20_TradingSystem_M15 ONLY; H1 and IntradayLab M15 paused and untouched",
   "github_main_sha_at_review": "6f352acfac7ebdfabba73e143c4dfea3a6e48507",
   "draft_pr": 567,
   "deployed_v20_code_source_commit": "dd55f201b3e9a92ce5fa3f927289f5a5ef89366d",
   "installed_pinned_modules": {
     "v20_runtime/finam_execution.py": "9ca194c61aa9db003d298fd1a3e93cc7f8bb23c4",
-    "v20_runtime/finam_live.py": "fa256995f5f4f100f380fb952f51e2671ba31120",
-    "V20-08/v20-08-live-launch.ps1": "c161a15d87c2bfc85939f4f570b3f79013c3c665"
+    "v20_runtime/finam_live.py": "e39a00267c91ea35dbe83d27b26d6b62179b2429",
+    "V20-08/v20-08-live-launch.ps1": "5193f70e2c5663077e35653b89f4c28201ff04cb",
+    "V20-08/v20-08-live-operator.ps1": "e0fd05423899a02fee5861a176b0f72f7ee3bf5c"
   },
   "symbols": [
     "USDRUBF",
@@ -40,34 +41,27 @@
     "costs": "EXISTING_H1_FULL_TARIFF_RESERVES; LIVE_ACTUAL_FEES_OBSERVED_AFTER_FILLS"
   },
   "physical_intel_evidence": {
-    "status": "PASS_3_OF_3_TASK_RUNNING_SWITCH_ARMED_RECENT_HEALTHY_CYCLE",
-    "v20-shallow": {
-      "task": "Running",
-      "kill_switch": "ARMED",
-      "cycle": "WAIT_NEXT_M15_OPEN",
-      "fresh_seconds": 9,
-      "healthy": true
-    },
-    "v20-obv": {
-      "task": "Running",
-      "kill_switch": "ARMED",
-      "cycle": "WAIT_NEXT_M15_OPEN",
-      "fresh_seconds": 2,
-      "healthy": true
-    },
-    "v20-inside": {
-      "task": "Running",
-      "kill_switch": "ARMED",
-      "cycle": "WAIT_NEXT_M15_OPEN",
-      "fresh_seconds": 25,
-      "healthy": true
-    },
-    "evidence_origin": "Owner Intel PowerShell output; real strategic entry/exit not observed yet"
+    "status": "PASS_3_OF_3_AFTER_H1_STYLE_RECOVERY_20261027",
+    "source": "Owner PowerShell 27.10.2026 recovery-v3 receipt",
+    "broker_account_flat_before_and_after": "PASS_3_OF_3_GET_ONLY",
+    "sqlite_online_backup": "PASS_3_OF_3",
+    "sqlite_snapshot_folder": "C:\\V20Lab\\backup-08\\v20-live-20261027T061706Z",
+    "restart_sequence": [
+      "v20-shallow",
+      "v20-obv",
+      "v20-inside"
+    ],
+    "start_running_armed": "PASS_3_OF_3",
+    "health": "PASS_3_OF_3_RUNNING_ARMED_FRESH_CYCLES",
+    "operational_behavior": "H1 ProductionService.run-style 3-second repeat after temporary FINAM cycle fault",
+    "note": "Healthy at restart time, not an indefinite guarantee; auto frozen strategy fill and broker-protective stop not yet observed"
   },
   "limitations": [
     "First autonomous frozen strategy fill, active protective order, closed LIVE trade and net realized fees remain unobserved",
     "Windows Tasks currently use Interactive principals and opened three console windows; do not close windows while running",
-    "V20-08.5 operator and backup script is uninstalled / not Intel-accepted until the user executes offline acceptance",
-    "H1 and M15 must not be activated or modified"
-  ]
+    "H1 and M15 must not be activated or modified",
+    "V20-08.5 operator and SQLite backup physically accepted on Intel via recovery-v3 output; standalone restart is not independently exercised because active healthy trading tasks must not be interrupted.",
+    "Original 05:00 FINAM 5xx endpoint was not identified from sanitized error log; only failure class FinamServerError confirmed."
+  ],
+  "authorization_original_source_commit": "dd55f201b3e9a92ce5fa3f927289f5a5ef89366d"
 }
