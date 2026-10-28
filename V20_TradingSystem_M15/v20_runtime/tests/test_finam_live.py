@@ -161,6 +161,45 @@ class LiveAdmissionTests(unittest.TestCase):
                 self.assertEqual(run_cycle(sender, now), "NO_FROZEN_SIGNAL")
                 self.assertEqual(propose.call_count, 4)
 
+    def test_afterhours_m15_poll_is_skipped_but_broker_reconcile_runs(self):
+        # Frozen signals: bar Open 10:00..17:00, NEXT_OPEN 10:15..17:15.
+        # No strategy M15 history fetch after hours; broker protection stays active.
+        with TemporaryDirectory() as tmp:
+            journal = self.fake_journal(Path(tmp))
+            read_calls = []
+            reader = SimpleNamespace(snapshot=lambda **k: read_calls.append(k) or
+                                     SimpleNamespace(positions={}, orders=[]))
+            sender = SimpleNamespace(journal=journal, reader=reader,
+                                     auth={"roundtrip_cost_rub": {x: "2.02" for x in SYMBOLS}},
+                                     auth_path=Path(tmp)/"none", source="0"*40)
+            with ExitStack() as stack:
+                stack.enter_context(patch("V20_TradingSystem_M15.v20_runtime.finam_live._safe_auth"))
+                follow = stack.enter_context(patch(
+                    "V20_TradingSystem_M15.v20_runtime.finam_live._follow_existing",
+                    return_value="BROKER_RECONCILED_PROTECTION_PASS"))
+                stack.enter_context(patch(
+                    "V20_TradingSystem_M15.v20_runtime.finam_live.load_kill_switch",
+                    return_value=({"state": "ARMED"}, None)))
+                proposer = stack.enter_context(patch(
+                    "V20_TradingSystem_M15.v20_runtime.finam_live.propose_finam_m15_next_open",
+                    side_effect=V20FinamBlocked("M15_FINAM_TIMESTAMP_OUT_OF_RANGE")))
+                # MSK: 09:45, 17:30, 19:15 — no frozen entry can be opened.
+                for utc_hour, utc_minute in ((6, 45), (14, 30), (16, 15)):
+                    now = datetime(2026, 10, 28, utc_hour, utc_minute, 7,
+                                   tzinfo=timezone.utc)
+                    self.assertEqual(run_cycle(sender, now), "WAIT_NEXT_M15_OPEN")
+                self.assertEqual(follow.call_count, 3)
+                self.assertEqual(len(read_calls), 3)
+                proposer.assert_not_called()
+                self.assertEqual(journal.store.values, {})
+                # At the last allowed Shallow/OBV NEXT_OPEN (17:15 MSK),
+                # the strict M15 timestamp rejection MUST remain unchanged.
+                with self.assertRaisesRegex(V20FinamBlocked,
+                                            "M15_FINAM_TIMESTAMP_OUT_OF_RANGE"):
+                    run_cycle(sender, datetime(2026, 10, 28, 14, 15, 5,
+                                               tzinfo=timezone.utc))
+                self.assertEqual(proposer.call_count, 1)
+
     def test_transient_broker_get_failures_never_submit_and_do_not_halt(self):
         for error in (FinamServerError("HTTP_503:account"),
                       FinamTimeout("account"), FinamRateLimit("orders")):
