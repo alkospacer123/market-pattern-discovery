@@ -146,7 +146,7 @@ def controls():
     if connected and pending is not None:
         robot, action = pending
         st.warning(
-            "Подтвердите " + action.upper() + " для " + LABELS[robot] +
+            "Подтвердите " + action.upper() + " для " + LABELS[robot.upper().replace("-", "_")] +
             (". Будут разрешены новые торговые входы (ARMED)." if action in ("start", "restart")
              else ". STOP допускается только после подтверждённого FINAM FLAT.")
         )
