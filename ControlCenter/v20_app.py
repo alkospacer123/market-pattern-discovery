@@ -110,35 +110,61 @@ def journal(snapshots):
 
 
 def controls():
-    """Explicitly confirmed actions through installed pinned CC-07 executor."""
+    """Simple daily operator UI; stock CC-07 retains confirmation and audit."""
     st.subheader("Управление")
     connected = st.session_state.get("cc07-admin-ready") is True
     if not connected:
+        st.session_state.pop("cc07-pending", None)
         st.info("Административный оператор пока не подтверждён. Нажмите «Обновить данные» для проверки.")
-        typed = ""
     else:
-        st.warning("ВНИМАНИЕ: кнопки исполняют реальные команды с правами администратора. START/RESTART включают ARM; STOP требует FINAM FLAT; PAUSE запрещает новые входы. Для каждой команды нужно точное подтверждение.")
-        typed = st.text_input(
-            "Для подтверждения введите: cc07 действие имя-робота",
-            value="", key="cc07-action-confirm",
-            placeholder="cc07 pause v20-shallow",
-        )
+        st.caption("PAUSE — одно нажатие. START, STOP и RESTART — нажатие и подтверждение. Все действия проверяет штатный оператор CC-07.")
+
     for robot in ROBOTS:
         st.markdown("**" + LABELS[robot] + "**")
         columns = st.columns(4)
         local_id = robot.lower().replace("_", "-")
         for column, action in zip(columns, ("START", "PAUSE", "STOP", "RESTART")):
             name = action.lower()
-            phrase = confirmation(local_id, name)
             with column:
                 clicked = st.button(
                     action, key="cc07-" + robot.lower() + "-" + name,
-                    disabled=not (connected and typed == phrase),
+                    disabled=not connected,
                     use_container_width=True,
                 )
                 if clicked:
-                    answer = submit(local_id, name, typed)
-                    st.session_state["cc07-last-response"] = answer
+                    # No process is spawned just by navigating, rerunning or
+                    # clicking a dangerous action's first-stage button.
+                    st.session_state.pop("cc07-last-response", None)
+                    st.session_state.pop("cc07-pending", None)
+                    if name == "pause":
+                        st.session_state["cc07-last-response"] = submit(
+                            local_id, name, confirmation(local_id, name))
+                    else:
+                        st.session_state["cc07-pending"] = (local_id, name)
+
+    pending = st.session_state.get("cc07-pending")
+    if connected and pending is not None:
+        robot, action = pending
+        st.warning(
+            "Подтвердите " + action.upper() + " для " + LABELS[robot] +
+            (". Будут разрешены новые торговые входы (ARMED)." if action in ("start", "restart")
+             else ". STOP допускается только после подтверждённого FINAM FLAT.")
+        )
+        confirm_col, cancel_col = st.columns(2)
+        with confirm_col:
+            confirm_click = st.button(
+                "Подтвердить " + action.upper(), key="cc07-confirm-action",
+                type="primary", use_container_width=True)
+        with cancel_col:
+            cancel_click = st.button(
+                "Отмена", key="cc07-cancel-action", use_container_width=True)
+        if cancel_click:
+            st.session_state.pop("cc07-pending", None)
+        elif confirm_click:
+            st.session_state.pop("cc07-pending", None)
+            st.session_state["cc07-last-response"] = submit(
+                robot, action, confirmation(robot, action))
+
     answer = st.session_state.get("cc07-last-response")
     if answer is not None:
         if answer["decision"] == "EXECUTED":
@@ -149,13 +175,14 @@ def controls():
             st.error("Результат не подтверждён. Проверьте Task/FINAM и журнал CC-07 вручную. НЕ повторяйте команду автоматически.")
         else:
             st.error("Команда отклонена: " + answer["decision"])
-    st.caption("Локальная административная панель 127.0.0.1:8502. На каждое нажатие — отдельный запрос с подтверждением, штатной проверкой CC-07 и журналом. Без фонового исполнения.")
+    st.caption("Локальная административная панель 127.0.0.1:8502. Без ручного ввода фраз; штатные проверки и журнал CC-07 остаются обязательными. Команды не выполняются в фоне.")
 
 def main():
     now = datetime.now(timezone.utc)
     if refresh:
         # Single explicit user refresh; no background gateway polling.
         st.session_state["cc07-admin-ready"] = admin_ready()
+        st.session_state.pop("cc07-pending", None)
         try:
             with export_gate() as acquired:
                 if acquired:
