@@ -70,6 +70,26 @@ def test_halted_check_requires_exact_native_exit_and_brokerless_proof():
     assert "cc07_cycle_stale" in SCRIPT
 
 
+
+def test_postflight_waits_for_one_verified_cycle_without_rearming():
+    # CC-only settlement after a single stock ARM. No retry of stock execution.
+    assert "function settle([string]$target)" in SCRIPT
+    settle = SCRIPT.split("function settle([string]$target)", 1)[1].split("function flat {", 1)[0]
+    assert "for($attempt=0;$attempt -lt 12;$attempt++)" in settle
+    assert "start-sleep -seconds 5" in settle
+    assert "cc07_postflight_unsettled" in settle
+    assert "$got=proof" in settle
+    assert "cc07_postflight_wrong_switch" in settle
+    assert "powershell.exe" not in settle
+    assert "stop-scheduledtask" not in settle
+    assert "cc07_armed_check_failed" in settle
+    assert "cc07_check_not_expected_halted_partial" in settle
+    assert "$after=settle $expected" in SCRIPT
+    assert "$state=proof ($action -eq 'pause')" in SCRIPT
+    assert "$state=proof ($mode -eq 'execute' -and $action -eq 'pause')" in SCRIPT
+    assert "if(-not ($allowArmedHalted -and $pending))" in SCRIPT
+
+
 def test_native_halted_partial_and_negative_cases_without_real_v20(tmp_path):
     """Run extracted PowerShell function against mocked child (no V20 access)."""
     import os
@@ -80,7 +100,7 @@ def test_native_halted_partial_and_negative_cases_without_real_v20(tmp_path):
     payload = r'''
 $ErrorActionPreference='Stop'
 $source=get-content -literalpath $env:cc07_source_file -raw -encoding utf8
-$start=$source.indexof('function proof {')
+$start=$source.indexof('function proof(')
 $end=$source.indexof('function flat {')
 if($start -lt 0 -or $end -le $start){throw 'proof_not_found'}
 invoke-expression $source.substring($start,$end-$start)
@@ -90,16 +110,19 @@ $operator='do-not-touch-v20.ps1'
 function powershell.exe {
     'NO_ORDER_NO_CANCEL_NO_FINAM_API_NO_SQLITE_OPEN_NO_TASK_MUTATION_NO_REARM=YES'
     'v20_08_5_v20-shallow_task='+$script:mocktask
-    'v20_08_5_v20-shallow_switch=HALTED'
+    'v20_08_5_v20-shallow_switch='+$script:mockswitch
     'v20_08_5_v20-shallow_age_seconds='+$script:mockage
-    'v20_08_5_v20-shallow_cycle=HALTED'
-    'v20_08_5_v20-shallow_cycle_code=HALTED_NO_NEW_ENTRIES'
+    'v20_08_5_v20-shallow_cycle='+$script:mockcycle
+    'v20_08_5_v20-shallow_cycle_code='+$script:mockcode
     if($script:mockerror){
         write-error $script:mockerror
     }
     $global:lastexitcode=$script:mockexit
 }
 function testcase([string]$name,[int]$exit,[string]$err,[string]$task,[string]$age,[bool]$shouldpass){
+    $script:mockswitch='HALTED'
+    $script:mockcycle='HALTED'
+    $script:mockcode='HALTED_NO_NEW_ENTRIES'
     $script:mockexit=$exit
     $script:mockerror=$err
     $script:mocktask=$task
@@ -114,6 +137,22 @@ testcase 'unexpected_nonzero' 1 'NOT_A_HEALTH_PARTIAL' 'Running' '12' $false
 testcase 'healthy_exit_but_halted' 0 '' 'Running' '12' $false
 testcase 'stale_halted' 1 'V20_08_5_HEALTH_PARTIAL' 'Running' '120' $false
 testcase 'not_running' 1 'V20_08_5_HEALTH_PARTIAL' 'Ready' '12' $false
+
+# Transitional ARMED/HALTED is unacceptable for START proof.
+$script:mockswitch='ARMED'
+$script:mockcycle='HALTED'
+$script:mockcode='HALTED_NO_NEW_ENTRIES'
+$script:mocktask='Running'
+$script:mockage='12'
+$script:mockerror='V20_08_5_HEALTH_PARTIAL'
+$script:mockexit=1
+$allowed=$false
+try{$r=proof;$allowed=$true}catch{}
+if($allowed){throw 'cc07_armed_old_cycle_not_refused'}
+$r=proof $true
+if($r -cne 'ARMED'){throw 'cc07_pause_transitional_not_accepted'}
+write-output 'cc07_native_transitional_pause_only=pass'
+
 '''
     script = tmp_path / "cc07-native-proof-test.ps1"
     script.write_text(payload, encoding="utf-8-sig")
