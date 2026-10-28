@@ -367,3 +367,51 @@ def test_cc07_buttons_visible_but_all_twelve_inert_and_disabled(monkeypatch):
     app.run()
     assert not app.exception
     assert "v20-last-checked-at" not in app.session_state
+
+
+def test_cc02_armed_unknown_shows_verified_local_cycle_not_broker_health():
+    """Real CC-02 ARMED has engine UNKNOWN because FINAM reconciliation is unavailable."""
+    now = datetime.now(timezone.utc)
+    value = example(at=now - timedelta(seconds=2))
+    value.update(engine_state="UNKNOWN", positions_local=None, stops_local=None,
+                 unresolved_local=None)
+    report = parse(wire(value), "V20_SHALLOW", now, "V20-SHALLOW")
+    assert report["status"] == "UNKNOWN"
+    app = AppTest.from_file(str(ROOT / "v20_app.py"), default_timeout=15)
+    app.session_state["v20-snapshots"] = {
+        **{r: unconnected(r) for r in ROBOTS}, "V20_SHALLOW": report
+    }
+    app.run()
+    assert not app.exception
+    main = app.tabs[0]
+    assert any("ARMED · ЦИКЛ PASS" in x.value for x in main.info)
+    assert any("**Windows Task:** RUNNING" in x.value and
+               "**Kill switch:** ARMED" in x.value for x in main.markdown)
+    assert any("SL/TP FINAM этим снимком не проверены" in x.value
+               for x in main.caption)
+    assert not any("ARMED · ЦИКЛ PASS" in x.value for x in main.success)
+
+
+@pytest.mark.parametrize("variant", ("stale", "task_not_running", "cycle_not_verified"))
+def test_cc02_armed_never_claims_cycle_without_fresh_trustworthy_local_proof(variant):
+    now = datetime.now(timezone.utc)
+    value = example(at=now - timedelta(seconds=2))
+    value.update(engine_state="UNKNOWN", unresolved_local=None)
+    report = parse(wire(value), "V20_SHALLOW", now, "V20-SHALLOW")
+    if variant == "stale":
+        report["observed_at"] = now - timedelta(seconds=TTL + 5)
+        report["heartbeat_at"] = report["observed_at"]
+    elif variant == "task_not_running":
+        report["task_state"] = "DISABLED"
+    else:
+        report["events"] = ()
+    app = AppTest.from_file(str(ROOT / "v20_app.py"), default_timeout=15)
+    app.session_state["v20-snapshots"] = {
+        **{r: unconnected(r) for r in ROBOTS}, "V20_SHALLOW": report
+    }
+    app.run()
+    assert not app.exception
+    main = app.tabs[0]
+    assert not any("ARMED · ЦИКЛ" in x.value for x in main.info)
+    assert any("Состояние Windows Task и ошибок не подтверждено" in x.value
+               for x in main.caption)

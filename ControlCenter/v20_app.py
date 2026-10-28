@@ -41,12 +41,27 @@ def overview(snapshots, now):
         report = snapshots[robot]
         status = report["status"]
         current = status in ("HEALTHY", "HALTED", "FAULT")
+        pulse = heartbeat_health(report, now)
+        # CC-02 intentionally reports UNKNOWN for ARMED without independent
+        # FINAM reconciliation. A fresh validated LOCAL_REPORT still proves
+        # the observed Task/switch and the latest local worker cycle only.
+        last = report.get("events", ())[-1:]
+        armed_cycle = (
+            status == "UNKNOWN" and report.get("reason") == "LOCAL_REPORT"
+            and report.get("task_state") == "RUNNING"
+            and report.get("kill_switch") == "ARMED"
+            and pulse == "HEALTHY" and bool(last)
+            and last[0]["result"] in ("PASS", "PENDING")
+            and last[0]["cycle"] == report.get("cycle")
+        )
         with st.container(border=True):
             left, right = st.columns([2, 3])
             with left:
                 st.subheader(LABELS[robot])
                 if status == "HEALTHY":
                     st.success(healthy_label(report))
+                elif armed_cycle:
+                    st.info("ARMED · ЦИКЛ " + last[0]["result"])
                 elif status == "FAULT":
                     st.error(healthy_label(report))
                 elif status in ("STALE", "HALTED"):
@@ -54,7 +69,6 @@ def overview(snapshots, now):
                 else:
                     st.info(healthy_label(report))
             with right:
-                pulse = heartbeat_health(report, now)
                 st.markdown("**Heartbeat:** " + {
                     "HEALTHY": "🟢 HEALTHY",
                     "STALE": "🔴 UNHEALTHY",
@@ -62,9 +76,11 @@ def overview(snapshots, now):
                 }[pulse])
                 if status == "STAGING":
                     st.markdown("**Windows Task:** DISABLED · **Kill switch:** НЕТ ДАННЫХ")
-                elif current:
+                elif current or armed_cycle:
                     st.markdown("**Windows Task:** " + report["task_state"] +
                                 " · **Kill switch:** " + report["kill_switch"])
+                    if armed_cycle:
+                        st.caption("Подтверждён только локальный цикл. Позиции, заявки и SL/TP FINAM этим снимком не проверены.")
                     error_code = report["last_error_code"]
                     if error_code not in ("NONE", "UNKNOWN"):
                         st.caption("Последняя ошибка: " + error_code)
@@ -82,7 +98,7 @@ def overview(snapshots, now):
         st.caption("Heartbeat: HEALTHY — свежий сигнал; UNHEALTHY — сигнал просрочен более чем на 5 минут; НЕТ ДАННЫХ — источник или подтверждённый heartbeat отсутствует.")
         st.caption("Heartbeat HEALTHY означает только свежий сигнал, а не разрешение торговли и не исправность всех компонентов.")
         st.caption("Дата рядом с кнопкой — время последней ручной проверки панелью, не обновления данных самого робота.")
-        st.caption("Обновление только вручную; выполняется лишь READONLY-проверка. Торговые и управляющие команды недоступны.")
+        st.caption("Обновление данных — только READONLY. START/PAUSE/STOP/RESTART выполняются отдельно через подтверждённый CC-07.")
 
 
 def journal(snapshots):
