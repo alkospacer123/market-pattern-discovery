@@ -96,28 +96,59 @@ def test_receipts_require_exact_readonly_source_and_schema(monkeypatch):
     assert channel.receipt(rid)["decision"] == "RECEIPT_INVALID"
 
 
-def test_ui_requires_exact_confirmation_for_admin_stock_operator(monkeypatch):
+def test_ui_one_click_pause_and_two_step_dangerous_action(monkeypatch):
     import v20_admin_control as commands
     seen = []
     monkeypatch.setattr(commands, "submit", lambda *args:
-                        (seen.append(args) or {"decision": "EXECUTED",
+                        (seen.append(args) or {"decision": "ALREADY_HALTED",
                                                 "request_id": "f" * 32}))
     app = AppTest.from_file(str(ROOT / "v20_app.py"), default_timeout=15)
     app.session_state["cc07-admin-ready"] = True
     app.run()
     assert not app.exception
     assert len(app.button) == 13
-    assert all(button.disabled for button in app.tabs[2].button)
-    app.text_input(key="cc07-action-confirm").set_value("cc07 pause v20-obv").run()
-    assert not app.exception
-    assert app.button(key="cc07-v20_obv-pause").disabled is False
-    assert app.button(key="cc07-v20_obv-start").disabled is True
-    assert app.button(key="cc07-v20_shallow-pause").disabled is True
+    assert len(app.text_input) == 0
+    assert all(not button.disabled for button in app.tabs[2].button)
+
+    # PAUSE executes exactly once on a single click, without any manual phrase.
     app.button(key="cc07-v20_obv-pause").click().run()
+    assert not app.exception
     assert seen == [("v20-obv", "pause", "cc07 pause v20-obv")]
-    assert app.session_state["cc07-last-response"]["decision"] == "EXECUTED"
-    assert "cc07-last-request-id" not in app.session_state
+    assert app.session_state["cc07-last-response"]["decision"] == "ALREADY_HALTED"
+    assert "cc07-pending" not in app.session_state
+
+    # START first click only displays confirmation; never dispatches or ARM.
+    app.button(key="cc07-v20_shallow-start").click().run()
+    assert not app.exception
+    assert seen == [("v20-obv", "pause", "cc07 pause v20-obv")]
+    assert app.session_state["cc07-pending"] == ("v20-shallow", "start")
+    assert app.button(key="cc07-confirm-action").label == "Подтвердить START"
+    app.button(key="cc07-cancel-action").click().run()
+    assert "cc07-pending" not in app.session_state
+    assert len(seen) == 1
+
+    app.button(key="cc07-v20_shallow-start").click().run()
+    app.button(key="cc07-confirm-action").click().run()
+    assert not app.exception
+    assert seen[-1] == ("v20-shallow", "start", "cc07 start v20-shallow")
+    assert len(seen) == 2
+    assert "cc07-pending" not in app.session_state
+    # No duplicate action on rerender.
+    app.run()
+    assert len(seen) == 2
     source = (ROOT / "v20_app.py").read_text(encoding="utf-8")
-    for banned in ("subprocess", "os.system", "start-scheduledtask", "stop-scheduledtask",
-                   "finam_live", "cc07-v20-operator.ps1"):
+    assert "st.text_input" not in source
+    for banned in ("subprocess", "os.system", "start-scheduledtask",
+                   "stop-scheduledtask", "finam_live", "cc07-v20-operator.ps1"):
         assert banned not in source.lower()
+
+
+def test_ui_controls_disabled_without_admin_operator(monkeypatch):
+    import v20_admin_control as commands
+    monkeypatch.setattr(commands, "submit", lambda *args:
+                        (_ for _ in ()).throw(AssertionError("no admin dispatch")))
+    app = AppTest.from_file(str(ROOT / "v20_app.py"), default_timeout=15).run()
+    assert not app.exception
+    assert len(app.button) == 13
+    assert all(button.disabled for button in app.tabs[2].button)
+    assert "cc07-pending" not in app.session_state
