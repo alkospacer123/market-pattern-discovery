@@ -96,14 +96,14 @@ def test_receipts_require_exact_readonly_source_and_schema(monkeypatch):
     assert channel.receipt(rid)["decision"] == "RECEIPT_INVALID"
 
 
-def test_ui_has_no_direct_executor_and_only_confirmed_button_queues(monkeypatch):
-    import v20_command_channel as commands
+def test_ui_requires_exact_confirmation_for_admin_stock_operator(monkeypatch):
+    import v20_admin_control as commands
     seen = []
     monkeypatch.setattr(commands, "submit", lambda *args:
-                        (seen.append(args) or {"decision": "QUEUED_NOT_EXECUTED",
+                        (seen.append(args) or {"decision": "EXECUTED",
                                                 "request_id": "f" * 32}))
     app = AppTest.from_file(str(ROOT / "v20_app.py"), default_timeout=15)
-    app.session_state["cc07-gateway-ready"] = True
+    app.session_state["cc07-admin-ready"] = True
     app.run()
     assert not app.exception
     assert len(app.button) == 13
@@ -115,8 +115,8 @@ def test_ui_has_no_direct_executor_and_only_confirmed_button_queues(monkeypatch)
     assert app.button(key="cc07-v20_shallow-pause").disabled is True
     app.button(key="cc07-v20_obv-pause").click().run()
     assert seen == [("v20-obv", "pause", "cc07 pause v20-obv")]
-    assert app.session_state["cc07-last-request-id"] == "f" * 32
-    assert "cc07-last-receipt" not in app.session_state
+    assert app.session_state["cc07-last-response"]["decision"] == "EXECUTED"
+    assert "cc07-last-request-id" not in app.session_state
     source = (ROOT / "v20_app.py").read_text(encoding="utf-8")
     for banned in ("subprocess", "os.system", "start-scheduledtask", "stop-scheduledtask",
                    "finam_live", "cc07-v20-operator.ps1"):
