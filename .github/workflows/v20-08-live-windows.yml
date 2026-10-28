@@ -192,11 +192,21 @@ jobs:
           $executionHash=(& git.exe hash-object -- 'V20_TradingSystem_M15/v20_runtime/finam_execution.py').Trim()
           $workerHash=(& git.exe hash-object -- 'V20_TradingSystem_M15/v20_runtime/finam_live.py').Trim()
           $launcherHash=(& git.exe hash-object -- $launcher).Trim()
-          foreach($pin in @($executionHash,$workerHash,$launcherHash)){
+          # The previously accepted, currently INSTALLED flat-update script and
+          # launcher must remain pinned to their existing immutable worker.
+          # The new after-hours candidate is separate and NOT deployed yet.
+          $installedWorker='519710efffbedfdfc236e9c063c2c9dda6f475f5'
+          if($workerHash -cne 'c73e8453cd95cf00ee08993bd64ad48035b52cb0'){
+              throw 'V20_AFTERHOURS_CANDIDATE_SOURCE_MISMATCH'
+          }
+          foreach($pin in @($executionHash,$installedWorker,$launcherHash)){
               if($LASTEXITCODE -ne 0 -or -not $source.Contains($pin)){throw ('V20_FLAT_INSTALL_PIN_DIVERGED '+$pin)}
           }
-          if(-not $entry.Contains($executionHash) -or -not $entry.Contains($workerHash)){
+          if(-not $entry.Contains($executionHash) -or -not $entry.Contains($installedWorker)){
               throw 'V20_FLAT_INSTALL_LAUNCHER_RUNTIME_PIN_DIVERGED'
+          }
+          if($entry.Contains($workerHash) -or $source.Contains($workerHash)){
+              throw 'V20_AFTERHOURS_CANDIDATE_CANNOT_USE_OLD_INSTALLER'
           }
           if(-not $source.Contains("v20_update_auto_arm=NO") -or
               -not $source.Contains("v20_08_4_positions=0") -or
