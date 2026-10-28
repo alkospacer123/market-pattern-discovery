@@ -84,19 +84,19 @@ foreach($line in $files){
  need ($b.sha -ceq $a[1] -and $b.encoding -ceq 'base64') 'cc07_panel_blob_invalid'
  $body=[convert]::frombase64string($b.content)
  need ($body.length -gt 0 -and $body.length -lt 20000) 'cc07_panel_blob_size'
- $buffer+=,@($a[0],$a[1],$body)
+ $buffer+=,[pscustomobject]@{name=$a[0];hash=$a[1];body=$body}
 }
 new-item -itemtype directory -path $dest -erroraction stop|out-null
 & icacls.exe $dest /inheritance:r /grant:r '*S-1-5-18:(oi)(ci)f' '*S-1-5-32-544:(oi)(ci)f' ("*"+$panel+":(oi)(ci)rx") | out-null
 need ($lastexitcode -eq 0) 'cc07_panel_stage_acl_failed'
 safeacl $dest $panel
 foreach($item in $buffer){
- $out=join-path $dest ($item[0].replace('/','\'))
+ $out=join-path $dest ($item.name.replace('/','\'))
  $parent=split-path -parent $out
  if(-not (test-path -literalpath $parent)){new-item -itemtype directory -path $parent -force -erroraction stop|out-null}
  need (-not (test-path -literalpath $out)) 'cc07_panel_unexpected_existing_file'
- [io.file]::writeallbytes($out,[byte[]]$item[2])
- pin $out $item[1]
+ [io.file]::writeallbytes($out,[byte[]]$item.body)
+ pin $out $item.hash
 }
 # The staged panel is not started. No requests to live broker/Tasks.
 write-output 'cc07_panel_stage_install=pass_cc_owned'
