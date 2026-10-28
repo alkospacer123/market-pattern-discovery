@@ -204,7 +204,7 @@ def test_live_source_is_blocked_before_open(policy, now, monkeypatch):
 
 def test_deployment_scripts_preview_and_no_production_mutators():
     root=Path(__file__).parents[1]/'deployment'
-    scripts=[p for p in root.glob('*.ps1') if p.name not in {'cc07-install-operator.ps1','cc07-install-channel.ps1'}]
+    scripts=[p for p in root.glob('*.ps1') if p.name not in {'cc07-install-operator.ps1','cc07-install-channel.ps1','cc07-stage-ccpanel-ui.ps1'}]
     assert len(scripts)==12  # H1 legacy deployment contract unchanged; CC07 separately audited
     for path in scripts:
         source=path.read_text()
