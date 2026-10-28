@@ -511,7 +511,7 @@
     },
     {
       "path": "tests/test_cc07_command_channel.py",
-      "sha256": "50084deb421b6336938387e92b330faa4e40120b26a8aee165fc7537c056282c"
+      "sha256": "1020d31c6b14bb44bdbbf1791b8dc05331748dd40cf1d88ba288432e718255a4"
     },
     {
       "path": "tests/test_cc07_command_worker.py",
