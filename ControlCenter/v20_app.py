@@ -6,7 +6,7 @@ from cc.v20_contract import ROBOTS, LABELS, unconnected, age, heartbeat_health
 from cc.v20_receiver import acquire
 from cc.v20_staging import acquire_staging
 from cc.v20_manual_export import refresh_once
-from v20_command_channel import gateway_ready, confirmation, submit, receipt
+from v20_admin_control import admin_ready, confirmation, submit
 
 MSK = timezone(timedelta(hours=3))
 PAGES = ("Главная", "Журнал", "Управление")
@@ -110,14 +110,14 @@ def journal(snapshots):
 
 
 def controls():
-    """CC-07 UI: create intent only; broker/Tasks belong to separate controller."""
+    """Explicitly confirmed actions through installed pinned CC-07 executor."""
     st.subheader("Управление")
-    connected = st.session_state.get("cc07-gateway-ready") is True
+    connected = st.session_state.get("cc07-admin-ready") is True
     if not connected:
-        st.info("Отключено. Управляющий канал не подключён. Нажмите «Обновить данные» после приёмки отдельного оператора.")
+        st.info("Административный оператор пока не подтверждён. Нажмите «Обновить данные» для проверки.")
         typed = ""
     else:
-        st.warning("START и RESTART разрешают реальную торговлю (ARMED). STOP останавливает Task только после брокерского FLAT. PAUSE запрещает новые входы и сохраняет сопровождение.")
+        st.warning("ВНИМАНИЕ: кнопки исполняют реальные команды с правами администратора. START/RESTART включают ARM; STOP требует FINAM FLAT; PAUSE запрещает новые входы. Для каждой команды нужно точное подтверждение.")
         typed = st.text_input(
             "Для подтверждения введите: cc07 действие имя-робота",
             value="", key="cc07-action-confirm",
@@ -139,33 +139,23 @@ def controls():
                 if clicked:
                     answer = submit(local_id, name, typed)
                     st.session_state["cc07-last-response"] = answer
-                    if answer["decision"] == "QUEUED_NOT_EXECUTED":
-                        st.session_state["cc07-last-request-id"] = answer["request_id"]
-                        st.session_state.pop("cc07-last-receipt", None)
     answer = st.session_state.get("cc07-last-response")
     if answer is not None:
-        if answer["decision"] == "QUEUED_NOT_EXECUTED":
-            st.info("Запрос передан независимому контроллеру. Это НЕ подтверждение исполнения. Проверьте результат через «Обновить данные».")
+        if answer["decision"] == "EXECUTED":
+            st.success("CC-07 подтвердил исполнение. Обновите показания робота и FINAM.")
+        elif answer["decision"] == "ALREADY_HALTED":
+            st.info("Робот уже на PAUSE; состояние не изменялось.")
+        elif answer["decision"] == "FAILED_UNKNOWN":
+            st.error("Результат не подтверждён. Проверьте Task/FINAM и журнал CC-07 вручную. НЕ повторяйте команду автоматически.")
         else:
-            st.error("Запрос отклонён: " + answer["decision"])
-    result = st.session_state.get("cc07-last-receipt")
-    if result is not None:
-        if result["decision"] == "EXECUTED":
-            st.success("Исполнение подтверждено независимым контроллером. Проверьте состояние робота и FINAM.")
-        elif result["decision"] == "ACCEPTED_NOT_EXECUTED":
-            st.info("Запрос принят, исполнение пока не подтверждено.")
-        else:
-            st.warning("Результат отдельного контроллера: " + result["decision"])
-    st.caption("Один запрос на одну кнопку. Потенциально опасные действия проверяются исполнителем независимо; Streamlit не запускает процессы и не получает торговые полномочия.")
+            st.error("Команда отклонена: " + answer["decision"])
+    st.caption("Локальная административная панель 127.0.0.1:8502. На каждое нажатие — отдельный запрос с подтверждением, штатной проверкой CC-07 и журналом. Без фонового исполнения.")
 
 def main():
     now = datetime.now(timezone.utc)
     if refresh:
         # Single explicit user refresh; no background gateway polling.
-        st.session_state["cc07-gateway-ready"] = gateway_ready()
-        last_request = st.session_state.get("cc07-last-request-id")
-        if last_request is not None:
-            st.session_state["cc07-last-receipt"] = receipt(last_request)
+        st.session_state["cc07-admin-ready"] = admin_ready()
         try:
             with export_gate() as acquired:
                 if acquired:
