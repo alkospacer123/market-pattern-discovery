@@ -167,7 +167,7 @@
     },
     {
       "path": "controller/cc07-v20-operator.ps1",
-      "sha256": "b5f80b208a3781534fc9af76786efaff50f0d2d9c4e3332b0cf704929dfb4450"
+      "sha256": "04d43f2bb65bb479702ae5a53abd0b45a01a59c9cfb8a2cea52b3ff5a5f54b0d"
     },
     {
       "path": "controller/cc07_command_worker.py",
@@ -243,7 +243,7 @@
     },
     {
       "path": "deployment/cc07-install-operator.ps1",
-      "sha256": "1f0aaa8f0c8fdccfaf1fddc3c402648911949320c45e2c9c55df114b028515e4"
+      "sha256": "572f72f9d20c6df35d00610b638e651431b7b537c001e62fafa816573c39971e"
     },
     {
       "path": "deployment/check_wheels.py",
@@ -415,7 +415,7 @@
     },
     {
       "path": "docs/V20_CONTROL_CENTER_ROADMAP.md",
-      "sha256": "227561eecbe7ffa183a0ad67fed7c915393f46ae28af01cd52e1d9bb46b6687b"
+      "sha256": "a66754d96a96e1cea2f9cfe226de964bcdf1ff52ea39ecbf010ea4cc0822b530"
     },
     {
       "path": "docs/browser-check.json",
@@ -507,7 +507,7 @@
     },
     {
       "path": "tests/test_cc07_admin_control.py",
-      "sha256": "dbc950dd4276462125c2a17175194db5cedbff700635622aaa308d0f4f265263"
+      "sha256": "c999a6930f39f8ecc587c18a5d442a838b9f02876bd3195ab84366e893586f8a"
     },
     {
       "path": "tests/test_cc07_channel_install.py",
@@ -523,11 +523,11 @@
     },
     {
       "path": "tests/test_cc07_install.py",
-      "sha256": "af8c09904f5f1c0a892b4d7ef44f566481e400afa64a9780e223365ffccbc555"
+      "sha256": "7e0b2ef284a37e86db862ccee6e438d50670b7877fe193891dcc64f9e6a2297a"
     },
     {
       "path": "tests/test_cc07_operator_stage.py",
-      "sha256": "411d2a7ca61fc6d8656a48e584d4c720fd3838c5e871e335020cd98452302eaa"
+      "sha256": "9079ab49c23ebcdf15463ca43d8b9ee4723bb49adc3b88dd44024411289b149d"
     },
     {
       "path": "tests/test_ci_paths.py",
@@ -639,7 +639,7 @@
     },
     {
       "path": "v20_admin_control.py",
-      "sha256": "26c19e51f48948ab76a3dad5adda32ee1ad3ae91597023277083228d968f584a"
+      "sha256": "0fb25331616ba16c15bc82f8984d12f183cf2de9ff4ab959f3e16c295c72efec"
     },
     {
       "path": "v20_app.py",
