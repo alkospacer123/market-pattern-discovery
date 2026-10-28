@@ -170,7 +170,7 @@ def test_minimal_streamlit_starts_without_read_or_trading_controls(monkeypatch):
     assert not app.dataframe
     assert sum("НЕ ПОДКЛЮЧЁН" in x.value for x in app.tabs[0].info) == 3
     assert any("Последние циклы" in x.value for x in app.tabs[1].subheader)
-    assert any("Отключено." in x.value for x in app.tabs[2].info)
+    assert any("Административный оператор пока не подтверждён." in x.value for x in app.tabs[2].info)
     app.run()  # rerun without explicit click must not access any V20 source
     assert not app.exception
     assert len(app.button) == 13  # refresh + 12 CC-07 permanently disabled controls
