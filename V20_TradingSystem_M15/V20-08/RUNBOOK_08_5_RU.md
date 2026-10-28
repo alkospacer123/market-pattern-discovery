@@ -73,3 +73,10 @@
 ## Критерий завершения 08.5
 
 Три процесса 08.4 уже PASS. **08.5 PASS фактически подтверждён через recovery-v3** (валидированный SID/Tasks, preflight и повторная FINAM FLAT, backup 3/3 со SQLite integrity, patch точных blobs и три Running/ARMED fresh cycles). Вывод принят владельцем 27.10.2026; путь резервной копии сохранён в REAL_ACCEPTANCE.json. Инструменты `start/stop/restart` не требуется реально выполнять по здоровым LIVE роботам — это вызвало бы ненужную торговую операцию. Подтвердить точные команды и их синтаксис native Windows CI. Три окна PowerShell — известная операционная особенность, не блокер LIVE.
+
+### 28.10.2026 — общий after-hours release (проверенная версия, выпуск)
+
+- После анализа 3 LIVE JSONL: единая проблема `HALT_M15_FINAM_TIMESTAMP_OUT_OF_RANGE` после окна новых входов у Shallow/Inside 18:15 МСК и OBV 19:15 МСК. Исправлен только M15 поиск новых входов вне `10:15–17:15` МСК; `reader.snapshot` и `_follow_existing` выполняются раньше фильтра, замороженные сигналы, stop/risk и FINAM timestamp validator не изменены.
+- Пин общего рабочего файла `finam_live.py` теперь `c73e8453cd95cf00ee08993bd64ad48035b52cb0`; `v20-08-live-launch.ps1` обновляет только этот pin. Старый flat-only H1 parity installer является историческим и **не предназначен** для установки нового релиза.
+- Публикация в PR не является установкой. Cutover только после FINAM FLAT 3/3, SQLite backup 3/3 и после проверки совпадения всех старых/новых Git blobs (V20 launcher/worker и CC-07 operator/admin). Из-за общего launcher CC-07 требует координированного изменения двух CC pins.
+- До подтверждённого deploy и финального `ARMED + Running + healthy` 3/3 статус не заявлять. Постановка в ARMED разрешена владельцем отдельно 28.10.2026, но операция выполняется только на Intel под его Windows SID; `main` и H1/M15 не трогать.

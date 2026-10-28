@@ -199,14 +199,16 @@ jobs:
           if($workerHash -cne 'c73e8453cd95cf00ee08993bd64ad48035b52cb0'){
               throw 'V20_AFTERHOURS_CANDIDATE_SOURCE_MISMATCH'
           }
-          foreach($pin in @($executionHash,$installedWorker,$launcherHash)){
+          foreach($pin in @($executionHash,$installedWorker)){
               if($LASTEXITCODE -ne 0 -or -not $source.Contains($pin)){throw ('V20_FLAT_INSTALL_PIN_DIVERGED '+$pin)}
           }
-          if(-not $entry.Contains($executionHash) -or -not $entry.Contains($installedWorker)){
-              throw 'V20_FLAT_INSTALL_LAUNCHER_RUNTIME_PIN_DIVERGED'
+          if(-not $entry.Contains($executionHash) -or -not $entry.Contains($workerHash)){
+              throw 'V20_AFTERHOURS_RELEASE_LAUNCHER_RUNTIME_PIN_DIVERGED'
           }
-          if($entry.Contains($workerHash) -or $source.Contains($workerHash)){
-              throw 'V20_AFTERHOURS_CANDIDATE_CANNOT_USE_OLD_INSTALLER'
+          # Legacy flat-only H1-parity installer MUST NOT silently accept this
+          # new three-robot release as its own previously installed version.
+          if($source.Contains($workerHash)){
+              throw 'V20_AFTERHOURS_RELEASE_OLD_INSTALLER_ALIAS_FORBIDDEN'
           }
           if(-not $source.Contains("v20_update_auto_arm=NO") -or
               -not $source.Contains("v20_08_4_positions=0") -or
