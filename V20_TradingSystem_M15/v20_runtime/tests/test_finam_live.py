@@ -143,7 +143,7 @@ class LiveAdmissionTests(unittest.TestCase):
             auth = {"roundtrip_cost_rub": {x: "2.02" for x in SYMBOLS}}
             sender = SimpleNamespace(journal=journal, reader=reader, auth=auth,
                                      auth_path=Path(tmp)/"none", source="0"*40)
-            now = datetime(2026, 10, 26, 7, 0, 10, tzinfo=timezone.utc)
+            now = datetime(2026, 10, 26, 7, 15, 10, tzinfo=timezone.utc)
             with ExitStack() as stack:
                 stack.enter_context(patch("V20_TradingSystem_M15.v20_runtime.finam_live._safe_auth"))
                 stack.enter_context(patch(
@@ -224,7 +224,7 @@ class LiveAdmissionTests(unittest.TestCase):
             sender = SimpleNamespace(journal=journal, reader=reader,
                                      auth={"roundtrip_cost_rub": {x: "2.02" for x in SYMBOLS}},
                                      auth_path=Path(tmp)/"none", source="0"*40)
-            now = datetime(2026, 10, 27, 2, 0, 10, tzinfo=timezone.utc)
+            now = datetime(2026, 10, 27, 7, 15, 10, tzinfo=timezone.utc)
             with ExitStack() as stack:
                 stack.enter_context(patch("V20_TradingSystem_M15.v20_runtime.finam_live._safe_auth"))
                 stack.enter_context(patch(
