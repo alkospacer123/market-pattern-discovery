@@ -30,7 +30,7 @@ function trusted([string]$path){
   if($ace.accesscontroltype -eq 'Allow' -and ([int64]$ace.filesystemrights -band $w) -and $ace.identityreference.value -notin @('S-1-5-18','S-1-5-32-544')){throw 'cc07_untrusted_writer'}
  }
 }
-function proof {
+function proof([bool]$allowArmedHalted=$false) {
  # Native Windows PowerShell promotes child stderr to terminating errors with
  # ErrorActionPreference Stop. Capture check-only output under Continue and
  # verify the exact exit code and full stock evidence; no broad error masking.
@@ -61,9 +61,33 @@ function proof {
    [string]$cycle[0] -match '=HALTED$' -and
    $code.count -eq 1 -and [string]$code[0] -match '=HALTED_NO_NEW_ENTRIES$') 'cc07_check_not_expected_halted_partial'
  }else{
-  need ($checkexit -eq 0 -and [string]$cycle[0] -match '=(PASS|PENDING)$') 'cc07_armed_check_failed'
+  # Only the PAUSE preflight accepts a recent ARMED switch with an old HALTED
+  # cycle. Never report this transitional state as successful START.
+  $pending=($checkexit -eq 1 -and ($lines -join '|') -match 'V20_08_5_HEALTH_PARTIAL' -and
+   [string]$cycle[0] -match '=HALTED$' -and $code.count -eq 1 -and
+   [string]$code[0] -match '=HALTED_NO_NEW_ENTRIES$')
+  if(-not ($allowArmedHalted -and $pending)){
+   need ($checkexit -eq 0 -and [string]$cycle[0] -match '=(PASS|PENDING)$') 'cc07_armed_check_failed'
+  }
  }
  return $switchstate
+}
+function settle([string]$target){
+ # Bounded READONLY observation after one stock action. Never retry ARM,
+ # an order, cancellation, restart, PAUSE or Task mutation.
+ for($attempt=0;$attempt -lt 12;$attempt++){
+  try{
+   $got=proof
+   need ($got -ceq $target) 'cc07_postflight_wrong_switch'
+   return $got
+  }catch{
+   $code=$_.exception.message
+   if($code -notin @('cc07_armed_check_failed','cc07_check_not_expected_halted_partial')){throw}
+   if($attempt -eq 11){throw 'cc07_postflight_unsettled'}
+   start-sleep -seconds 5
+  }
+ }
+ throw 'cc07_postflight_unsettled'
 }
 function flat {
  $rows=@(& powershell.exe -noprofile -noninteractive -executionpolicy bypass -file $launcher -mode readonly -robot $robot 2>&1)
@@ -93,7 +117,7 @@ $sid=[security.principal.windowsidentity]::getcurrent().user.value
 $task=get-scheduledtask -taskname $robot -taskpath '\' -erroraction stop
 $taskSid=if([string]$task.principal.userid -match '^S-\d+-'){[string]$task.principal.userid}else{([security.principal.ntaccount]::new([string]$task.principal.userid)).translate([security.principal.securityidentifier]).value}
 need ($sid -ceq $taskSid) 'cc07_operator_sid_mismatch'
-$state=proof
+$state=proof ($mode -eq 'execute' -and $action -eq 'pause')
 if($mode -eq 'preview'){
  write-output ('cc07_preview=pass robot='+$robot+' action='+$action+' task=running switch='+$state)
  write-output 'cc07_no_finam_no_arm_no_task_mutation=yes'
@@ -144,7 +168,8 @@ try{
    $after=get-scheduledtask -taskname $robot -taskpath '\' -erroraction stop
    need ($after.state -ne 'Running') 'cc07_task_still_running'
   }else{
-   $after=proof
+   $expected=if($action -eq 'pause'){'HALTED'}else{'ARMED'}
+   $after=settle $expected
    if($action -eq 'pause'){need ($after -ceq 'HALTED') 'cc07_pause_not_verified'}
    if($action -in @('start','restart')){need ($after -ceq 'ARMED') 'cc07_arm_not_verified'}
   }
