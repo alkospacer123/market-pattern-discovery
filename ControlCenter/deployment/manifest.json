@@ -415,7 +415,7 @@
     },
     {
       "path": "docs/V20_CONTROL_CENTER_ROADMAP.md",
-      "sha256": "a5135f833cd6c37c37de089a497489ef871a21fcbd2f44bf0a0d55bb6a0bd244"
+      "sha256": "227561eecbe7ffa183a0ad67fed7c915393f46ae28af01cd52e1d9bb46b6687b"
     },
     {
       "path": "docs/browser-check.json",
@@ -515,7 +515,7 @@
     },
     {
       "path": "tests/test_cc07_command_channel.py",
-      "sha256": "445b4a0e61541ec7a1686ae78768da7389259d21995593f0692cd8d42ab68c9d"
+      "sha256": "5b07d7dcfd27744ccec4ef7f9155dbcaf46cf2cafacffb8836d26112adc2c2b3"
     },
     {
       "path": "tests/test_cc07_command_worker.py",
@@ -643,7 +643,7 @@
     },
     {
       "path": "v20_app.py",
-      "sha256": "fabfbc7bc55ba78bd75d0a893d508c5dec5ecd119d01479074215269012f02c8"
+      "sha256": "b59ac28b156b9007d334aaf220c3e02babb91641ee7500eca8cf23999d555fa2"
     },
     {
       "path": "v20_command_channel.py",
