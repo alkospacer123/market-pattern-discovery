@@ -47,3 +47,19 @@ def test_channel_installer_native_syntax_only():
                              "-command",command],
                             capture_output=True, text=True, timeout=20, check=False)
     assert result.returncode == 0, result.stdout + result.stderr
+
+def test_preexisting_protected_private_can_be_reused_but_never_overwritten():
+    assert "function trustedprivate" in SOURCE
+    assert "cc07_private_owner_untrusted" in SOURCE
+    assert "cc07_private_acl_inherited" in SOURCE
+    assert "cc07_private_untrusted_writer" in SOURCE
+    assert "cc07_private=trusted_reused_no_acl_change" in SOURCE
+    assert "if(-not $privateExisting){" in SOURCE
+    assert "if($privateExisting){trustedprivate $private}" in SOURCE
+    assert "@($worker,$inbox,$public,$policy)" in SOURCE
+    assert "foreach($folder in @($public,$inbox))" in SOURCE
+    assert "cc07_channel_target_exists_" in SOURCE
+    # Existing private root must not be ACL-modified or deleted.
+    assert "lock $private 'admin'" in SOURCE
+    assert "remove-item" not in SOURCE.lower()
+    assert "icacls.exe $private" not in SOURCE.lower()
