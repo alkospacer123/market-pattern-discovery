@@ -239,7 +239,7 @@
     },
     {
       "path": "deployment/cc07-install-channel.ps1",
-      "sha256": "4a15c8bcfdb539e04277c27f35e11777e30258b183022df1a12441d43f631682"
+      "sha256": "61ab4f1a301f1bdd9a3eb070dcd76b67f94602a5c2e5be9e5123ad662ccc2a23"
     },
     {
       "path": "deployment/cc07-install-operator.ps1",
@@ -415,7 +415,7 @@
     },
     {
       "path": "docs/V20_CONTROL_CENTER_ROADMAP.md",
-      "sha256": "699abaed646bda23de0eeebc432d943f21675410a9075f662fea7ecc0362e7ad"
+      "sha256": "0ee647bc625b96649acc6f55623c8e2a1ee2990542afc10f5e73ce7e201b3e5f"
     },
     {
       "path": "docs/browser-check.json",
@@ -507,7 +507,7 @@
     },
     {
       "path": "tests/test_cc07_channel_install.py",
-      "sha256": "bafbe9f4df12463619f5c09f5316e77fbaee985bb15b806bc11034ff4580b28f"
+      "sha256": "425e727e1ec4443fa33af415a966d55a4bf0f204f8953a06df59682a04bd910e"
     },
     {
       "path": "tests/test_cc07_command_channel.py",
