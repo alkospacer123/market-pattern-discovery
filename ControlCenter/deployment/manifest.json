@@ -595,7 +595,7 @@
     },
     {
       "path": "tests/test_v20_control_center.py",
-      "sha256": "2af75953c6ee03e348cb174316e2c5f1e9d66eb13960fe3a831ca067d30b6431"
+      "sha256": "b4cb79cd2955fa17f06a97388c3ae6a7f33f0c12c774f7ebe9426b250cee037d"
     },
     {
       "path": "tests/test_v20_controller.py",
