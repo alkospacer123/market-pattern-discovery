@@ -117,7 +117,7 @@ def test_ui_has_no_direct_executor_and_only_confirmed_button_queues(monkeypatch)
     assert seen == [("v20-obv", "pause", "cc07 pause v20-obv")]
     assert app.session_state["cc07-last-request-id"] == "f" * 32
     assert "cc07-last-receipt" not in app.session_state
-    source = (ROOT / "v20_app.py").read_text()
+    source = (ROOT / "v20_app.py").read_text(encoding="utf-8")
     for banned in ("subprocess", "os.system", "start-scheduledtask", "stop-scheduledtask",
                    "finam_live", "cc07-v20-operator.ps1"):
         assert banned not in source.lower()
