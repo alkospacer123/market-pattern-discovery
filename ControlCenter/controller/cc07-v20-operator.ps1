@@ -149,7 +149,7 @@ try{
    }
   }
  }
- $state=proof
+ $state=proof ($action -eq 'pause')
  if($action -ne 'pause'){release;flat}
  audit 'began' 'preflight_pass'
  try{
