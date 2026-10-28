@@ -10,6 +10,8 @@
 | v20-obv | Running | ARMED | PASS | 28 | True | 0 |
 | v20-inside | Running | ARMED | PASS | 29 | True | 0 |
 
+**Новый штатный online backup 28.10.2026 — PASS 3/3 (вывод владельца Intel):** `v20-08-live-operator.ps1 -mode backup -robot all` вернул для Shallow, OBV, Inside по `V20_08_5_SQLITE_SNAPSHOT_PASS` и `v20_08_5_v20-{shallow,obv,inside}_backup=PASS`; итог `v20_08_5_backup=PASS path=C:\V20Lab\backup-08\v20-live-20261028T151305Z`. Код backup создаёт согласованные `sqlite3.backup()`, проверяет integrity и identity, сохраняет до 100 строк журнала и отдельный kill-switch snapshot каждого робота. DPAPI/FINAM секреты не включены, LIVE Tasks и заявки не изменяются. Это не portable FULL ZIP и не проверка восстановления на другом компьютере. После этой команды повторного LIVE health-check в чате ещё нет; последний подтверждённый LIVE health был `PASS_3_OF_3` выше.
+
 **`v20_live_health=3_OF_3` — PASS.** Ранее владелец физически принял START/PAUSE 3/3 через Control Center, правильное отображение `ARMED · ЦИКЛ PASS` и переход обратно в `HALTED_NO_NEW_ENTRIES`. CC-07 native post-ARM settle исправил прежний ложный `FAILED_UNKNOWN`. После этого роботы отдельно вернулись в ARMED; в последней проверке все три здоровы.
 
 Это **локальная приёмка LIVE процессов**, а не независимая проверка брокерских позиций/100%-SLTP по текущему циклу, не доказательство естественного полного сигнала→входа→брокерского стопа→выхода и не гарантия будущей работоспособности. Последний терминальный просмотр подтверждал отсутствие активных заявок/стопов, но не заменяет FINAM GET-only witness каждой будущей позиции. Frozen стратегии/N4/M15/NEXT_OPEN/SL=2×ATR14 Wilder/риск и исполняющий код V20 не изменялись действиями с Control Center.
