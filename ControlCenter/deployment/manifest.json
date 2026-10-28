@@ -643,7 +643,7 @@
     },
     {
       "path": "v20_app.py",
-      "sha256": "b59ac28b156b9007d334aaf220c3e02babb91641ee7500eca8cf23999d555fa2"
+      "sha256": "3cac725bf2fe5fd5bc3395b61fabfdbfdae9e686c6b66aee3900f3a0dbcc79a2"
     },
     {
       "path": "v20_command_channel.py",
