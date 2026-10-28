@@ -11,7 +11,7 @@ def test_intel_only_and_stock_operator_pin():
     source = Path(__file__).resolve().parents[1] / "v20_admin_control.py"
     text = source.read_text(encoding="utf-8")
     for marker in ("URIU-PC", "IsUserAnAdmin", "cc07-v20-operator.ps1",
-                   "7d3bf94ba2fff2d17072eb05f78b745f2a11c9e4",
+                   "f08cd032d365a4b31aab0e51949973b564cd1030",
                    "cc07-gateway-policy.json", "powershell.exe",
                    "cc.v20.release.v1", "O_EXCL", "CC07_RELEASE_SIZE",
                    "FAILED_UNKNOWN", "cc07_result=verified_"):

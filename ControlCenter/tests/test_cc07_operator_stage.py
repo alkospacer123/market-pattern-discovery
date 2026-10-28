@@ -138,6 +138,37 @@ testcase 'healthy_exit_but_halted' 0 '' 'Running' '12' $false
 testcase 'stale_halted' 1 'V20_08_5_HEALTH_PARTIAL' 'Running' '120' $false
 testcase 'not_running' 1 'V20_08_5_HEALTH_PARTIAL' 'Ready' '12' $false
 
+# Native mock: stopped Ready/HALTED may be old/stale but only START
+# can revive it; other actions remain Running-only.
+$script:mockswitch='HALTED'
+$script:mockcycle='HALTED'
+$script:mockcode='HALTED_NO_NEW_ENTRIES'
+$script:mocktask='Ready'
+$script:mockage='800'
+$script:mockerror='V20_08_5_HEALTH_PARTIAL'
+$script:mockexit=1
+$accepted=$false
+try{[void](proof)}catch{$accepted=$true}
+if(-not $accepted){throw 'cc07_ready_default_accepted'}
+if((proof $false $true) -cne 'READY_HALTED'){throw 'cc07_ready_start_refused'}
+$script:mockswitch='ARMED'
+$refused=$false
+try{[void](proof $false $true)}catch{$refused=$true}
+if(-not $refused){throw 'cc07_ready_armed_accepted'}
+$script:mockswitch='HALTED'
+$script:mockerror='WRONG_NATIVE_ERROR'
+$refused=$false
+try{[void](proof $false $true)}catch{$refused=$true}
+if(-not $refused){throw 'cc07_ready_wrong_check_accepted'}
+$script:mockerror='V20_08_5_HEALTH_PARTIAL'
+$script:mockcycle='FAIL'
+$refused=$false
+try{[void](proof $false $true)}catch{$refused=$true}
+if(-not $refused){throw 'cc07_ready_failed_cycle_accepted'}
+$script:mockcycle='PASS'
+if((proof $false $true) -cne 'READY_HALTED'){throw 'cc07_ready_last_pass_refused'}
+write-output 'cc07_native_ready_start_only=pass'
+
 # Transitional ARMED/HALTED is unacceptable for START proof.
 $script:mockswitch='ARMED'
 $script:mockcycle='HALTED'
@@ -168,3 +199,12 @@ write-output 'cc07_native_transitional_pause_only=pass'
     for case in ("expected_halted", "unexpected_nonzero",
                  "healthy_exit_but_halted", "stale_halted", "not_running"):
         assert "cc07_native_" + case + "=pass" in completed.stdout
+    assert "cc07_native_ready_start_only=pass" in completed.stdout
+
+def test_stopped_task_start_only_guard():
+    assert "if($allowStoppedStart -and $task.count -eq 1" in SCRIPT
+    assert "cc07_stopped_switch_not_halted" in SCRIPT
+    assert "cc07_stopped_check_not_partial" in SCRIPT
+    assert "cc07_stopped_cycle_untrusted" in SCRIPT
+    assert "$state=proof ($action -eq 'pause') ($action -eq 'start')" in SCRIPT
+    assert "if($action -ne 'pause'){release;flat}" in SCRIPT

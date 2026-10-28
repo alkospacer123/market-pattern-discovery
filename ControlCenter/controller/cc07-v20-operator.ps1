@@ -30,7 +30,7 @@ function trusted([string]$path){
   if($ace.accesscontroltype -eq 'Allow' -and ([int64]$ace.filesystemrights -band $w) -and $ace.identityreference.value -notin @('S-1-5-18','S-1-5-32-544')){throw 'cc07_untrusted_writer'}
  }
 }
-function proof([bool]$allowArmedHalted=$false) {
+function proof([bool]$allowArmedHalted=$false,[bool]$allowStoppedStart=$false) {
  # Native Windows PowerShell promotes child stderr to terminating errors with
  # ErrorActionPreference Stop. Capture check-only output under Continue and
  # verify the exact exit code and full stock evidence; no broad error masking.
@@ -48,6 +48,18 @@ function proof([bool]$allowArmedHalted=$false) {
  $code=@($lines | where-object {$_ -match ('^v20_08_5_'+$robot+'_cycle_code=')})
  $banner=@($lines | where-object {$_ -ceq 'NO_ORDER_NO_CANCEL_NO_FINAM_API_NO_SQLITE_OPEN_NO_TASK_MUTATION_NO_REARM=YES'})
  need ($banner.count -eq 1) 'cc07_stock_readonly_banner_missing'
+ # CC-07 STOP leaves a Ready Task without fresh cycles. Only START may
+ # recover Ready/HALTED, and FINAM FLAT is separately required.
+ if($allowStoppedStart -and $task.count -eq 1 -and [string]$task[0] -match '=Ready$'){
+  need ($switch.count -eq 1 -and [string]$switch[0] -match '=HALTED$') 'cc07_stopped_switch_not_halted'
+  need ($checkexit -eq 1 -and ($lines -join '|') -match 'V20_08_5_HEALTH_PARTIAL') 'cc07_stopped_check_not_partial'
+  need ($cycle.count -eq 1 -and [string]$cycle[0] -match '=(PASS|HALTED)$') 'cc07_stopped_cycle_untrusted'
+  need ($age.count -eq 1 -and [string]$age[0] -match '=-?[0-9]+$') 'cc07_stopped_cycle_age_unknown'
+  if([string]$cycle[0] -match '=HALTED$'){
+   need ($code.count -eq 1 -and [string]$code[0] -match '=HALTED_NO_NEW_ENTRIES$') 'cc07_stopped_halt_code_untrusted'
+  }
+  return 'READY_HALTED'
+ }
  need ($task.count -eq 1 -and [string]$task[0] -match '=Running$') 'cc07_task_not_running'
  need ($switch.count -eq 1 -and [string]$switch[0] -match '=HALTED$|=ARMED$') 'cc07_switch_unknown'
  need ($age.count -eq 1 -and [string]$age[0] -match '=(-?[0-9]+)$') 'cc07_cycle_age_unknown'
@@ -117,9 +129,11 @@ $sid=[security.principal.windowsidentity]::getcurrent().user.value
 $task=get-scheduledtask -taskname $robot -taskpath '\' -erroraction stop
 $taskSid=if([string]$task.principal.userid -match '^S-\d+-'){[string]$task.principal.userid}else{([security.principal.ntaccount]::new([string]$task.principal.userid)).translate([security.principal.securityidentifier]).value}
 need ($sid -ceq $taskSid) 'cc07_operator_sid_mismatch'
-$state=proof ($mode -eq 'execute' -and $action -eq 'pause')
+$state=proof ($mode -eq 'execute' -and $action -eq 'pause') ($action -eq 'start')
 if($mode -eq 'preview'){
- write-output ('cc07_preview=pass robot='+$robot+' action='+$action+' task=running switch='+$state)
+ $previewTask=if($state -ceq 'READY_HALTED'){'ready'}else{'running'}
+  $previewSwitch=if($state -ceq 'READY_HALTED'){'HALTED'}else{$state}
+  write-output ('cc07_preview=pass robot='+$robot+' action='+$action+' task='+$previewTask+' switch='+$previewSwitch)
  write-output 'cc07_no_finam_no_arm_no_task_mutation=yes'
  return
 }
@@ -149,7 +163,7 @@ try{
    }
   }
  }
- $state=proof ($action -eq 'pause')
+ $state=proof ($action -eq 'pause') ($action -eq 'start')
  if($action -ne 'pause'){release;flat}
  audit 'began' 'preflight_pass'
  try{
