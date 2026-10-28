@@ -21,7 +21,7 @@ def test_stage_manifest_exact_git_hashes_and_all_dependencies():
     assert sorted(path for path, _ in matches) == sorted(BUNDLE)
     for path, pin in matches:
         b = (ROOT / path).read_bytes()
-        expected = sha1(b"blob " + str(len(b)).encode() + b"\\0" + b).hexdigest()
+        expected = sha1(b"blob " + str(len(b)).encode() + b"\0" + b).hexdigest()
         assert pin == expected, path
 
 
