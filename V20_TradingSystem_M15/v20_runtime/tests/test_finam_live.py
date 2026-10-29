@@ -373,6 +373,53 @@ class LiveAdmissionTests(unittest.TestCase):
                 with self.assertRaises(FinamUncertainSubmission):
                     run_cycle(sender, datetime(2026, 10, 27, 2, 0, 10, tzinfo=timezone.utc))
 
+    def test_live_timestamp_skip_writes_market_only_evidence_to_existing_jsonl(self):
+        class EndCycle(BaseException):
+            pass
+
+        with TemporaryDirectory() as tmp:
+            root = Path(tmp) / "V20Lab"
+            instance = root / "robots" / "shallow"
+            (instance / "logs").mkdir(parents=True)
+            journal = self.fake_journal(instance)
+            account = "v20-test-account"
+            reader = SimpleNamespace(authenticate=lambda: None)
+            details = {
+                "symbol": "USDRUBF", "reason": "AFTER_NOW",
+                "received_utc": "2026-10-29T11:30:00+00:00",
+                "request_start_utc": "2026-10-09T11:15:00+00:00",
+                "request_end_exclusive_utc": "2026-10-29T11:30:00+00:00",
+                "observed_utc": "2026-10-29T11:15:00.264000+00:00",
+            }
+            def cycle(*_args):
+                reader._m15_timestamp_diagnostic = details
+                return "M15_TIMESTAMP_UNTRUSTED_NO_ENTRY"
+
+            with ExitStack() as stack:
+                stack.enter_context(patch.dict("os.environ", {
+                    "V20_FINAM_ACCOUNT": account, "V20_FINAM_TOKEN": "synthetic",
+                    "V20_FINAM_ACCOUNT_SHA256": hashlib.sha256(account.encode()).hexdigest(),
+                }))
+                stack.enter_context(patch("V20_TradingSystem_M15.v20_runtime.finam_live.V20LiveJournal",
+                                          return_value=nullcontext(journal)))
+                stack.enter_context(patch("V20_TradingSystem_M15.v20_runtime.finam_live.FinamAPI"))
+                stack.enter_context(patch("V20_TradingSystem_M15.v20_runtime.finam_live.V20FinamReadAdapter",
+                                          return_value=reader))
+                stack.enter_context(patch("V20_TradingSystem_M15.v20_runtime.finam_live.V20LiveTransport"))
+                stack.enter_context(patch("V20_TradingSystem_M15.v20_runtime.finam_live.run_cycle",
+                                          side_effect=cycle))
+                stack.enter_context(patch("V20_TradingSystem_M15.v20_runtime.finam_live.time.sleep",
+                                          side_effect=EndCycle()))
+                with self.assertRaises(EndCycle):
+                    run(root=root, robot="v20-shallow", source="0" * 40)
+            rows = [json.loads(line) for line in
+                    (instance / "logs" / "live-m15.jsonl").read_text(encoding="utf-8").splitlines()]
+            self.assertEqual(len(rows), 1)
+            self.assertEqual(rows[0]["state"], "M15_TIMESTAMP_UNTRUSTED_NO_ENTRY")
+            self.assertEqual(rows[0]["m15_rejected_bar"], details)
+            self.assertNotIn(account, json.dumps(rows))
+            self.assertNotIn("synthetic", json.dumps(rows))
+
     def test_h1_style_broker_fault_retry_keeps_process_and_existing_switch(self):
         class EndAfterRecoveredCycle(BaseException):
             pass
