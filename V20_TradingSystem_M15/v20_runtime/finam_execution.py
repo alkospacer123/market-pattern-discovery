@@ -1152,7 +1152,8 @@ def read_finam_m15_boundary(
             or from_utc.tzinfo is None or now.tzinfo is None
             or from_utc.utcoffset() is None or now.utcoffset() is None):
         raise V20FinamBlocked("M15_READ_INPUT_INVALID")
-    start = from_utc.astimezone(timezone.utc)
+    start = from_utc.astimezone(timezone.utc).replace(second=0, microsecond=0)
+    start = start.replace(minute=(start.minute // 15) * 15)
     observed = now.astimezone(timezone.utc)
     if not timedelta(minutes=15) <= observed + STEP - start <= timedelta(days=30):
         raise V20FinamBlocked("M15_FINAM_HISTORY_INTERVAL_INVALID")
@@ -1163,7 +1164,7 @@ def read_finam_m15_boundary(
         raise V20FinamBlocked("M15_IMMEDIATE_NEXT_OPEN_MISSED")
     # The exclusive end includes the current M15 bar's Open if FINAM has
     # published it. This is a scalar reference only, not a filled price.
-    exclusive_end = (observed + STEP).isoformat()
+    exclusive_end = (boundary.replace(tzinfo=ZoneInfo('Europe/Moscow')).astimezone(timezone.utc) + STEP).isoformat()
     query = urlencode({
         "timeframe": "TIME_FRAME_M15",
         "interval.start_time": start.isoformat(),
