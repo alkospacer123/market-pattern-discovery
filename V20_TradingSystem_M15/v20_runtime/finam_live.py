@@ -27,7 +27,7 @@ from TradingSystemLab.stage8_robot.broker import compact_client_order_id
 from TradingSystemLab.stage8_robot.account_cleanliness import TERMINAL_ORDER_STATUSES
 from TradingSystemLab.stage8_robot.production_broker_state import unique_order_by_client_id
 from TradingSystemLab.stage8_robot.execution_grid import project_stop
-from TradingSystemLab.stage8_robot.finam_api import FinamAPI, FinamServerError, FinamTimeout, FinamRateLimit
+from TradingSystemLab.stage8_robot.finam_api import FinamAPI, FinamError, FinamServerError, FinamTimeout, FinamRateLimit
 from TradingSystemLab.stage8_robot.production_runtime import _load_registry
 from TradingSystemLab.stage8_robot.trading_safety_gate import load_kill_switch, emergency_halt, write_kill_switch
 
@@ -45,6 +45,14 @@ SYMBOLS = tuple(sorted(N4))
 AUTH_SCHEMA = "v20.08.4.live_authorization.v1"
 POLL_SECONDS = 30
 FAST_RECONCILIATION_SECONDS = 3
+
+
+class V20FinamSnapshotReadRetry(FinamError):
+    """Only initial account/orders snapshot HTTP 400/408: retry GET, never POST.
+
+    The original H1 FinamError can contain an account path. Log a bounded
+    status-only label; never persist an account ID, token or raw API body.
+    """
 
 
 class V20LiveJournal(V20TradeJournal):
@@ -349,7 +357,18 @@ def run_cycle(sender: V20LiveTransport, now: datetime) -> str:
     _safe_auth(sender.auth_path, journal=journal, source=sender.source)
     # H1 handles any FINAM cycle read failure in the shared outer loop:
     # record a fault, retry in 3 seconds, and do not submit a new entry.
-    snapshot = reader.snapshot(now=now)
+    try:
+        snapshot = reader.snapshot(now=now)
+    except FinamError as exc:
+        # During FINAM's night maintenance the initial account/orders GET can
+        # return generic HTTP 400/408, not FinamServerError. Retry the entire
+        # readonly snapshot before ANY position, stop or entry action.
+        # Other H1 errors (401/403/404, uncertain POST, rejects, ownership)
+        # still HALT exactly as before. Do NOT catch errors in follow/POST.
+        match = re.match(r"^HTTP_(400|408):", str(exc)) if type(exc) is FinamError else None
+        if match is None:
+            raise
+        raise V20FinamSnapshotReadRetry("FINAM_SNAPSHOT_HTTP_" + match.group(1)) from exc
     state = _follow_existing(sender, now, snapshot)
     if state != "BROKER_RECONCILED_PROTECTION_PASS":
         return state
@@ -519,7 +538,7 @@ def run(*, root: Path, robot: str, source: str, once: bool = False,
                 # records a fault and retries after 3s, never exits its Task.
                 # Preserve V20's stronger existing fail-closed switch for
                 # non-transient order/stop/ownership and state failures.
-                transient = isinstance(exc, (FinamServerError, FinamTimeout, FinamRateLimit))
+                transient = isinstance(exc, (FinamServerError, FinamTimeout, FinamRateLimit, V20FinamSnapshotReadRetry))
                 if not transient:
                     # H1 keeps the durable HALT stable; a repeating fault
                     # must not publish a new kill-switch generation every 3s.
