@@ -385,6 +385,7 @@ def test_cc02_armed_unknown_shows_verified_local_cycle_not_broker_health():
     assert not app.exception
     main = app.tabs[0]
     assert any("ARMED · ЦИКЛ PASS" in x.value for x in main.info)
+    assert "Shallow · ARMED" in [x.label for x in app.tabs[1].get("expander")]
     assert any("**Windows Task:** RUNNING" in x.value and
                "**Kill switch:** ARMED" in x.value for x in main.markdown)
     assert any("SL/TP FINAM этим снимком не проверены" in x.value
@@ -413,5 +414,6 @@ def test_cc02_armed_never_claims_cycle_without_fresh_trustworthy_local_proof(var
     assert not app.exception
     main = app.tabs[0]
     assert not any("ARMED · ЦИКЛ" in x.value for x in main.info)
+    assert "Shallow · UNKNOWN" in [x.label for x in app.tabs[1].get("expander")]
     assert any("Состояние Windows Task и ошибок не подтверждено" in x.value
                for x in main.caption)
