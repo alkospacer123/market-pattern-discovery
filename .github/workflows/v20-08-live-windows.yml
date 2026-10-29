@@ -200,7 +200,7 @@ jobs:
           if($workerHash -cne '6ef8662aee8d3bfb323f27b5af8d415421e66cce'){
               throw 'V20_AFTERHOURS_CANDIDATE_SOURCE_MISMATCH'
           }
-          foreach($pin in @($executionHash,$installedWorker)){
+          foreach($pin in @($installedExecution,$installedWorker)){
               if($LASTEXITCODE -ne 0 -or -not $source.Contains($pin)){throw ('V20_FLAT_INSTALL_PIN_DIVERGED '+$pin)}
           }
           if(-not $entry.Contains($executionHash) -or -not $entry.Contains($workerHash)){
