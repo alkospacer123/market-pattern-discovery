@@ -416,6 +416,14 @@ def run_cycle(sender: V20LiveTransport, now: datetime) -> str:
             if str(exc) in ("M15_NEXT_OPEN_WITNESS_MISSING",
                             "M15_FINAL_COMPLETED_BAR_MISSING"):
                 continue
+            if str(exc) == "M15_FINAM_TIMESTAMP_OUT_OF_RANGE":
+                # A rejected timestamp is NOT a valid frozen NEXT_OPEN witness.
+                # Skip the whole attempt (including later symbols, preserving
+                # N4 signal priority), without any entry intent or POST.
+                # The next polling cycle may retry inside the 60s boundary.
+                # Never catch this error in _follow_existing: open positions,
+                # protective SLTP and frozen exits stay strictly fail-closed.
+                return "M15_TIMESTAMP_UNTRUSTED_NO_ENTRY"
             raise
         except ValueError as exc:
             if str(exc) == "INSUFFICIENT_RISK_OR_MARGIN_CAPACITY":
