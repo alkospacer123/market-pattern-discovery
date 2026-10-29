@@ -354,6 +354,7 @@ def _follow_existing(sender: V20LiveTransport, now: datetime, snapshot) -> str:
 
 def run_cycle(sender: V20LiveTransport, now: datetime) -> str:
     journal, reader = sender.journal, sender.reader
+    reader._m15_timestamp_diagnostic = None
     _safe_auth(sender.auth_path, journal=journal, source=sender.source)
     # H1 handles any FINAM cycle read failure in the shared outer loop:
     # record a fault, retry in 3 seconds, and do not submit a new entry.
@@ -555,17 +556,23 @@ def run(*, root: Path, robot: str, source: str, once: bool = False,
                         emergency_halt(journal.instance_root)
                 label = str(exc)
                 state = label if re.fullmatch(r"[A-Z0-9_]{1,100}", label) else type(exc).__name__
+                event = {"utc": now.isoformat(), "robot": robot,
+                         "state": ("FAULT_" if transient else "HALT_") + state}
+                detail = getattr(reader, "_m15_timestamp_diagnostic", None)
+                if state == "M15_FINAM_TIMESTAMP_OUT_OF_RANGE" and isinstance(detail, dict):
+                    event["m15_rejected_bar"] = detail
                 with output.open("a", encoding="utf-8") as f:
-                    f.write(json.dumps({"utc": now.isoformat(), "robot": robot,
-                                        "state": ("FAULT_" if transient else "HALT_") + state},
-                                       sort_keys=True)+"\n")
+                    f.write(json.dumps(event, sort_keys=True)+"\n")
                 if once:
                     return 1
                 time.sleep(FAST_RECONCILIATION_SECONDS)
                 continue
+            event = {"utc": now.isoformat(), "robot": robot, "state": state}
+            detail = getattr(reader, "_m15_timestamp_diagnostic", None)
+            if state == "M15_TIMESTAMP_UNTRUSTED_NO_ENTRY" and isinstance(detail, dict):
+                event["m15_rejected_bar"] = detail
             with output.open("a", encoding="utf-8") as f:
-                f.write(json.dumps({"utc": now.isoformat(), "robot": robot,
-                                    "state": state}, sort_keys=True)+"\n")
+                f.write(json.dumps(event, sort_keys=True)+"\n")
             if once:
                 return 0
             time.sleep(FAST_RECONCILIATION_SECONDS if state in (
