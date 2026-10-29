@@ -196,7 +196,7 @@ jobs:
           # launcher must remain pinned to their existing immutable worker.
           # The new after-hours candidate is separate and NOT deployed yet.
           $installedWorker='519710efffbedfdfc236e9c063c2c9dda6f475f5'
-          if($workerHash -cne 'c73e8453cd95cf00ee08993bd64ad48035b52cb0'){
+          if($workerHash -cne '0e130206c2162bd01290272a25553f9d41090d35'){
               throw 'V20_AFTERHOURS_CANDIDATE_SOURCE_MISMATCH'
           }
           foreach($pin in @($executionHash,$installedWorker)){
