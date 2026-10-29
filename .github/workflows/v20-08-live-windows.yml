@@ -195,6 +195,7 @@ jobs:
           # The previously accepted, currently INSTALLED flat-update script and
           # launcher must remain pinned to their existing immutable worker.
           # The new after-hours candidate is separate and NOT deployed yet.
+          $installedExecution='0d5ee2c6eb7195ec9f59aa82a2881bfb0a058827'
           $installedWorker='519710efffbedfdfc236e9c063c2c9dda6f475f5'
           if($workerHash -cne '6ef8662aee8d3bfb323f27b5af8d415421e66cce'){
               throw 'V20_AFTERHOURS_CANDIDATE_SOURCE_MISMATCH'
