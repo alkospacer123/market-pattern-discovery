@@ -12,10 +12,11 @@ from contextlib import ExitStack, nullcontext
 from datetime import datetime, timezone
 
 from TradingSystemLab.stage8_robot.finam_api import (
-    FinamServerError, FinamTimeout, FinamRateLimit, FinamUncertainSubmission,
+    FinamError, FinamServerError, FinamTimeout, FinamRateLimit, FinamUncertainSubmission,
 )
 from V20_TradingSystem_M15.v20_runtime.finam_live import (
     AUTH_SCHEMA, SYMBOLS, _safe_auth, _ownership, run_cycle, run, V20FinamBlocked,
+    V20FinamSnapshotReadRetry,
 )
 
 
@@ -217,6 +218,48 @@ class LiveAdmissionTests(unittest.TestCase):
                     follow.assert_not_called()
                     self.assertEqual(journal.store.values, {})
 
+    def test_night_snapshot_generic_http_400_408_retries_without_entry(self):
+        for status in (400, 408):
+            with self.subTest(status=status), TemporaryDirectory() as tmp:
+                journal = self.fake_journal(Path(tmp))
+                reader = SimpleNamespace(snapshot=lambda **k: (_ for _ in ()).throw(
+                    FinamError(f"HTTP_{status}:/v1/accounts/private/orders")))
+                sender = SimpleNamespace(journal=journal, reader=reader,
+                                         auth_path=Path(tmp)/"none", source="0"*40)
+                with patch("V20_TradingSystem_M15.v20_runtime.finam_live._safe_auth"), patch(
+                    "V20_TradingSystem_M15.v20_runtime.finam_live._follow_existing"
+                ) as follow:
+                    with self.assertRaisesRegex(V20FinamSnapshotReadRetry,
+                                                f"FINAM_SNAPSHOT_HTTP_{status}"):
+                        run_cycle(sender, datetime(2026, 10, 29, 2, 28, 48, tzinfo=timezone.utc))
+                    follow.assert_not_called()
+                    self.assertEqual(journal.store.values, {})
+
+    def test_other_snapshot_errors_and_follow_get_remain_strict_halt(self):
+        for error in (FinamError("HTTP_401:/v1/accounts/private"),
+                      FinamError("HTTP_403:/v1/accounts/private"),
+                      FinamError("HTTP_422:/v1/accounts/private"),
+                      FinamUncertainSubmission("RECONCILIATION_REQUIRED")):
+            with self.subTest(error=str(error)), TemporaryDirectory() as tmp:
+                journal = self.fake_journal(Path(tmp))
+                reader = SimpleNamespace(snapshot=lambda **k: (_ for _ in ()).throw(error))
+                sender = SimpleNamespace(journal=journal, reader=reader,
+                                         auth_path=Path(tmp)/"none", source="0"*40)
+                with patch("V20_TradingSystem_M15.v20_runtime.finam_live._safe_auth"):
+                    with self.assertRaises(type(error)):
+                        run_cycle(sender, datetime(2026, 10, 29, 2, 28, 48, tzinfo=timezone.utc))
+                    self.assertEqual(journal.store.values, {})
+        with TemporaryDirectory() as tmp:
+            journal = self.fake_journal(Path(tmp))
+            sender = SimpleNamespace(journal=journal,
+                                     reader=SimpleNamespace(snapshot=lambda **k: object()),
+                                     auth_path=Path(tmp)/"none", source="0"*40)
+            with patch("V20_TradingSystem_M15.v20_runtime.finam_live._safe_auth"), patch(
+                "V20_TradingSystem_M15.v20_runtime.finam_live._follow_existing",
+                side_effect=FinamError("HTTP_400:/v1/accounts/private/trades")):
+                with self.assertRaisesRegex(FinamError, "HTTP_400"):
+                    run_cycle(sender, datetime(2026, 10, 29, 2, 28, 48, tzinfo=timezone.utc))
+
     def test_transient_m15_signal_get_failure_skips_boundary_without_entry(self):
         with TemporaryDirectory() as tmp:
             journal = self.fake_journal(Path(tmp))
@@ -271,6 +314,7 @@ class LiveAdmissionTests(unittest.TestCase):
             }
             reader = SimpleNamespace(authenticate=lambda: None)
             cycle = [FinamServerError("HTTP_503:GET"),
+                     V20FinamSnapshotReadRetry("FINAM_SNAPSHOT_HTTP_400"),
                      "WAIT_NEXT_M15_OPEN"]
             with ExitStack() as stack:
                 stack.enter_context(patch.dict("os.environ", env))
@@ -287,16 +331,17 @@ class LiveAdmissionTests(unittest.TestCase):
                     "V20_TradingSystem_M15.v20_runtime.finam_live.emergency_halt"))
                 sleep = stack.enter_context(patch(
                     "V20_TradingSystem_M15.v20_runtime.finam_live.time.sleep",
-                    side_effect=[None, EndAfterRecoveredCycle()]))
+                    side_effect=[None, None, EndAfterRecoveredCycle()]))
                 with self.assertRaises(EndAfterRecoveredCycle):
                     run(root=root, robot=robot, source="0" * 40)
-                self.assertEqual(run_mock.call_count, 2)
-                self.assertEqual([x.args[0] for x in sleep.call_args_list], [3, 30])
+                self.assertEqual(run_mock.call_count, 3)
+                self.assertEqual([x.args[0] for x in sleep.call_args_list], [3, 3, 30])
                 halt.assert_not_called()
             rows = [json.loads(x) for x in
                     (instance/"logs"/"live-m15.jsonl").read_text(encoding="utf-8").splitlines()]
             self.assertEqual([row["state"] for row in rows],
-                             ["FAULT_FinamServerError", "WAIT_NEXT_M15_OPEN"])
+                             ["FAULT_FinamServerError", "FAULT_FINAM_SNAPSHOT_HTTP_400",
+                              "WAIT_NEXT_M15_OPEN"])
 
     def test_h1_style_unsafe_fault_halts_entries_but_does_not_terminate_process(self):
         class EndAfterSecondCycle(BaseException):
