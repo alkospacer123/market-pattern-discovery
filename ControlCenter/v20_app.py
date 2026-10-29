@@ -35,6 +35,19 @@ def healthy_label(report):
             "NOT_CONNECTED": "НЕ ПОДКЛЮЧЁН", "STAGING": "STAGING · LIVE OFF"}.get(status, "UNKNOWN")
 
 
+def confirmed_armed_cycle(report, now):
+    """Display-only proof: fresh local ARMED cycle, not broker HEALTHY."""
+    last = report.get("events", ())[-1:]
+    return (
+        report["status"] == "UNKNOWN" and report.get("reason") == "LOCAL_REPORT"
+        and report.get("task_state") == "RUNNING"
+        and report.get("kill_switch") == "ARMED"
+        and heartbeat_health(report, now) == "HEALTHY" and bool(last)
+        and last[0]["result"] in ("PASS", "PENDING")
+        and last[0]["cycle"] == report.get("cycle")
+    )
+
+
 def overview(snapshots, now):
     """Only operator health signals. Trading details belong in FINAM."""
     for robot in ROBOTS:
@@ -46,14 +59,7 @@ def overview(snapshots, now):
         # FINAM reconciliation. A fresh validated LOCAL_REPORT still proves
         # the observed Task/switch and the latest local worker cycle only.
         last = report.get("events", ())[-1:]
-        armed_cycle = (
-            status == "UNKNOWN" and report.get("reason") == "LOCAL_REPORT"
-            and report.get("task_state") == "RUNNING"
-            and report.get("kill_switch") == "ARMED"
-            and pulse == "HEALTHY" and bool(last)
-            and last[0]["result"] in ("PASS", "PENDING")
-            and last[0]["cycle"] == report.get("cycle")
-        )
+        armed_cycle = confirmed_armed_cycle(report, now)
         with st.container(border=True):
             left, right = st.columns([2, 3])
             with left:
@@ -101,11 +107,13 @@ def overview(snapshots, now):
         st.caption("Обновление данных — только READONLY. START/PAUSE/STOP/RESTART выполняются отдельно через подтверждённый CC-07.")
 
 
-def journal(snapshots):
+def journal(snapshots, now):
     st.subheader("Последние циклы и диагностика")
     for robot in ROBOTS:
         report = snapshots[robot]
-        with st.expander(LABELS[robot] + " · " + healthy_label(report), expanded=False):
+        with st.expander(LABELS[robot] + " · " +
+                         ("ARMED" if confirmed_armed_cycle(report, now)
+                          else healthy_label(report)), expanded=False):
             if report.get("reason") == "LOCAL_REPORT":
                 st.caption("Источник V20 LIVE: реальные проходы live-m15.jsonl; не журнал сделок FINAM.")
             if report["events"]:
@@ -236,7 +244,7 @@ def main():
     with tabs[0]:
         overview(snapshots, now)
     with tabs[1]:
-        journal(snapshots)
+        journal(snapshots, now)
     with tabs[2]:
         controls()
 
