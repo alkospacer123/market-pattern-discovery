@@ -1189,6 +1189,15 @@ def read_finam_m15_boundary(
         except (ValueError, TypeError) as exc:
             raise V20FinamBlocked("M15_FINAM_TIMESTAMP_INVALID") from exc
         if utc_open < start or utc_open > observed or utc_open.second or utc_open.microsecond:
+            reader._m15_timestamp_diagnostic = {
+                "symbol": symbol,
+                "reason": ("BEFORE_START" if utc_open < start else
+                           "AFTER_NOW" if utc_open > observed else "OFF_GRID_SECONDS"),
+                "received_utc": utc_open.isoformat(),
+                "request_start_utc": start.isoformat(),
+                "request_end_exclusive_utc": exclusive_end,
+                "observed_utc": observed.isoformat(),
+            }
             raise V20FinamBlocked("M15_FINAM_TIMESTAMP_OUT_OF_RANGE")
         stamp = utc_open.astimezone(ZoneInfo("Europe/Moscow")).replace(tzinfo=None)
         if stamp.minute % 15:
