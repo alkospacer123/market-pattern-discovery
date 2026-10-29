@@ -193,13 +193,90 @@ class LiveAdmissionTests(unittest.TestCase):
                 self.assertEqual(len(read_calls), 3)
                 proposer.assert_not_called()
                 self.assertEqual(journal.store.values, {})
-                # At the last allowed Shallow/OBV NEXT_OPEN (17:15 MSK),
-                # the strict M15 timestamp rejection MUST remain unchanged.
+                # Inside the entry window the raw validation remains strict,
+                # but LIVE must skip the whole unsafe entry attempt, not HALT.
+                self.assertEqual(run_cycle(sender, datetime(2026, 10, 28, 14, 15, 5,
+                                                           tzinfo=timezone.utc)),
+                                 "M15_TIMESTAMP_UNTRUSTED_NO_ENTRY")
+                self.assertEqual(proposer.call_count, 1)
+                self.assertEqual(journal.store.values, {})
+
+    def test_inside_20261029_141500_msk_timestamp_skip_retries_without_post(self):
+        # Actual incident: Inside at 2026-10-29 11:15:00.263995 UTC.
+        # The archive contains no individual candle timestamps; never
+        # accept an invalid witness or silently consume the bar's decision.
+        with TemporaryDirectory() as tmp:
+            journal = self.fake_journal(Path(tmp))
+            snapshots = []
+            reader = SimpleNamespace(snapshot=lambda **k: snapshots.append(k) or
+                                     SimpleNamespace(positions={}, orders=[]))
+            sender = SimpleNamespace(journal=journal, reader=reader,
+                                     auth={"roundtrip_cost_rub": {x: "2.02" for x in SYMBOLS}},
+                                     auth_path=Path(tmp)/"none", source="0"*40)
+            t0 = datetime(2026, 10, 29, 11, 15, 0, 263995, tzinfo=timezone.utc)
+            with ExitStack() as stack:
+                stack.enter_context(patch("V20_TradingSystem_M15.v20_runtime.finam_live._safe_auth"))
+                follow = stack.enter_context(patch(
+                    "V20_TradingSystem_M15.v20_runtime.finam_live._follow_existing",
+                    return_value="BROKER_RECONCILED_PROTECTION_PASS"))
+                stack.enter_context(patch(
+                    "V20_TradingSystem_M15.v20_runtime.finam_live.load_kill_switch",
+                    return_value=({"state": "ARMED"}, None)))
+                proposer = stack.enter_context(patch(
+                    "V20_TradingSystem_M15.v20_runtime.finam_live.propose_finam_m15_next_open",
+                    side_effect=[V20FinamBlocked("M15_FINAM_TIMESTAMP_OUT_OF_RANGE"),
+                                 None, None, None, None]))
+                submit = stack.enter_context(patch(
+                    "V20_TradingSystem_M15.v20_runtime.finam_live.V20LiveTransport.submit_entry_once"))
+                self.assertEqual(run_cycle(sender, t0),
+                                 "M15_TIMESTAMP_UNTRUSTED_NO_ENTRY")
+                self.assertEqual(proposer.call_count, 1)
+                self.assertEqual(journal.store.values, {})
+                submit.assert_not_called()
+                # At 14:15:30 MSK, the same boundary may recover, with
+                # original order of all four symbols and no invented fill.
+                retry = t0.replace(second=30)
+                self.assertEqual(run_cycle(sender, retry), "NO_FROZEN_SIGNAL")
+                self.assertEqual(proposer.call_count, 5)
+                self.assertEqual(len(snapshots), 2)
+                self.assertEqual(follow.call_count, 2)
+                submit.assert_not_called()
+
+    def test_timestamp_failure_in_position_followup_still_halts(self):
+        with TemporaryDirectory() as tmp:
+            journal = self.fake_journal(Path(tmp))
+            reader = SimpleNamespace(snapshot=lambda **k:
+                                     SimpleNamespace(positions={}, orders=[]))
+            sender = SimpleNamespace(journal=journal, reader=reader,
+                                     auth_path=Path(tmp)/"none", source="0"*40)
+            with patch("V20_TradingSystem_M15.v20_runtime.finam_live._safe_auth"), patch(
+                "V20_TradingSystem_M15.v20_runtime.finam_live._follow_existing",
+                side_effect=V20FinamBlocked("M15_FINAM_TIMESTAMP_OUT_OF_RANGE")
+            ):
                 with self.assertRaisesRegex(V20FinamBlocked,
                                             "M15_FINAM_TIMESTAMP_OUT_OF_RANGE"):
-                    run_cycle(sender, datetime(2026, 10, 28, 14, 15, 5,
+                    run_cycle(sender, datetime(2026, 10, 29, 11, 15, 0,
                                                tzinfo=timezone.utc))
-                self.assertEqual(proposer.call_count, 1)
+
+    def test_other_live_entry_timestamp_faults_remain_strict(self):
+        with TemporaryDirectory() as tmp:
+            journal = self.fake_journal(Path(tmp))
+            reader = SimpleNamespace(snapshot=lambda **k:
+                                     SimpleNamespace(positions={}, orders=[]))
+            sender = SimpleNamespace(journal=journal, reader=reader,
+                                     auth={"roundtrip_cost_rub": {x: "2.02" for x in SYMBOLS}},
+                                     auth_path=Path(tmp)/"none", source="0"*40)
+            with patch("V20_TradingSystem_M15.v20_runtime.finam_live._safe_auth"), patch(
+                "V20_TradingSystem_M15.v20_runtime.finam_live._follow_existing",
+                return_value="BROKER_RECONCILED_PROTECTION_PASS"
+            ), patch("V20_TradingSystem_M15.v20_runtime.finam_live.load_kill_switch",
+                     return_value=({"state": "ARMED"}, None)), patch(
+                "V20_TradingSystem_M15.v20_runtime.finam_live.propose_finam_m15_next_open",
+                side_effect=V20FinamBlocked("M15_FINAM_GRID_MISMATCH")
+            ):
+                with self.assertRaisesRegex(V20FinamBlocked, "M15_FINAM_GRID_MISMATCH"):
+                    run_cycle(sender, datetime(2026, 10, 29, 11, 15, 0,
+                                               tzinfo=timezone.utc))
 
     def test_transient_broker_get_failures_never_submit_and_do_not_halt(self):
         for error in (FinamServerError("HTTP_503:account"),
