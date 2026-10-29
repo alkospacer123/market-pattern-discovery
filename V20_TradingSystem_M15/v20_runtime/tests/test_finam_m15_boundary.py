@@ -87,6 +87,36 @@ class M15BoundaryTests(unittest.TestCase):
         self.assertEqual(qs["timeframe"], ["TIME_FRAME_M15"])
         self.assertNotIn("TIME_FRAME_H1", route)
 
+    def test_1415_fractional_seconds_preserve_earliest_bar_and_exclude_future(self):
+        # Exact incident class: clock 14:15:00.264, candles at xx:00.000.
+        # FINAM REST: inclusive start, exclusive end; a future candle at
+        # boundary+15m MUST NOT be returned by a conforming GET.
+        from_utc = COMPLETED_1 + timedelta(microseconds=264000)
+        observed = AT + timedelta(microseconds=263995)
+        all_bars = [bar(COMPLETED_1), bar(COMPLETED_2),
+                    bar(CURRENT, current=True),
+                    bar(CURRENT + timedelta(minutes=15), current=True)]
+
+        def filtered_get(method, path, *_args, **_kwargs):
+            self.api.calls.append((method, path))
+            query = parse_qs(urlsplit(path).query)
+            low = datetime.fromisoformat(query["interval.start_time"][0])
+            high = datetime.fromisoformat(query["interval.end_time"][0])
+            rows = [v for v in all_bars
+                    if low <= datetime.fromisoformat(v["timestamp"]) < high]
+            return Response(200, {"symbol": SYMBOL, "bars": rows}, None)
+
+        self.api._request = filtered_get
+        proof = read_finam_m15_boundary(
+            self.reader, symbol="USDRUBF", from_utc=from_utc, now=observed,
+        )
+        params = parse_qs(urlsplit(self.api.calls[-1][1]).query)
+        self.assertEqual(params["interval.start_time"], ["2026-10-24T07:00:00+00:00"])
+        self.assertEqual(params["interval.end_time"], ["2026-10-24T07:45:00+00:00"])
+        self.assertEqual(len(proof.completed), 2)
+        self.assertEqual(proof.witnessed_open, Decimal("85.00"))
+        self.assertEqual(self.api.calls[-1][0], "GET")
+
     def test_missing_new_open_or_stale_boundary_blocks(self):
         self.api.rows = [bar(COMPLETED_1), bar(COMPLETED_2)]
         with self.assertRaisesRegex(V20FinamBlocked, "M15_NEXT_OPEN_WITNESS_MISSING"):
@@ -127,6 +157,8 @@ class M15BoundaryTests(unittest.TestCase):
         self.api.rows[-1] = bar(CURRENT+timedelta(minutes=5), current=True)
         with self.assertRaisesRegex(V20FinamBlocked, "M15_FINAM_TIMESTAMP_OUT_OF_RANGE"):
             read_finam_m15_boundary(self.reader, symbol="USDRUBF", from_utc=START, now=AT)
+        self.assertEqual(self.reader._m15_timestamp_diagnostic["reason"], "AFTER_NOW")
+        self.assertEqual(self.reader._m15_timestamp_diagnostic["symbol"], "USDRUBF")
         self.api.rows = [bar(COMPLETED_1), bar(COMPLETED_2), bar(COMPLETED_2),
                          bar(CURRENT, current=True)]
         with self.assertRaisesRegex(V20FinamBlocked, "M15_DUPLICATE_OR_UNSORTED_BARS"):
