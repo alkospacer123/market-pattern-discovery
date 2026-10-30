@@ -595,6 +595,11 @@ def run(*, root: Path, robot: str, source: str, once: bool = False,
                         emergency_halt(journal.instance_root)
                 label = str(exc)
                 state = label if re.fullmatch(r"[A-Z0-9_]{1,100}", label) else type(exc).__name__
+                # A generic H1 FinamError often embeds the account path,
+                # so log a useful HTTP code only, without path or identity.
+                http_code = re.match(r"^HTTP_([0-9]{3}):", label) if type(exc) is FinamError else None
+                if http_code is not None:
+                    state = "FINAM_HTTP_" + http_code.group(1)
                 event = {"utc": now.isoformat(), "robot": robot,
                          "state": ("FAULT_" if transient else "HALT_") + state}
                 detail = getattr(reader, "_m15_timestamp_diagnostic", None)
