@@ -27,7 +27,7 @@ from TradingSystemLab.stage8_robot.broker import compact_client_order_id
 from TradingSystemLab.stage8_robot.account_cleanliness import TERMINAL_ORDER_STATUSES
 from TradingSystemLab.stage8_robot.production_broker_state import unique_order_by_client_id
 from TradingSystemLab.stage8_robot.execution_grid import project_stop
-from TradingSystemLab.stage8_robot.finam_api import FinamAPI, FinamError, FinamServerError, FinamTimeout, FinamRateLimit
+from TradingSystemLab.stage8_robot.finam_api import FinamAPI, FinamError, FinamNotFound, FinamServerError, FinamTimeout, FinamRateLimit
 from TradingSystemLab.stage8_robot.production_runtime import _load_registry
 from TradingSystemLab.stage8_robot.trading_safety_gate import load_kill_switch, emergency_halt, write_kill_switch
 
@@ -48,11 +48,46 @@ FAST_RECONCILIATION_SECONDS = 3
 
 
 class V20FinamSnapshotReadRetry(FinamError):
-    """Only initial account/orders snapshot HTTP 400/408: retry GET, never POST.
+    """An untrusted initial broker snapshot: retry without entry or order POST.
 
-    The original H1 FinamError can contain an account path. Log a bounded
-    status-only label; never persist an account ID, token or raw API body.
+    The original H1 error may contain an account path. Log only an HTTP
+    status or bounded fault label, never account IDs or response bodies.
     """
+
+
+def _night_flat_snapshot_fault(exc, *, journal, reader, now):
+    """Only on a flat durable ledger and outside frozen NEXT_OPEN hours.
+
+    A FINAM HTTP rejection of the INITIAL account/orders snapshot cannot
+    authorize any trade. After broker recovery a fresh full snapshot and
+    ownership proof still precede every entry. Unsettled intents, position
+    management, order POST, authentication 401/403 and non-account endpoints
+    remain strict HALT. The overnight 2026-10-30 archive had 3 such generic
+    FinamError HALTs, but no HTTP statuses; preserve status evidence here.
+    """
+    msk = now.astimezone(ZoneInfo("Europe/Moscow"))
+    if (10, 15) <= (msk.hour, msk.minute) <= (17, 15):
+        return None
+    if journal.store.get("execution_halt"):
+        return None
+    if any(
+        row["payload"].get("kind") == "ENTRY"
+        and not journal.store.get("flat_cleanup:" + row["idempotency_key"])
+        for row in journal.store.all_intents()
+    ):
+        return None
+    account = getattr(reader, "account_id", None)
+    if not isinstance(account, str) or not re.fullmatch(r"[A-Za-z0-9_.-]{1,128}", account):
+        return None
+    expected = {"/v1/accounts/" + account, "/v1/accounts/" + account + "/orders"}
+    if type(exc) is FinamNotFound and str(exc) in expected:
+        return "404"
+    if type(exc) is not FinamError:
+        return None
+    match = re.fullmatch(r"HTTP_(4[0-9]{2}):(.+)", str(exc))
+    if not match or match.group(1) in {"401", "403"} or match.group(2) not in expected:
+        return None
+    return match.group(1)
 
 
 class V20LiveJournal(V20TradeJournal):
@@ -361,15 +396,17 @@ def run_cycle(sender: V20LiveTransport, now: datetime) -> str:
     try:
         snapshot = reader.snapshot(now=now)
     except FinamError as exc:
-        # During FINAM's night maintenance the initial account/orders GET can
-        # return generic HTTP 400/408, not FinamServerError. Retry the entire
-        # readonly snapshot before ANY position, stop or entry action.
-        # Other H1 errors (401/403/404, uncertain POST, rejects, ownership)
-        # still HALT exactly as before. Do NOT catch errors in follow/POST.
-        match = re.match(r"^HTTP_(400|408):", str(exc)) if type(exc) is FinamError else None
-        if match is None:
+        # Overnight 2026-10-30: 5xx storms followed by generic 4xx in the
+        # initial account/orders snapshot. The H1 reader correctly rejects
+        # this response, but an otherwise flat robot must not permanently
+        # HALT until the owner returns. Never issue orders without a NEW
+        # successful full snapshot and existing-position reconciliation.
+        # Strictly exclude auth 401/403, any non-account endpoint, unsettled
+        # durable entry, order/fill/stop follow-up and trading entry hours.
+        status = _night_flat_snapshot_fault(exc, journal=journal, reader=reader, now=now)
+        if status is None:
             raise
-        raise V20FinamSnapshotReadRetry("FINAM_SNAPSHOT_HTTP_" + match.group(1)) from exc
+        raise V20FinamSnapshotReadRetry("FINAM_NIGHT_SNAPSHOT_HTTP_" + status) from exc
     state = _follow_existing(sender, now, snapshot)
     if state != "BROKER_RECONCILED_PROTECTION_PASS":
         return state
