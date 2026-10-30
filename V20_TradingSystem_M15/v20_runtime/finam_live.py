@@ -45,6 +45,7 @@ SYMBOLS = tuple(sorted(N4))
 AUTH_SCHEMA = "v20.08.4.live_authorization.v1"
 POLL_SECONDS = 30
 FAST_RECONCILIATION_SECONDS = 3
+NIGHT_PROTECTED_POLL_SECONDS = 120
 
 
 class V20FinamSnapshotReadRetry(FinamError):
@@ -368,6 +369,9 @@ def _follow_existing(sender: V20LiveTransport, now: datetime, snapshot) -> str:
             key=key, reader=reader, snapshot=snapshot, now=now)
         if journal.store.get("execution_halt"):
             raise V20FinamBlocked("V20_LIVE_POST_FILL_RISK_HALTED")
+        # Outside MOEX hours the frozen exit is not due. Do not fetch M15.
+        if _closed_moex_night(now):
+            continue
         clock = now.astimezone(ZoneInfo("Europe/Moscow"))
         if (clock.minute % 15 or clock.second >= 60):
             continue
@@ -388,6 +392,54 @@ def _follow_existing(sender: V20LiveTransport, now: datetime, snapshot) -> str:
 
 
 
+def _closed_moex_night(now: datetime) -> bool:
+    clock = now.astimezone(ZoneInfo("Europe/Moscow"))
+    minutes = clock.hour * 60 + clock.minute
+    return not (6 * 60 + 50 <= minutes < 23 * 60 + 50)
+
+
+def _closed_night_protected(journal: V20LiveJournal, snapshot) -> bool:
+    """Slow down only after a fresh full broker snapshot and verified 100% SLTP.
+
+    _follow_existing() must already have reconciled every position and stop.
+    Any unsettled entry/exit or active non-stop order keeps strict polling.
+    """
+    if (not any(snapshot.positions.values()) or journal.store.get("execution_halt")
+            or any(o.active and o.kind != "SLTP" for o in snapshot.orders)):
+        return False
+    for row in _entries(journal):
+        key = row["idempotency_key"]
+        if journal.store.get("flat_cleanup:" + key):
+            continue
+        symbol = row["payload"]["finam_symbol"]
+        stop = journal.store.intent(key + ":stop")
+        proof = journal.store.get("protected_fill:" + key)
+        if (not snapshot.positions.get(symbol, 0)
+                or row["status"] != "RECONCILED"
+                or journal.store.intent(key + ":frozen-exit") is not None
+                or not stop or stop["status"] not in ("ACK", "RECONCILED")
+                or not isinstance(proof, dict)
+                or proof.get("filled_quantity") != abs(snapshot.positions[symbol])
+                or proof.get("broker_stop_percent") != "100"
+                or not any(o.active and o.kind == "SLTP" and o.symbol == symbol
+                           and o.order_id == proof.get("broker_stop_id")
+                           for o in snapshot.orders)):
+            return False
+    return True
+
+
+def _night_protected_sleep_seconds(now: datetime) -> float:
+    """Never let a 120s overnight sleep delay the 06:50 MSK full check."""
+    if not _closed_moex_night(now):
+        return 0.0
+    clock = now.astimezone(ZoneInfo("Europe/Moscow"))
+    opening = clock.replace(hour=6, minute=50, second=0, microsecond=0)
+    if (clock.hour, clock.minute) >= (23, 50):
+        opening += timedelta(days=1)
+    return min(NIGHT_PROTECTED_POLL_SECONDS,
+               max(0.0, (opening - clock).total_seconds()))
+
+
 def _closed_night_without_live_exposure(journal: V20LiveJournal, now: datetime) -> bool:
     """Skip broker polling only while MOEX futures is closed and V20 is flat.
 
@@ -396,9 +448,7 @@ def _closed_night_without_live_exposure(journal: V20LiveJournal, now: datetime) 
     operation. On the next open full broker reconciliation runs BEFORE entry.
     No alternate trading calendar, service or strategy timing is introduced.
     """
-    clock = now.astimezone(ZoneInfo("Europe/Moscow"))
-    minutes = clock.hour * 60 + clock.minute
-    if 6 * 60 + 50 <= minutes < 23 * 60 + 50:
+    if not _closed_moex_night(now):
         return False
     if journal.store.get("execution_halt"):
         return False
@@ -462,6 +512,9 @@ def run_cycle(sender: V20LiveTransport, now: datetime) -> str:
     if (error or not switch or switch.get("state") != "ARMED"
             or journal.store.get("execution_halt")):
         return "HALTED_NO_NEW_ENTRIES"
+    # Fresh FINAM position/stop reconciliation above; no M15 requests at night.
+    if _closed_moex_night(now) and _closed_night_protected(journal, snapshot):
+        return "MOEX_CLOSED_PROTECTED_MONITOR"
     msk = now.astimezone(ZoneInfo("Europe/Moscow"))
     if msk.minute % 15 or msk.second >= 60:
         return "WAIT_NEXT_M15_OPEN"
@@ -670,7 +723,10 @@ def run(*, root: Path, robot: str, source: str, once: bool = False,
             time.sleep(FAST_RECONCILIATION_SECONDS if state in (
                 "ENTRY_ACK_NEEDS_FILL_AND_STOP", "ENTRY_ACK_AWAIT_BROKER_FILL",
                 "STOP_ACK_NEEDS_BROKER_PROOF", "FROZEN_EXIT_ACK_KEEP_STOP_UNTIL_FLAT",
-                "EXIT_POSTED_AWAIT_BROKER_FLAT") else POLL_SECONDS)
+                "EXIT_POSTED_AWAIT_BROKER_FLAT",
+                "STOP_CANCEL_WAIT_BROKER_NO_RETRANSMIT") else
+                _night_protected_sleep_seconds(datetime.now(timezone.utc))
+                if state == "MOEX_CLOSED_PROTECTED_MONITOR" else POLL_SECONDS)
 
 
 def main() -> int:
