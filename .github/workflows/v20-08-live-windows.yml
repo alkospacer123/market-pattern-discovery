@@ -5,6 +5,7 @@ on:
     paths:
       - 'V20_TradingSystem_M15/v20_runtime/**'
       - 'V20_TradingSystem_M15/V20-08/v20-08-live-*.ps1'
+      - 'V20_TradingSystem_M15/V20-08/v20-08-weekend-entry-update.ps1'
       - '.github/workflows/v20-08-live-windows.yml'
   push:
     branches:
@@ -38,14 +39,14 @@ jobs:
       - name: PowerShell syntax only for new V20 install launcher and cutover
         shell: pwsh
         run: |
-          $scripts = @('V20_TradingSystem_M15/V20-08/v20-08-live-prep.ps1', 'V20_TradingSystem_M15/V20-08/v20-08-live-launch.ps1', 'V20_TradingSystem_M15/V20-08/v20-08-live-cutover.ps1', 'V20_TradingSystem_M15/V20-08/v20-08-live-operator.ps1', 'V20_TradingSystem_M15/V20-08/v20-08-finam-read-recovery.ps1', 'V20_TradingSystem_M15/V20-08/v20-08-night-protected-update.ps1')
+          $scripts = @('V20_TradingSystem_M15/V20-08/v20-08-live-prep.ps1', 'V20_TradingSystem_M15/V20-08/v20-08-live-launch.ps1', 'V20_TradingSystem_M15/V20-08/v20-08-live-cutover.ps1', 'V20_TradingSystem_M15/V20-08/v20-08-live-operator.ps1', 'V20_TradingSystem_M15/V20-08/v20-08-finam-read-recovery.ps1', 'V20_TradingSystem_M15/V20-08/v20-08-night-protected-update.ps1', 'V20_TradingSystem_M15/V20-08/v20-08-weekend-entry-update.ps1')
           foreach ($script in $scripts) {
             $tokens = $null
             $errors = $null
             [void][System.Management.Automation.Language.Parser]::ParseFile((Resolve-Path -LiteralPath $script).Path, [ref]$tokens, [ref]$errors)
             if (@($errors).Count -ne 0) { Write-Error ('V20_PS_PARSE_FAILED ' + $script); exit 1 }
           }
-          Write-Output 'V20_08_5_POWERSHELL_PARSE=PASS_6_OF_6_NO_EXECUTION'
+          Write-Output 'V20_08_5_POWERSHELL_PARSE=PASS_7_OF_7_NO_EXECUTION'
       - name: SQLite snapshot via Windows PowerShell 5.1 native invocation
         shell: powershell
         run: |
@@ -115,6 +116,8 @@ jobs:
             WAIT_NEXT_M15_OPEN='PASS'
             NO_FROZEN_SIGNAL='PASS'
             BROKER_RECONCILED_PROTECTION_PASS='PASS'
+            MOEX_CLOSED_PROTECTED_MONITOR='PASS'
+            WEEKEND_NO_NEW_ENTRIES='PASS'
             STOP_EXECUTED_FLAT='PASS'
             ENTRY_ACK_AWAIT_BROKER_FILL='PENDING'
             STOP_ACK_NEEDS_BROKER_PROOF='PENDING'
@@ -148,6 +151,15 @@ jobs:
              $joined -notmatch 'v20_08_5_v20-shallow_last_cycle_attempts_found=10' -or
              $joined -match 'WAIT_NEXT_M15_OPEN' -or
              $lines -contains 'True') { throw ('CHECK_H1_STYLE_PASS_REGRESSION '+$joined) }
+          $rows[9]=(@{utc=[datetimeoffset]::UtcNow.ToString('o');robot='v20-shallow';state='FAULT_FinamServerError'} | ConvertTo-Json -Compress)
+          $rows | Set-Content -LiteralPath $log -Encoding UTF8
+          $failed=@(proof 'v20-shallow' $true) -join '|'
+          # A protected 120s night cycle must not falsely become unhealthy at 90s.
+          $rows[9]=(@{utc=[datetimeoffset]::UtcNow.AddSeconds(-130).ToString('o');robot='v20-shallow';state='MOEX_CLOSED_PROTECTED_MONITOR'} | ConvertTo-Json -Compress)
+          $rows | Set-Content -LiteralPath $log -Encoding UTF8
+          $night=@(proof 'v20-shallow' $true) -join '|'
+          if($night -notmatch 'v20_08_5_v20-shallow_healthy=True' -or
+             $night -notmatch 'cycle_code=MOEX_CLOSED_PROTECTED_MONITOR') { throw ('CHECK_NIGHT_120S_UNHEALTHY '+$night) }
           $rows[9]=(@{utc=[datetimeoffset]::UtcNow.ToString('o');robot='v20-shallow';state='FAULT_FinamServerError'} | ConvertTo-Json -Compress)
           $rows | Set-Content -LiteralPath $log -Encoding UTF8
           $failed=@(proof 'v20-shallow' $true) -join '|'
@@ -197,7 +209,7 @@ jobs:
           # The new after-hours candidate is separate and NOT deployed yet.
           $installedExecution='0d5ee2c6eb7195ec9f59aa82a2881bfb0a058827'
           $installedWorker='519710efffbedfdfc236e9c063c2c9dda6f475f5'
-          if($workerHash -cne 'e113003c7740d0923a7682242dc233461cb865d3'){
+          if($workerHash -cne '61ab6dea13a9a9c0eeeae2752a565e252966ebfc'){
               throw 'V20_AFTERHOURS_CANDIDATE_SOURCE_MISMATCH'
           }
           foreach($pin in @($installedExecution,$installedWorker)){
