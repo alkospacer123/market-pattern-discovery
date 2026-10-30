@@ -515,9 +515,12 @@ def run_cycle(sender: V20LiveTransport, now: datetime) -> str:
         return "HALTED_NO_NEW_ENTRIES"
     # Fresh FINAM position/stop reconciliation above; no M15 requests at night.
     if _closed_moex_night(now) and _closed_night_protected(journal, snapshot):
-        # Existing operator/Control Center already classifies this as PASS.
-        return "BROKER_RECONCILED_PROTECTION_PASS"
+        return "MOEX_CLOSED_PROTECTED_MONITOR"
     msk = now.astimezone(ZoneInfo("Europe/Moscow"))
+    # Explicit weekend entry restriction. Continue _follow_existing above
+    # including broker protection and frozen third-observed-session exits.
+    if msk.weekday() >= 5:
+        return "WEEKEND_NO_NEW_ENTRIES"
     if msk.minute % 15 or msk.second >= 60:
         return "WAIT_NEXT_M15_OPEN"
     # Frozen Shallow/OBV signal bars start no later than 17:00 MSK;
@@ -715,7 +718,7 @@ def run(*, root: Path, robot: str, source: str, once: bool = False,
             event = {"utc": now.isoformat(), "robot": robot, "state": state}
             if getattr(reader, "_closed_night_flat_no_get", False):
                 event["broker_cycle"] = "MOEX_CLOSED_FLAT_NO_FINAM_GET"
-            if state == "BROKER_RECONCILED_PROTECTION_PASS":
+            if state == "MOEX_CLOSED_PROTECTED_MONITOR":
                 event["broker_cycle"] = "MOEX_CLOSED_PROTECTED_120S"
             detail = getattr(reader, "_m15_timestamp_diagnostic", None)
             if state == "M15_TIMESTAMP_UNTRUSTED_NO_ENTRY" and isinstance(detail, dict):
@@ -730,7 +733,7 @@ def run(*, root: Path, robot: str, source: str, once: bool = False,
                 "EXIT_POSTED_AWAIT_BROKER_FLAT",
                 "STOP_CANCEL_WAIT_BROKER_NO_RETRANSMIT") else
                 _night_protected_sleep_seconds(datetime.now(timezone.utc))
-                if state == "BROKER_RECONCILED_PROTECTION_PASS" else POLL_SECONDS)
+                if state == "MOEX_CLOSED_PROTECTED_MONITOR" else POLL_SECONDS)
 
 
 def main() -> int:
