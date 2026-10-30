@@ -409,11 +409,17 @@ def _closed_night_without_live_exposure(journal: V20LiveJournal, now: datetime) 
         for row in intents
     ):
         return False
+    # A pending entry always needs broker reconciliation, regardless of
+    # whether its journal row has all fields (a corrupt entry still fails
+    # closed in the normal broker path).
+    if any(row["payload"]["kind"] == "ENTRY"
+           and not journal.store.get("flat_cleanup:" + row["idempotency_key"])
+           for row in intents):
+        return False
     entries = _entries(journal)
     if intents and not entries:
         return False  # Orphan order/stop without an entry: do not skip.
-    return all(bool(journal.store.get("flat_cleanup:" + row["idempotency_key"]))
-               for row in entries)
+    return True
 
 
 def run_cycle(sender: V20LiveTransport, now: datetime) -> str:
