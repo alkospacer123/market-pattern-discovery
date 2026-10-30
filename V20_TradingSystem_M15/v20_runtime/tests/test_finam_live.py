@@ -278,6 +278,60 @@ class LiveAdmissionTests(unittest.TestCase):
                 self.assertEqual(follow.call_count, 2)
                 submit.assert_not_called()
 
+    def test_protected_open_position_late_m15_witness_retries_without_halt(self):
+        # 30 Oct 2026 Shallow/GLDRUBF: FINAM 14:15 MSK Open was late.
+        # This occurs AFTER a verified broker position and protective stop;
+        # it must not permanently HALT or create any new order.
+        with TemporaryDirectory() as tmp:
+            journal = self.fake_journal(Path(tmp))
+            symbol, key = "GLDRUBF", "friday-gld-entry"
+            entry = {"idempotency_key": key, "status": "RECONCILED",
+                     "payload": {"kind": "ENTRY", "mode": "PRETRADE_NOT_AUTHORIZED",
+                                 "robot_id": journal.robot_id,
+                                 "account_sha256": journal.account_hash,
+                                 "symbol": symbol, "finam_symbol": "FUTGLDRUBF",
+                                 "entry_at": "2026-10-30T12:45:00"}}
+            journal.store.rows = [entry]
+            journal.store.intents[key+":stop"] = {"status": "RECONCILED"}
+            journal.reconcile_order = lambda **kw: None
+            proof_calls = []
+            journal.observe_protected_entry = lambda **kw: proof_calls.append(kw)
+            snapshot = SimpleNamespace(positions={"FUTGLDRUBF": 1}, orders=[])
+            reader = SimpleNamespace(snapshot=lambda **kw: snapshot)
+            sender = SimpleNamespace(journal=journal, reader=reader,
+                                     auth_path=Path(tmp)/"none", source="0"*40)
+            with ExitStack() as stack:
+                stack.enter_context(patch("V20_TradingSystem_M15.v20_runtime.finam_live._safe_auth"))
+                stack.enter_context(patch("V20_TradingSystem_M15.v20_runtime.finam_live._ownership",
+                                          return_value=[entry]))
+                read = stack.enter_context(patch(
+                    "V20_TradingSystem_M15.v20_runtime.finam_live.read_finam_m15_boundary",
+                    side_effect=V20FinamBlocked("M15_NEXT_OPEN_WITNESS_MISSING")))
+                submit = stack.enter_context(patch(
+                    "V20_TradingSystem_M15.v20_runtime.finam_live.V20LiveTransport.submit_frozen_exit_once"))
+                enter = stack.enter_context(patch(
+                    "V20_TradingSystem_M15.v20_runtime.finam_live.propose_finam_m15_next_open"))
+                stack.enter_context(patch(
+                    "V20_TradingSystem_M15.v20_runtime.finam_live.load_kill_switch",
+                    return_value=({"state": "HALTED"}, None)))
+                now = datetime(2026, 10, 30, 11, 15, 3, tzinfo=timezone.utc)
+                self.assertEqual(run_cycle(sender, now), "M15_EXIT_WITNESS_PENDING_RETRY")
+                self.assertEqual(len(proof_calls), 1)
+                read.assert_called_once()
+                submit.assert_not_called()
+                enter.assert_not_called()
+                # Other malformed M15 evidence still fails closed.
+                read.side_effect = V20FinamBlocked("M15_FINAM_TIMESTAMP_OUT_OF_RANGE")
+                with self.assertRaisesRegex(V20FinamBlocked, "M15_FINAM_TIMESTAMP_OUT_OF_RANGE"):
+                    run_cycle(sender, now)
+                # Without confirmed broker protection even the delayed-witness
+                # exception cannot authorize a healthy/pending state.
+                journal.observe_protected_entry = lambda **kw: (_ for _ in ()).throw(
+                    V20FinamBlocked("V20_LIVE_PROTECTION_REQUIRED"))
+                read.side_effect = V20FinamBlocked("M15_NEXT_OPEN_WITNESS_MISSING")
+                with self.assertRaisesRegex(V20FinamBlocked, "V20_LIVE_PROTECTION_REQUIRED"):
+                    run_cycle(sender, now)
+
     def test_timestamp_failure_in_position_followup_still_halts(self):
         with TemporaryDirectory() as tmp:
             journal = self.fake_journal(Path(tmp))
