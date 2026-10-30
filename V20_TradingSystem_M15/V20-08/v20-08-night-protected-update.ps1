@@ -65,6 +65,8 @@ $msk=[timezoneinfo]::ConvertTimeFromUtc([datetime]::UtcNow,[timezoneinfo]::FindS
 $minutes=$msk.Hour*60+$msk.Minute
 need ($minutes -ge 410 -and $minutes -lt 1430) 'v20_update_moex_closed_install_forbidden'
 # Stage immutable Git objects BEFORE touching any switch or task.
+# Verify all accounts are FLAT first; an open trade must not halt healthy LIVE.
+foreach($name in $names){broker-flat $name}
 $stageWorker=$worker+'.protected-stage'
 $stageLauncher=$launcher+'.protected-stage'
 stage-blob $newWorker $stageWorker
