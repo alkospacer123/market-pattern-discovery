@@ -1,0 +1,42 @@
+{
+  "schema": "v20.market_ranges.verification.v1",
+  "input_main_sha": "6f352acfac7ebdfabba73e143c4dfea3a6e48507",
+  "input_pr_sha": "7aef698ed4e936872882b6820e305c559fe556b6",
+  "previous_result_sha": "684f0ca5585d496c89fd1eb56e36c66d75a58717",
+  "one_predeclared_check_runs": 1,
+  "research_status": "CLOSED_NO_FURTHER_RANGE_SEARCH",
+  "calibration_years": [
+    2023,
+    2024
+  ],
+  "temporal_check_year": 2026,
+  "independent_oos": false,
+  "locked_2025_excluded": true,
+  "causal_observations": 1604,
+  "table_rows": 120,
+  "tests": {
+    "new_interval_tests": 8,
+    "existing_runtime_tests_rerun": 61,
+    "total": 69,
+    "status": "PASS"
+  },
+  "interval_hypotheses": {
+    "COMMON_ATR": "FAIL: NOT_CONFIRMED_IN_BOTH_PERIODS",
+    "SHALLOW_PULLBACK": "FAIL: NOT_CONFIRMED_IN_BOTH_PERIODS",
+    "OBV_PRESSURE": "FAIL: NOT_CONFIRMED_IN_BOTH_PERIODS",
+    "INSIDE_DAY_RELEASE": "FAIL: NOT_CONFIRMED_IN_BOTH_PERIODS"
+  },
+  "classification_validation": "NOT_PROVEN",
+  "live_or_finam_executed": false,
+  "code_sha256": {
+    "v20_runtime/market_ranges.py": "9ed629f3075d7efeda125c7b774947675e8ef310ef36226162f2e1463d8c9ede",
+    "v20_runtime/market_outcome_research.py": "18e9cc811d18ce774e0a2e03ea5df8e4ceee4879ef90fd77d15a4469e588c1a0",
+    "v20_runtime/market_suitability_cli.py": "4ae57f3d14ddf037906a01a9a61c2ffeab04f54129f0168bed4aefa6b2f1fe02",
+    "v20_runtime/tests/test_market_ranges.py": "34d5e817a540202db3e573f1a05bb9ff10cea4cb54026381b44f9e3e070aa8d6"
+  },
+  "artifact_sha256": {
+    "V20-04/MARKET_CARD_RANGES_PROTOCOL_RU.md": "a880daab3a4bae5570f99e4264adcab2330cdf37414b497acd5013ce5604cc36",
+    "V20-04/MARKET_CARD_TYPICAL_RANGES.json": "3fc2e3ef7d97268dabb66b2b18bc48fd24c2c672d28e2c5ce400f432b43a32f7",
+    "V20-04/MARKET_CARD_RANGES_FINAL.csv": "fd9159d55c050082b5a654cb6bfdc7499362405ee7b766d09b3ac55e70f6f20a"
+  }
+}

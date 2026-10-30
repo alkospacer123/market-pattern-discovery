@@ -1,0 +1,561 @@
+{
+  "schema": "v20.08.real_acceptance.v1",
+  "as_of": "2026-10-27",
+  "source": "Intel URIU-PC owner FINAM history/order screenshots and exact operator stdout in conversation; not independent live API capture from GitHub",
+  "execution": "PASS_3_OF_3_REAL_ENTRY_AND_PROVEN_BROKER_100_PERCENT_SLTP_MANUAL_FLAT",
+  "accounting": "ACCEPTED_WITH_TARIFF_RESERVE_ACTUAL_FEES_TO_BE_OBSERVED_ON_FUTURE_LIVE_TRADES",
+  "automated_live": "PASS_INSTALLED_H1_PARITY_RUNTIME_3_OF_3_RUNNING_HALTED_FINAM_FLAT_NO_NEW_ENTRIES_AWAIT_CONTROL_CENTER_AND_NEXT_APPROVED_LIVE_CYCLE",
+  "strategy_timing": "FROZEN_M15_LIVE_TASKS_ARMED_NEXT_OPEN_STRATEGIC_FILL_NOT_YET_OBSERVED",
+  "market": "CNYRUBF",
+  "contract_economics": {
+    "tick_size": "0.001",
+    "tick_value_rub": "1",
+    "quantity_per_trial": 1,
+    "source": "H1 TradingSystemLab/stage8_robot/production_instrument_registry.csv"
+  },
+  "risk_guard": {
+    "per_account_risk": "1.5% realized equity",
+    "technical_full_roundtrip_cost_per_contract_rub": "2.02",
+    "original_h1_stop_grid": "UNCHANGED",
+    "initial_stop": "2x ATR14 Wilder",
+    "risk_realized_live_not_observed": true
+  },
+  "robots": {
+    "v20-shallow": {
+      "result": "PASS_REAL_ENTRY_STOP_PROVEN_100_PERCENT_MANUAL_FLAT",
+      "execution_type": "TECHNICAL_ACCEPTANCE_NOT_STRATEGY_SIGNAL",
+      "history": {
+        "buy": "12.101",
+        "sell": "12.100",
+        "gross_rub": "-1"
+      },
+      "source_commit": "91e85ca434eb28618e5d9053870118b36e7c925a",
+      "test_report": "PASS_2_OF_2_PINNED_FAKE_PLUS_FINAM_REAL",
+      "proof": [
+        "PASS_PRIOR_REAL_POST_PRESERVED_BROKER_FLAT",
+        "ENTRY_ACK_NEEDS_FILL_AND_STOP",
+        "STOP_ACK_NEEDS_BROKER_PROOF",
+        "STOP_NOW_BROKER_PROVEN",
+        "TECHNICAL_SLTP_CONFIRMED_AWAIT_MANUAL_CLOSE",
+        "MANUAL_EXIT_BROKER_FLAT_UNDER_ACCEPTANCE"
+      ],
+      "first_attempt": "BROKER_ORDER_MISMATCH_THEN_OWNER_MANUAL_FLAT_PRESERVED_ORIGINAL_SQLITE",
+      "second_attempt": "NEW_ONE_TIME_SQLITE_AND_PERMIT",
+      "terminal_open_orders": 0,
+      "terminal_stop_status": "CANCELLED_AFTER_OWNER_EXIT",
+      "commission_rub": null
+    },
+    "v20-obv": {
+      "result": "PASS_REAL_ENTRY_STOP_PROVEN_100_PERCENT_MANUAL_FLAT",
+      "execution_type": "TECHNICAL_ACCEPTANCE_NOT_STRATEGY_SIGNAL",
+      "history": {
+        "buy": "12.098",
+        "sell": "12.089",
+        "gross_rub": "-9"
+      },
+      "proof": [
+        "ENTRY_ACK_NEEDS_FILL_AND_STOP",
+        "STOP_ACK_NEEDS_BROKER_PROOF",
+        "STOP_NOW_BROKER_PROVEN",
+        "TECHNICAL_SLTP_CONFIRMED_AWAIT_MANUAL_CLOSE",
+        "MANUAL_EXIT_BROKER_FLAT_UNDER_ACCEPTANCE"
+      ],
+      "terminal_open_orders": 0,
+      "terminal_stop_status": "CANCELLED_AFTER_OWNER_EXIT",
+      "commission_rub": null
+    },
+    "v20-inside": {
+      "result": "PASS_REAL_ENTRY_STOP_PROVEN_100_PERCENT_MANUAL_FLAT",
+      "execution_type": "TECHNICAL_ACCEPTANCE_NOT_STRATEGY_SIGNAL",
+      "history": {
+        "buy": "12.092",
+        "sell": "12.092",
+        "gross_rub": "0"
+      },
+      "proof": [
+        "ENTRY_ACK_NEEDS_FILL_AND_STOP",
+        "STOP_ACK_NEEDS_BROKER_PROOF",
+        "STOP_NOW_BROKER_PROVEN",
+        "TECHNICAL_SLTP_CONFIRMED_AWAIT_MANUAL_CLOSE",
+        "MANUAL_EXIT_BROKER_FLAT_UNDER_ACCEPTANCE"
+      ],
+      "terminal_open_orders": 0,
+      "terminal_stop_status": "CANCELLED_AFTER_OWNER_EXIT",
+      "commission_rub": null
+    }
+  },
+  "gross_result_rub": "-10",
+  "limitations": [
+    "Stop triggers/execution were not tested: broker SLTP 100% active/proven and then manually cancelled after owner flattening",
+    "Historical technical-trial commissions not individually reconciled by explicit owner decision; the 2.02 RUB budget is a reserve, not measured fees",
+    "Technical exception entry is not proof of frozen strategy LIVE NEXT_OPEN execution",
+    "First autonomous frozen signal, FINAM fill and resulting broker-proven SLTP in production are not yet observed; technical trial SLTP 3/3 remains separate",
+    "PowerShell windows appear on the operator desktop because original Windows Tasks are Interactive; do not close them while LIVE; background UI treatment requires its own safe, flat-account Task restart.",
+    "27.10.2026: recovery v3 confirmed LIVE_RUNNING_ARMED_FRESH_3_OF_3, but no autonomous frozen strategy trade/stop trigger yet; watch actual broker reports at first strategy fill, no artificial tests.",
+    "Original 05:00 simultaneous FINAM server-error endpoint was not logged; source code fixed H1-style fault/retry loop, but exact upstream FINAM response path remains unknown."
+  ],
+  "roadmap": {
+    "08.1": "PASS_PRETRADE_INTEL",
+    "08.2": "PASS_3_OF_3_BROKER_EXECUTION_SLTP_MANUAL_EXIT",
+    "08.3": "PASS_OWNER_ACCEPTED_TECHNICAL_3_OF_3_AND_TARIFF_COST_MODEL",
+    "08.4": "PASS_INTEL_3_OF_3_RUNNING_ARMED_HEALTHY_FRESH_CYCLE",
+    "08.5": "PASS_INTEL_3_OF_3_GET_ONLY_FLAT_SQLITE_BACKUP_H1_RETRY_PATCH_RUNNING_ARMED_FRESH_CYCLES"
+  },
+  "acceptance_report": "V20-08/ACCEPTANCE_08_3_RU.md",
+  "actual_commission_verification": {
+    "status": "OWNER_ACCEPTED_NO_ADDITIONAL_FEE_RECONCILIATION_FOR_08_3",
+    "method": "Use existing full roundtrip tariff/risk reserve. Observe actual fees on later LIVE trades.",
+    "net_pnl_rub": null
+  },
+  "owner_decision": "2026-10-26: accept 08.3 without checking individual technical trial fee debits; use full tariff and costs in live sizing, record actuals on future live trades",
+  "live_activation_08_4": {
+    "source": "Intel URIU-PC owner PowerShell exact task, kill switch and fresh cycle readings on 2026-10-26",
+    "status": "PASS_3_OF_3_RUNNING_ARMED_HEALTHY",
+    "cutover": "PASS_ACTIVATED_3_OF_3_TASKS_FRESH_CYCLES_AND_FINAM_READONLY",
+    "tasks": {
+      "v20-shallow": {
+        "task": "Running",
+        "kill_switch": "ARMED",
+        "last_cycle": "WAIT_NEXT_M15_OPEN",
+        "age_sec": 9,
+        "healthy": true
+      },
+      "v20-obv": {
+        "task": "Running",
+        "kill_switch": "ARMED",
+        "last_cycle": "WAIT_NEXT_M15_OPEN",
+        "age_sec": 2,
+        "healthy": true
+      },
+      "v20-inside": {
+        "task": "Running",
+        "kill_switch": "ARMED",
+        "last_cycle": "WAIT_NEXT_M15_OPEN",
+        "age_sec": 25,
+        "healthy": true
+      }
+    },
+    "execution_scope": "LIVE_AUTHORIZED_BUT_NO_FROZEN_NEXT_OPEN_FILL_YET_OBSERVED",
+    "h1_modified": false,
+    "intradaylab_m15_modified": false,
+    "historical_acceptance_preserved": true,
+    "current_status": "RECOVERED_2026_10_27_3_OF_3_RUNNING_ARMED_FRESH_CYCLES"
+  },
+  "live_failure_2026_10_27": {
+    "observed_msk": "2026-10-27 05:00",
+    "source": "Intel operator v20-08.5 check stdout from owner",
+    "robots": {
+      "v20-shallow": {
+        "task": "Ready",
+        "kill_switch": "HALTED",
+        "last_state": "HALT_FinamServerError",
+        "last_utc": "2026-10-27T02:00:11.357212+00:00"
+      },
+      "v20-obv": {
+        "task": "Ready",
+        "kill_switch": "HALTED",
+        "last_state": "HALT_FinamServerError",
+        "last_utc": "2026-10-27T02:00:27.029675+00:00"
+      },
+      "v20-inside": {
+        "task": "Ready",
+        "kill_switch": "HALTED",
+        "last_state": "HALT_FinamServerError",
+        "last_utc": "2026-10-27T02:00:22.887663+00:00"
+      }
+    },
+    "live_health": "FAIL_3_OF_3_READY_HALTED",
+    "backup": "NOT_ATTEMPTED_DUE_TO_CHECK_FAILED",
+    "hypothesis": "H1 FinamServerError follows repeated GET >=500 or certain non-order POST/DELETE; exact endpoint unobserved; common FINAM service issue likely, not proven",
+    "fix": "Bounded suppression of FinamServerError/Timeout/RateLimit in readonly account snapshot and frozen M15 signal proposal only; uncertain order POST/SLTP/exit still emergency HALT",
+    "recovery": "V20 only pinned repair script with FINAM GET-only three-account flat preflight, SQLite online backup before any code change, exact hash upgrade then broker-clean Task rearm",
+    "recovery_executed_on_intel": true,
+    "recovery_first_attempt": {
+      "source": "Owner Intel Windows PowerShell output",
+      "checked": "PASS_3_OF_3_HALTED_READY_SOURCE_PINNED",
+      "finam_get_only_flat": "PASS_3_OF_3",
+      "backup": "FAIL_WIN_POWERSHELL_51_PYTHON_C_QUOTING",
+      "installed_code_changed": false,
+      "windows_tasks_changed": false,
+      "orders_created": false,
+      "correction": "Pinned V20-only recovery uses a temporary .py for SQLite online backup, then replaces V20 module with H1 ProductionService.run-style 3-second fault retry; Windows PowerShell 5.1 offline mock test added",
+      "intel_recovery_pending": true
+    },
+    "recovery_final": {
+      "completed_at_utc_approx": "2026-10-27T06:17:06Z",
+      "evidence_source": "User-provided exact native Windows PowerShell stdout; no independent remote Intel inspection",
+      "source_script_blob": "1a813bb93f8ff0ebf5b9aa4b1ec636d61125e7f5",
+      "source_script_local_name": "v20-08-finam-read-recovery-v3.ps1",
+      "preflight": "PASS_3_OF_3_HALTED_READY_SOURCE_PINNED",
+      "finam_before": "PASS_GET_ONLY_FLAT_3_OF_3",
+      "sqlite_backup": "PASS_3_OF_3_SQLITE_SNAPSHOT",
+      "sqlite_backup_path": "C:\\V20Lab\\backup-08\\v20-live-20261027T061706Z",
+      "patch": "PASS_H1_RETRY_SOURCE_AND_LAUNCHER",
+      "finam_after": "PASS_GET_ONLY_FLAT_3_OF_3",
+      "activation": "PASS_RUNNING_ARMED_3_OF_3",
+      "poststart": "PASS_3_OF_3_RUNNING_ARMED_FRESH_CYCLES",
+      "installed_live_module_blob": "e39a00267c91ea35dbe83d27b26d6b62179b2429",
+      "installed_launcher_blob": "5193f70e2c5663077e35653b89f4c28201ff04cb",
+      "installed_operator_blob": "e0fd05423899a02fee5861a176b0f72f7ee3bf5c",
+      "h1_main_untouched": true,
+      "intradaylab_m15_untouched": true,
+      "active_strategy_broker_stop_proof": "NOT_YET_OBSERVED"
+    }
+  },
+  "portable_disaster_backup_2026_10_27": {
+    "status": "PASS_EXPORT_AND_SQLITE_BACKUP_ON_INTEL",
+    "source": "Owner PowerShell stdout 27 Oct 2026, not independently restored archive",
+    "zip": "C:\\Users\\alkos\\downloads\\V20_FULL_OFFLINE_BACKUP_20261027T071840Z.zip",
+    "sha256": "6abfc449bd399f72007cea8765ca03cda1f70ad8a4e45b703cc1c598975b9ce6",
+    "sqlite_snapshot_source": "C:\\V20Lab\\backup-08\\v20-live-20261027T071839Z",
+    "sqlite_snapshot_results": {
+      "v20-shallow": "PASS",
+      "v20-obv": "PASS",
+      "v20-inside": "PASS"
+    },
+    "files_exported": {
+      "documentation_and_operations": 26,
+      "v20_live_source": 18,
+      "h1_runtime_library": 71,
+      "v20_live_scripts": 8
+    },
+    "pinned_source_check": "PASS_4_PINNED_FILES",
+    "plaintext_or_dpapi_exported": false,
+    "live_state_modified": false,
+    "limitations": [
+      "Only point-in-time snapshot; future LIVE writes not included",
+      "New PC FINAM token needs new SID/DPAPI binding",
+      "Python dependencies not packaged as installed portable runtime",
+      "Restoration and external encrypted copy not physically tested"
+    ],
+    "additional_evidence": "V20-08/PORTABLE_BACKUP_ACCEPTANCE_20261027.json"
+  },
+  "live_health_2026_10_27_10_48_msk": {
+    "status": "FAIL_PARTIAL_2_OF_3_OBV_HALTED",
+    "evidence": "Owner Intel local V20-08.5 CHECK output, does NOT independently read FINAM or SQLite",
+    "observed_utc": "2026-10-27T07:48:22.962586+00:00",
+    "robots": {
+      "v20-shallow": {
+        "task": "Running",
+        "kill_switch": "ARMED",
+        "cycle": "PASS",
+        "healthy": true,
+        "logged_attempts": 860
+      },
+      "v20-obv": {
+        "task": "Running",
+        "kill_switch": "HALTED",
+        "cycle": "FAIL",
+        "code": "HALT_V20_LIVE_POST_FILL_RISK_HALTED",
+        "healthy": false,
+        "logged_attempts": 1103
+      },
+      "v20-inside": {
+        "task": "Running",
+        "kill_switch": "ARMED",
+        "cycle": "PASS",
+        "healthy": true,
+        "logged_attempts": 854
+      }
+    },
+    "broker_open_position": "FINAM_GET_1_USDRUBF_SHORT_2_MATCHED_OWNER_SCREENSHOT",
+    "broker_active_sltp": "FINAM_GET_ACTIVE_ORDER_1_OWNER_APP_ACTIVE_SLTP_100_PERCENT_80_92",
+    "durable_execution_halt_reason": "UNKNOWN_POST_REQUIRE_BROKER_RECONCILIATION",
+    "protective_order_note": "Code observed_protected_entry checks active matching 100% stop before post-fill HALT, but recent broker state is NOT proven by local log",
+    "operational_rule": "NO START, RESTART, ARM, FULL STOP or stop cancellation for OBV until owner FINAM READONLY + SQLite risk reason and active SLTP are verified.",
+    "code_issue": "Current V20 record_submission_boundary unconditionally stores UNKNOWN_POST_REQUIRE_BROKER_RECONCILIATION; no clear after proven broker order + fill + 100% stop found in deployed source. A minimal conditional release is prepared only in draft PR, not installed.",
+    "draft_fix_blob": "47cf12adf0ae7d7ada33c2ebe56840678777c7fb",
+    "diagnostic_script_blob": "3d71194b27b063db3448a8144aa634b582325453",
+    "next_step": "One-time minimal OBV stale checkpoint resolution WITHOUT rearm/restart/stop/order cancellation only after current broker GET-only and repeating broker protection proof; worker stays HALTED and may manage frozen third-session exit. Do not update loaded live code while position remains open.",
+    "owner_followup_evidence": {
+      "screenshot": "FINAM owner app, USDRUBF SHORT 2 at 80.62, active stop 100% trigger 80.92",
+      "broker_readonly": "PASS_ACCOUNT_BOUND_POSITIONS_1_ACTIVE_ORDERS_1_ORDER_POSTS_ZERO",
+      "sqlite_identity": "PASS_OBV",
+      "entry": "USDRUBF SHORT 2 RECONCILED at 2026-10-27T10:30:00 MSK",
+      "stop": "ACK, installed 80.92, 100 percent, conforms to projected 2ATR",
+      "risk": {
+        "status": "PASS",
+        "actual_rub": "616.68",
+        "limit_per_trade_rub": "674.83470",
+        "account_cap_rub": "2699.3388"
+      },
+      "halt": "UNKNOWN_POST_REQUIRE_BROKER_RECONCILIATION",
+      "observed_log": "HALT_V20_LIVE_POST_FILL_RISK_HALTED repeated",
+      "other_robots": "Owner set Shallow and Inside HALTED_NEW_ENTRIES_WORKER_UNTOUCHED"
+    },
+    "incident_only_recovery_script": "V20-08/v20-08-obv-settled-post-recovery.py"
+  },
+  "live_two_gld_entries_2026_10_27": {
+    "source": "Owner four FINAM app screenshots at 11:05 and 11:15 MSK, as provided in V20 conversation",
+    "evidence": "Two different FINAM accounts hold GLDRUBF SHORT 13 each, one stop order each shown ACTIVE 100%",
+    "account_mapping": "Shallow/Inside likely from separate accounts, not independently verified by V20 SQLite identity",
+    "entry_1": {
+      "symbol": "GLDRUBF",
+      "direction": "SHORT",
+      "quantity": 13,
+      "approx_entry": "10361.4",
+      "active_stop": "10408.0",
+      "stop_record_time_msk": "11:00:17"
+    },
+    "entry_2": {
+      "symbol": "GLDRUBF",
+      "direction": "SHORT",
+      "quantity": 13,
+      "approx_entry": "10361.6",
+      "active_stop": "10408.2",
+      "stop_record_time_msk": "11:00:35"
+    },
+    "cross_strategy_same_boundary": "Possible and permitted by independent M15 accounts, frozen signal replay pending",
+    "requested_pause": "Owner reported stop commands for v20-shallow and v20-inside PASS HALTED_NEW_ENTRIES_WORKER_UNTOUCHED; pause command execution time was not logged in output",
+    "safety_open_question": "Verify actual SQLite entry_submission UTC occurred BEFORE kill switch updated_utc, and actual order/position SLTP broker identity. If after, immediate cross-robot pause gate defect.",
+    "common_prepost_halt": "Both may encounter known stale UNKNOWN_POST_REQUIRE_BROKER_RECONCILIATION. No code patch installed; future automatic third-session exit may be blocked if durable halt persists.",
+    "diagnostic": "V20-08/v20-08-multi-position-readonly.py read-only state/intent/log timestamps for all three",
+    "broker_readonly": "NOT_YET_INDEPENDENTLY_RECHECKED_AFTER_SCREENSHOTS",
+    "current_worker_health": "NOT_YET_RECHECKED_AFTER_11_00",
+    "risk_assessment": "NOT_YET_RETRIEVED_FROM_SQLITE"
+  },
+  "live_failure_all_three_postfill_2026_10_27": {
+    "status": "FAIL_ALL_THREE_DURABLE_PRE_POST_MARKER_NOT_CLEARED",
+    "evidence": "Owner 27.10.2026 full multi-readonly SQLite and FINAM read-only outputs, 1 broker position and 1 active broker order per robot, 0 POST by readonly",
+    "observed_utc_approx": "2026-10-27T08:29:54Z",
+    "robots": {
+      "v20-shallow": {
+        "instrument": "GLDRUBF",
+        "side": "SHORT",
+        "qty": 13,
+        "stop": "10408.0",
+        "actual_risk_rub": "653.52",
+        "single_trade_cap_rub": "674.9826",
+        "risk": "PASS",
+        "last_log": "HALT_V20_LIVE_POST_FILL_RISK_HALTED",
+        "new_entries": "HALTED"
+      },
+      "v20-obv": {
+        "instrument": "USDRUBF",
+        "side": "SHORT",
+        "qty": 2,
+        "stop": "80.92",
+        "actual_risk_rub": "616.68",
+        "single_trade_cap_rub": "674.83470",
+        "risk": "PASS",
+        "last_log": "HALT_V20_LIVE_POST_FILL_RISK_HALTED",
+        "new_entries": "HALTED"
+      },
+      "v20-inside": {
+        "instrument": "GLDRUBF",
+        "side": "SHORT",
+        "qty": 13,
+        "stop": "10408.2",
+        "actual_risk_rub": "652.62",
+        "single_trade_cap_rub": "674.96970",
+        "risk": "PASS",
+        "last_log": "HALT_V20_LIVE_POST_FILL_RISK_HALTED",
+        "new_entries": "HALTED"
+      }
+    },
+    "root_cause": "V20 record_submission_boundary writes H1-style durable UNKNOWN_POST_REQUIRE_BROKER_RECONCILIATION; V20 observer did not clear this specific marker after FINAM broker exact fill + active SLTP100% + actual risk PASS (while preserving genuinely uncertain errors).",
+    "draft_runtime_fix": "V20_TradingSystem_M15/v20_runtime/finam_execution.py blob 47cf12adf0ae7d7ada33c2ebe56840678777c7fb not deployed on Intel",
+    "one_time_incident_only_recovery": "V20-08/v20-08-three-protected-post-recovery.py blob aeaab958f711cb39a2386f9c4700056b77b76b5a",
+    "windows_ci": "40474767269 SUCCESS",
+    "intel_execution": "PASS_3_OF_3_OWNER_EVIDENCE_ONE_KEY_ONLY_2026-10-27T08:44Z",
+    "instructions": "All 3 tasks remain running, all 3 kill switches HALTED. Backup SQLite first; on each robot verify fresh broker GET and strict completed fill/stop/risk proof; atomically clear one resolved UNKNOWN_POST marker; DO NOT arm/stop/restart/cancel and keep frozen strategy unchanged; verify trailing logs. Never activate new entries with old installed runtime.",
+    "incident_recovery_result": {
+      "status": "PASS_3_OF_3_EXISTING_POSITION_FOLLOWUP_RESTORED_SWITCH_HALTED",
+      "evidence": "Owner Intel PowerShell 2026-10-27, recovery script output and first post-fix live-m15.jsonl records",
+      "backup": {
+        "status": "PASS_3_OF_3_SQLITE_SNAPSHOT",
+        "path": "C:\\V20Lab\\backup-08\\v20-live-20261027T084345Z"
+      },
+      "source_blob": "aeaab958f711cb39a2386f9c4700056b77b76b5a",
+      "robots": {
+        "v20-shallow": {
+          "finam": "PASS_GET_ONLY_ONE_POSITION_ONE_ORDER_NO_POST",
+          "pre_existing_position_proof": "PASS_RECONCILED_ENTRY_AND_100_PERCENT_SLTP_PROOF_RISK_PASS",
+          "sqlite_update": "RESOLVED_ONLY_ONE_KEY",
+          "first_success_cycle": "2026-10-27T08:43:55.739626+00:00 HALTED_NO_NEW_ENTRIES"
+        },
+        "v20-obv": {
+          "finam": "PASS_GET_ONLY_ONE_POSITION_ONE_ORDER_NO_POST",
+          "pre_existing_position_proof": "PASS_RECONCILED_ENTRY_AND_100_PERCENT_SLTP_PROOF_RISK_PASS",
+          "sqlite_update": "RESOLVED_ONLY_ONE_KEY",
+          "first_success_cycle": "2026-10-27T08:44:03.467170+00:00 HALTED_NO_NEW_ENTRIES"
+        },
+        "v20-inside": {
+          "finam": "PASS_GET_ONLY_ONE_POSITION_ONE_ORDER_NO_POST",
+          "pre_existing_position_proof": "PASS_RECONCILED_ENTRY_AND_100_PERCENT_SLTP_PROOF_RISK_PASS",
+          "sqlite_update": "RESOLVED_ONLY_ONE_KEY",
+          "first_success_cycle": "2026-10-27T08:44:07.881083+00:00 HALTED_NO_NEW_ENTRIES"
+        }
+      },
+      "notes": [
+        "No code files installed, no Windows Task stop/restart, no Kill Switch ARM; all workers continue with HALTED gate.",
+        "Existing positions and broker stops not cancelled/replaced/reposted.",
+        "Post-fix HALTED_NO_NEW_ENTRIES proves first normal cycle passed `_follow_existing` and reached entry prohibition, not yet proves eventual frozen third-session or broker stop fill.",
+        "The common permanent code fix is only in Draft PR #567 finam_execution.py blob 47cf12adf0ae7d7ada33c2ebe56840678777c7fb; do not restart or ARM any robot with old installed runtime.",
+        "Treat old FAIL/HALTED incident records above as historical, not current recovery status.",
+        "Current independent live broker state after these cycles and future position exit not independently verified."
+      ]
+    }
+  },
+  "current_situation_2026_10_27_0844_utc": {
+    "status": "PASS_3_OF_3_EXISTING_POSITION_FOLLOWUP_RESTORED_SWITCH_HALTED",
+    "evidence": "Owner Intel PowerShell 2026-10-27, recovery script output and first post-fix live-m15.jsonl records",
+    "backup": {
+      "status": "PASS_3_OF_3_SQLITE_SNAPSHOT",
+      "path": "C:\\V20Lab\\backup-08\\v20-live-20261027T084345Z"
+    },
+    "source_blob": "aeaab958f711cb39a2386f9c4700056b77b76b5a",
+    "robots": {
+      "v20-shallow": {
+        "finam": "PASS_GET_ONLY_ONE_POSITION_ONE_ORDER_NO_POST",
+        "pre_existing_position_proof": "PASS_RECONCILED_ENTRY_AND_100_PERCENT_SLTP_PROOF_RISK_PASS",
+        "sqlite_update": "RESOLVED_ONLY_ONE_KEY",
+        "first_success_cycle": "2026-10-27T08:43:55.739626+00:00 HALTED_NO_NEW_ENTRIES"
+      },
+      "v20-obv": {
+        "finam": "PASS_GET_ONLY_ONE_POSITION_ONE_ORDER_NO_POST",
+        "pre_existing_position_proof": "PASS_RECONCILED_ENTRY_AND_100_PERCENT_SLTP_PROOF_RISK_PASS",
+        "sqlite_update": "RESOLVED_ONLY_ONE_KEY",
+        "first_success_cycle": "2026-10-27T08:44:03.467170+00:00 HALTED_NO_NEW_ENTRIES"
+      },
+      "v20-inside": {
+        "finam": "PASS_GET_ONLY_ONE_POSITION_ONE_ORDER_NO_POST",
+        "pre_existing_position_proof": "PASS_RECONCILED_ENTRY_AND_100_PERCENT_SLTP_PROOF_RISK_PASS",
+        "sqlite_update": "RESOLVED_ONLY_ONE_KEY",
+        "first_success_cycle": "2026-10-27T08:44:07.881083+00:00 HALTED_NO_NEW_ENTRIES"
+      }
+    },
+    "notes": [
+      "No code files installed, no Windows Task stop/restart, no Kill Switch ARM; all workers continue with HALTED gate.",
+      "Existing positions and broker stops not cancelled/replaced/reposted.",
+      "Post-fix HALTED_NO_NEW_ENTRIES proves first normal cycle passed `_follow_existing` and reached entry prohibition, not yet proves eventual frozen third-session or broker stop fill.",
+      "The common permanent code fix is only in Draft PR #567 finam_execution.py blob 47cf12adf0ae7d7ada33c2ebe56840678777c7fb; do not restart or ARM any robot with old installed runtime.",
+      "Treat old FAIL/HALTED incident records above as historical, not current recovery status.",
+      "Current independent live broker state after these cycles and future position exit not independently verified."
+    ]
+  },
+  "h1_mechanism_parity_code_review_2026_10_27": {
+    "status": "PASS_WINDOWS_CODE_LEVEL_ONLY_NOT_LIVE_DEPLOYED",
+    "source_h1_main": "6f352acfac7ebdfabba73e143c4dfea3a6e48507",
+    "branch_revision_verified": "e6b72c14977e5d08823b234979eb3f7da3ed60d3",
+    "windows_ci_run": "40478672855",
+    "windows_ci_result": "SUCCESS",
+    "windows_lifecycle_test_counts": [
+      28,
+      9,
+      2,
+      2
+    ],
+    "referenced_report": "V20-08/H1_EXECUTION_CONFORMANCE_20261027.md",
+    "patched_draft_live_executor_blob": "519710efffbedfdfc236e9c063c2c9dda6f475f5",
+    "patched_draft_execution_blob": "0d5ee2c6eb7195ec9f59aa82a2881bfb0a058827",
+    "covered": "pre-POST checkpoint resolved ONLY after exact broker+fill+100% stop+risk; partial 1-to-2 same H1 active stop ID with actual money recheck; flat cleanup after manual exit; terminal rejected/filled exit with broker exposure; error retry and non-repeating kill-switch generations",
+    "broker_calls": "ZERO_IN_OFFLINE_TEST",
+    "intel_live_deploy": "NOT_PERFORMED_DUE_TO_THREE_OPEN_POSITIONS_AND_HALTED_NEW_ENTRIES",
+    "forbidden_until": "ALL_ACCOUNTS_FINAM_GET_ONLY_FLAT_0_OPEN_POSITIONS_AND_0_ACTIVE_ORDERS_AND_BACKUP_AND_SCOPE_PINNED_PATCH",
+    "residual_limits": [
+      "H1 strategy uses H1/TRAIL1, V20 strategy uses frozen M15/NEXT_OPEN/third-session exit; these must not be made identical",
+      "Actual dynamic quantity at broker stop trigger after a partial 1-to-2 growth is not yet physically proved, H1 flags this as contractual but not physical proof",
+      "Production live existing frozen-trade exit result and actual commissions not yet verified on broker",
+      "Source-level offline proof is not physical production acceptance"
+    ]
+  },
+  "frozen_strategy_entry_signal_replay_20261027": {
+    "status": "PENDING_PHYSICAL_INTEL_GET_ONLY_HISTORICAL_REPLAY",
+    "reason": "Persisted ENTRY/stop/risk PASS proves broker executions and safety, not historical signal predicates; FINAM M15 completed bars at signal times must be replayed against frozen V20 AST.",
+    "immutable_research_sources": [
+      "research_original_v20/base.py",
+      "research_original_v20/run.py",
+      "research_original_v20/legacy_v4/study_v4.py",
+      "V20-03/offline/stress_v20_03.py"
+    ],
+    "actual_entries": [
+      {
+        "robot": "v20-obv",
+        "strategy": "OBV_PRESSURE",
+        "symbol": "USDRUBF",
+        "signal_bar_msk": "2026-10-27T10:15:00",
+        "entry_msk": "2026-10-27T10:30:00",
+        "side": "SHORT",
+        "quantity": 2
+      },
+      {
+        "robot": "v20-shallow",
+        "strategy": "SHALLOW_PULLBACK",
+        "symbol": "GLDRUBF",
+        "signal_bar_msk": "2026-10-27T10:45:00",
+        "entry_msk": "2026-10-27T11:00:00",
+        "side": "SHORT",
+        "quantity": 13
+      },
+      {
+        "robot": "v20-inside",
+        "strategy": "INSIDE_DAY_RELEASE",
+        "symbol": "GLDRUBF",
+        "signal_bar_msk": "2026-10-27T10:45:00",
+        "entry_msk": "2026-10-27T11:00:00",
+        "side": "SHORT",
+        "quantity": 13
+      }
+    ],
+    "reference_only_result": "Original frozen source remains unchanged and live execution persisted frozen strategy names, but target-date signal predicates have not yet been independently replayed on actual historical FINAM bars.",
+    "audit_python_blob": "619d8031645b6e07c1360a8d5865976954b1d23c",
+    "audit_powershell_blob": "b4d5b3cb560e866e92edf031be86b33cb8a7dad9",
+    "windows_static_checks": "40487143971 SUCCESS native Windows 5.1 PS syntax, Python AST, exact pin, synthetic historical as-of future bar filtering, no trade POST methods",
+    "intel_live_source_status": "Older pinned runtime 9ca194c61aa9db003d298fd1a3e93cc7f8bb23c4; newer draft fixes not installed. Keep worker processes running and all switches HALTED while positions remain open.",
+    "limitations": [
+      "Historical FINAM GET can differ from the original real-time broker history due later corrections or warmup-second cutoff. Log mismatch for investigation, not automatic LIVE state changes.",
+      "Broker GET historical candles requires current DPAPI-authorized token; script does not place trading orders and does not change SQLite, task or authorization."
+    ],
+    "pending": "User should run isolated historical GET-only audit on Intel and provide output; only then mark 3/3 frozen entry SIGNAL PASS or FAIL individually.",
+    "historical_data_note": "Replay includes only FINAM bars timestamped <= original 10:30/11:00+30sec; later-published next bar excluded. Signal still pending true Intel FINAM GET-only replay."
+  },
+  "h1_parity_flat_update_20261027": {
+    "status": "PASS_3_OF_3_INTEL_INSTALLED_RUNNING_HALTED_BROKER_FLAT",
+    "reason": "27 Oct three positions reported manually/automatically closed with stops removed; broker 3/3 flat not yet independently verified via host",
+    "installer": "V20-08/v20-08-h1-parity-flat-update.ps1",
+    "installer_blob": "70a6f71a8ffee5bcb599b9fd5f824e8253094829",
+    "frozen_h1_reference_commit": "6f352acfac7ebdfabba73e143c4dfea3a6e48507",
+    "draft_pr": 567,
+    "target_blobs": {
+      "finam_execution.py": "0d5ee2c6eb7195ec9f59aa82a2881bfb0a058827",
+      "finam_live.py": "519710efffbedfdfc236e9c063c2c9dda6f475f5",
+      "v20-08-live-launch.ps1": "93fc1ce4aded6c40453da14deb4846e10da1b14f"
+    },
+    "windows_ci": "40502106567 SUCCESS, including native Windows 5.1 parse, pin test and mock LIVE H1 parity regressions",
+    "requires": "Owner Intel -mode verify PASS_3_OF_3_FLAT_OLD_PINNED_RELEASE, then -mode install",
+    "procedure": "GET-only FINAM FLAT 3/3, HALTED3/3, SQLite online backups, download hashes BEFORE stopping tasks, stop ONLY V20 Tasks, verify no V20 python workers, patch 3 V20-only files, verify syntax/launcher/FINAM FLAT, start ONLY V20 Tasks still HALTED, verify fresh HALTED_NO_NEW_ENTRIES 3/3 and FINAM 0 positions 0 orders",
+    "orders_allowed": false,
+    "auto_arm": false,
+    "h1_or_intradaylab_m15_mutated": false,
+    "intel_install_result": "PASS_3_OF_3_NEW_H1_PARITY_RELEASE_RUNNING_HALTED_FINAM_FLAT_FROM_OWNER_PS_OUTPUT",
+    "followup": "After physical installation check durable flat_cleanup and no unrelated execution_halt; only after separate explicit authorization consider ARM. Do not repeat technical trading tests.",
+    "intel_operator_evidence": {
+      "verified_local_script_blob": "70a6f71a8ffee5bcb599b9fd5f824e8253094829",
+      "verify": "v20_update_verify=PASS_3_OF_3_FLAT_OLD_PINNED_RELEASE",
+      "pre_backup": "v20_08_5_backup=PASS path=C:\\V20Lab\\backup-08\\v20-live-20261027T122311Z",
+      "source_stage": "v20_update_new_blobs=PASS_3_OF_3_STAGED_BEFORE_TASK_STOP",
+      "install_code": "v20_update_blobs=PASS_3_OF_3_H1_PARITY_PINNED",
+      "launcher": "v20_update_launcher=PASS_3_OF_3_PINNED_NO_NETWORK",
+      "post_install_finam": [
+        "v20-shallow GET_ONLY_FLAT",
+        "v20-obv GET_ONLY_FLAT",
+        "v20-inside GET_ONLY_FLAT"
+      ],
+      "processes": [
+        "v20-shallow=PASS_RUNNING_HALTED_FRESH_NO_NEW_ENTRIES",
+        "v20-obv=PASS_RUNNING_HALTED_FRESH_NO_NEW_ENTRIES",
+        "v20-inside=PASS_RUNNING_HALTED_FRESH_NO_NEW_ENTRIES"
+      ],
+      "receipt": "v20_update_install=PASS_3_OF_3_NEW_H1_PARITY_RELEASE_RUNNING_HALTED_FINAM_FLAT",
+      "no_automatic_arm": "v20_update_auto_arm=NO"
+    },
+    "next_plan": {
+      "immediate": "ALL_3_REMAIN_HALTED_WHILE_OWNER_INSTALLS_CONTROL_CENTER_IN_SEPARATE_PROJECT",
+      "control_center": "Connect readonly status and test safe controls per separate Control Center project; do not automatically ARM/restart V20 from panel before owner returns",
+      "upon_return": "With owner approval, enable V20 trading and verify ONE natural full signal -> broker entry -> 100%-SLTP -> position management -> exit, comparing frozen rules and H1 mechanisms; no artificial shadow/multi-day stages.",
+      "after_full_live_cycle_pass": "Create new complete standalone encrypted portable FULL ZIP (source, PINs, manifest, docs, 3 online SQLite snapshots, Windows Task XML, restore runbook, archive checksum); update full passport, operator docs and disaster recovery guides",
+      "do_not_claim": "No full post-update trade roundtrip has been observed/approved, and no new FULL portable ZIP has been made from this updated release yet."
+    }
+  }
+}

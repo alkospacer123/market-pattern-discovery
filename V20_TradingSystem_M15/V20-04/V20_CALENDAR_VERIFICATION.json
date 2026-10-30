@@ -1,0 +1,82 @@
+{
+  "calculation": "PASS",
+  "capital_exclusion": "FAIL",
+  "tail_temporal_discrimination": "FAIL",
+  "unit_tests": {
+    "PASS": 20,
+    "FAIL": 0,
+    "SKIP": 0
+  },
+  "checks": {
+    "review_windows_and_rules": "PASS 1848 decisions, both 3/6m, strict completed prefix",
+    "frozen_model_admission_availability_cost_caps": "PASS all 9419 closed conditional records",
+    "common_baseline_trades": "PASS identical outcomes within serialized precision",
+    "monthly_and_annual_partition": "PASS 8820 monthly rows and 1152 annual scope rows",
+    "false_labels_pending_cost_and_episode_accounting": "PASS 69 EXCLUDE reviews / 50 nonoverlapping episodes / 30 FALSE; no duplicated interval cost",
+    "FP4_bounds_ambiguity_known_at_review_and_actual_large_closures": "PASS all 1120 quarter rows; no new OHLCV path audit",
+    "readonly_snapshot_no_future_evaluation": "PASS observation only, no trading integration",
+    "deterministic_rebuild": "PASS all 17 generated CSV/JSON/GZIP SHA256 identical; cached replay reused",
+    "frozen_engines_signals_runtime_card_N4_roadmap": "PASS 12 protected files byte-identical to input 669bad64",
+    "C1_only_no_unfinished_raw_path_access": "PASS new poison regression; all 17 generated data artifacts byte-identical"
+  },
+  "max_window_sum_error_R": 1.0499999092417056e-08,
+  "max_C1_error_R": 9.047617766100302e-09,
+  "common_trade_max_error_R": {
+    "BASELINE": 0.0,
+    "HALF_YEAR_6M": 1.000000082740371e-09,
+    "QUARTER_3M": 1.000000082740371e-09,
+    "QUARTER_3M_6M": 1.000000082740371e-09
+  },
+  "source_hashes": {
+    "V20-03/results/CLOSED_TRADES.csv": "8cf10bb3fc0228c1f3d41ed3f29b514af980960666e59d3428676af8edad0886",
+    "V20-03/comparison/DIAGNOSTIC_REPLAY_TRADES.csv": "9d9ac249b2b1961eead6ed6adf15d67a2e1fb498b7c323786b33777d3ba4067a",
+    "V20-03/comparison/QUOTE_PATH_DIAGNOSTICS.csv": "1f936dca02b9c99ed1df6ca30ef52c4c33128c9d06743175b6f5d6f59dee9c0f",
+    "V20-04/REGIME_EVENTS.csv": "35cf524fda42d025feec35a39c9605669fc532d6d1107b23b698ecff3d348a5b",
+    "V20-04/REGIME_TIMELINE.csv.gz": "2948516f32db3241a2002a64807d0ffc1b96406b7cee29cfa98097e0e50089db",
+    "V20-04/REGIME_ADDITIONAL_STATE_CHANGES.csv": "80d033a2a522d340bc5c4fd05d8fae75912de061ef24882f4ca82ec93603c7f0",
+    "V20-04/REGIME_SIGNAL_ASSIGNMENTS.csv.gz": "976e53accaf6c0f95d7ce1c88499528f67f5b79ef247a17c02c4aa2f2de845b2",
+    "V20-04/REGIME_FINAL_COMPARISON.json": "1371a65507f9678f06fee6205dd49e16269d348817ffaea1699bbce2fb95aa9e",
+    "V20-03/results/STATISTICS.csv": "b6e56ab0f18082d7ea32b126795630a23498d430e27d5da6f5b25e9e3be0ce9e",
+    "V20-03/results/SESSION_AUDIT.csv": "f3249c5a433231d2019fa24eccb1289da5e7a10514996026d2dbd6d678594d39",
+    "V20-03/results/CENSORED_CLOSED.csv": "bb69b3ca8d7d5719a85672b30f312a7d0f4398168e8510251e6233ec16d404aa",
+    "V20-04/V20_SUITABILITY_REPLAY_TRADES.csv.gz": "ae428e515a7636dc896c901911dba3dcafafddc38a275f83e2851aa17e1079e4",
+    "V20-04/V20_SUITABILITY_FINAL_RU.md": "a95ccb5b2a2b7d83d22360989465c0b9a21cd1d58d3242545e1794301a615bc1",
+    "V20-02_AUDIT/replay_independent.py": "cca6683954f9400bbc6e0c9f4070ea1cf687593fe61c71dd5ab0d2159d5a443a",
+    "V20-03/offline/stress_v20_03.py": "0800f41fed4f6ad3749a0eb9987970a8d954c1682c18cd2c8eecdab7b50c91d0",
+    "V20-03/results/ROLL_DECISIONS.csv": "8ed580d15de0a87b3e1404cc56abba972de593648caba198a4ca3618a9cdfb5a",
+    "research_original_v20/base.py": "b7b9df00f8d7fb0a88c5cba103034e5a2335c108ae283258e5d8ebd5476aa59d",
+    "research_original_v20/run.py": "223545374f98d8c87cf2c09b3a7302b05b07020dc8bf34b5984ebaa3d74389fe",
+    "research_original_v20/legacy_v4/study_v4.py": "0f49432e207235f631807a82536f521751ad5559cc374fc6c42f8ca4f289bd08",
+    "research_original_v20/legacy_v4/dependencies/study.py": "68a4169a80870cfd10537aa896ea0b3bcd8b3baf9803240d7d7a48b78ba485ff",
+    "external/USDRUBF_M15.csv": "fef80630080a4e2a5e968d620b663f51acd1b7ab9d5d326a42c68cf2b80c67b8",
+    "external/CNYRUBF_M15.csv": "259298733d1528c0d917b100118896009519a9f08bdad33d4b373d9ce86f99b4",
+    "external/GLDRUBF_M15.csv": "7381d672485b5687ca2c4d92aa5960c24bb132f527589bae3c622b2dfa20a83d",
+    "external/IMOEXF_M15.csv": "a1b9fa6102a955103d61b28e81533ed19de68117e30fd84ceb53e8e617559773",
+    "external/2018-2022.zip": "df1aaf4d23757d18689dfdf61d6fc1ec77f0b26ae7d8af1193322d460707888a",
+    "V20-04/V20_CALENDAR_REVIEW_PROTOCOL_RU.md": "4a49569ebc21099ae334e27565c6f0a5bb31768c1338c17b383c0079b32247cf"
+  },
+  "reused_checks": {
+    "previous_169_tests": "SKIP unchanged mechanisms, existing receipt reused",
+    "prior_4431_path_audit": "SKIP unchanged SHA",
+    "original_late_row_parity": "SKIP original ledger absent",
+    "FINAM_H1_LIVE_Windows": "SKIP not accessed"
+  },
+  "audited_artifact_sha256": {
+    "V20_CALENDAR_READONLY_SNAPSHOT.csv": "985434c0b8b5524c1ede240346b0bbb4e4af58ee1ee596a8bee2d023da36f117",
+    "V20_CALENDAR_LARGE_MOVES_BY_QUALITY.csv": "adcb6aeacb00edff991aeb022146e9bce175ad7c239fb45a7787a2cd70337484",
+    "V20_CALENDAR_LARGE_MOVES_EPOCHS.csv": "47ae4086b42b20bafc876602d4c9ab522e1504c74662d3007cbfa7c731fd1452",
+    "V20_CALENDAR_CROSS_MARKET.csv": "cb6577f327898e3927e806d7ff43be27348b9050b5babe4e0d1ffb3b3c8d244c",
+    "V20_CALENDAR_FALSE_EXCLUSIONS.csv": "8bd89e9e0885cf4c5bcb26adc30e36a0cc52b12e90b351c8ae0c3eea75be9039",
+    "V20_CALENDAR_REVIEW_QUARTERLY.csv": "7040b666164a985384a61f5bd008aa5c6d04650c5e4e27da25110b43a4df2a60",
+    "V20_CALENDAR_REVIEW_HALFYEAR.csv": "77e452d55fcec65728e754438b7d562f1a6119a0b1e1e999784de39acb31dd16",
+    "V20_CALENDAR_LARGE_MOVES_RECOVERIES.csv": "f0b375c05667fed5daf1fb70bd5abd1bc980299ca972f0cb05dd5cf23d353330",
+    "V20_CALENDAR_MONTHLY.csv": "d82d7a260b1af2fd4a5bcb7603f72dddd59656d0b6767cd4de9b0fa704459e8e",
+    "V20_CALENDAR_REPLAY_TRADES.csv.gz": "dd09418c0b61303c49b8a2ee17704165eb5fa1458890c3672dbdedbf97928b1e",
+    "V20_CALENDAR_LARGE_MOVES_QUARTERLY.csv": "93d912244b122c91b64210f23b3ecfb57c595a9dfc1c2efa225cf6dbbec42a50",
+    "V20_CALENDAR_ANNUAL.csv": "ab87aa1a93997b26c53e5f6d2568c98af25340a1043007ae6491eaea55e537e3",
+    "V20_CALENDAR_BASELINE_QUARTERS.csv": "810973f411bbf8abc34e58804d88f6e701ee56c87a9c40095bfdbebb43e5b051",
+    "V20_CALENDAR_DETECTIONS.csv": "1d74fd209043ccca7f0ad231188a81009743e95e77152925d6ff15f994e33b73",
+    "V20_CALENDAR_EXCLUSION_EPISODES.csv": "bcd9786bdb2b94c7329f5fc3ef74f24252c5e193a50995f217ba27d1e8c8ba01",
+    "V20_CALENDAR_REPLAY_COMPARISON.csv": "d24255919be2abd0d27b74cd475c8e9cbd730ec047a74e3db988c2c15bfbcb40"
+  }
+}

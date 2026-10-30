@@ -1,0 +1,22 @@
+{
+  "schema": "v20.regime_verification.v1",
+  "runtime_unittest": {
+    "passed": 130,
+    "failed": 0,
+    "skipped": 0,
+    "local_not_ci": true
+  },
+  "new_targeted_tests": 12,
+  "source_endpoint_checks": 4431,
+  "new_stop_touch_checks": 3990,
+  "independent_timeline_count_mean_availability_checks": 10726,
+  "source_provenance": "PASS",
+  "protected_files_unchanged": "PASS",
+  "deterministic_gzip_header": "PASS",
+  "protocol_sha": "PASS",
+  "reliability": "FAIL",
+  "combination": "SKIP_FIXED_GATE",
+  "finam_windows_live": "SKIP_NOT_RUN",
+  "full_n4_parity": "NOT_COMPLETED",
+  "independent_oos": false
+}

@@ -1,0 +1,115 @@
+{
+  "schema": "v20.calendar_review.artifact_manifest.v1",
+  "input_head": "669bad64e8633bdbbcee3b500330b7a2b6c7fdc5",
+  "main": "6f352acfac7ebdfabba73e143c4dfea3a6e48507",
+  "calculation": "PASS",
+  "capital_exclusion": "FAIL",
+  "tail_temporal_discrimination": "FAIL",
+  "readonly_choice": "QUARTER_3M_6M_OBSERVATION_ONLY",
+  "artifacts": {
+    "V20_TradingSystem_M15/V20-04/README_RU.md": {
+      "bytes": 30486,
+      "sha256": "bf8b4530518a18a393af4d8f20b5c380089b105ad0fcbf12e2485d006dec915a"
+    },
+    "V20_TradingSystem_M15/V20-04/V20_CALENDAR_ANNUAL.csv": {
+      "bytes": 190691,
+      "sha256": "ab87aa1a93997b26c53e5f6d2568c98af25340a1043007ae6491eaea55e537e3"
+    },
+    "V20_TradingSystem_M15/V20-04/V20_CALENDAR_BASELINE_QUARTERS.csv": {
+      "bytes": 112211,
+      "sha256": "810973f411bbf8abc34e58804d88f6e701ee56c87a9c40095bfdbebb43e5b051"
+    },
+    "V20_TradingSystem_M15/V20-04/V20_CALENDAR_CROSS_MARKET.csv": {
+      "bytes": 8256,
+      "sha256": "cb6577f327898e3927e806d7ff43be27348b9050b5babe4e0d1ffb3b3c8d244c"
+    },
+    "V20_TradingSystem_M15/V20-04/V20_CALENDAR_DETECTIONS.csv": {
+      "bytes": 3006,
+      "sha256": "1d74fd209043ccca7f0ad231188a81009743e95e77152925d6ff15f994e33b73"
+    },
+    "V20_TradingSystem_M15/V20-04/V20_CALENDAR_EXCLUSION_EPISODES.csv": {
+      "bytes": 64099,
+      "sha256": "bcd9786bdb2b94c7329f5fc3ef74f24252c5e193a50995f217ba27d1e8c8ba01"
+    },
+    "V20_TradingSystem_M15/V20-04/V20_CALENDAR_FALSE_EXCLUSIONS.csv": {
+      "bytes": 40669,
+      "sha256": "8bd89e9e0885cf4c5bcb26adc30e36a0cc52b12e90b351c8ae0c3eea75be9039"
+    },
+    "V20_TradingSystem_M15/V20-04/V20_CALENDAR_LARGE_MOVES_BY_QUALITY.csv": {
+      "bytes": 1931,
+      "sha256": "adcb6aeacb00edff991aeb022146e9bce175ad7c239fb45a7787a2cd70337484"
+    },
+    "V20_TradingSystem_M15/V20-04/V20_CALENDAR_LARGE_MOVES_EPOCHS.csv": {
+      "bytes": 64285,
+      "sha256": "47ae4086b42b20bafc876602d4c9ab522e1504c74662d3007cbfa7c731fd1452"
+    },
+    "V20_TradingSystem_M15/V20-04/V20_CALENDAR_LARGE_MOVES_QUARTERLY.csv": {
+      "bytes": 607628,
+      "sha256": "93d912244b122c91b64210f23b3ecfb57c595a9dfc1c2efa225cf6dbbec42a50"
+    },
+    "V20_TradingSystem_M15/V20-04/V20_CALENDAR_LARGE_MOVES_RECOVERIES.csv": {
+      "bytes": 29374,
+      "sha256": "f0b375c05667fed5daf1fb70bd5abd1bc980299ca972f0cb05dd5cf23d353330"
+    },
+    "V20_TradingSystem_M15/V20-04/V20_CALENDAR_MONTHLY.csv": {
+      "bytes": 1985686,
+      "sha256": "d82d7a260b1af2fd4a5bcb7603f72dddd59656d0b6767cd4de9b0fa704459e8e"
+    },
+    "V20_TradingSystem_M15/V20-04/V20_CALENDAR_READONLY_SNAPSHOT.csv": {
+      "bytes": 13087,
+      "sha256": "985434c0b8b5524c1ede240346b0bbb4e4af58ee1ee596a8bee2d023da36f117"
+    },
+    "V20_TradingSystem_M15/V20-04/V20_CALENDAR_REPLAY_COMPARISON.csv": {
+      "bytes": 75838,
+      "sha256": "d24255919be2abd0d27b74cd475c8e9cbd730ec047a74e3db988c2c15bfbcb40"
+    },
+    "V20_TradingSystem_M15/V20-04/V20_CALENDAR_REPLAY_TRADES.csv.gz": {
+      "bytes": 188050,
+      "sha256": "dd09418c0b61303c49b8a2ee17704165eb5fa1458890c3672dbdedbf97928b1e"
+    },
+    "V20_TradingSystem_M15/V20-04/V20_CALENDAR_REVIEW_FINAL_RU.md": {
+      "bytes": 62806,
+      "sha256": "d86e5ddb74bd9a69016827132b322bbad3c7e2ca4f24d868ae08df1dc0005512"
+    },
+    "V20_TradingSystem_M15/V20-04/V20_CALENDAR_REVIEW_HALFYEAR.csv": {
+      "bytes": 290211,
+      "sha256": "77e452d55fcec65728e754438b7d562f1a6119a0b1e1e999784de39acb31dd16"
+    },
+    "V20_TradingSystem_M15/V20-04/V20_CALENDAR_REVIEW_PROTOCOL_RU.md": {
+      "bytes": 11901,
+      "sha256": "4a49569ebc21099ae334e27565c6f0a5bb31768c1338c17b383c0079b32247cf"
+    },
+    "V20_TradingSystem_M15/V20-04/V20_CALENDAR_REVIEW_QUARTERLY.csv": {
+      "bytes": 1133343,
+      "sha256": "7040b666164a985384a61f5bd008aa5c6d04650c5e4e27da25110b43a4df2a60"
+    },
+    "V20_TradingSystem_M15/V20-04/V20_CALENDAR_REVIEW_RESULTS.json": {
+      "bytes": 382900,
+      "sha256": "1f2c90a431555fa9afdba1cd27e7c42f15f083476c7e310e7a570359d845e0da"
+    },
+    "V20_TradingSystem_M15/V20-04/V20_CALENDAR_VERIFICATION.json": {
+      "bytes": 6460,
+      "sha256": "5f7ec502bf367364f0702927c37021a6a6f987d2888b87767b82ad68d01d227d"
+    },
+    "V20_TradingSystem_M15/docs/TASK_TRACKER.csv": {
+      "bytes": 3103,
+      "sha256": "596e947daa5863a3c10e0af93e444f720c90b7d7ad02710bcb9d71e8eb572d2e"
+    },
+    "V20_TradingSystem_M15/v20_runtime/calendar_review.py": {
+      "bytes": 30360,
+      "sha256": "a574a1bd4aa374e77657d8bae6078c3680bbc896282053ffc7964bc5885baf51"
+    },
+    "V20_TradingSystem_M15/v20_runtime/calendar_tail_diagnostics.py": {
+      "bytes": 12318,
+      "sha256": "0f26af856f83b4ebf3ece0d7ad79098e66d19d29208318bbd2d1856d4bb93cc8"
+    },
+    "V20_TradingSystem_M15/v20_runtime/suitability_replay.py": {
+      "bytes": 8150,
+      "sha256": "5d44fb4cc11c8b9a3f08bb3af2c8793ff3347a42dd822e5000420f65607e5c65"
+    },
+    "V20_TradingSystem_M15/v20_runtime/tests/test_calendar_review.py": {
+      "bytes": 9070,
+      "sha256": "025469e22bcbd3ddb7aee9b161442d528ddac6bcf33c4bd9c13f9d56fbcace75"
+    }
+  }
+}

@@ -1,0 +1,258 @@
+name: V20-08 minimal LIVE offline Windows check
+
+on:
+  pull_request:
+    paths:
+      - 'V20_TradingSystem_M15/v20_runtime/**'
+      - 'V20_TradingSystem_M15/V20-08/v20-08-live-*.ps1'
+      - 'V20_TradingSystem_M15/V20-08/v20-08-weekend-entry-update.ps1'
+      - 'V20_TradingSystem_M15/V20-08/v20-08-open-witness-recovery.ps1'
+      - '.github/workflows/v20-08-live-windows.yml'
+  push:
+    branches:
+      - codex/v20-04-all-three-offline-foundation-20261021
+    paths:
+      - 'V20_TradingSystem_M15/v20_runtime/**'
+      - '.github/workflows/v20-08-live-windows.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  native-offline:
+    runs-on: windows-2022
+    timeout-minutes: 10
+    steps:
+      - name: Checkout (no persisted credentials)
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+      - name: Python 3.12.10
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: '3.12.10'
+          architecture: x64
+      - name: Install test-only numerical packages
+        shell: pwsh
+        run: |
+          python -m pip install --disable-pip-version-check numpy==2.2.6 pandas==2.3.3 tzdata==2025.2
+          exit $LASTEXITCODE
+      - name: PowerShell syntax only for new V20 install launcher and cutover
+        shell: pwsh
+        run: |
+          $scripts = @('V20_TradingSystem_M15/V20-08/v20-08-live-prep.ps1', 'V20_TradingSystem_M15/V20-08/v20-08-live-launch.ps1', 'V20_TradingSystem_M15/V20-08/v20-08-live-cutover.ps1', 'V20_TradingSystem_M15/V20-08/v20-08-live-operator.ps1', 'V20_TradingSystem_M15/V20-08/v20-08-finam-read-recovery.ps1', 'V20_TradingSystem_M15/V20-08/v20-08-night-protected-update.ps1', 'V20_TradingSystem_M15/V20-08/v20-08-weekend-entry-update.ps1', 'V20_TradingSystem_M15/V20-08/v20-08-open-witness-recovery.ps1')
+          foreach ($script in $scripts) {
+            $tokens = $null
+            $errors = $null
+            [void][System.Management.Automation.Language.Parser]::ParseFile((Resolve-Path -LiteralPath $script).Path, [ref]$tokens, [ref]$errors)
+            if (@($errors).Count -ne 0) { Write-Error ('V20_PS_PARSE_FAILED ' + $script); exit 1 }
+          }
+          Write-Output 'V20_08_5_POWERSHELL_PARSE=PASS_8_OF_8_NO_EXECUTION'
+      - name: SQLite snapshot via Windows PowerShell 5.1 native invocation
+        shell: powershell
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $operator = Get-Content -LiteralPath 'V20_TradingSystem_M15/V20-08/v20-08-live-operator.ps1' -Raw
+          $pattern = '(?s)\$code=@''\r?\n(?<source>.*?)\r?\n''@'
+          $match = [regex]::Match($operator, $pattern)
+          if (-not $match.Success) { throw 'V20_08_5_BACKUP_SOURCE_MISSING' }
+          $folder = Join-Path $env:RUNNER_TEMP 'v20-ps51-sqlite'
+          New-Item -ItemType Directory -Path $folder -Force | Out-Null
+          $helper = Join-Path $folder 'backup.py'
+          $maker = Join-Path $folder 'make.py'
+          $source = Join-Path $folder 'source.sqlite3'
+          $copy = Join-Path $folder 'copy.sqlite3'
+          [io.file]::WriteAllText($helper, $match.Groups['source'].Value, [text.utf8encoding]::new($false))
+          $fixture = @'
+          import json, sqlite3, sys
+          with sqlite3.connect(sys.argv[1]) as db:
+              db.execute("CREATE TABLE state (key TEXT PRIMARY KEY, value TEXT)")
+              db.execute("INSERT INTO state VALUES (?,?)", ("database_identity", json.dumps({"synthetic": True})))
+          '@
+          [io.file]::WriteAllText($maker, $fixture, [text.utf8encoding]::new($false))
+          & python -B $maker $source
+          if ($LASTEXITCODE -ne 0) { throw 'V20_08_5_FIXTURE_FAILED' }
+          & python -B $helper $source $copy
+          if ($LASTEXITCODE -ne 0 -or -not (Test-Path -LiteralPath $copy)) { throw 'V20_08_5_NATIVE_PS51_BACKUP_FAILED' }
+          Write-Output 'V20_08_5_BACKUP_NATIVE_WINDOWS_POWERSHELL_51=PASS'
+      - name: Regression - recovery uses pinned fixed operator BEFORE SQLite backup
+        shell: powershell
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $recovery = Get-Content -LiteralPath 'V20_TradingSystem_M15/V20-08/v20-08-finam-read-recovery.ps1' -Raw
+          $operator = 'V20_TradingSystem_M15/V20-08/v20-08-live-operator.ps1'
+          # v3 recovery remains an immutable pinned release; the CHECK-only
+          # operator can evolve independently without rewriting old recovery.
+          $recoveryOperatorBlob = 'e0fd05423899a02fee5861a176b0f72f7ee3bf5c'
+          if ($recovery -notmatch [regex]::Escape("$"+"newOperator='"+$recoveryOperatorBlob+"'")) { throw 'V20_08_5_PREBACKUP_PIN_CHANGED' }
+          if ($recovery.Contains('-file $operator -mode backup')) { throw 'V20_08_5_PREBACKUP_STALE_OPERATOR_USED' }
+          $steps = @(
+            '$backupOperator=Join-Path',
+            'hash $backupOperator',
+            '-file $backupOperator -mode backup',
+            'patch-file ([string]$pair[0])'
+          )
+          $before = -1
+          foreach ($step in $steps) {
+            $offset = $recovery.IndexOf($step, $before+1, [StringComparison]::Ordinal)
+            if ($offset -le $before) { throw ('V20_08_5_PREBACKUP_ORDER_FAIL '+$step) }
+            $before = $offset
+          }
+          $fixed = Get-Content -LiteralPath $operator -Raw
+          if ($fixed.Contains('& $python -B -c $code')) { throw 'V20_08_5_PREBACKUP_PYTHON_C_REGRESSION' }
+          if (-not $fixed.Contains('& $python -B $helper $sourceDb $targetDb')) { throw 'V20_08_5_PREBACKUP_PYTHON_HELPER_MISSING' }
+          Write-Output 'V20_08_5_RECOVERY_PREBACKUP_PIN_AND_ORDER=PASS'
+      - name: Operator CHECK on real-shaped JSONL (Windows PowerShell 5.1, no live access)
+        shell: powershell
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $source = Get-Content -LiteralPath 'V20_TradingSystem_M15/V20-08/v20-08-live-operator.ps1' -Raw
+          $s = $source.IndexOf('function cycle-result(', [StringComparison]::Ordinal)
+          $e = $source.IndexOf('function await-cycle(', $s, [StringComparison]::Ordinal)
+          if ($s -lt 0 -or $e -le $s) { throw 'CHECK_FUNCTIONS_MISSING' }
+          function need([bool]$ok,[string]$code) { if (-not $ok) { throw $code } }
+          function exact-task([string]$name) { return [pscustomobject]@{ State='Running' } }
+          . ([scriptblock]::Create($source.Substring($s,$e-$s)))
+          $expect=@{
+            WAIT_NEXT_M15_OPEN='PASS'
+            NO_FROZEN_SIGNAL='PASS'
+            BROKER_RECONCILED_PROTECTION_PASS='PASS'
+            MOEX_CLOSED_PROTECTED_MONITOR='PASS'
+            WEEKEND_NO_NEW_ENTRIES='PASS'
+            M15_EXIT_WITNESS_PENDING_RETRY='PENDING'
+            STOP_EXECUTED_FLAT='PASS'
+            ENTRY_ACK_AWAIT_BROKER_FILL='PENDING'
+            STOP_ACK_NEEDS_BROKER_PROOF='PENDING'
+            HALTED_NO_NEW_ENTRIES='HALTED'
+            FAULT_FinamServerError='FAIL'
+            HALT_V20_LIVE_UNOWNED_BROKER_POSITION='FAIL'
+            UNEXPECTED='UNKNOWN'
+          }
+          foreach ($state in $expect.Keys) {
+            $actual=cycle-result $state
+            if ($actual -ne $expect[$state]) { throw ('CHECK_STATUS_WRONG '+$state+' '+$actual) }
+          }
+          $root=Join-Path $env:RUNNER_TEMP 'V20Lab'
+          $base=Join-Path $root 'robots\shallow'
+          $log=Join-Path $base 'logs\live-m15.jsonl'
+          $switch=Join-Path $base 'safety\stage8-trading-kill-switch.json'
+          New-Item -ItemType Directory -Path (Split-Path $log) -Force | Out-Null
+          New-Item -ItemType Directory -Path (Split-Path $switch) -Force | Out-Null
+          '{"state":"ARMED"}' | Set-Content -LiteralPath $switch -Encoding UTF8
+          $rows=@(for($i=0;$i -lt 10;$i++){
+            @{ utc=[datetimeoffset]::UtcNow.AddSeconds(-($i+1)).ToString('o')
+               robot='v20-shallow';state='WAIT_NEXT_M15_OPEN' } | ConvertTo-Json -Compress
+          })
+          $rows | Set-Content -LiteralPath $log -Encoding UTF8
+          $lines=@(proof 'v20-shallow' $true)
+          $joined=$lines -join '|'
+          if($joined -notmatch 'v20_08_5_v20-shallow_cycle=PASS' -or
+             $joined -notmatch 'v20_08_5_v20-shallow_healthy=True' -or
+             $joined -notmatch 'v20_08_5_v20-shallow_cycle_attempts_logged=10' -or
+             $joined -notmatch 'v20_08_5_v20-shallow_cycle_01=status=PASS code=NONE' -or
+             $joined -notmatch 'v20_08_5_v20-shallow_last_cycle_attempts_found=10' -or
+             $joined -match 'WAIT_NEXT_M15_OPEN' -or
+             $lines -contains 'True') { throw ('CHECK_H1_STYLE_PASS_REGRESSION '+$joined) }
+          $rows[9]=(@{utc=[datetimeoffset]::UtcNow.ToString('o');robot='v20-shallow';state='FAULT_FinamServerError'} | ConvertTo-Json -Compress)
+          $rows | Set-Content -LiteralPath $log -Encoding UTF8
+          $failed=@(proof 'v20-shallow' $true) -join '|'
+          # A protected 120s night cycle must not falsely become unhealthy at 90s.
+          $rows[9]=(@{utc=[datetimeoffset]::UtcNow.AddSeconds(-130).ToString('o');robot='v20-shallow';state='MOEX_CLOSED_PROTECTED_MONITOR'} | ConvertTo-Json -Compress)
+          $rows | Set-Content -LiteralPath $log -Encoding UTF8
+          $night=@(proof 'v20-shallow' $true) -join '|'
+          if($night -notmatch 'v20_08_5_v20-shallow_healthy=True' -or
+             $night -notmatch 'cycle_code=MOEX_CLOSED_PROTECTED_MONITOR') { throw ('CHECK_NIGHT_120S_UNHEALTHY '+$night) }
+          $rows[9]=(@{utc=[datetimeoffset]::UtcNow.ToString('o');robot='v20-shallow';state='FAULT_FinamServerError'} | ConvertTo-Json -Compress)
+          $rows | Set-Content -LiteralPath $log -Encoding UTF8
+          $failed=@(proof 'v20-shallow' $true) -join '|'
+          if($failed -notmatch 'v20_08_5_v20-shallow_cycle=FAIL' -or
+             $failed -notmatch 'v20_08_5_v20-shallow_healthy=False' -or
+             $failed -notmatch 'code=FAULT_FinamServerError') { throw ('CHECK_FAIL_HIDDEN '+$failed) }
+          Write-Output 'V20_08_5_CHECK_H1_STYLE_REAL_LOG_PASS_AND_FAIL=PASS_NO_BROKER'
+      - name: One-shot historical signal audit source & syntax (no broker)
+        shell: powershell
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $ps='V20_TradingSystem_M15/V20-08/v20-08-three-entries-frozen-signal-audit.ps1'
+          $py='V20_TradingSystem_M15/V20-08/v20-08-three-entries-frozen-signal-audit.py'
+          $tok=$null
+          $err=$null
+          [void][System.Management.Automation.Language.Parser]::ParseFile((Resolve-Path -LiteralPath $ps).Path,[ref]$tok,[ref]$err)
+          if (@($err).Count -ne 0) { throw 'V20_SIGNAL_AUDIT_PS_PARSE_FAILED' }
+          & python -B -m ast $py | Out-Null
+          if ($LASTEXITCODE -ne 0) { throw 'V20_SIGNAL_AUDIT_PY_AST_FAILED' }
+          $source=(Get-Content -LiteralPath $ps -Raw)
+          $sha=(& git.exe hash-object -- $py).Trim()
+          if ($LASTEXITCODE -ne 0 -or -not $source.Contains("$"+"expected='"+$sha+"'")) { throw 'V20_SIGNAL_AUDIT_PIN_INVALID' }
+          $code=Get-Content -LiteralPath $py -Raw
+          if (-not $code.Contains('completed_signal(symbol, strategy, boundary.completed') -or
+              -not $code.Contains('read_finam_m15_boundary(') -or
+              -not $code.Contains('mode=ro') -or
+              $code.Contains('.place_order(') -or $code.Contains('.cancel_order(') -or
+              $code.Contains('.place_sltp_order(')) { throw 'V20_SIGNAL_AUDIT_NOT_GET_ONLY' }
+          Write-Output 'V20_FROZEN_SIGNAL_HISTORICAL_AUDIT_PS51_AND_PY_AST=PASS_NO_FINAM'
+      - name: Flat-only pinned update parses on Windows 5.1 and cannot auto arm
+        shell: powershell
+        run: |
+          $ErrorActionPreference='Stop'
+          $script='V20_TradingSystem_M15/V20-08/v20-08-h1-parity-flat-update.ps1'
+          $launcher='V20_TradingSystem_M15/V20-08/v20-08-live-launch.ps1'
+          $errors=$null
+          $tokens=$null
+          [void][System.Management.Automation.Language.Parser]::ParseFile((Resolve-Path -LiteralPath $script).Path,[ref]$tokens,[ref]$errors)
+          if(@($errors).Count -ne 0){throw 'V20_FLAT_INSTALL_PS51_PARSE_FAIL'}
+          $source=Get-Content -LiteralPath $script -Raw
+          $entry=Get-Content -LiteralPath $launcher -Raw
+          $executionHash=(& git.exe hash-object -- 'V20_TradingSystem_M15/v20_runtime/finam_execution.py').Trim()
+          $workerHash=(& git.exe hash-object -- 'V20_TradingSystem_M15/v20_runtime/finam_live.py').Trim()
+          $launcherHash=(& git.exe hash-object -- $launcher).Trim()
+          # The previously accepted, currently INSTALLED flat-update script and
+          # launcher must remain pinned to their existing immutable worker.
+          # The new after-hours candidate is separate and NOT deployed yet.
+          $installedExecution='0d5ee2c6eb7195ec9f59aa82a2881bfb0a058827'
+          $installedWorker='519710efffbedfdfc236e9c063c2c9dda6f475f5'
+          if($workerHash -cne '2462e86ad7f829e451b1a0c5cd7cebf1457c1adb'){
+              throw 'V20_AFTERHOURS_CANDIDATE_SOURCE_MISMATCH'
+          }
+          foreach($pin in @($installedExecution,$installedWorker)){
+              if($LASTEXITCODE -ne 0 -or -not $source.Contains($pin)){throw ('V20_FLAT_INSTALL_PIN_DIVERGED '+$pin)}
+          }
+          if(-not $entry.Contains($executionHash) -or -not $entry.Contains($workerHash)){
+              throw 'V20_AFTERHOURS_RELEASE_LAUNCHER_RUNTIME_PIN_DIVERGED'
+          }
+          # Legacy flat-only H1-parity installer MUST NOT silently accept this
+          # new three-robot release as its own previously installed version.
+          if($source.Contains($workerHash)){
+              throw 'V20_AFTERHOURS_RELEASE_OLD_INSTALLER_ALIAS_FORBIDDEN'
+          }
+          if(-not $source.Contains("v20_update_auto_arm=NO") -or
+              -not $source.Contains("v20_08_4_positions=0") -or
+              -not $source.Contains("v20_08_4_active_orders=0") -or
+              -not $source.Contains("HALTED_NO_NEW_ENTRIES") -or
+              -not $source.Contains('Stop-ScheduledTask') -or
+              -not $source.Contains('Start-ScheduledTask') -or
+              -not $source.Contains('mode backup') -or
+              -not $source.Contains('v20_update_new_blobs=PASS_3_OF_3_STAGED_BEFORE_TASK_STOP')){
+              
+              throw 'V20_FLAT_INSTALL_CRITICAL_GUARDS_MISSING'
+          }
+          if($source -match " -mode arm| -mode start -robot|\s+--arm\b|\s+rearm\b" -or
+              $source -match '(?i)cancel_order|place_order|submit_entry_once'){
+              throw 'V20_FLAT_INSTALL_MUST_NOT_ARM_OR_TRADE'
+          }
+          Write-Output 'V20_FLAT_H1_PARITY_INSTALL_PIN_AND_GUARDS=PASS_PS51_OFFLINE'
+      - name: Only new V20 LIVE syntax and scoped mock tests
+        shell: pwsh
+        env:
+          PYTHONDONTWRITEBYTECODE: '1'
+        run: |
+          python -m py_compile V20_TradingSystem_M15/v20_runtime/finam_live.py V20_TradingSystem_M15/v20_runtime/finam_execution.py V20_TradingSystem_M15/v20_runtime/tests/test_finam_live.py
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          python -m unittest -v V20_TradingSystem_M15.v20_runtime.tests.test_finam_live V20_TradingSystem_M15.v20_runtime.tests.test_finam_m15_boundary V20_TradingSystem_M15.v20_runtime.tests.test_finam_protected_recovery V20_TradingSystem_M15.v20_runtime.tests.test_obv_settled_post_recovery V20_TradingSystem_M15.v20_runtime.tests.test_three_protected_post_recovery V20_TradingSystem_M15.v20_runtime.tests.test_h1_live_parity V20_TradingSystem_M15.v20_runtime.tests.test_live_signal_replay_readonly
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          foreach ($case in @('test_finam_frozen_exit.py','test_finam_manual_flat.py','test_finam_order_state_regression.py','test_finam_single_cycle.py')) {
+            python -m unittest discover -s V20_TradingSystem_M15/v20_runtime/tests -p $case -v
+            if ($LASTEXITCODE -ne 0) { throw ('V20_H1_LIFECYCLE_PARITY_FAIL '+$case) }
+          }
+          Write-Output 'V20_H1_LIFECYCLE_FOUR_EXISTING_REGRESSIONS=PASS'
+          exit 0
