@@ -118,6 +118,7 @@ jobs:
             BROKER_RECONCILED_PROTECTION_PASS='PASS'
             MOEX_CLOSED_PROTECTED_MONITOR='PASS'
             WEEKEND_NO_NEW_ENTRIES='PASS'
+            M15_EXIT_WITNESS_PENDING_RETRY='PENDING'
             STOP_EXECUTED_FLAT='PASS'
             ENTRY_ACK_AWAIT_BROKER_FILL='PENDING'
             STOP_ACK_NEEDS_BROKER_PROOF='PENDING'
@@ -209,7 +210,7 @@ jobs:
           # The new after-hours candidate is separate and NOT deployed yet.
           $installedExecution='0d5ee2c6eb7195ec9f59aa82a2881bfb0a058827'
           $installedWorker='519710efffbedfdfc236e9c063c2c9dda6f475f5'
-          if($workerHash -cne '61ab6dea13a9a9c0eeeae2752a565e252966ebfc'){
+          if($workerHash -cne '2462e86ad7f829e451b1a0c5cd7cebf1457c1adb'){
               throw 'V20_AFTERHOURS_CANDIDATE_SOURCE_MISMATCH'
           }
           foreach($pin in @($installedExecution,$installedWorker)){
