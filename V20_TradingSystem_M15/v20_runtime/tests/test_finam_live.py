@@ -12,7 +12,7 @@ from contextlib import ExitStack, nullcontext
 from datetime import datetime, timezone
 
 from TradingSystemLab.stage8_robot.finam_api import (
-    FinamError, FinamServerError, FinamTimeout, FinamRateLimit, FinamUncertainSubmission,
+    FinamError, FinamNotFound, FinamServerError, FinamTimeout, FinamRateLimit, FinamUncertainSubmission,
 )
 from V20_TradingSystem_M15.v20_runtime.finam_live import (
     AUTH_SCHEMA, SYMBOLS, _safe_auth, _ownership, run_cycle, run, V20FinamBlocked,
@@ -311,6 +311,67 @@ class LiveAdmissionTests(unittest.TestCase):
                         run_cycle(sender, datetime(2026, 10, 29, 2, 28, 48, tzinfo=timezone.utc))
                     follow.assert_not_called()
                     self.assertEqual(journal.store.values, {})
+
+    def test_20261030_night_flat_snapshot_http_fault_is_retry_not_halt(self):
+        # 3 real robots experienced 5xx storm followed by an unclassified
+        # FinamError at 05:11/05:41 Moscow. Synthetic individual HTTP
+        # classes: actual status is NOT available in the exported journal.
+        for error in (
+            FinamError("HTTP_409:/v1/accounts/isolated-test/orders"),
+            FinamError("HTTP_422:/v1/accounts/isolated-test"),
+            FinamNotFound("/v1/accounts/isolated-test/orders"),
+        ):
+            with self.subTest(error=type(error).__name__ + str(error)), TemporaryDirectory() as tmp:
+                journal = self.fake_journal(Path(tmp))
+                reader = SimpleNamespace(
+                    account_id="isolated-test",
+                    snapshot=lambda **kw: (_ for _ in ()).throw(error))
+                sender = SimpleNamespace(
+                    journal=journal, reader=reader,
+                    auth_path=Path(tmp)/"none", source="0"*40)
+                with patch("V20_TradingSystem_M15.v20_runtime.finam_live._safe_auth"), patch(
+                    "V20_TradingSystem_M15.v20_runtime.finam_live._follow_existing"
+                ) as follow:
+                    with self.assertRaisesRegex(V20FinamSnapshotReadRetry, "FINAM_NIGHT_SNAPSHOT_HTTP_"):
+                        run_cycle(sender, datetime(2026, 10, 30, 2, 11, 2, tzinfo=timezone.utc))
+                    follow.assert_not_called()
+                    self.assertEqual(journal.store.values, {})
+                    self.assertEqual(journal.store.all_intents(), [])
+
+    def test_night_snapshot_fault_does_not_relax_broker_ownership_or_auth(self):
+        account = "isolated-test"
+        for error in (
+            FinamError("HTTP_401:/v1/accounts/" + account),
+            FinamError("HTTP_403:/v1/accounts/" + account),
+            FinamError("HTTP_422:/v1/assets/example/params"),
+            FinamError("HTTP_409:/v1/accounts/foreign/orders"),
+        ):
+            with self.subTest(error=str(error)), TemporaryDirectory() as tmp:
+                journal = self.fake_journal(Path(tmp))
+                reader = SimpleNamespace(account_id=account, snapshot=lambda **kw: (_ for _ in ()).throw(error))
+                sender = SimpleNamespace(journal=journal, reader=reader,
+                                         auth_path=Path(tmp)/"none", source="0"*40)
+                with patch("V20_TradingSystem_M15.v20_runtime.finam_live._safe_auth"):
+                    with self.assertRaises(type(error)):
+                        run_cycle(sender, datetime(2026, 10, 30, 2, 11, 2, tzinfo=timezone.utc))
+                    self.assertEqual(journal.store.values, {})
+
+        for state in ("unsettled", "in_session", "execution_halt"):
+            with self.subTest(state=state), TemporaryDirectory() as tmp:
+                journal = self.fake_journal(Path(tmp))
+                if state == "unsettled":
+                    journal.store.rows = [{"idempotency_key": "entry-key", "payload": {"kind": "ENTRY"}}]
+                if state == "execution_halt":
+                    journal.store.put("execution_halt", "MANUAL_OR_BROKER_FAULT")
+                error = FinamError("HTTP_422:/v1/accounts/" + account + "/orders")
+                reader = SimpleNamespace(account_id=account, snapshot=lambda **kw: (_ for _ in ()).throw(error))
+                sender = SimpleNamespace(journal=journal, reader=reader,
+                                         auth_path=Path(tmp)/"none", source="0"*40)
+                now = datetime(2026, 10, 30, 8 if state == "in_session" else 2, 11, 2,
+                               tzinfo=timezone.utc)
+                with patch("V20_TradingSystem_M15.v20_runtime.finam_live._safe_auth"):
+                    with self.assertRaisesRegex(FinamError, "HTTP_422"):
+                        run_cycle(sender, now)
 
     def test_other_snapshot_errors_and_follow_get_remain_strict_halt(self):
         for error in (FinamError("HTTP_401:/v1/accounts/private"),
