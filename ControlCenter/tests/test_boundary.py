@@ -130,7 +130,7 @@ def test_v20_manual_refresh_only_fixed_pinned_readonly_exporter():
         'timeout': '90', 'check': 'False',
         'creationflags': "getattr(subprocess, 'CREATE_NO_WINDOW', 0)",
     }
-    assert 'BLOB = "28857795dc79edea16832a617f9b70ea97ab5907"' in source
+    assert 'BLOB = "b8ce1b8863d011a1a267752a1771374a4474ccaf"' in source
     assert 'PUBLISHER = Path(r"C:\\Control Center\\v20-preview-d80f2446\\deployment\\v20_live_export.py")' in source
     assert 'PYTHON = Path(r"C:\\Control Center\\runtime\\python312\\python.exe")' in source
     assert 'if actual != BLOB:' in source
