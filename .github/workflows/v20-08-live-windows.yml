@@ -197,7 +197,7 @@ jobs:
           # The new after-hours candidate is separate and NOT deployed yet.
           $installedExecution='0d5ee2c6eb7195ec9f59aa82a2881bfb0a058827'
           $installedWorker='519710efffbedfdfc236e9c063c2c9dda6f475f5'
-          if($workerHash -cne '3b54aaf1ef2f67300ba6fa9ee831b818569525fd'){
+          if($workerHash -cne 'f86dc094fcabf8994af2b04437a643327ccc7efd'){
               throw 'V20_AFTERHOURS_CANDIDATE_SOURCE_MISMATCH'
           }
           foreach($pin in @($installedExecution,$installedWorker)){
