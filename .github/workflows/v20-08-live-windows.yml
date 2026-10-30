@@ -6,6 +6,7 @@ on:
       - 'V20_TradingSystem_M15/v20_runtime/**'
       - 'V20_TradingSystem_M15/V20-08/v20-08-live-*.ps1'
       - 'V20_TradingSystem_M15/V20-08/v20-08-weekend-entry-update.ps1'
+      - 'V20_TradingSystem_M15/V20-08/v20-08-open-witness-recovery.ps1'
       - '.github/workflows/v20-08-live-windows.yml'
   push:
     branches:
@@ -39,14 +40,14 @@ jobs:
       - name: PowerShell syntax only for new V20 install launcher and cutover
         shell: pwsh
         run: |
-          $scripts = @('V20_TradingSystem_M15/V20-08/v20-08-live-prep.ps1', 'V20_TradingSystem_M15/V20-08/v20-08-live-launch.ps1', 'V20_TradingSystem_M15/V20-08/v20-08-live-cutover.ps1', 'V20_TradingSystem_M15/V20-08/v20-08-live-operator.ps1', 'V20_TradingSystem_M15/V20-08/v20-08-finam-read-recovery.ps1', 'V20_TradingSystem_M15/V20-08/v20-08-night-protected-update.ps1', 'V20_TradingSystem_M15/V20-08/v20-08-weekend-entry-update.ps1')
+          $scripts = @('V20_TradingSystem_M15/V20-08/v20-08-live-prep.ps1', 'V20_TradingSystem_M15/V20-08/v20-08-live-launch.ps1', 'V20_TradingSystem_M15/V20-08/v20-08-live-cutover.ps1', 'V20_TradingSystem_M15/V20-08/v20-08-live-operator.ps1', 'V20_TradingSystem_M15/V20-08/v20-08-finam-read-recovery.ps1', 'V20_TradingSystem_M15/V20-08/v20-08-night-protected-update.ps1', 'V20_TradingSystem_M15/V20-08/v20-08-weekend-entry-update.ps1', 'V20_TradingSystem_M15/V20-08/v20-08-open-witness-recovery.ps1')
           foreach ($script in $scripts) {
             $tokens = $null
             $errors = $null
             [void][System.Management.Automation.Language.Parser]::ParseFile((Resolve-Path -LiteralPath $script).Path, [ref]$tokens, [ref]$errors)
             if (@($errors).Count -ne 0) { Write-Error ('V20_PS_PARSE_FAILED ' + $script); exit 1 }
           }
-          Write-Output 'V20_08_5_POWERSHELL_PARSE=PASS_7_OF_7_NO_EXECUTION'
+          Write-Output 'V20_08_5_POWERSHELL_PARSE=PASS_8_OF_8_NO_EXECUTION'
       - name: SQLite snapshot via Windows PowerShell 5.1 native invocation
         shell: powershell
         run: |
