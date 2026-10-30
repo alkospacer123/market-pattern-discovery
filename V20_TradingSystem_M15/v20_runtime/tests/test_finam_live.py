@@ -286,7 +286,7 @@ class LiveAdmissionTests(unittest.TestCase):
                 sender = SimpleNamespace(
                     journal=journal, reader=SimpleNamespace(snapshot=lambda **k: (_ for _ in ()).throw(error)),
                     auth_path=Path(tmp)/"none", source="0"*40)
-                now = datetime(2026, 10, 27, 2, 0, 10, tzinfo=timezone.utc)
+                now = datetime(2026, 10, 27, 7, 0, 10, tzinfo=timezone.utc)
                 with patch("V20_TradingSystem_M15.v20_runtime.finam_live._safe_auth"), patch(
                     "V20_TradingSystem_M15.v20_runtime.finam_live._follow_existing"
                 ) as follow:
@@ -308,9 +308,81 @@ class LiveAdmissionTests(unittest.TestCase):
                 ) as follow:
                     with self.assertRaisesRegex(V20FinamSnapshotReadRetry,
                                                 f"FINAM_SNAPSHOT_HTTP_{status}"):
-                        run_cycle(sender, datetime(2026, 10, 29, 2, 28, 48, tzinfo=timezone.utc))
+                        run_cycle(sender, datetime(2026, 10, 29, 7, 11, 48, tzinfo=timezone.utc))
                     follow.assert_not_called()
                     self.assertEqual(journal.store.values, {})
+
+    def test_closed_moex_night_flat_skips_finam_get_until_0650_msk(self):
+        # Exchange closed 23:50..06:50 MSK: no account/orders GET,
+        # no new order, no switch mutation; start/finish are exact.
+        with TemporaryDirectory() as tmp:
+            journal = self.fake_journal(Path(tmp))
+            reader = SimpleNamespace(snapshot=lambda **k: (_ for _ in ()).throw(
+                AssertionError("NO_FINAM_GET_DURING_CLOSED_FLAT")))
+            sender = SimpleNamespace(journal=journal, reader=reader,
+                                     auth_path=Path(tmp)/"none", source="0"*40)
+            with patch("V20_TradingSystem_M15.v20_runtime.finam_live._safe_auth"), patch(
+                "V20_TradingSystem_M15.v20_runtime.finam_live.load_kill_switch",
+                return_value=({"state": "ARMED"}, None)
+            ), patch("V20_TradingSystem_M15.v20_runtime.finam_live._follow_existing") as follow:
+                for stamp in (
+                    datetime(2026, 10, 29, 20, 50, tzinfo=timezone.utc),
+                    datetime(2026, 10, 30, 2, 11, 2, tzinfo=timezone.utc),
+                    datetime(2026, 10, 30, 3, 49, 59, tzinfo=timezone.utc),
+                ):
+                    self.assertEqual(run_cycle(sender, stamp), "WAIT_NEXT_M15_OPEN")
+                    self.assertTrue(reader._closed_night_flat_no_get)
+                follow.assert_not_called()
+                self.assertEqual(journal.store.values, {})
+                # At 06:50 market reopening, a fresh broker snapshot is
+                # MANDATORY; never treat a prior flat ledger as live proof.
+                with self.assertRaisesRegex(AssertionError, "NO_FINAM_GET_DURING_CLOSED_FLAT"):
+                    run_cycle(sender, datetime(2026, 10, 30, 3, 50, tzinfo=timezone.utc))
+                self.assertFalse(reader._closed_night_flat_no_get)
+                # At 23:49:59 Moscow the exchange has not closed.
+                with self.assertRaisesRegex(AssertionError, "NO_FINAM_GET_DURING_CLOSED_FLAT"):
+                    run_cycle(sender, datetime(2026, 10, 29, 20, 49, 59, tzinfo=timezone.utc))
+
+    def test_closed_night_unsettled_entry_still_requires_broker_reconcile(self):
+        with TemporaryDirectory() as tmp:
+            journal = self.fake_journal(Path(tmp))
+            journal.store.rows = [{"idempotency_key": "pending", "payload": {"kind": "ENTRY"}}]
+            reader = SimpleNamespace(snapshot=lambda **k: (_ for _ in ()).throw(
+                FinamServerError("HTTP_503:account")))
+            sender = SimpleNamespace(journal=journal, reader=reader,
+                                     auth_path=Path(tmp)/"none", source="0"*40)
+            with patch("V20_TradingSystem_M15.v20_runtime.finam_live._safe_auth"):
+                with self.assertRaises(FinamServerError):
+                    run_cycle(sender, datetime(2026, 10, 30, 2, 11, tzinfo=timezone.utc))
+                self.assertFalse(reader._closed_night_flat_no_get)
+
+    def test_closed_night_orphan_stop_never_skips_broker(self):
+        with TemporaryDirectory() as tmp:
+            journal = self.fake_journal(Path(tmp))
+            journal.store.rows = [{"idempotency_key": "orphan", "payload": {"kind": "STOP"}}]
+            reader = SimpleNamespace(snapshot=lambda **k: (_ for _ in ()).throw(
+                FinamTimeout("account")))
+            sender = SimpleNamespace(journal=journal, reader=reader,
+                                     auth_path=Path(tmp)/"none", source="0"*40)
+            with patch("V20_TradingSystem_M15.v20_runtime.finam_live._safe_auth"):
+                with self.assertRaises(FinamTimeout):
+                    run_cycle(sender, datetime(2026, 10, 30, 2, 11, tzinfo=timezone.utc))
+                self.assertFalse(reader._closed_night_flat_no_get)
+
+    def test_closed_night_halted_flat_does_not_poll_or_rearm(self):
+        with TemporaryDirectory() as tmp:
+            journal = self.fake_journal(Path(tmp))
+            reader = SimpleNamespace(snapshot=lambda **k: (_ for _ in ()).throw(
+                AssertionError("HALTED_NO_GET")))
+            sender = SimpleNamespace(journal=journal, reader=reader,
+                                     auth_path=Path(tmp)/"none", source="0"*40)
+            with patch("V20_TradingSystem_M15.v20_runtime.finam_live._safe_auth"), patch(
+                "V20_TradingSystem_M15.v20_runtime.finam_live.load_kill_switch",
+                return_value=({"state": "HALTED"}, None)
+            ):
+                self.assertEqual(run_cycle(sender, datetime(2026, 10, 30, 2, 11, tzinfo=timezone.utc)),
+                                 "HALTED_NO_NEW_ENTRIES")
+                self.assertFalse(reader._closed_night_flat_no_get)
 
     def test_20261030_night_flat_snapshot_http_fault_is_retry_not_halt(self):
         # 3 real robots experienced 5xx storm followed by an unclassified
@@ -333,7 +405,7 @@ class LiveAdmissionTests(unittest.TestCase):
                     "V20_TradingSystem_M15.v20_runtime.finam_live._follow_existing"
                 ) as follow:
                     with self.assertRaisesRegex(V20FinamSnapshotReadRetry, "FINAM_NIGHT_SNAPSHOT_HTTP_"):
-                        run_cycle(sender, datetime(2026, 10, 30, 2, 11, 2, tzinfo=timezone.utc))
+                        run_cycle(sender, datetime(2026, 10, 30, 7, 11, 2, tzinfo=timezone.utc))
                     follow.assert_not_called()
                     self.assertEqual(journal.store.values, {})
                     self.assertEqual(journal.store.all_intents(), [])
@@ -353,7 +425,7 @@ class LiveAdmissionTests(unittest.TestCase):
                                          auth_path=Path(tmp)/"none", source="0"*40)
                 with patch("V20_TradingSystem_M15.v20_runtime.finam_live._safe_auth"):
                     with self.assertRaises(type(error)):
-                        run_cycle(sender, datetime(2026, 10, 30, 2, 11, 2, tzinfo=timezone.utc))
+                        run_cycle(sender, datetime(2026, 10, 30, 7, 11, 2, tzinfo=timezone.utc))
                     self.assertEqual(journal.store.values, {})
 
         for state in ("unsettled", "in_session", "execution_halt"):
@@ -385,7 +457,7 @@ class LiveAdmissionTests(unittest.TestCase):
                                          auth_path=Path(tmp)/"none", source="0"*40)
                 with patch("V20_TradingSystem_M15.v20_runtime.finam_live._safe_auth"):
                     with self.assertRaises(type(error)):
-                        run_cycle(sender, datetime(2026, 10, 29, 2, 28, 48, tzinfo=timezone.utc))
+                        run_cycle(sender, datetime(2026, 10, 29, 7, 11, 48, tzinfo=timezone.utc))
                     self.assertEqual(journal.store.values, {})
         with TemporaryDirectory() as tmp:
             journal = self.fake_journal(Path(tmp))
@@ -396,7 +468,7 @@ class LiveAdmissionTests(unittest.TestCase):
                 "V20_TradingSystem_M15.v20_runtime.finam_live._follow_existing",
                 side_effect=FinamError("HTTP_400:/v1/accounts/private/trades")):
                 with self.assertRaisesRegex(FinamError, "HTTP_400"):
-                    run_cycle(sender, datetime(2026, 10, 29, 2, 28, 48, tzinfo=timezone.utc))
+                    run_cycle(sender, datetime(2026, 10, 29, 7, 11, 48, tzinfo=timezone.utc))
 
     def test_transient_m15_signal_get_failure_skips_boundary_without_entry(self):
         with TemporaryDirectory() as tmp:
@@ -432,7 +504,7 @@ class LiveAdmissionTests(unittest.TestCase):
                 auth_path=Path(tmp)/"none", source="0"*40)
             with patch("V20_TradingSystem_M15.v20_runtime.finam_live._safe_auth"):
                 with self.assertRaises(FinamUncertainSubmission):
-                    run_cycle(sender, datetime(2026, 10, 27, 2, 0, 10, tzinfo=timezone.utc))
+                    run_cycle(sender, datetime(2026, 10, 27, 7, 0, 10, tzinfo=timezone.utc))
 
     def test_live_timestamp_skip_writes_market_only_evidence_to_existing_jsonl(self):
         class EndCycle(BaseException):
