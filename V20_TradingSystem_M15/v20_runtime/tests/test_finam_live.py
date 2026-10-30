@@ -16,7 +16,7 @@ from TradingSystemLab.stage8_robot.finam_api import (
 )
 from V20_TradingSystem_M15.v20_runtime.finam_live import (
     AUTH_SCHEMA, SYMBOLS, _safe_auth, _ownership, run_cycle, run, V20FinamBlocked,
-    V20FinamSnapshotReadRetry,
+    V20FinamSnapshotReadRetry, _night_protected_sleep_seconds,
 )
 
 
@@ -342,6 +342,51 @@ class LiveAdmissionTests(unittest.TestCase):
                 # At 23:49:59 Moscow the exchange has not closed.
                 with self.assertRaisesRegex(AssertionError, "NO_FINAM_GET_DURING_CLOSED_FLAT"):
                     run_cycle(sender, datetime(2026, 10, 29, 20, 49, 59, tzinfo=timezone.utc))
+
+    def test_closed_night_protected_throttle_requires_broker_stop_and_settled_entry(self):
+        with TemporaryDirectory() as tmp:
+            journal = self.fake_journal(Path(tmp))
+            key, symbol = "protected-entry", "FUTCNYRUBF"
+            entry = {"idempotency_key": key, "status": "RECONCILED",
+                     "payload": {"kind": "ENTRY", "mode": "PRETRADE_NOT_AUTHORIZED",
+                                 "robot_id": journal.robot_id,
+                                 "account_sha256": journal.account_hash,
+                                 "symbol": "CNYRUBF", "finam_symbol": symbol}}
+            journal.store.rows = [entry]
+            journal.store.intents[key + ":stop"] = {"status": "RECONCILED"}
+            journal.store.values["protected_fill:" + key] = {
+                "broker_stop_id": "stop-1", "filled_quantity": 1,
+                "broker_stop_percent": "100"}
+            stop = SimpleNamespace(active=True, kind="SLTP", symbol=symbol, order_id="stop-1")
+            snap = SimpleNamespace(positions={symbol: 1}, orders=[stop])
+            reader = SimpleNamespace(snapshot=lambda **kwargs: snap)
+            sender = SimpleNamespace(journal=journal, reader=reader,
+                                     auth_path=Path(tmp)/"none", source="0"*40)
+            with ExitStack() as stack:
+                stack.enter_context(patch("V20_TradingSystem_M15.v20_runtime.finam_live._safe_auth"))
+                follow = stack.enter_context(patch(
+                    "V20_TradingSystem_M15.v20_runtime.finam_live._follow_existing",
+                    return_value="BROKER_RECONCILED_PROTECTION_PASS"))
+                stack.enter_context(patch(
+                    "V20_TradingSystem_M15.v20_runtime.finam_live.load_kill_switch",
+                    return_value=({"state": "ARMED"}, None)))
+                night = datetime(2026, 10, 30, 2, 11, tzinfo=timezone.utc)
+                self.assertEqual(run_cycle(sender, night), "MOEX_CLOSED_PROTECTED_MONITOR")
+                self.assertEqual(_night_protected_sleep_seconds(night), 120)
+                self.assertEqual(_night_protected_sleep_seconds(
+                    datetime(2026, 10, 30, 3, 49, 59, tzinfo=timezone.utc)), 1)
+                self.assertEqual(_night_protected_sleep_seconds(
+                    datetime(2026, 10, 30, 3, 50, tzinfo=timezone.utc)), 0)
+                self.assertEqual(run_cycle(sender, datetime(
+                    2026, 10, 30, 3, 50, tzinfo=timezone.utc)), "WAIT_NEXT_M15_OPEN")
+                entry["status"] = "PARTIAL_FILL"
+                self.assertEqual(run_cycle(sender, night), "WAIT_NEXT_M15_OPEN")
+                entry["status"] = "RECONCILED"
+                snap.orders = []
+                self.assertEqual(run_cycle(sender, night), "WAIT_NEXT_M15_OPEN")
+                snap.orders = [stop, SimpleNamespace(active=True, kind="REGULAR")]
+                self.assertEqual(run_cycle(sender, night), "WAIT_NEXT_M15_OPEN")
+                self.assertEqual(follow.call_count, 5)
 
     def test_closed_night_unsettled_entry_still_requires_broker_reconcile(self):
         with TemporaryDirectory() as tmp:
