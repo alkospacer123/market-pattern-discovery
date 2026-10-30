@@ -371,7 +371,7 @@ class LiveAdmissionTests(unittest.TestCase):
                     "V20_TradingSystem_M15.v20_runtime.finam_live.load_kill_switch",
                     return_value=({"state": "ARMED"}, None)))
                 night = datetime(2026, 10, 30, 2, 11, tzinfo=timezone.utc)
-                self.assertEqual(run_cycle(sender, night), "MOEX_CLOSED_PROTECTED_MONITOR")
+                self.assertEqual(run_cycle(sender, night), "BROKER_RECONCILED_PROTECTION_PASS")
                 self.assertEqual(_night_protected_sleep_seconds(night), 120)
                 self.assertEqual(_night_protected_sleep_seconds(
                     datetime(2026, 10, 30, 3, 49, 59, tzinfo=timezone.utc)), 1)
@@ -386,7 +386,10 @@ class LiveAdmissionTests(unittest.TestCase):
                 self.assertEqual(run_cycle(sender, night), "WAIT_NEXT_M15_OPEN")
                 snap.orders = [stop, SimpleNamespace(active=True, kind="REGULAR")]
                 self.assertEqual(run_cycle(sender, night), "WAIT_NEXT_M15_OPEN")
-                self.assertEqual(follow.call_count, 5)
+                snap.orders = [stop]
+                journal.store.intents[key + ":cancel-after-flat"] = {"status": "ACK"}
+                self.assertEqual(run_cycle(sender, night), "WAIT_NEXT_M15_OPEN")
+                self.assertEqual(follow.call_count, 6)
 
     def test_closed_night_unsettled_entry_still_requires_broker_reconcile(self):
         with TemporaryDirectory() as tmp:
