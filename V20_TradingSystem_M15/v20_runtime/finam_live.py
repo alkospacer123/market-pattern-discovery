@@ -387,10 +387,50 @@ def _follow_existing(sender: V20LiveTransport, now: datetime, snapshot) -> str:
     return "BROKER_RECONCILED_PROTECTION_PASS"
 
 
+
+def _closed_night_without_live_exposure(journal: V20LiveJournal, now: datetime) -> bool:
+    """Skip broker polling only while MOEX futures is closed and V20 is flat.
+
+    Weekday MOEX closed interval: 23:50..06:50 Moscow. In particular, this
+    must never suppress broker follow-up for an entry, stop, exit or uncertain
+    operation. On the next open full broker reconciliation runs BEFORE entry.
+    No alternate trading calendar, service or strategy timing is introduced.
+    """
+    clock = now.astimezone(ZoneInfo("Europe/Moscow"))
+    minutes = clock.hour * 60 + clock.minute
+    if 6 * 60 + 50 <= minutes < 23 * 60 + 50:
+        return False
+    if journal.store.get("execution_halt"):
+        return False
+    intents = journal.store.all_intents()
+    if any(
+        not isinstance(row.get("payload"), dict)
+        or row["payload"].get("kind") not in {"ENTRY", "STOP", "FROZEN_EXIT", "STOP_CANCEL"}
+        for row in intents
+    ):
+        return False
+    entries = _entries(journal)
+    if intents and not entries:
+        return False  # Orphan order/stop without an entry: do not skip.
+    return all(bool(journal.store.get("flat_cleanup:" + row["idempotency_key"]))
+               for row in entries)
+
+
 def run_cycle(sender: V20LiveTransport, now: datetime) -> str:
     journal, reader = sender.journal, sender.reader
     reader._m15_timestamp_diagnostic = None
+    reader._closed_night_flat_no_get = False
     _safe_auth(sender.auth_path, journal=journal, source=sender.source)
+    # The broker is closed at 23:50..06:50 MSK. No frozen new entry/exit
+    # can happen then. When ALL prior entry/stop intents are durably closed,
+    # skip FINAM GET altogether; leave the existing worker and switch intact.
+    # Any live/unsettled exposure continues H1-style FINAM reconciliation.
+    if _closed_night_without_live_exposure(journal, now):
+        switch, error = load_kill_switch(journal.instance_root)
+        if error or not switch or switch.get("state") != "ARMED":
+            return "HALTED_NO_NEW_ENTRIES"
+        reader._closed_night_flat_no_get = True
+        return "WAIT_NEXT_M15_OPEN"
     # H1 handles any FINAM cycle read failure in the shared outer loop:
     # record a fault, retry in 3 seconds, and do not submit a new entry.
     try:
@@ -612,6 +652,8 @@ def run(*, root: Path, robot: str, source: str, once: bool = False,
                 time.sleep(FAST_RECONCILIATION_SECONDS)
                 continue
             event = {"utc": now.isoformat(), "robot": robot, "state": state}
+            if getattr(reader, "_closed_night_flat_no_get", False):
+                event["broker_cycle"] = "MOEX_CLOSED_FLAT_NO_FINAM_GET"
             detail = getattr(reader, "_m15_timestamp_diagnostic", None)
             if state == "M15_TIMESTAMP_UNTRUSTED_NO_ENTRY" and isinstance(detail, dict):
                 event["m15_rejected_bar"] = detail
