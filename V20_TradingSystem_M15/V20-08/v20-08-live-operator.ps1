@@ -44,6 +44,7 @@ function call-launcher([string]$name,[string]$action){
 function cycle-result([string]$state){
     if($state -in @(
         'WAIT_NEXT_M15_OPEN','NO_FROZEN_SIGNAL','SESSION_ENTRY_LIMIT_REACHED',
+        'WEEKEND_NO_NEW_ENTRIES','MOEX_CLOSED_PROTECTED_MONITOR',
         'BROKER_RECONCILED_PROTECTION_PASS','BROKER_FLAT_NO_ACTIVE_STOP',
         'STOP_EXECUTED_FLAT'
     )){return 'PASS'}
@@ -77,8 +78,10 @@ function proof([string]$name,[bool]$verbose=$false){
     need ($null -ne $last) 'V20_08_5_LAST_CYCLE_MISSING'
     $lastStatus=cycle-result ([string]$last.state)
     $age=([datetimeoffset]::UtcNow-[datetimeoffset]::Parse([string]$last.utc,[globalization.cultureinfo]::InvariantCulture)).TotalSeconds
+    # Broker-protected night polling is intentionally 120 seconds, not 30.
+    $maxAge=if($last.state -eq 'MOEX_CLOSED_PROTECTED_MONITOR'){180}else{90}
     $healthy=($t.State -eq 'Running' -and $switch.state -eq 'ARMED' -and
-              $lastStatus -in @('PASS','PENDING') -and $age -ge -5 -and $age -le 90)
+              $lastStatus -in @('PASS','PENDING') -and $age -ge -5 -and $age -le $maxAge)
     Write-Output ('v20_08_5_'+$name+'_task='+$t.State)
     Write-Output ('v20_08_5_'+$name+'_switch='+$switch.state)
     # This count is local JSONL attempts since the log began, not the
@@ -90,7 +93,7 @@ function proof([string]$name,[bool]$verbose=$false){
     Write-Output ('v20_08_5_'+$name+'_cycle_attempts_logged='+$logged)
     Write-Output ('v20_08_5_'+$name+'_cycle='+$lastStatus)
     Write-Output ('v20_08_5_'+$name+'_last_cycle_utc='+[string]$last.utc)
-    if($lastStatus -ne 'PASS'){
+    if($lastStatus -ne 'PASS' -or $last.state -eq 'MOEX_CLOSED_PROTECTED_MONITOR'){
         Write-Output ('v20_08_5_'+$name+'_cycle_code='+[string]$last.state)
     }
     Write-Output ('v20_08_5_'+$name+'_age_seconds='+[math]::Round($age))
@@ -104,7 +107,7 @@ function proof([string]$name,[bool]$verbose=$false){
                 if($row.robot -eq $name -and $row.utc -and $row.state){
                     $index++
                     $result=cycle-result ([string]$row.state)
-                    $code=if($result -eq 'PASS'){'NONE'}else{[string]$row.state}
+                    $code=if($result -eq 'PASS' -and $row.state -ne 'MOEX_CLOSED_PROTECTED_MONITOR'){'NONE'}else{[string]$row.state}
                     Write-Output ('v20_08_5_'+$name+'_cycle_'+('{0:D2}' -f $index)+'=status='+$result+' code='+$code)
                     $found++
                 }
