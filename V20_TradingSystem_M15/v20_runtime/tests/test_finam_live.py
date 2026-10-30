@@ -162,6 +162,42 @@ class LiveAdmissionTests(unittest.TestCase):
                 self.assertEqual(run_cycle(sender, now), "NO_FROZEN_SIGNAL")
                 self.assertEqual(propose.call_count, 4)
 
+    def test_weekend_entry_block_but_existing_exits_and_protection_continue(self):
+        with TemporaryDirectory() as tmp:
+            journal = self.fake_journal(Path(tmp))
+            calls = []
+            reader = SimpleNamespace(snapshot=lambda **kw: calls.append(kw) or
+                                     SimpleNamespace(positions={}, orders=[]))
+            sender = SimpleNamespace(journal=journal, reader=reader,
+                                     auth_path=Path(tmp)/"none", source="0"*40)
+            with ExitStack() as stack:
+                stack.enter_context(patch("V20_TradingSystem_M15.v20_runtime.finam_live._safe_auth"))
+                follow = stack.enter_context(patch(
+                    "V20_TradingSystem_M15.v20_runtime.finam_live._follow_existing",
+                    return_value="BROKER_RECONCILED_PROTECTION_PASS"))
+                stack.enter_context(patch(
+                    "V20_TradingSystem_M15.v20_runtime.finam_live.load_kill_switch",
+                    return_value=({"state": "ARMED"}, None)))
+                propose = stack.enter_context(patch(
+                    "V20_TradingSystem_M15.v20_runtime.finam_live.propose_finam_m15_next_open"))
+                # Saturday 31 Oct and Sunday 1 Nov, both inside normal entry window.
+                for day, utc_hour in ((31, 8), (1, 11)):
+                    month = 10 if day == 31 else 11
+                    now = datetime(2026, month, day, utc_hour, 15, 10,
+                                   tzinfo=timezone.utc)
+                    self.assertEqual(run_cycle(sender, now), "WEEKEND_NO_NEW_ENTRIES")
+                self.assertEqual(len(calls), 2)  # broker reconciliation remains
+                self.assertEqual(follow.call_count, 2)
+                propose.assert_not_called()
+                # A weekday-open position due for its frozen third observed
+                # session exit MUST still reach existing followup/exit logic.
+                follow.return_value = "FROZEN_EXIT_ACK_KEEP_STOP_UNTIL_FLAT"
+                self.assertEqual(run_cycle(sender, datetime(
+                    2026, 10, 31, 8, 15, 10, tzinfo=timezone.utc)),
+                    "FROZEN_EXIT_ACK_KEEP_STOP_UNTIL_FLAT")
+                self.assertEqual(follow.call_count, 3)
+                propose.assert_not_called()
+
     def test_afterhours_m15_poll_is_skipped_but_broker_reconcile_runs(self):
         # Frozen signals: bar Open 10:00..17:00, NEXT_OPEN 10:15..17:15.
         # No strategy M15 history fetch after hours; broker protection stays active.
@@ -371,7 +407,7 @@ class LiveAdmissionTests(unittest.TestCase):
                     "V20_TradingSystem_M15.v20_runtime.finam_live.load_kill_switch",
                     return_value=({"state": "ARMED"}, None)))
                 night = datetime(2026, 10, 30, 2, 11, tzinfo=timezone.utc)
-                self.assertEqual(run_cycle(sender, night), "BROKER_RECONCILED_PROTECTION_PASS")
+                self.assertEqual(run_cycle(sender, night), "MOEX_CLOSED_PROTECTED_MONITOR")
                 self.assertEqual(_night_protected_sleep_seconds(night), 120)
                 self.assertEqual(_night_protected_sleep_seconds(
                     datetime(2026, 10, 30, 3, 49, 59, tzinfo=timezone.utc)), 1)
