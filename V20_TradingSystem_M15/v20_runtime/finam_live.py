@@ -377,9 +377,17 @@ def _follow_existing(sender: V20LiveTransport, now: datetime, snapshot) -> str:
             continue
         entry_at = datetime.fromisoformat(payload["entry_at"])
         start = entry_at.replace(tzinfo=ZoneInfo("Europe/Moscow")).astimezone(timezone.utc)
-        boundary = read_finam_m15_boundary(
-            reader, symbol=payload["symbol"], from_utc=start-STEP,
-            now=now, require_adjacent_completed=False)
+        try:
+            boundary = read_finam_m15_boundary(
+                reader, symbol=payload["symbol"], from_utc=start-STEP,
+                now=now, require_adjacent_completed=False)
+        except V20FinamBlocked as exc:
+            if str(exc) != "M15_NEXT_OPEN_WITNESS_MISSING":
+                raise
+            # FINAM may publish the new M15 Open a few seconds late.
+            # The broker position and 100% SLTP were already reconciled above.
+            # Retry at 3s; never synthesize the Open or issue a late exit.
+            return "M15_EXIT_WITNESS_PENDING_RETRY"
         due = frozen_observed_session_exit(boundary, entry_open_msk=entry_at)
         if due == "EXIT_AT_THIRD_OBSERVED_SESSION_OPEN":
             sender.submit_frozen_exit_once(
@@ -730,7 +738,7 @@ def run(*, root: Path, robot: str, source: str, once: bool = False,
             time.sleep(FAST_RECONCILIATION_SECONDS if state in (
                 "ENTRY_ACK_NEEDS_FILL_AND_STOP", "ENTRY_ACK_AWAIT_BROKER_FILL",
                 "STOP_ACK_NEEDS_BROKER_PROOF", "FROZEN_EXIT_ACK_KEEP_STOP_UNTIL_FLAT",
-                "EXIT_POSTED_AWAIT_BROKER_FLAT",
+                "M15_EXIT_WITNESS_PENDING_RETRY", "EXIT_POSTED_AWAIT_BROKER_FLAT",
                 "STOP_CANCEL_WAIT_BROKER_NO_RETRANSMIT") else
                 _night_protected_sleep_seconds(datetime.now(timezone.utc))
                 if state == "MOEX_CLOSED_PROTECTED_MONITOR" else POLL_SECONDS)
