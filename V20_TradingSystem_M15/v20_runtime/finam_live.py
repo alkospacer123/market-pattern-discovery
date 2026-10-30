@@ -396,13 +396,15 @@ def run_cycle(sender: V20LiveTransport, now: datetime) -> str:
     try:
         snapshot = reader.snapshot(now=now)
     except FinamError as exc:
-        # Overnight 2026-10-30: 5xx storms followed by generic 4xx in the
-        # initial account/orders snapshot. The H1 reader correctly rejects
-        # this response, but an otherwise flat robot must not permanently
-        # HALT until the owner returns. Never issue orders without a NEW
-        # successful full snapshot and existing-position reconciliation.
-        # Strictly exclude auth 401/403, any non-account endpoint, unsettled
-        # durable entry, order/fill/stop follow-up and trading entry hours.
+        # Preserve previously approved 400/408 initial-snapshot retry.
+        match = re.match(r"^HTTP_(400|408):", str(exc)) if type(exc) is FinamError else None
+        if match is not None:
+            raise V20FinamSnapshotReadRetry("FINAM_SNAPSHOT_HTTP_" + match.group(1)) from exc
+        # 2026-10-30: a 5xx storm followed by a generic account/order GET 4xx
+        # on each bot. With no unsettled durable entry and outside the entry
+        # window, retry the full snapshot rather than permanently HALT.
+        # No trade or stop action is authorized without a successful NEW
+        # full snapshot and position/stop ownership reconciliation.
         status = _night_flat_snapshot_fault(exc, journal=journal, reader=reader, now=now)
         if status is None:
             raise
