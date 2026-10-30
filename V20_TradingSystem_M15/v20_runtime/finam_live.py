@@ -417,6 +417,7 @@ def _closed_night_protected(journal: V20LiveJournal, snapshot) -> bool:
         if (not snapshot.positions.get(symbol, 0)
                 or row["status"] != "RECONCILED"
                 or journal.store.intent(key + ":frozen-exit") is not None
+                or journal.store.intent(key + ":cancel-after-flat") is not None
                 or not stop or stop["status"] not in ("ACK", "RECONCILED")
                 or not isinstance(proof, dict)
                 or proof.get("filled_quantity") != abs(snapshot.positions[symbol])
@@ -514,7 +515,8 @@ def run_cycle(sender: V20LiveTransport, now: datetime) -> str:
         return "HALTED_NO_NEW_ENTRIES"
     # Fresh FINAM position/stop reconciliation above; no M15 requests at night.
     if _closed_moex_night(now) and _closed_night_protected(journal, snapshot):
-        return "MOEX_CLOSED_PROTECTED_MONITOR"
+        # Existing operator/Control Center already classifies this as PASS.
+        return "BROKER_RECONCILED_PROTECTION_PASS"
     msk = now.astimezone(ZoneInfo("Europe/Moscow"))
     if msk.minute % 15 or msk.second >= 60:
         return "WAIT_NEXT_M15_OPEN"
@@ -713,6 +715,8 @@ def run(*, root: Path, robot: str, source: str, once: bool = False,
             event = {"utc": now.isoformat(), "robot": robot, "state": state}
             if getattr(reader, "_closed_night_flat_no_get", False):
                 event["broker_cycle"] = "MOEX_CLOSED_FLAT_NO_FINAM_GET"
+            if state == "BROKER_RECONCILED_PROTECTION_PASS":
+                event["broker_cycle"] = "MOEX_CLOSED_PROTECTED_120S"
             detail = getattr(reader, "_m15_timestamp_diagnostic", None)
             if state == "M15_TIMESTAMP_UNTRUSTED_NO_ENTRY" and isinstance(detail, dict):
                 event["m15_rejected_bar"] = detail
@@ -726,7 +730,7 @@ def run(*, root: Path, robot: str, source: str, once: bool = False,
                 "EXIT_POSTED_AWAIT_BROKER_FLAT",
                 "STOP_CANCEL_WAIT_BROKER_NO_RETRANSMIT") else
                 _night_protected_sleep_seconds(datetime.now(timezone.utc))
-                if state == "MOEX_CLOSED_PROTECTED_MONITOR" else POLL_SECONDS)
+                if state == "BROKER_RECONCILED_PROTECTION_PASS" else POLL_SECONDS)
 
 
 def main() -> int:
