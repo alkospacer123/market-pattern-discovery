@@ -10,7 +10,7 @@ import subprocess
 import sys
 
 PUBLISHER = Path(r"C:\Control Center\v20-preview-d80f2446\deployment\v20_live_export.py")
-BLOB = "28857795dc79edea16832a617f9b70ea97ab5907"
+BLOB = "b8ce1b8863d011a1a267752a1771374a4474ccaf"
 PYTHON = Path(r"C:\Control Center\runtime\python312\python.exe")
 EXPECTED = ("cc02_export=PUBLISHED_CC_OWNED",
             "cc02_no_finam_no_task_mutation_no_arm=YES")

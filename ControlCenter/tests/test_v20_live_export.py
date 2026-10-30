@@ -104,3 +104,11 @@ def test_halted_worker_can_continue_protecting_position_with_pass_cycle():
     assert parsed["v20-obv"]["switch"] == "HALTED"
     assert parsed["v20-obv"]["healthy"] is False
 
+
+
+def test_weekend_and_closed_market_cycles_are_valid_local_pass():
+    # Genuine V20 operator states introduced by the approved no-night-polling fix.
+    from deployment.v20_live_export import classification
+    assert classification('WEEKEND_NO_NEW_ENTRIES') == 'PASS'
+    assert classification('MOEX_CLOSED_PROTECTED_MONITOR') == 'PASS'
+    assert classification('UNKNOWN_STATE') == 'UNKNOWN'
