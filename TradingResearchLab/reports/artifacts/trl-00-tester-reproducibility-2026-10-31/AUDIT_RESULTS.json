@@ -1,0 +1,69 @@
+{
+  "artifact_hashes_verified": 17,
+  "audit_type": "Independent standard-library indicator/replay implementation and report reconciliation; same author, external reviewer pending",
+  "closed_trades_checked": 1442,
+  "no_executable_TradingSystemLab_imports": true,
+  "open_terminal_positions_checked": 2,
+  "record_checks": [
+    {
+      "independent_replay": "PASS",
+      "instrument": "USDRUBF",
+      "maximum_numeric_difference": 4.831690603168681e-13,
+      "trades": 226,
+      "version": "BASELINE"
+    },
+    {
+      "independent_replay": "PASS",
+      "instrument": "USDRUBF",
+      "maximum_numeric_difference": 4.831690603168681e-13,
+      "trades": 213,
+      "version": "OPTIMIZED"
+    },
+    {
+      "independent_replay": "PASS",
+      "instrument": "CNYRUBF",
+      "maximum_numeric_difference": 4.973799150320701e-14,
+      "trades": 199,
+      "version": "BASELINE"
+    },
+    {
+      "independent_replay": "PASS",
+      "instrument": "CNYRUBF",
+      "maximum_numeric_difference": 4.973799150320701e-14,
+      "trades": 188,
+      "version": "OPTIMIZED"
+    },
+    {
+      "independent_replay": "PASS",
+      "instrument": "GLDRUBF",
+      "maximum_numeric_difference": 5.4569682106375694e-12,
+      "trades": 178,
+      "version": "BASELINE"
+    },
+    {
+      "independent_replay": "PASS",
+      "instrument": "GLDRUBF",
+      "maximum_numeric_difference": 5.4569682106375694e-12,
+      "trades": 166,
+      "version": "OPTIMIZED"
+    },
+    {
+      "independent_replay": "PASS",
+      "instrument": "IMOEXF",
+      "maximum_numeric_difference": 5.002220859751105e-12,
+      "trades": 138,
+      "version": "BASELINE"
+    },
+    {
+      "independent_replay": "PASS",
+      "instrument": "IMOEXF",
+      "maximum_numeric_difference": 5.002220859751105e-12,
+      "trades": 134,
+      "version": "OPTIMIZED"
+    }
+  ],
+  "report_rows_reconciled": 482,
+  "reviewer_independence": "PENDING_EXTERNAL_REVIEW",
+  "status": "PASS",
+  "tolerance_absolute": 1e-08
+}
