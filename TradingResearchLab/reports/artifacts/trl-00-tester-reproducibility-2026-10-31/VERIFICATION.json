@@ -1,0 +1,352 @@
+{
+  "TRL_00_2": "PARTIAL / DOCUMENTED GAPS",
+  "artifact_comparison": [
+    {
+      "byte_identical": true,
+      "expected_sha256": "1f5bc7f7ddaaa2fa2b3e3b53e5aa0caf54cc3ff65932356f77f5176a80d29a9b",
+      "path": "BASELINE_CONFIGS.json",
+      "published_file_sha256": "1f5bc7f7ddaaa2fa2b3e3b53e5aa0caf54cc3ff65932356f77f5176a80d29a9b",
+      "run1_sha256": "1f5bc7f7ddaaa2fa2b3e3b53e5aa0caf54cc3ff65932356f77f5176a80d29a9b",
+      "run2_sha256": "1f5bc7f7ddaaa2fa2b3e3b53e5aa0caf54cc3ff65932356f77f5176a80d29a9b"
+    },
+    {
+      "byte_identical": true,
+      "expected_sha256": "c8571a18b9a46b03ee1743be8b582318f6563388f14b13891676d11913cec2e2",
+      "path": "BASELINE_REPORT.md",
+      "published_file_sha256": "c8571a18b9a46b03ee1743be8b582318f6563388f14b13891676d11913cec2e2",
+      "run1_sha256": "c8571a18b9a46b03ee1743be8b582318f6563388f14b13891676d11913cec2e2",
+      "run2_sha256": "c8571a18b9a46b03ee1743be8b582318f6563388f14b13891676d11913cec2e2"
+    },
+    {
+      "byte_identical": true,
+      "expected_sha256": "41f1fd807ee3835837ee40d743fcf7b1abe845d46ad7a38c2e6d0e77123ea158",
+      "path": "GATES.json",
+      "published_file_sha256": "41f1fd807ee3835837ee40d743fcf7b1abe845d46ad7a38c2e6d0e77123ea158",
+      "run1_sha256": "41f1fd807ee3835837ee40d743fcf7b1abe845d46ad7a38c2e6d0e77123ea158",
+      "run2_sha256": "41f1fd807ee3835837ee40d743fcf7b1abe845d46ad7a38c2e6d0e77123ea158"
+    },
+    {
+      "byte_identical": true,
+      "expected_sha256": "c02fdec2fe99db54f48a003fa504b6d548509e79a8d5aa3791a1bc98c67a5631",
+      "path": "OPEN_POSITIONS.json",
+      "published_file_sha256": "c02fdec2fe99db54f48a003fa504b6d548509e79a8d5aa3791a1bc98c67a5631",
+      "run1_sha256": "c02fdec2fe99db54f48a003fa504b6d548509e79a8d5aa3791a1bc98c67a5631",
+      "run2_sha256": "c02fdec2fe99db54f48a003fa504b6d548509e79a8d5aa3791a1bc98c67a5631"
+    },
+    {
+      "byte_identical": true,
+      "expected_sha256": "8222b621ed9ef9f9c6c67bf480ab086bef5e5f93426ef2c8a7d2c040ccc0323a",
+      "path": "REPRODUCTION_AUDIT.md",
+      "published_file_sha256": "8222b621ed9ef9f9c6c67bf480ab086bef5e5f93426ef2c8a7d2c040ccc0323a",
+      "run1_sha256": "8222b621ed9ef9f9c6c67bf480ab086bef5e5f93426ef2c8a7d2c040ccc0323a",
+      "run2_sha256": "8222b621ed9ef9f9c6c67bf480ab086bef5e5f93426ef2c8a7d2c040ccc0323a"
+    },
+    {
+      "byte_identical": true,
+      "expected_sha256": "d2baeeb80664e3783d8c5331bae9a0e8acce7c1109308c6787e92fe129d605be",
+      "path": "REPRODUCTION_DETAIL.json",
+      "published_file_sha256": "d2baeeb80664e3783d8c5331bae9a0e8acce7c1109308c6787e92fe129d605be",
+      "run1_sha256": "d2baeeb80664e3783d8c5331bae9a0e8acce7c1109308c6787e92fe129d605be",
+      "run2_sha256": "d2baeeb80664e3783d8c5331bae9a0e8acce7c1109308c6787e92fe129d605be"
+    },
+    {
+      "byte_identical": true,
+      "expected_sha256": "50e5a3f973e061bb159d8bd0a10efb2f5118ebc7a3cf7e5b88aa1083f5416f16",
+      "path": "REPRODUCTION_DIFF.csv",
+      "published_file_sha256": "50e5a3f973e061bb159d8bd0a10efb2f5118ebc7a3cf7e5b88aa1083f5416f16",
+      "run1_sha256": "50e5a3f973e061bb159d8bd0a10efb2f5118ebc7a3cf7e5b88aa1083f5416f16",
+      "run2_sha256": "50e5a3f973e061bb159d8bd0a10efb2f5118ebc7a3cf7e5b88aa1083f5416f16"
+    },
+    {
+      "byte_identical": true,
+      "expected_sha256": "8496ff9f3685e7eae75056d5cec0c8b3911fcc7ad3f0a89ac0df40f349a09bdd",
+      "path": "SOURCE_MANIFEST.json",
+      "published_file_sha256": "8496ff9f3685e7eae75056d5cec0c8b3911fcc7ad3f0a89ac0df40f349a09bdd",
+      "run1_sha256": "8496ff9f3685e7eae75056d5cec0c8b3911fcc7ad3f0a89ac0df40f349a09bdd",
+      "run2_sha256": "8496ff9f3685e7eae75056d5cec0c8b3911fcc7ad3f0a89ac0df40f349a09bdd"
+    },
+    {
+      "byte_identical": true,
+      "expected_sha256": "d8730d2d688e28701c971fe20ad5763667b592c35ff20ad064379d95a1f2dd99",
+      "path": "WF_REFERENCE_COMPARISON.csv",
+      "published_file_sha256": "d8730d2d688e28701c971fe20ad5763667b592c35ff20ad064379d95a1f2dd99",
+      "run1_sha256": "d8730d2d688e28701c971fe20ad5763667b592c35ff20ad064379d95a1f2dd99",
+      "run2_sha256": "d8730d2d688e28701c971fe20ad5763667b592c35ff20ad064379d95a1f2dd99"
+    },
+    {
+      "byte_identical": true,
+      "expected_sha256": "0a9e660ff3a4374499d27349b0d83205217722454028732ecd174b084525e459",
+      "path": "direction_report.csv",
+      "published_file_sha256": "0a9e660ff3a4374499d27349b0d83205217722454028732ecd174b084525e459",
+      "run1_sha256": "0a9e660ff3a4374499d27349b0d83205217722454028732ecd174b084525e459",
+      "run2_sha256": "0a9e660ff3a4374499d27349b0d83205217722454028732ecd174b084525e459"
+    },
+    {
+      "byte_identical": true,
+      "expected_sha256": "0588b75680e8bb086cbde3588dad868be1fd546365545ed3595dbbaa62eb8870",
+      "path": "exit_diagnostics.csv",
+      "published_file_sha256": "0588b75680e8bb086cbde3588dad868be1fd546365545ed3595dbbaa62eb8870",
+      "run1_sha256": "0588b75680e8bb086cbde3588dad868be1fd546365545ed3595dbbaa62eb8870",
+      "run2_sha256": "0588b75680e8bb086cbde3588dad868be1fd546365545ed3595dbbaa62eb8870"
+    },
+    {
+      "byte_identical": true,
+      "expected_sha256": "71972bae4f1f8caa8743d8653fddeaa0d7e0cd3f762b2cce52f6b76ea0cd1d0c",
+      "path": "instrument_report.csv",
+      "published_file_sha256": "71972bae4f1f8caa8743d8653fddeaa0d7e0cd3f762b2cce52f6b76ea0cd1d0c",
+      "run1_sha256": "71972bae4f1f8caa8743d8653fddeaa0d7e0cd3f762b2cce52f6b76ea0cd1d0c",
+      "run2_sha256": "71972bae4f1f8caa8743d8653fddeaa0d7e0cd3f762b2cce52f6b76ea0cd1d0c"
+    },
+    {
+      "byte_identical": true,
+      "expected_sha256": "4ec622203996e5072d59e53938f23b1cbd65db845f3b82c4a90a2ec3443e5453",
+      "path": "mae_mfe_report.csv",
+      "published_file_sha256": "4ec622203996e5072d59e53938f23b1cbd65db845f3b82c4a90a2ec3443e5453",
+      "run1_sha256": "4ec622203996e5072d59e53938f23b1cbd65db845f3b82c4a90a2ec3443e5453",
+      "run2_sha256": "4ec622203996e5072d59e53938f23b1cbd65db845f3b82c4a90a2ec3443e5453"
+    },
+    {
+      "byte_identical": true,
+      "expected_sha256": "945a86134c167b50d8c0ef052ac973995adc2a619d78e51e1200b2c5b2bbe17e",
+      "path": "monthly_report.csv",
+      "published_file_sha256": "945a86134c167b50d8c0ef052ac973995adc2a619d78e51e1200b2c5b2bbe17e",
+      "run1_sha256": "945a86134c167b50d8c0ef052ac973995adc2a619d78e51e1200b2c5b2bbe17e",
+      "run2_sha256": "945a86134c167b50d8c0ef052ac973995adc2a619d78e51e1200b2c5b2bbe17e"
+    },
+    {
+      "byte_identical": true,
+      "expected_sha256": "f7bd0ef1ac198bb5dd103dea321fd9f3e1e29fd50e3fcac5455abc0adf47ba0c",
+      "path": "quarterly_report.csv",
+      "published_file_sha256": "f7bd0ef1ac198bb5dd103dea321fd9f3e1e29fd50e3fcac5455abc0adf47ba0c",
+      "run1_sha256": "f7bd0ef1ac198bb5dd103dea321fd9f3e1e29fd50e3fcac5455abc0adf47ba0c",
+      "run2_sha256": "f7bd0ef1ac198bb5dd103dea321fd9f3e1e29fd50e3fcac5455abc0adf47ba0c"
+    },
+    {
+      "byte_identical": true,
+      "expected_sha256": "a458c7905824abe8a8cc7a42d6079428b53ba78a4c4dc1f2bf73f9eb94a1dd2b",
+      "path": "trades.csv",
+      "published_file_sha256": "a458c7905824abe8a8cc7a42d6079428b53ba78a4c4dc1f2bf73f9eb94a1dd2b",
+      "run1_sha256": "a458c7905824abe8a8cc7a42d6079428b53ba78a4c4dc1f2bf73f9eb94a1dd2b",
+      "run2_sha256": "a458c7905824abe8a8cc7a42d6079428b53ba78a4c4dc1f2bf73f9eb94a1dd2b"
+    },
+    {
+      "byte_identical": true,
+      "expected_sha256": "13cbe22a851823213874ce78c0290cb6f26e319734328a20152087d528469759",
+      "path": "yearly_report.csv",
+      "published_file_sha256": "13cbe22a851823213874ce78c0290cb6f26e319734328a20152087d528469759",
+      "run1_sha256": "13cbe22a851823213874ce78c0290cb6f26e319734328a20152087d528469759",
+      "run2_sha256": "13cbe22a851823213874ce78c0290cb6f26e319734328a20152087d528469759"
+    }
+  ],
+  "artifact_inventory_sha256": "5794dfeea2e76d09137b84d66c0cacdeed598d282342a44caf922e67cf8e2600",
+  "branch": "trl/00-inventory-20261031",
+  "closed_trades": 1442,
+  "code_commit": "9457da1f49578f940859a678d20b3c4f505bc394",
+  "code_outside_TradingResearchLab_unchanged": true,
+  "code_repository": "alkospacer123/market-pattern-discovery",
+  "data_commit": "f8486b446cf3d5f9f3cba6dfec32bdef8fd184c8",
+  "data_repository": "alkospacer123/market-pattern-data",
+  "decision": "PASS_FOR_PINNED_TESTER_DATA_CONFIG_ONLY",
+  "draft_pr": "https://github.com/alkospacer123/market-pattern-discovery/pull/569",
+  "environment": {
+    "architecture": "x86_64",
+    "dependencies": {
+      "numpy": "2.3.5",
+      "pandas": "2.2.3",
+      "python-dateutil": "2.9.0.post0",
+      "pytz": "2026.3.post1",
+      "six": "1.17.0",
+      "tzdata": "2026.3"
+    },
+    "kernel": "6.18.57",
+    "python": "3.12.14",
+    "system": "Linux",
+    "system_site_packages": false,
+    "venv": "/workspace/work/trl-00-2/venv"
+  },
+  "execution": [
+    {
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python",
+        "/workspace/work/trl-00-2/offline_exec.py",
+        "/workspace/work/trl-00-2/venv/bin/python",
+        "/workspace/work/trl-00-2/source/IntradayLab/t3_m15_forever_v1/research.py",
+        "--data-root",
+        "/workspace/market-pattern-data",
+        "--reference-root",
+        "/workspace/market-pattern-discovery",
+        "--output",
+        "/workspace/work/trl-00-2/run1"
+      ],
+      "elapsed_seconds": 29.070910457999986,
+      "exit_code": 0,
+      "name": "run1",
+      "started_at_utc": "2026-10-31T18:07:52.941258+00:00",
+      "stderr": "",
+      "stdout": "{\"Gate_A\": \"PASS\", \"artifacts\": 17, \"trades\": 1442}\n"
+    },
+    {
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python",
+        "/workspace/work/trl-00-2/offline_exec.py",
+        "/workspace/work/trl-00-2/venv/bin/python",
+        "/workspace/work/trl-00-2/source/IntradayLab/t3_m15_forever_v1/research.py",
+        "--data-root",
+        "/workspace/market-pattern-data",
+        "--reference-root",
+        "/workspace/market-pattern-discovery",
+        "--output",
+        "/workspace/work/trl-00-2/run2"
+      ],
+      "elapsed_seconds": 29.397256701999993,
+      "exit_code": 0,
+      "name": "run2",
+      "started_at_utc": "2026-10-31T18:08:22.012451+00:00",
+      "stderr": "",
+      "stdout": "{\"Gate_A\": \"PASS\", \"artifacts\": 17, \"trades\": 1442}\n"
+    },
+    {
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python",
+        "/workspace/work/trl-00-2/offline_exec.py",
+        "/workspace/work/trl-00-2/venv/bin/python",
+        "/workspace/work/trl-00-2/source/IntradayLab/t3_m15_forever_v1/audit.py",
+        "--data-root",
+        "/workspace/market-pattern-data",
+        "--output",
+        "/workspace/work/trl-00-2/run1"
+      ],
+      "elapsed_seconds": 1.6436064520000002,
+      "exit_code": 0,
+      "name": "audit",
+      "started_at_utc": "2026-10-31T18:08:51.410103+00:00",
+      "stderr": "",
+      "stdout": "{\"artifact_hashes_verified\": 17, \"audit_type\": \"Independent standard-library indicator/replay implementation and report reconciliation; same author, external reviewer pending\", \"closed_trades_checked\": 1442, \"no_executable_TradingSystemLab_imports\": true, \"open_terminal_positions_checked\": 2, \"record_checks\": [{\"independent_replay\": \"PASS\", \"instrument\": \"USDRUBF\", \"maximum_numeric_difference\": 4.831690603168681e-13, \"trades\": 226, \"version\": \"BASELINE\"}, {\"independent_replay\": \"PASS\", \"instrument\": \"USDRUBF\", \"maximum_numeric_difference\": 4.831690603168681e-13, \"trades\": 213, \"version\": \"OPTIMIZED\"}, {\"independent_replay\": \"PASS\", \"instrument\": \"CNYRUBF\", \"maximum_numeric_difference\": 4.973799150320701e-14, \"trades\": 199, \"version\": \"BASELINE\"}, {\"independent_replay\": \"PASS\", \"instrument\": \"CNYRUBF\", \"maximum_numeric_difference\": 4.973799150320701e-14, \"trades\": 188, \"version\": \"OPTIMIZED\"}, {\"independent_replay\": \"PASS\", \"instrument\": \"GLDRUBF\", \"maximum_numeric_difference\": 5.4569682106375694e-12, \"trades\": 178, \"version\": \"BASELINE\"}, {\"independent_replay\": \"PASS\", \"instrument\": \"GLDRUBF\", \"maximum_numeric_difference\": 5.4569682106375694e-12, \"trades\": 166, \"version\": \"OPTIMIZED\"}, {\"independent_replay\": \"PASS\", \"instrument\": \"IMOEXF\", \"maximum_numeric_difference\": 5.002220859751105e-12, \"trades\": 138, \"version\": \"BASELINE\"}, {\"independent_replay\": \"PASS\", \"instrument\": \"IMOEXF\", \"maximum_numeric_difference\": 5.002220859751105e-12, \"trades\": 134, \"version\": \"OPTIMIZED\"}], \"report_rows_reconciled\": 482, \"reviewer_independence\": \"PENDING_EXTERNAL_REVIEW\", \"status\": \"PASS\", \"tolerance_absolute\": 1e-08}\n"
+    }
+  ],
+  "future_bytes_note": "Full-file opaque hashing includes future suffix; OHLC parsing stops at first 2025+ timestamp",
+  "future_ohlc_parsed": false,
+  "generated_artifact_count": 17,
+  "historical_reference_commit": "7927d3d6b465ec1bceae51ec8121def5e7c7e191",
+  "implementation_sha256": {
+    "README.md": "3f454fdfe83130ebe7902c972d6faf998e11e3a299239a1142a64b019bc51218",
+    "SPEC_EVIDENCE.json": "65801b2bf9c2b62cce6a15465d4146886c82691de7890346a573375af1933a27",
+    "audit.py": "1d5efd8aa98c67d10297bb567af60d42c7dd9ff4bd9395677033dc6f47c0daa2",
+    "engine.py": "5dabd2f526255f0e1b003c6820c114e5708d76d8ba5d9580c53c403c2f540c8a",
+    "research.py": "3768d630070f01e1eb95d92cc8f915444e0b02ca6322af742a775f04f7405407",
+    "test_research.py": "c1bddfbca704bda34f5251a46cf65c7dc7df5b4ca8fd4425bd6e53b90d514a86"
+  },
+  "independent_OOS_validation": false,
+  "live_changes": 0,
+  "new_testers": 0,
+  "offline_guard": {
+    "method": "libseccomp deny socket, socketpair, connect with EPERM before exec; inherited by descendants",
+    "negative_check_exit_code": 0,
+    "negative_check_stdout": "PASS: socket denied with EPERM\n",
+    "network_namespace_attempt": "unshare -n unavailable: Operation not permitted; seccomp used successfully",
+    "sha256": "2a725c0512dc33462aaef111166455b3e3a787ad5ab8b77bcc38de7ae22204ec"
+  },
+  "open_terminal_positions": 2,
+  "originals_unchanged": true,
+  "postrun_input_checks": [
+    {
+      "path": "forever/USDRUBF/USDRUBF_M15.csv",
+      "pinned_git_blob_matches": true,
+      "sha256_after_runs": "fef80630080a4e2a5e968d620b663f51acd1b7ab9d5d326a42c68cf2b80c67b8"
+    },
+    {
+      "path": "forever/CNYRUBF/CNYRUBF_M15.csv",
+      "pinned_git_blob_matches": true,
+      "sha256_after_runs": "259298733d1528c0d917b100118896009519a9f08bdad33d4b373d9ce86f99b4"
+    },
+    {
+      "path": "forever/GLDRUBF/GLDRUBF_M15.csv",
+      "pinned_git_blob_matches": true,
+      "sha256_after_runs": "7381d672485b5687ca2c4d92aa5960c24bb132f527589bae3c622b2dfa20a83d"
+    },
+    {
+      "path": "forever/IMOEXF/IMOEXF_M15.csv",
+      "pinned_git_blob_matches": true,
+      "sha256_after_runs": "a1b9fa6102a955103d61b28e81533ed19de68117e30fd84ceb53e8e617559773"
+    },
+    {
+      "path": "2026/Si/Si_M15_2023_Q1.csv",
+      "pinned_git_blob_matches": true,
+      "sha256_after_runs": "c0266d5510687d03d35f904cdf0f0619382321853c5e56ff68d115017cbb3c71"
+    },
+    {
+      "path": "2026/Si/Si_M15_2023_Q2.csv",
+      "pinned_git_blob_matches": true,
+      "sha256_after_runs": "11a48cded2750bc3280f4bdbfd38b84cbf2f1638b4b1b69933f75b5edcaddf38"
+    },
+    {
+      "path": "2026/Si/Si_M15_2023_Q3.csv",
+      "pinned_git_blob_matches": true,
+      "sha256_after_runs": "0a6ff4945dcc98976813b07ff5d9a5556eeab147fba046b863393992e1a88110"
+    },
+    {
+      "path": "2026/Si/Si_M15_2024_Q1.csv",
+      "pinned_git_blob_matches": true,
+      "sha256_after_runs": "05081e5c0dc995e9cff095b42fa9ea93fd12765db156fb210c654e30d7ffc6d0"
+    },
+    {
+      "path": "2026/Si/Si_M15_2024_Q2.csv",
+      "pinned_git_blob_matches": true,
+      "sha256_after_runs": "842e32c61032af1a7597aeb96b9facb580d4ee5598bf2962116d9f9679096f79"
+    },
+    {
+      "path": "2026/Si/Si_M15_2024_Q3.csv",
+      "pinned_git_blob_matches": true,
+      "sha256_after_runs": "60b696629c535a21816e982ac498bd99469d3dfc5b5779e0bf23b19bdce7a5d7"
+    },
+    {
+      "path": "2026/CNY/CNY_M15_2023_Q1.csv",
+      "pinned_git_blob_matches": true,
+      "sha256_after_runs": "947e0c92594e052e7c1f7250e9be7c2f3b6324f4150fe98ef98efc8275be28ae"
+    },
+    {
+      "path": "2026/CNY/CNY_M15_2023_Q2.csv",
+      "pinned_git_blob_matches": true,
+      "sha256_after_runs": "adf29963f9c05d74e13de9f45e02f4e6afc4bf5e421ec629961fda52d859650d"
+    },
+    {
+      "path": "2026/CNY/CNY_M15_2023_Q3.csv",
+      "pinned_git_blob_matches": true,
+      "sha256_after_runs": "fa96717162e5c5d9f7716ecc65bdb1f80ad5ddb61786af56a21d2d979b5df86b"
+    },
+    {
+      "path": "2026/CNY/CNY_M15_2024_Q1.csv",
+      "pinned_git_blob_matches": true,
+      "sha256_after_runs": "9e0aa5f4861296a53d4a90e52d93544a23b1142402010b100db9d5bb3b6e386e"
+    },
+    {
+      "path": "2026/CNY/CNY_M15_2024_Q2.csv",
+      "pinned_git_blob_matches": true,
+      "sha256_after_runs": "37163e4a95bd64e8fcf555f6a2fc44012f7e51b8d5d2645c89e4bafc3119247d"
+    },
+    {
+      "path": "2026/CNY/CNY_M15_2024_Q3.csv",
+      "pinned_git_blob_matches": true,
+      "sha256_after_runs": "3639572a7db9048370d66aaa580e6efb794e379c94ddb6ae75ae1e023413c77f"
+    }
+  ],
+  "published_reference_commit": "9457da1f49578f940859a678d20b3c4f505bc394",
+  "reference_parity": "PASS",
+  "reproducibility": "PASS",
+  "runtime": "PASS",
+  "saved_evidence_sha256": {
+    "AUDIT_RESULTS.json": "f3cc0f3b7533f3c35bdcdebd398ab7f0be30c92e9dd11caac93405902328e601",
+    "METRICS.csv": "905edca36ea03c60f7e3055c9bf1ffed5e3aa9c1155f0792aecf5abcf90f29fa",
+    "OFFLINE-RUNBOOK.md": "59dcdba981c81c0a33a5119f4064250f7e281a971aa792c7b0e5b0de5f4eef84",
+    "OPEN_POSITIONS.json": "c02fdec2fe99db54f48a003fa504b6d548509e79a8d5aa3791a1bc98c67a5631",
+    "REPRODUCTION_DETAIL.json": "d2baeeb80664e3783d8c5331bae9a0e8acce7c1109308c6787e92fe129d605be",
+    "SOURCE_MANIFEST.json": "8496ff9f3685e7eae75056d5cec0c8b3911fcc7ad3f0a89ac0df40f349a09bdd"
+  },
+  "tester": "IntradayLab/t3_m15_forever_v1/research.py",
+  "tester_code_changes": 0,
+  "unit_tests": {
+    "count": 14,
+    "exit_code": 0,
+    "log": "test_c1_r_and_price_scaling (test_research.Correctness.test_c1_r_and_price_scaling) ... ok\ntest_close_availability_and_daily_blocks (test_research.Correctness.test_close_availability_and_daily_blocks) ... ok\ntest_comparator_detects_numeric_and_order_errors (test_research.Correctness.test_comparator_detects_numeric_and_order_errors) ... ok\ntest_drawdown_streak_and_concentration (test_research.Correctness.test_drawdown_streak_and_concentration) ... ok\ntest_future_ohlc_not_read_or_parsed (test_research.Correctness.test_future_ohlc_not_read_or_parsed) ... ok\ntest_gap_and_same_bar_reentry (test_research.Correctness.test_gap_and_same_bar_reentry) ... ok\ntest_gapped_block_not_repacked (test_research.Correctness.test_gapped_block_not_repacked) ... ok\ntest_h1_regime_unavailable_before_fourth_close (test_research.Correctness.test_h1_regime_unavailable_before_fourth_close) ... ok\ntest_indicators_prefix_and_future_mutation (test_research.Correctness.test_indicators_prefix_and_future_mutation) ... ok\ntest_no_current_bar_in_donchian (test_research.Correctness.test_no_current_bar_in_donchian) ... ok\ntest_open_terminal_position_not_fabricated (test_research.Correctness.test_open_terminal_position_not_fabricated) ... ok\ntest_published_gate_regression (test_research.Correctness.test_published_gate_regression) ... ok\ntest_ratchet_used_only_next_bar (test_research.Correctness.test_ratchet_used_only_next_bar) ... ok\ntest_stop_precedes_trailing_and_stop_bar_mfe (test_research.Correctness.test_stop_precedes_trailing_and_stop_bar_mfe) ... ok\n\n----------------------------------------------------------------------\nRan 14 tests in 0.530s\n\nOK\n"
+  }
+}
