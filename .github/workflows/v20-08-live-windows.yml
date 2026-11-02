@@ -7,6 +7,8 @@ on:
       - 'V20_TradingSystem_M15/V20-08/v20-08-live-*.ps1'
       - 'V20_TradingSystem_M15/V20-08/v20-08-weekend-entry-update.ps1'
       - 'V20_TradingSystem_M15/V20-08/v20-08-open-witness-recovery.ps1'
+      - 'V20_TradingSystem_M15/V20-08/v20-08-friday-flat-recovery.py'
+      - 'V20_TradingSystem_M15/V20-08/v20-08-flat-weekend-cutover.ps1'
       - '.github/workflows/v20-08-live-windows.yml'
   push:
     branches:
@@ -40,7 +42,7 @@ jobs:
       - name: PowerShell syntax only for new V20 install launcher and cutover
         shell: pwsh
         run: |
-          $scripts = @('V20_TradingSystem_M15/V20-08/v20-08-live-prep.ps1', 'V20_TradingSystem_M15/V20-08/v20-08-live-launch.ps1', 'V20_TradingSystem_M15/V20-08/v20-08-live-cutover.ps1', 'V20_TradingSystem_M15/V20-08/v20-08-live-operator.ps1', 'V20_TradingSystem_M15/V20-08/v20-08-finam-read-recovery.ps1', 'V20_TradingSystem_M15/V20-08/v20-08-night-protected-update.ps1', 'V20_TradingSystem_M15/V20-08/v20-08-weekend-entry-update.ps1', 'V20_TradingSystem_M15/V20-08/v20-08-open-witness-recovery.ps1')
+          $scripts = @('V20_TradingSystem_M15/V20-08/v20-08-live-prep.ps1', 'V20_TradingSystem_M15/V20-08/v20-08-live-launch.ps1', 'V20_TradingSystem_M15/V20-08/v20-08-live-cutover.ps1', 'V20_TradingSystem_M15/V20-08/v20-08-live-operator.ps1', 'V20_TradingSystem_M15/V20-08/v20-08-finam-read-recovery.ps1', 'V20_TradingSystem_M15/V20-08/v20-08-night-protected-update.ps1', 'V20_TradingSystem_M15/V20-08/v20-08-weekend-entry-update.ps1', 'V20_TradingSystem_M15/V20-08/v20-08-open-witness-recovery.ps1', 'V20_TradingSystem_M15/V20-08/v20-08-flat-weekend-cutover.ps1')
           foreach ($script in $scripts) {
             $tokens = $null
             $errors = $null
@@ -241,6 +243,35 @@ jobs:
               throw 'V20_FLAT_INSTALL_MUST_NOT_ARM_OR_TRADE'
           }
           Write-Output 'V20_FLAT_H1_PARITY_INSTALL_PIN_AND_GUARDS=PASS_PS51_OFFLINE'
+      - name: Exact Friday GLD recovery syntax and fail-closed cutover guards
+        shell: powershell
+        run: |
+          $ErrorActionPreference='Stop'
+          $ps='V20_TradingSystem_M15/V20-08/v20-08-flat-weekend-cutover.ps1'
+          $py='V20_TradingSystem_M15/V20-08/v20-08-friday-flat-recovery.py'
+          $errors=$null
+          $tokens=$null
+          [void][System.Management.Automation.Language.Parser]::ParseFile((Resolve-Path -LiteralPath $ps).Path,[ref]$tokens,[ref]$errors)
+          if(@($errors).Count -ne 0){throw 'V20_FLATFIX_PS51_PARSE_FAIL'}
+          python -m py_compile $py
+          if($LASTEXITCODE -ne 0){throw 'V20_FLATFIX_PY_COMPILE_FAIL'}
+          $script=Get-Content -LiteralPath $ps -Raw
+          $recover=Get-Content -LiteralPath $py -Raw
+          $sha=(& git.exe hash-object -- $py).Trim()
+          if($LASTEXITCODE -ne 0 -or -not $script.Contains($sha)){throw 'V20_FLATFIX_RECOVERY_SHA_INVALID'}
+          foreach($pin in @('61ab6dea13a9a9c0eeeae2752a565e252966ebfc','73fef366b2ac982dc2db27dea65d3ca9c7ce2a5f','869ecc102963e070c704714a38e525215374d4ab','2462e86ad7f829e451b1a0c5cd7cebf1457c1adb','87f9ee5e5d18bd5a9b68f91e54e15e755c510529','b06957ea7833daeda65296eb372890951860c008')) {
+            if(-not $script.Contains($pin)){throw ('V20_FLATFIX_PIN_MISSING '+$pin)}
+          }
+          if($script.IndexOf("call-operator 'backup'") -gt $script.IndexOf("sqlite-repair 'recover'") -or
+             $script.IndexOf("Stop-ScheduledTask") -gt $script.IndexOf("sqlite-repair 'recover'") -or
+             -not $script.Contains('v20_08_4_positions=0') -or
+             -not $script.Contains('v20_08_4_active_orders=0') -or
+             -not $recover.Contains('BEGIN IMMEDIATE') -or
+             -not $recover.Contains('flat_cleanup:') -or
+             -not $recover.Contains('STOP_EXECUTED_FINAM_FLAT') -or
+             -not $recover.Contains('UPDATE state SET value=')) {throw 'V20_FLATFIX_SAFETY_GUARDS_MISSING'}
+          if($recover -match 'place_order|cancel_order|place_sltp_order|emergency_halt|write_kill_switch'){throw 'V20_FLATFIX_RECOVERY_SCOPE_BROKEN'}
+          Write-Output 'V20_FLATFIX_PS51_PY_AND_GUARDS=PASS'
       - name: Only new V20 LIVE syntax and scoped mock tests
         shell: pwsh
         env:
