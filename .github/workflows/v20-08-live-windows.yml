@@ -283,6 +283,7 @@ jobs:
           [void][System.Management.Automation.Language.Parser]::ParseFile((Resolve-Path -LiteralPath $ps).Path,[ref]$tokens,[ref]$err)
           if(@($err).Count -ne 0){throw 'V20_STABILITY_PS51_SYNTAX_INVALID'}
           $script=Get-Content -LiteralPath $ps -Raw
+          if($script.IndexOf('function need(') -lt 0 -or $script.IndexOf('need (') -lt 0 -or $script.IndexOf('function need(') -ge $script.IndexOf('need (')){throw 'V20_STABILITY_NEED_DECLARED_AFTER_CALL'}
           $launch=Get-Content -LiteralPath 'V20_TradingSystem_M15/V20-08/v20-08-live-launch.ps1' -Raw
           $newWorker=(& git.exe hash-object -- 'V20_TradingSystem_M15/v20_runtime/finam_live.py').Trim()
           $newExecution=(& git.exe hash-object -- 'V20_TradingSystem_M15/v20_runtime/finam_execution.py').Trim()
