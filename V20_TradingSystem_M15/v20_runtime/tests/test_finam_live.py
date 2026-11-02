@@ -341,14 +341,24 @@ class LiveAdmissionTests(unittest.TestCase):
                                  "robot_id": journal.robot_id,
                                  "account_sha256": journal.account_hash,
                                  "symbol": symbol, "finam_symbol": "FUTGLDRUBF",
-                                 "entry_at": "2026-10-30T12:45:00"}}
+                                 "entry_at": "2026-10-30T12:45:00", "direction": "LONG"},
+                     "broker_order_id": "entry-broker"}
             journal.store.rows = [entry]
-            journal.store.intents[key+":stop"] = {"status": "RECONCILED"}
+            journal.store.intents[key+":stop"] = {"status": "RECONCILED",
+                                                  "broker_order_id": "stop-broker"}
+            journal.store.values["protected_fill:" + key] = {
+                "account_sha256": journal.account_hash,
+                "broker_order_id": "entry-broker", "broker_stop_id": "stop-broker",
+                "filled_quantity": 1, "installed_stop": "101.5",
+                "broker_stop_percent": "100",
+                "risk_assessment": {"status": "PASS", "stop_conforms": True}}
             journal.reconcile_order = lambda **kw: None
             proof_calls = []
-            journal.observe_protected_entry = lambda **kw: proof_calls.append(kw)
             snapshot = SimpleNamespace(positions={"FUTGLDRUBF": 1}, orders=[])
-            reader = SimpleNamespace(snapshot=lambda **kw: snapshot)
+            reader = SimpleNamespace(
+                snapshot=lambda **kw: snapshot,
+                inspect_protective_stop=lambda *a, **kw: (proof_calls.append(kw)
+                    or SimpleNamespace(order_id="stop-broker")))
             sender = SimpleNamespace(journal=journal, reader=reader,
                                      auth_path=Path(tmp)/"none", source="0"*40)
             with ExitStack() as stack:
@@ -377,10 +387,10 @@ class LiveAdmissionTests(unittest.TestCase):
                     run_cycle(sender, now)
                 # Without confirmed broker protection even the delayed-witness
                 # exception cannot authorize a healthy/pending state.
-                journal.observe_protected_entry = lambda **kw: (_ for _ in ()).throw(
-                    V20FinamBlocked("V20_LIVE_PROTECTION_REQUIRED"))
+                journal.store.values["protected_fill:" + key]["broker_stop_percent"] = "0"
                 read.side_effect = V20FinamBlocked("M15_NEXT_OPEN_WITNESS_MISSING")
-                with self.assertRaisesRegex(V20FinamBlocked, "V20_LIVE_PROTECTION_REQUIRED"):
+                with self.assertRaisesRegex(V20FinamBlocked,
+                                            "SEALED_ENTRY_DURABLE_PROTECTION_INVALID"):
                     run_cycle(sender, now)
 
     def test_timestamp_failure_in_position_followup_still_halts(self):
@@ -786,7 +796,7 @@ class LiveAdmissionTests(unittest.TestCase):
             rows = [json.loads(x) for x in
                     (instance/"logs"/"live-m15.jsonl").read_text(encoding="utf-8").splitlines()]
             self.assertEqual([row["state"] for row in rows],
-                             ["FAULT_FinamServerError", "FAULT_FINAM_SNAPSHOT_HTTP_400",
+                             ["FAULT_FINAM_HTTP_503", "FAULT_FINAM_SNAPSHOT_HTTP_400",
                               "WAIT_NEXT_M15_OPEN"])
 
     def test_h1_style_unsafe_fault_halts_entries_but_does_not_terminate_process(self):
