@@ -257,6 +257,36 @@ def _close_flat(journal: V20LiveJournal, key: str):
         journal.store.put("risk_reservations", reserved)
 
 
+def _verify_sealed_protection(journal, reader, snapshot, now, row):
+    """H1 final-fill handoff: immutable SQLite fill proof + CURRENT broker 100% SLTP.
+
+    A RECONCILED full entry is not a pending POST. Never re-read historical
+    /trades or require that the old completed entry still appears in /orders.
+    Partial/uncertain entries still use the strict original fill reconciliation.
+    """
+    key, payload = row["idempotency_key"], row["payload"]
+    proof = journal.store.get("protected_fill:" + key)
+    stop_intent = journal.store.intent(key + ":stop")
+    qty = snapshot.positions.get(payload["finam_symbol"], 0)
+    risk = proof.get("risk_assessment") if isinstance(proof, dict) else None
+    if (not isinstance(proof, dict) or not isinstance(risk, dict)
+            or risk.get("status") != "PASS" or risk.get("stop_conforms") is not True
+            or proof.get("account_sha256") != journal.account_hash
+            or proof.get("broker_order_id") != row["broker_order_id"]
+            or proof.get("broker_stop_percent") != "100"
+            or type(proof.get("filled_quantity")) is not int
+            or proof["filled_quantity"] != abs(qty)
+            or not stop_intent or stop_intent["status"] not in {"ACK", "RECONCILED"}
+            or stop_intent["broker_order_id"] != proof.get("broker_stop_id")):
+        raise V20FinamBlocked("SEALED_ENTRY_DURABLE_PROTECTION_INVALID")
+    broker_stop = reader.inspect_protective_stop(
+        snapshot, entry_key=key, symbol=payload["symbol"],
+        direction=payload["direction"],
+        stop_price=Decimal(str(proof["installed_stop"])), now=now)
+    if broker_stop.order_id != proof["broker_stop_id"]:
+        raise V20FinamBlocked("SEALED_ENTRY_BROKER_STOP_ID_CHANGED")
+
+
 def _follow_existing(sender: V20LiveTransport, now: datetime, snapshot) -> str:
     journal, reader = sender.journal, sender.reader
     entries = _ownership(journal, snapshot)
@@ -314,7 +344,8 @@ def _follow_existing(sender: V20LiveTransport, now: datetime, snapshot) -> str:
                         and row["status"] == "ACK"):
                     return "ENTRY_ACK_AWAIT_BROKER_FILL"
             raise V20FinamBlocked("V20_LIVE_UNEXPLAINED_FLAT_RECONCILE")
-        journal.reconcile_order(key=key, snapshot=snapshot)
+        if row["status"] != "RECONCILED":
+            journal.reconcile_order(key=key, snapshot=snapshot)
         exit_intent = journal.store.intent(key + ":frozen-exit")
         if exit_intent is not None:
             # H1 _reconcile_intents: a terminal rejected/cancelled exit with
@@ -365,8 +396,11 @@ def _follow_existing(sender: V20LiveTransport, now: datetime, snapshot) -> str:
             return "STOP_ACK_NEEDS_BROKER_PROOF"
         if stop_intent["status"] not in ("ACK", "RECONCILED"):
             raise V20FinamBlocked("V20_LIVE_STOP_POST_UNKNOWN_NO_RETRY")
-        journal.observe_protected_entry(
-            key=key, reader=reader, snapshot=snapshot, now=now)
+        if row["status"] == "RECONCILED":
+            _verify_sealed_protection(journal, reader, snapshot, now, row)
+        else:
+            journal.observe_protected_entry(
+                key=key, reader=reader, snapshot=snapshot, now=now)
         if journal.store.get("execution_halt"):
             raise V20FinamBlocked("V20_LIVE_POST_FILL_RISK_HALTED")
         # Outside MOEX hours the frozen exit is not due. Do not fetch M15.
