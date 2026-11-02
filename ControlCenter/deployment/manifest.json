@@ -143,7 +143,7 @@
     },
     {
       "path": "ci/protected-main-tree.json",
-      "sha256": "8e52eed9d57082dd5fb32d66785d6569155c06c65c953d749ebea257b6a16f24"
+      "sha256": "f20b3ff3aadf89014bff9fff394bd09b7f960c07ad7202a073091dded5121455"
     },
     {
       "path": "ci/scope_audit.py",
