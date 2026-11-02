@@ -1,5 +1,6 @@
 """Source audit plus runtime guards. Framework server networking is out of scope."""
 import ast
+from hashlib import sha1
 import os
 from pathlib import Path
 import socket
@@ -130,7 +131,9 @@ def test_v20_manual_refresh_only_fixed_pinned_readonly_exporter():
         'timeout': '90', 'check': 'False',
         'creationflags': "getattr(subprocess, 'CREATE_NO_WINDOW', 0)",
     }
-    assert 'BLOB = "b8ce1b8863d011a1a267752a1771374a4474ccaf"' in source
+    exporter = (ROOT / 'deployment/v20_live_export.py').read_bytes()
+    expected = sha1(b'blob ' + str(len(exporter)).encode('ascii') + b'\x00' + exporter).hexdigest()
+    assert 'BLOB = "' + expected + '"' in source
     assert 'PUBLISHER = Path(r"C:\\Control Center\\v20-preview-d80f2446\\deployment\\v20_live_export.py")' in source
     assert 'PYTHON = Path(r"C:\\Control Center\\runtime\\python312\\python.exe")' in source
     assert 'if actual != BLOB:' in source

@@ -112,3 +112,9 @@ def test_weekend_and_closed_market_cycles_are_valid_local_pass():
     assert classification('WEEKEND_NO_NEW_ENTRIES') == 'PASS'
     assert classification('MOEX_CLOSED_PROTECTED_MONITOR') == 'PASS'
     assert classification('UNKNOWN_STATE') == 'UNKNOWN'
+
+
+def test_exit_witness_retry_is_pending_and_not_falsely_fault_or_pass():
+    from deployment.v20_live_export import classification
+    assert classification('M15_EXIT_WITNESS_PENDING_RETRY') == 'PENDING'
+    assert classification('M15_EXIT_WITNESS_MISSING') == 'UNKNOWN'

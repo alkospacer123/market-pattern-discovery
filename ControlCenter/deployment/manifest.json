@@ -103,7 +103,7 @@
     },
     {
       "path": "cc/v20_manual_export.py",
-      "sha256": "b17436dbabeb26458061e2728a98f771983f8b2e732499b17d2836551bd0902e"
+      "sha256": "b160516d00eedfe85bb79b82f1da2230250f18aad9e3588e287448d69ac88857"
     },
     {
       "path": "cc/v20_receiver.py",
@@ -283,7 +283,7 @@
     },
     {
       "path": "deployment/v20_live_export.py",
-      "sha256": "97b621e88820acef5a401115613d8ec095096f023e8056b4245de89fcfb3aeff"
+      "sha256": "e6addea593904a838feced43fa071e847476f45c506134e689ebb2418e92fde3"
     },
     {
       "path": "docs/ACCEPTANCE_REPORT.md",
@@ -499,7 +499,7 @@
     },
     {
       "path": "tests/test_boundary.py",
-      "sha256": "41596f604ee2cbd384f228c1d5353ad319c85bea5a5615cb94aa7b787d9316d6"
+      "sha256": "05f0a3e00840ab66a6c564cd30768c8b14bd1bc6c8c9ebc183cba723e97b82bd"
     },
     {
       "path": "tests/test_cc03_source.py",
@@ -607,7 +607,7 @@
     },
     {
       "path": "tests/test_v20_live_export.py",
-      "sha256": "9dba3fe205203f3a0be6fbb089a59cef2811cce50184296e63f757c925263d0b"
+      "sha256": "a846e397166c3284eebdebf6a194c12060897c93d4d78631738125dff5d82913"
     },
     {
       "path": "tests/test_v20_live_policy.py",
