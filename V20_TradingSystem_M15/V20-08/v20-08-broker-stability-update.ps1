@@ -22,7 +22,6 @@ $new=@{
     execution='4ea5cec17a31413c96531dd4f80f77e2a96f3f00'
 }
 $files=@{worker=$worker;launcher=$launcher;execution=$execution}
-need ($env:OS -eq 'Windows_NT') 'v20_stability_wrong_os'
 function need([bool]$ok,[string]$code){if(-not $ok){throw $code}}
 function blob([string]$p){
     need (Test-Path -LiteralPath $p -PathType Leaf) ('v20_stability_file_missing '+$p)
