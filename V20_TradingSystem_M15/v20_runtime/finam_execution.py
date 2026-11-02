@@ -32,8 +32,11 @@ from TradingSystemLab.stage8_robot.margin import (
     portfolio_authority,
 )
 from TradingSystemLab.stage8_robot.production_broker_state import (
-    BrokerOrderView, order_views, position_quantities, unique_order_by_client_id,
+    BrokerOrderView, ProductionBrokerStateError, order_views, position_quantities, unique_order_by_client_id,
     _validate_production_sltp, _contracts,
+)
+from TradingSystemLab.stage8_robot.account_cleanliness import (
+    normalize_order_status, TERMINAL_ORDER_STATUSES,
 )
 from TradingSystemLab.stage8_robot.production_runtime import _load_registry, RuntimeAction
 
@@ -43,6 +46,42 @@ from .account_risk import AccountAuthority, RiskReservation, reserve_entry, reva
 from .h1_state_journal import ROBOT_STRATEGIES, IsolatedReferenceJournal
 from .offline_planner import N4, FrozenSignal, ProposedEntry, OfflinePlanner, STEP
 from .frozen_adapter import validate_completed_history, completed_signal, _frozen_immutable_features
+
+
+def _v20_order_views(response: Any) -> tuple[list[BrokerOrderView], int]:
+    """Ignore ONLY malformed metadata of an independently terminal FINAM order.
+
+    All active/unknown-status rows remain strict. Preserve duplicate-order-ID
+    detection across omitted rows. A pending or partially filled entry that
+    lacks an order view still fails its normal identity/fill reconciliation;
+    this never manufactures a broker ACK or authorization to send another POST.
+    """
+    rows = response.get("orders") if isinstance(response, dict) else response
+    if not isinstance(rows, list):
+        return order_views(response), 0
+    kept = []
+    known_ids = set()
+    omitted = 0
+    for row in rows:
+        if not isinstance(row, dict):
+            return order_views(response), 0
+        oid = row.get("order_id")
+        if not isinstance(oid, str) or not oid or oid in known_ids:
+            raise ProductionBrokerStateError("STAGE8_12_4_ORDER_ID_INVALID")
+        known_ids.add(oid)
+        try:
+            order_views([row])
+        except ProductionBrokerStateError as exc:
+            if str(exc) != "STAGE8_12_4_ORDER_REQUEST_INVALID":
+                raise
+            # A malformed ACTIVE stop/entry must NEVER disappear from proof.
+            status = normalize_order_status(row.get("status"))
+            if status not in TERMINAL_ORDER_STATUSES:
+                raise
+            omitted += 1
+        else:
+            kept.append(row)
+    return order_views(kept), omitted
 
 
 ACTIVE_STATUSES = frozenset({"ACCOUNT_ACTIVE", "ACCOUNT_STATUS_ACTIVE"})
@@ -117,7 +156,8 @@ class V20FinamReadAdapter:
                 or raw.get("status") not in ACTIVE_STATUSES):
             raise V20FinamBlocked("FINAM_ACCOUNT_RESPONSE_INVALID")
         positions = position_quantities(raw)
-        orders = order_views(self.api.orders(self.account_id))
+        orders, self._terminal_order_metadata_omitted = _v20_order_views(
+            self.api.orders(self.account_id))
         known = {x["finam_symbol"] for x in _load_registry().values()}
         if any(symbol not in known for symbol in positions):
             raise V20FinamBlocked("FOREIGN_ACCOUNT_POSITION")
