@@ -16,7 +16,7 @@ from TradingSystemLab.stage8_robot.finam_api import (
 )
 from V20_TradingSystem_M15.v20_runtime.finam_live import (
     AUTH_SCHEMA, SYMBOLS, _safe_auth, _ownership, run_cycle, run, V20FinamBlocked,
-    V20FinamSnapshotReadRetry, _night_protected_sleep_seconds,
+    V20FinamSnapshotReadRetry, _night_protected_sleep_seconds, _verify_sealed_protection,
 )
 
 
@@ -38,6 +38,57 @@ class StubStore:
     def put(self, key, value):
         self.values[key] = value
 
+
+class PostWeekendSafetyFixTests(unittest.TestCase):
+    def test_sealed_entry_uses_current_broker_stop_without_historical_replay(self):
+        journal = SimpleNamespace(account_hash="a" * 64, store=StubStore())
+        key = "v20:v20-shallow:" + "a" * 16 + ":entry"
+        row = {"idempotency_key": key, "broker_order_id": "entry-broker",
+               "status": "RECONCILED", "payload": {
+                   "symbol": "GLDRUBF", "direction": "LONG",
+                   "finam_symbol": "FUTGLDRUBF"}}
+        journal.store.values["protected_fill:" + key] = {
+            "account_sha256": journal.account_hash,
+            "broker_order_id": "entry-broker", "broker_stop_id": "broker-stop",
+            "broker_stop_percent": "100", "filled_quantity": 2,
+            "installed_stop": "101.5",
+            "risk_assessment": {"status": "PASS", "stop_conforms": True}}
+        journal.store.intents[key + ":stop"] = {
+            "status": "ACK", "broker_order_id": "broker-stop"}
+        calls = []
+        reader = SimpleNamespace(inspect_protective_stop=lambda *a, **kw:
+                                  (calls.append(kw) or SimpleNamespace(order_id="broker-stop")))
+        snapshot = SimpleNamespace(positions={"FUTGLDRUBF": 2})
+        now = datetime.now(timezone.utc)
+        _verify_sealed_protection(journal, reader, snapshot, now, row)
+        self.assertEqual(len(calls), 1)
+        self.assertEqual(calls[0]["stop_price"], __import__("decimal").Decimal("101.5"))
+        snapshot.positions["FUTGLDRUBF"] = 3
+        with self.assertRaisesRegex(V20FinamBlocked, "SEALED_ENTRY_DURABLE_PROTECTION_INVALID"):
+            _verify_sealed_protection(journal, reader, snapshot, now, row)
+        snapshot.positions["FUTGLDRUBF"] = 2
+        reader.inspect_protective_stop = lambda *a, **kw: SimpleNamespace(order_id="changed-stop")
+        with self.assertRaisesRegex(V20FinamBlocked, "SEALED_ENTRY_BROKER_STOP_ID_CHANGED"):
+            _verify_sealed_protection(journal, reader, snapshot, now, row)
+
+    def test_terminal_metadata_tolerance_never_masks_active_stop_or_duplicate_id(self):
+        from TradingSystemLab.stage8_robot.production_broker_state import ProductionBrokerStateError
+        from V20_TradingSystem_M15.v20_runtime.finam_execution import _v20_order_views
+        terminal = {"order_id": "old-entry", "status": "ORDER_STATUS_FILLED",
+                    "order": {"symbol": "GLDRUBF", "side": "SIDE_UNSPECIFIED",
+                              "client_order_id": ""}}
+        active = {"order_id": "active-stop", "status": "ORDER_STATUS_NEW",
+                  "sltp_order": {"symbol": "GLDRUBF", "side": "SIDE_SELL",
+                                 "client_order_id": "stop-key", "comment": "owned"}}
+        views, omitted = _v20_order_views({"orders": [terminal, active]})
+        self.assertEqual(omitted, 1)
+        self.assertEqual(len(views), 1)
+        self.assertTrue(views[0].active)
+        invalid_active = dict(active, sltp_order=dict(active["sltp_order"], side="SIDE_UNSPECIFIED"))
+        with self.assertRaisesRegex(ProductionBrokerStateError, "STAGE8_12_4_ORDER_REQUEST_INVALID"):
+            _v20_order_views({"orders": [terminal, invalid_active]})
+        with self.assertRaisesRegex(ProductionBrokerStateError, "STAGE8_12_4_ORDER_ID_INVALID"):
+            _v20_order_views({"orders": [terminal, dict(active, order_id="old-entry")]})
 
 class LiveAdmissionTests(unittest.TestCase):
     def fake_journal(self, root: Path):
