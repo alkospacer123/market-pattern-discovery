@@ -549,6 +549,13 @@ def run_cycle(sender: V20LiveTransport, now: datetime) -> str:
             raise
         raise V20FinamSnapshotReadRetry("FINAM_NIGHT_SNAPSHOT_HTTP_" + status) from exc
     state = _follow_existing(sender, now, snapshot)
+    # A CURRENT successful broker position and exact 100% stop check is the
+    # only permission to slow retries of overnight GET 5xx/timeouts. After
+    # restart, missing proof or any unsettled operation retains fast retry.
+    if (state == "BROKER_RECONCILED_PROTECTION_PASS"
+            and _closed_moex_night(now)
+            and _closed_night_protected(journal, snapshot)):
+        reader._night_last_good_protected_at = now.astimezone(timezone.utc)
     if state != "BROKER_RECONCILED_PROTECTION_PASS":
         return state
     switch, error = load_kill_switch(journal.instance_root)
@@ -743,7 +750,7 @@ def run(*, root: Path, robot: str, source: str, once: bool = False,
                 state = label if re.fullmatch(r"[A-Z0-9_]{1,100}", label) else type(exc).__name__
                 # A generic H1 FinamError often embeds the account path,
                 # so log a useful HTTP code only, without path or identity.
-                http_code = re.match(r"^HTTP_([0-9]{3}):", label) if type(exc) is FinamError else None
+                http_code = re.match(r"^HTTP_([0-9]{3}):", label) if isinstance(exc, FinamError) else None
                 if http_code is not None:
                     state = "FINAM_HTTP_" + http_code.group(1)
                 event = {"utc": now.isoformat(), "robot": robot,
@@ -755,7 +762,21 @@ def run(*, root: Path, robot: str, source: str, once: bool = False,
                     f.write(json.dumps(event, sort_keys=True)+"\n")
                 if once:
                     return 1
-                time.sleep(FAST_RECONCILIATION_SECONDS)
+                last_protected = getattr(reader, "_night_last_good_protected_at", None)
+                recently_protected = (
+                    isinstance(last_protected, datetime)
+                    and last_protected.tzinfo is not None
+                    and timedelta(0) <= now.astimezone(timezone.utc) - last_protected
+                    <= timedelta(hours=8))
+                slow_night_get_retry = (
+                    isinstance(exc, (FinamServerError, FinamTimeout, FinamRateLimit))
+                    and _closed_moex_night(now) and recently_protected)
+                # Closed-market broker maintenance must not create 1200
+                # redundant GETs/hour when a CURRENT 100% SLTP was proven.
+                # Unknown POST/SLTP, unproved stop and active exchange hours
+                # still use the existing strict fast reconciliation.
+                time.sleep(_night_protected_sleep_seconds(datetime.now(timezone.utc))
+                           if slow_night_get_retry else FAST_RECONCILIATION_SECONDS)
                 continue
             event = {"utc": now.isoformat(), "robot": robot, "state": state}
             if getattr(reader, "_closed_night_flat_no_get", False):
