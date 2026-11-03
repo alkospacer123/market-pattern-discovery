@@ -145,11 +145,15 @@ def run(root:Path,out:Path):
     for t in trades.itertuples():
      cost=abs(float(t.risk))*RUB_PER_PRICE[t.symbol]+2*TICK_RUB[t.symbol]
      risk_by_symbol[t.symbol].append(cost)
-     events.append((pd.Timestamp(t.entry_time),1,t.symbol))
-     events.append((pd.Timestamp(t.exit_time),-1,t.symbol))
+     entry_ts=pd.Timestamp(t.entry_time)
+     exit_ts=pd.Timestamp(t.exit_time)
+     events.append((entry_ts,1,1,t.symbol))
+     # A stop on the entry bar needs margin at entry, then closes;
+     # normal old exits release before fresh same-timestamp entries.
+     events.append((exit_ts,2 if exit_ts==entry_ts else 0,-1,t.symbol))
     events.sort(key=lambda x:(x[0],x[1]))
     go=0;go_max=0;slots=0;slots_max=0;active=set()
-    for dt,direction,sym in events:
+    for dt,priority,direction,sym in events:
      if direction==1:
       assert sym not in active,('REPLAY_SAME_SYMBOL_ACTIVE',m,k,sym,dt)
       active.add(sym)
