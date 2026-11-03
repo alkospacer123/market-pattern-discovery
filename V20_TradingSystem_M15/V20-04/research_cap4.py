@@ -291,6 +291,12 @@ def run(root:Path,out:Path):
      print('FIXED_BASE_COLLATERAL '+m+' '+json.dumps(
       {'quota':k,**result},separators=(",",":")),flush=True)
    outcomes[m]['fixed_risk_base_cash_diagnostic']=fixed
+  # Integrated cash-aware N4 replay. CASH_FULL_REPLAY_FROZEN_PARITY
+  # must agree with the frozen N4 no-GO baseline before presenting results.
+  from research_cashaware_replay import run as replay_cash_all
+  cash_results=replay_cash_all(d,MODES,variants)
+  for m in MODES:
+   outcomes[m]['cash_aware_live_equity_policy_replay']=cash_results[m]
   common={}
   for k in (1,2,3,4):
    risk=max(outcomes[m]['quotas'][str(k)]['floor_bank_for_one_lot_risk'] for m in MODES)
