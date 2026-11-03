@@ -86,6 +86,47 @@ def money_stats(df,bank):
   if d==1 and current>bank:violations+=1
  return dict(bank=bank,risk_infeasible_trades=missing_risk,
              peak_risk_sized_go=maximum,go_over_cap_at_entry=violations)
+def full_r15_margin_audit(trades,bank):
+ """Diagnostic: no cap by GO, risk sizing exact to 1.5% C1; constant nominal equity.
+ Not an order-admission simulation. Broker account/GO charges may differ.
+ """
+ events=[]
+ zero_qty=0
+ for t in trades.itertuples():
+  per_lot=abs(float(t.risk))*RUB_PER_PRICE[t.symbol]+2*TICK_RUB[t.symbol]
+  qty=math.floor(0.015*bank/per_lot+1e-9)
+  if qty==0:zero_qty+=1
+  req=qty*(GO[t.symbol]+2*TICK_RUB[t.symbol])
+  if not req:continue
+  at=pd.Timestamp(t.entry_time);out=pd.Timestamp(t.exit_time)
+  # Entry-bar stop: book entry before release at identical time.
+  events.append((at,1,0,t.symbol,req,qty,per_lot))
+  events.append((out,2 if at==out else 0,1,t.symbol,req,qty,per_lot))
+ events.sort(key=lambda v:(v[0],v[1],v[2]))
+ used=0;peak=0;when=None;exceeded=0;single_over=0;detail=None
+ active={}
+ for at,priority,ex,sym,req,qty,per_lot in events:
+  if ex:
+   used-=req
+   del active[sym]
+  else:
+   if req>bank:single_over+=1
+   used+=req
+   active[sym]=(qty,req)
+   if used>bank:exceeded+=1
+   if used>peak:
+    peak=used
+    when=str(at)
+    detail={'symbol':sym,'one_lot_risk_rub':round(per_lot,2),
+            'latest_qty':qty,'active_positions':{k:v[0] for k,v in active.items()}}
+ assert used==0,(bank,used)
+ return {'bank':bank,'total_peak_GO_incl_C1':round(peak,2),
+         'peak_to_bank':round(peak/bank,4),
+         'peak_date':when,'peak_positions':detail,
+         'risk_qty_zero_trades':zero_qty,
+         'entry_go_over_bank':exceeded,
+         'single_position_go_over_bank':single_over}
+
 def run(root:Path,out:Path):
  for sym,expected in DATA_SHA.items():
   p=root/sym/(sym+'_M15.csv')
@@ -192,6 +233,13 @@ def run(root:Path,out:Path):
    outcomes[m]=dict(baseline_parity_accepted=bool(parity),
                     quotas=variations)
    print('CAP1234_SUMMARY '+m+' '+json.dumps(outcomes[m],ensure_ascii=False,separators=(',',':')),flush=True)
+  for m in MODES:
+   checks={}
+   for k in (2,3):
+    ledger,_=variants[k].merged(d,m)
+    checks[str(k)]=[full_r15_margin_audit(ledger,b) for b in (45000,68000,100000,200000,500000,1000000)]
+   outcomes[m]['dynamic_full_r15_GO_diagnostic']=checks
+   print('CAP23_DYNAMIC_GO '+m+' '+json.dumps(checks,ensure_ascii=False,separators=(',',':')),flush=True)
   common={}
   for k in (1,2,3,4):
    risk=max(outcomes[m]['quotas'][str(k)]['floor_bank_for_one_lot_risk'] for m in MODES)
