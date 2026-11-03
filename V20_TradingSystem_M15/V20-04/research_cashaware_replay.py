@@ -52,7 +52,8 @@ def arrays(d, mode):
 
 @njit
 def replay_cash(ts,sym,day,day_sess,op,hi,lo,atr,atr_old,signal,target,
-                tpr,weekend,bank,quota,policy,block_weekend,go_factor=1.0):
+                tpr,weekend,bank,quota,policy,block_weekend,go_factor=1.0,
+                fixed_equity_risk=False):
     pos=np.zeros(4,np.int64)
     pending=np.full(4,-1,np.int64)
     used=np.full(4,-1,np.int64)
@@ -145,7 +146,8 @@ def replay_cash(ts,sym,day,day_sess,op,hi,lo,atr,atr_old,signal,target,
                         if policy==-1:
                             qty=1
                         else:
-                            risk_budget=min(.015*equity,.06*equity-held_risk)
+                            risk_base=bank if fixed_equity_risk else equity
+                            risk_budget=min(.015*risk_base,.06*risk_base-held_risk)
                             qty=int(np.floor((risk_budget+1e-9)/per_lot)) if (
                                 equity>0 and risk_budget>0) else 0
                         if qty<1:
@@ -204,8 +206,8 @@ def replay_cash(ts,sym,day,day_sess,op,hi,lo,atr,atr_old,signal,target,
                                 risk_peak=max(risk_peak,total_risk)
                                 if policy!=-1:
                                     assert total_go<=equity+1e-6
-                                    assert total_risk<=.06*equity+1e-6
-                                    assert qty*per_lot<=.015*equity+1e-6
+                                    assert total_risk<=.06*risk_base+1e-6
+                                    assert qty*per_lot<=.015*risk_base+1e-6
                                 # Frozen stop-first on entry bar.
                                 close_now=0.
                                 if (direction==1 and lo[i]<=sp+TICK[s]*1e-7) or (
@@ -328,6 +330,44 @@ def run(d,modes,variants):
                         ev,accepted,blocked_go,blocked_risk,weekend_skips,peak_go,peak_risk,dd,ddp,mineq,end_equity,unclosed,busy_skips=(
                             replay_cash(*a,float(bank),q,policy,True,go_factor))
                         z=metrics(ev,a,bank)
+                        # Targeted diagnostic: normalize actual cash trades back to R
+                        # and compare with a constant 45k sizing risk.
+                        if q==2 and bank==45000 and policy==0 and go_factor==0.5:
+                            records=[]
+                            for i,s,en,quantity,pnl,exposure in ev:
+                                if pd.Timestamp(a[0][i]).year!=2025:
+                                    continue
+                                stop_rub=exposure-quantity*FEE[s]
+                                assert stop_rub>0, "INVALID_STOP_EXPOSURE"
+                                records.append((pnl,pnl/stop_rub,stop_rub))
+                            wR=sum(max(0.,r) for _,r,_ in records)
+                            lR=sum(max(0.,-r) for _,r,_ in records)
+                            wP=sum(max(0.,p) for p,_,_ in records)
+                            lP=sum(max(0.,-p) for p,_,_ in records)
+                            avg_win_exposure=(sum(e for p,r,e in records if p>0) /
+                                              sum(1 for p,r,e in records if p>0))
+                            avg_loss_exposure=(sum(e for p,r,e in records if p<0) /
+                                               sum(1 for p,r,e in records if p<0))
+                            fixed_ev,*_ = replay_cash(*a,float(bank),q,policy,True,
+                                                      go_factor,True)
+                            fixed=metrics(fixed_ev,a,bank)
+                            audit={
+                                "robot":mode,"bank":bank,"go_factor":go_factor,
+                                "original_cash_2025":z["yearly"]["2025"],
+                                "cash_2025_reconciled":{"n":len(records),
+                                   "gross_profit":round(wP,2),"gross_loss":round(lP,2),
+                                   "pf":round(wP/lP,6)},
+                                "same_fills_normalized_R_2025":{
+                                    "n":len(records),"gross_positive_R":round(wR,4),
+                                    "gross_negative_R":round(lR,4),
+                                    "pf_R":round(wR/lR,6),
+                                    "avg_exposure_winning_rub":round(avg_win_exposure,2),
+                                    "avg_exposure_losing_rub":round(avg_loss_exposure,2)},
+                                "fixed_45000_risk_cash_2025":fixed["yearly"]["2025"],
+                                "fixed_risk_all_trades":fixed["trades"]}
+                            print("CASH_2025_DIAGNOSTIC",
+                                  __import__("json").dumps(audit,separators=(",",":")),
+                                  flush=True)
                         z.update(bank=bank,quota=q,policy=name,go_factor=go_factor,accepted=accepted,
                             rejected_go=blocked_go,rejected_risk=blocked_risk,
                             rejected_weekend=weekend_skips,rejected_busy=busy_skips,peak_go=round(peak_go,2),
