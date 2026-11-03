@@ -6,6 +6,7 @@ $ErrorActionPreference='Stop'
 Set-StrictMode -Version Latest
 $root='c:\v20lab'
 $names=@('v20-shallow','v20-obv','v20-inside')
+$affected=@('v20-shallow','v20-inside')
 $stage=Join-Path $root 'pretrade-08\live-08'
 $runtime=Join-Path $root 'pretrade-08\live-runtime-08\V20_TradingSystem_M15\v20_runtime'
 $files=@{
@@ -41,7 +42,8 @@ function check-switches(){
         $p=Join-Path $root ('robots\'+$n.Substring(4)+'\safety\stage8-trading-kill-switch.json')
         need (Test-Path -LiteralPath $p -PathType Leaf) ('V20_STOPREPAIR_SWITCH_MISSING_'+$n)
         $s=Get-Content -LiteralPath $p -Raw -Encoding UTF8 | ConvertFrom-Json
-        need ($s.state -ceq 'HALTED') ('V20_STOPREPAIR_REQUIRES_HALTED_'+$n)
+        $expected=if($n -eq 'v20-obv'){'ARMED'}else{'HALTED'}
+        need ($s.state -ceq $expected) ('V20_STOPREPAIR_SWITCH_CHANGED_'+$n)
         need (task-running $n) ('V20_STOPREPAIR_TASK_NOT_RUNNING_'+$n)
     }
 }
@@ -125,14 +127,14 @@ foreach($key in @('execution','worker','launcher')){
 Write-Output 'v20_stoprepair_backup=pass_3_of_3'
 # Verify the SAME broker stop identities immediately before brief worker turnover.
 broker-preflight
-foreach($n in $names){Stop-ScheduledTask -TaskName $n -TaskPath '\' -ErrorAction Stop}
-foreach($n in $names){
+foreach($n in $affected){Stop-ScheduledTask -TaskName $n -TaskPath '\' -ErrorAction Stop}
+foreach($n in $affected){
     for($i=0;$i -lt 40 -and (task-running $n);$i++){Start-Sleep -Seconds 1}
     need (-not (task-running $n)) ('V20_STOPREPAIR_TASK_STILL_RUNNING_'+$n)
 }
 $workers=@(Get-CimInstance Win32_Process -Filter "Name='python.exe' OR Name='pythonw.exe'" -ErrorAction Stop |
     Where-Object {$_.CommandLine -match 'V20_TradingSystem_M15[.]v20_runtime[.]finam_live' -and
-                  $_.CommandLine -match '--robot\s+v20-(shallow|obv|inside)'})
+                  $_.CommandLine -match '--robot\s+v20-(shallow|inside)'})
 need ($workers.Count -eq 0) 'V20_STOPREPAIR_WORKER_STILL_RUNNING'
 foreach($key in @('execution','worker','launcher')){
     Copy-Item -LiteralPath ($files[$key]+'.watching-stage') -Destination $files[$key] -Force -ErrorAction Stop
@@ -140,7 +142,7 @@ foreach($key in @('execution','worker','launcher')){
 }
 Write-Output 'v20_stoprepair_runtime=pass_3_of_3'
 $start=[datetimeoffset]::UtcNow
-foreach($n in $names){Start-ScheduledTask -TaskName $n -TaskPath '\' -ErrorAction Stop}
+foreach($n in $affected){Start-ScheduledTask -TaskName $n -TaskPath '\' -ErrorAction Stop}
 foreach($n in $names){
     $p=Join-Path $root ('robots\'+$n.Substring(4)+'\logs\live-m15.jsonl')
     $fresh=$false
@@ -150,15 +152,21 @@ foreach($n in $names){
             $last=Get-Content -LiteralPath $p -Tail 1 -Encoding UTF8 | ConvertFrom-Json
             $ts=[datetimeoffset]::Parse([string]$last.utc,[globalization.cultureinfo]::InvariantCulture)
             if($last.robot -eq $n -and $ts -ge $start.AddSeconds(-5)){
-                need ([string]$last.state -eq 'HALTED_NO_NEW_ENTRIES' -or
-                      [string]$last.state -in @('BROKER_FLAT_NO_ACTIVE_STOP','STOP_EXECUTED_FLAT')) ('V20_STOPREPAIR_FRESH_CYCLE_FAULT_'+$n+'_'+$last.state)
+                $valid=if($n -eq 'v20-obv'){
+                    [string]$last.state -in @('WAIT_NEXT_M15_OPEN','NO_FROZEN_SIGNAL','SESSION_ENTRY_LIMIT_REACHED')
+                }else{
+                    [string]$last.state -eq 'HALTED_NO_NEW_ENTRIES' -or
+                    [string]$last.state -in @('BROKER_FLAT_NO_ACTIVE_STOP','STOP_EXECUTED_FLAT')
+                }
+                need $valid ('V20_STOPREPAIR_FRESH_CYCLE_FAULT_'+$n+'_'+$last.state)
                 $fresh=$true;break
             }
         }
         Start-Sleep -Seconds 1
     }
     need $fresh ('V20_STOPREPAIR_NO_FRESH_CYCLE_'+$n)
-    Write-Output ('v20_stoprepair_'+$n+'=PASS_RECONCILED_HALTED_NO_NEW_ENTRIES')
+    $result=if($n -eq 'v20-obv'){'PASS_UNTOUCHED_RUNNING_ARMED'}else{'PASS_RECONCILED_HALTED_NO_NEW_ENTRIES'}
+    Write-Output ('v20_stoprepair_'+$n+'='+$result)
 }
-Write-Output 'v20_stoprepair_cutover=pass_3_of_3_monitored_new_entries_remain_halted'
+Write-Output 'v20_stoprepair_cutover=pass_2_protected_reconciled_obv_armed_untouched'
 Write-Output ('v20_stoprepair_rollback_files='+$backup)
