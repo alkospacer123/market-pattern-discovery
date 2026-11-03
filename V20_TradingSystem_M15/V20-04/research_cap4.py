@@ -119,7 +119,7 @@ def full_r15_margin_audit(trades,bank):
     when=str(at)
     detail={'symbol':sym,'one_lot_risk_rub':round(per_lot,2),
             'latest_qty':qty,'active_positions':{k:v[0] for k,v in active.items()}}
- assert used==0,(bank,used)
+ assert round(used,6)==0,(bank,used)
  return {'bank':bank,'total_peak_GO_incl_C1':round(peak,2),
          'peak_to_bank':round(peak/bank,4),
          'peak_date':when,'peak_positions':detail,
@@ -240,6 +240,21 @@ def run(root:Path,out:Path):
     checks[str(k)]=[full_r15_margin_audit(ledger,b) for b in (45000,68000,100000,200000,500000,1000000)]
    outcomes[m]['dynamic_full_r15_GO_diagnostic']=checks
    print('CAP23_DYNAMIC_GO '+m+' '+json.dumps(checks,ensure_ascii=False,separators=(',',':')),flush=True)
+  # Research-only side-by-side cash admission on the SAME historical
+  # candidate ledger. Skipped trades do not free up alternative signals:
+  # these results are indicative, not full counterfactual replays.
+  from research_go_reservation import compare as go_compare
+  for m in MODES:
+   allocation={}
+   for k in (2,3):
+    ledger,_=variants[k].merged(d,m)
+    for bank in (45000,68000,100000,150000):
+     for policy in ("half","n4"):
+      observation=go_compare(ledger,bank,policy,GO,RUB_PER_PRICE,TICK_RUB)
+      allocation[f"{k}:{bank}:{policy}"]=observation
+      print("GO_COMPARE "+m+" "+json.dumps(
+       {"quota":k,**observation},separators=(",",":")),flush=True)
+   outcomes[m]['go_reservation_cash_audit']=allocation
   common={}
   for k in (1,2,3,4):
    risk=max(outcomes[m]['quotas'][str(k)]['floor_bank_for_one_lot_risk'] for m in MODES)
