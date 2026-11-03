@@ -14,7 +14,7 @@ import numpy as np
 import pandas as pd
 from numba import njit
 
-POLICIES = ("current_cash", "half", "reserve_next", "reserve_n4")
+POLICIES = ("current_cash", "half", "reserve_next", "reserve_n4", "one_position_full_go")
 BANKS = (45000,60000,75000,100000,150000)
 QUOTAS = (2,3)
 SYMS = ("CNYRUBF","GLDRUBF","IMOEXF","USDRUBF")
@@ -78,7 +78,7 @@ def replay_cash(ts,sym,day,day_sess,op,hi,lo,atr,atr_old,signal,target,
     go_peak=0.
     risk_peak=0.
     gd=-1; nent=0
-    accepted=0; rejected_go=0;rejected_risk=0;rejected_weekend=0
+    accepted=0; rejected_go=0;rejected_risk=0;rejected_weekend=0;rejected_busy=0
     exits=[]  # exit_idx, symbol_idx, enter_idx, contracts, profit, entry_risk_rub
     for i in range(len(ts)):
         s=sym[i]
@@ -113,7 +113,14 @@ def replay_cash(ts,sym,day,day_sess,op,hi,lo,atr,atr_old,signal,target,
                 pos[s]=0;q[s]=0;committed[s]=0.;trade_risk[s]=0.
         if pending[s]>=0:
             at=pending[s]
-            if ts[i]==ts[at]+900000000000 and pos[s]==0 and used[s]!=day_sess[i] and nent<quota:
+            # One-position variant: reject a new NEXT_OPEN entry while
+            # another instrument is open; keep frozen signals/exit/order.
+            eligible_open=(ts[i]==ts[at]+900000000000 and pos[s]==0
+                           and used[s]!=day_sess[i] and nent<quota)
+            busy=(policy==4 and np.sum(pos)>0)
+            if eligible_open and busy:
+                rejected_busy+=1
+            if eligible_open and not busy:
                 direction=signal[at];price=op[i]
                 raw=price-direction*2*atr[at]
                 sp=(np.floor(raw/TICK[s]+1e-9) if direction==1 else
@@ -229,7 +236,7 @@ def replay_cash(ts,sym,day,day_sess,op,hi,lo,atr,atr_old,signal,target,
             latest_ts[s]=ts[i]
     return (exits,accepted,rejected_go,rejected_risk,rejected_weekend,
             go_peak,risk_peak,max_dd,max_dd_pct,min_equity,equity,
-            int(np.sum(pos)))
+            int(np.sum(pos)),rejected_busy)
 
 
 def metrics(events,arr,bank):
@@ -318,12 +325,12 @@ def run(d,modes,variants):
             for bank in BANKS:
                 for policy,name in enumerate(POLICIES):
                     for go_factor in (1.0,0.5):
-                        ev,accepted,blocked_go,blocked_risk,weekend_skips,peak_go,peak_risk,dd,ddp,mineq,end_equity,unclosed=(
+                        ev,accepted,blocked_go,blocked_risk,weekend_skips,peak_go,peak_risk,dd,ddp,mineq,end_equity,unclosed,busy_skips=(
                             replay_cash(*a,float(bank),q,policy,True,go_factor))
                         z=metrics(ev,a,bank)
                         z.update(bank=bank,quota=q,policy=name,go_factor=go_factor,accepted=accepted,
                             rejected_go=blocked_go,rejected_risk=blocked_risk,
-                            rejected_weekend=weekend_skips,peak_go=round(peak_go,2),
+                            rejected_weekend=weekend_skips,rejected_busy=busy_skips,peak_go=round(peak_go,2),
                             peak_risk=round(peak_risk,2),
                             closed_dd_rub=round(dd,2),
                             closed_dd_pct=round(100*ddp,2),
