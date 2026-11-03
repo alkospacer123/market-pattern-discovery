@@ -1,5 +1,5 @@
-"""Research ONLY: frozen V20 N4 reference replay, session quota 2 versus 4.
-Does not import/live-call FINAM. Changes only one copy of frozen replay in temp.
+"""Research ONLY: frozen V20 N4 reference replay, entry quotas 1, 2, 3, 4.
+Does not import/live-call FINAM. Changes only the quota constant in temporary frozen replay copies.
 Pin SHA of inputs; baseline must reproduce accepted 2023-2026 results to qualify.
 """
 from __future__ import annotations
@@ -103,11 +103,14 @@ def run(root:Path,out:Path):
   base_original=(ORIGINAL/'base.py').read_text(encoding='utf-8')
   assert base_original.count('and nent<2:')==1, 'FROZEN_QUOTA_ANCHOR_MISMATCH'
   (tmp/'base.py').write_text(base_original,encoding='utf-8')
-  (tmp/'base_cap4.py').write_text(base_original.replace('and nent<2:','and nent<4:'),encoding='utf-8')
+  for k in (1,3,4):
+   (tmp/f'base_cap{k}.py').write_text(base_original.replace('and nent<2:',f'and nent<{k}:'),encoding='utf-8')
   shutil.copy2(ORIGINAL/'run.py',tmp/'run.py')
   sys.path.insert(0,str(tmp))
   baseline=importlib.import_module('base')
-  candidate=importlib.import_module('base_cap4')
+  variants={2:baseline}
+  for k in (1,3,4):
+   variants[k]=importlib.import_module(f'base_cap{k}')
   signals=importlib.import_module('run')
   legacy=ORIGINAL/'legacy_v4'
   prep=function(legacy/'dependencies'/'study.py','prep',dict(pd=pd,np=np,ROOT=quotes))
@@ -128,64 +131,94 @@ def run(root:Path,out:Path):
                    signals={m:int((f[m]!=0).sum()) for m in MODES})
   outcomes={}
   all_baseline_ok=True
+  expected4={'SHALLOW_PULLBACK':(875,1.887632,549.941377),
+             'OBV_PRESSURE':(655,1.764397,381.264922),
+             'INSIDE_DAY_RELEASE':(183,2.211002,164.553984)}
   for m in MODES:
-   a,open_a=baseline.merged(d,m)
-   b,open_b=candidate.merged(d,m)
-   old=stats(a);new=stats(b)
-   expected=EXPECTED[m]
-   parity=(old['trades']==expected[0] and
-           abs(old['pf']-expected[1])<0.00001 and
-           abs(old['net_R']-expected[2])<0.00001)
+   variations={}
+   for k in (1,2,3,4):
+    trades,open_positions=variants[k].merged(d,m)
+    q=stats(trades)
+    counts=trades.groupby('entry_day').size() if len(trades) else pd.Series(dtype='int64')
+    events=[]
+    risk_by_symbol=defaultdict(list)
+    for t in trades.itertuples():
+     cost=abs(float(t.risk))*RUB_PER_PRICE[t.symbol]+2*TICK_RUB[t.symbol]
+     risk_by_symbol[t.symbol].append(cost)
+     events.append((pd.Timestamp(t.entry_time),1,t.symbol))
+     events.append((pd.Timestamp(t.exit_time),-1,t.symbol))
+    events.sort(key=lambda x:(x[0],x[1]))
+    go=0;go_max=0;slots=0;slots_max=0;active=set()
+    for dt,direction,sym in events:
+     if direction==1:
+      assert sym not in active,('REPLAY_SAME_SYMBOL_ACTIVE',m,k,sym,dt)
+      active.add(sym)
+     else:
+      assert sym in active,('REPLAY_UNKNOWN_EXIT',m,k,sym,dt)
+      active.remove(sym)
+     go+=direction*GO[sym]
+     slots+=direction
+     assert go>=0 and slots==len(active)
+     go_max=max(go_max,go)
+     slots_max=max(slots_max,slots)
+    max_risk_1lot=max((max(v) for v in risk_by_symbol.values()),default=0)
+    max_by_symbol={sym:round(max(risk_by_symbol.get(sym,[0])),2) for sym in GO}
+    common_candidate_floor_risk=math.ceil(max_risk_1lot/0.015)
+    theoretical_go_any_active_combination=sum(sorted(GO.values(),reverse=True)[:slots_max])
+    # GO 50% buffer is illustrative; real FINAM GO and costs are not static.
+    common_candidate_floor_go=math.ceil(1.5*theoretical_go_any_active_combination)
+    variations[str(k)]=dict(metrics=q,remaining_open=len(open_positions),
+       session_3_entries=int((counts==3).sum()),session_4_entries=int((counts==4).sum()),
+       max_simultaneously_open=slots_max,
+       one_lot_observed_peak_go=go_max,
+       one_lot_worst_combination_go=theoretical_go_any_active_combination,
+       one_lot_risk_max_by_symbol=max_by_symbol,
+       floor_bank_for_one_lot_risk=common_candidate_floor_risk,
+       floor_bank_worst_go_50pct_buffer=common_candidate_floor_go,
+       floor_bank_one_lot_overall=max(common_candidate_floor_risk,common_candidate_floor_go))
+   r2=variations['2']['metrics'];r4=variations['4']['metrics']
+   expected=EXPECTED[m];check4=expected4[m]
+   parity=(r2['trades']==expected[0] and
+           abs(r2['pf']-expected[1])<0.00001 and
+           abs(r2['net_R']-expected[2])<0.00001 and
+           r4['trades']==check4[0] and
+           abs(r4['pf']-check4[1])<0.00001 and
+           abs(r4['net_R']-check4[2])<0.00001)
    all_baseline_ok&=parity
-   basekey=set(zip(a.symbol,a.entry_time,a.side))
-   newkey=set(zip(b.symbol,b.entry_time,b.side))
-   extra=sorted(newkey-basekey)
-   lost=sorted(basekey-newkey)
-   counts=b.groupby('entry_day').size() if len(b) else pd.Series(dtype='int64')
-   peaks=peak_positions(b)
-   money=[money_stats(b,B) for B in CAPITAL]
-   one_lot_losses=defaultdict(list)
-   for t in b.itertuples():
-    one_lot_losses[t.symbol].append(abs(float(t.risk))*RUB_PER_PRICE[t.symbol]+2*TICK_RUB[t.symbol])
-   max_one_lot={sym:round(max(one_lot_losses.get(sym,[0.0])),2) for sym in GO}
-   peak_one_lot_loss=max(max_one_lot.values())
-   from math import ceil
-   one_lot_min_bank_risk=ceil(peak_one_lot_loss/0.015)
-   one_lot_min_bank_with_go_buffer=max(one_lot_min_bank_risk,ceil(sum(GO.values())*1.5))
-   outcomes[m]=dict(one_lot_max_risk_rub_by_symbol=max_one_lot,
-      one_lot_min_bank_risk_2023_2026=one_lot_min_bank_risk,
-      one_lot_min_bank_with_go_50pct_buffer=one_lot_min_bank_with_go_buffer,
-      baseline=old,candidate=new,
-      baseline_parity_accepted=bool(parity),accepted_expected_trades=expected[0],
-      delta_trades=len(b)-len(a),delta_net_R=round(new['net_R']-old['net_R'],6),
-      delta_pf=round(new['pf']-old['pf'],6) if new['pf'] is not None and old['pf'] is not None else None,
-      added_entry_keys=len(extra),removed_entry_keys=len(lost),
-      sessions_3_new_entries=int((counts==3).sum()),sessions_4_new_entries=int((counts==4).sum()),
-      peak_simultaneous_positions=peaks,remaining_open_2=len(open_a),remaining_open_4=len(open_b),
-      sizing_sensitivity_go_2026_snapshot=money)
-   print('CAP4_SUMMARY '+m+' '+json.dumps({k:outcomes[m][k] for k in
-          ('baseline','candidate','baseline_parity_accepted','delta_trades','delta_net_R',
-           'delta_pf','sessions_3_new_entries','sessions_4_new_entries','peak_simultaneous_positions')},
-          ensure_ascii=False,separators=(',',':')),flush=True)
-   print('CAP4_ONE_LOT_BANK '+m+' '+json.dumps({
-         'max_risk_by_symbol':max_one_lot,
-         'min_bank_for_all_one_lot_stop_risks':one_lot_min_bank_risk,
-         'bank_with_50pct_GO_reserve':one_lot_min_bank_with_go_buffer,
-         'scope':'C1_tik_cost_H1_tick_values_2023_2026_not_current_FINAM'
-         },ensure_ascii=False,separators=(',',':')),flush=True)
-   print('CAP4_SIZING '+m+' '+json.dumps(money,ensure_ascii=False,separators=(',',':')),flush=True)
-  report=dict(schema='v20.cap4.offline.candidate.20261103',source_repo='market-pattern-data',
+   outcomes[m]=dict(baseline_parity_accepted=bool(parity),
+                    quotas=variations)
+   print('CAP1234_SUMMARY '+m+' '+json.dumps(outcomes[m],ensure_ascii=False,separators=(',',':')),flush=True)
+  common={}
+  for k in (1,2,3,4):
+   risk=max(outcomes[m]['quotas'][str(k)]['floor_bank_for_one_lot_risk'] for m in MODES)
+   slots=max(outcomes[m]['quotas'][str(k)]['max_simultaneously_open'] for m in MODES)
+   go_one_lot=sum(sorted(GO.values(),reverse=True)[:slots])
+   observed_peak_go=max(outcomes[m]['quotas'][str(k)]['one_lot_observed_peak_go'] for m in MODES)
+   with_buffer=math.ceil(1.5*go_one_lot)
+   common[str(k)]=dict(quota=k,observed_max_open_positions=slots,
+     worst_any_combination_one_lot_go=go_one_lot,
+     observed_peak_one_lot_go=observed_peak_go,
+     indicative_go_with_50pct_buffer=with_buffer,
+     one_lot_risk_min_bank=max(risk,0),
+     common_one_lot_bank_floor=max(risk,with_buffer),
+     not_actual_live_dynamic_sizing=True)
+  print('CAP1234_COMMON_BANK '+json.dumps(common,ensure_ascii=False,separators=(',',':')),flush=True)
+  report=dict(schema='v20.cap1234.offline.candidate.20261103',
+    source_repo='market-pattern-data',
     source_ref='f8486b446cf3d5f9f3cba6dfec32bdef8fd184c8',
-    historical_source_sha256=DATA_SHA,valid_frozen_baseline=bool(all_baseline_ok),
-    model='ORIGINAL_FROZEN_REPLAY_ONLY_NENT2_VS4_NO_LIVE_NO_BROKER',
-    quote_scope=scope,go_snapshot_rub_per_contract=GO,
-    go_scope='INDICATIVE_OWNER_PREVIOUS_READONLY_NOT_HISTORICALLY_STABLE',
-    risk_size='1.5pct_of_constant_test_equity_each_independent_trade_not_live_portfolio_sizing',
-    results=outcomes)
+    historical_source_sha256=DATA_SHA,
+    valid_frozen_baseline=bool(all_baseline_ok),
+    model='SAME_FROZEN_REPLAY_MODIFY_SESSION_NENT_ONLY_1_2_3_4',
+    quote_scope=scope,
+    go_snapshot_rub_per_contract=GO,
+    go_scope='OWNER_PREVIOUS_READONLY_NOT_HISTORICALLY_STABLE',
+    risk_note='ONE_LOT_RISK_C1_H1_TICK_VALUE_NOT_FINAM_MARGIN_CASH_REPLAY',
+    common_bank=common,results=outcomes)
   out.parent.mkdir(parents=True,exist_ok=True)
   out.write_text(json.dumps(report,indent=2,ensure_ascii=False),encoding='utf-8')
-  print('CAP4_BASELINE_PARITY='+('PASS' if all_baseline_ok else 'MISMATCH'),flush=True)
-  print('CAP4_JSON_PATH='+str(out),flush=True)
+  print('CAP1234_BASELINE_PARITY='+('PASS' if all_baseline_ok else 'MISMATCH'),flush=True)
+  assert all_baseline_ok,'ACCEPTED_BASELINE_PARITY_FAILED'
+  print('CAP1234_JSON_PATH='+str(out),flush=True)
 
 if __name__=='__main__':
  if len(sys.argv)!=3:raise SystemExit('usage: research_cap4.py <pinned_quotes_folder> <output.json>')
