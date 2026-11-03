@@ -19,9 +19,9 @@ $old=@{
     launcher='3beac63e0e8985485bb43bb1627aabc96fbd107a'
 }
 $new=@{
-    execution='9f59c4746acec3d55ea012a9dad5c513b7113d0b'
+    execution='4a362059691bf2e902b2be11d4ff365788d76ae6'
     worker='bd1858ad63de00bd6b142f5678848ed6d83e63e9'
-    launcher='652b97fe071b1982d89b8ab8771e072436d7c2f0'
+    launcher='8e7ff959901d42e89755f5ba2f80563d2745bab5'
 }
 $operator=Join-Path $stage 'v20-08-live-operator.ps1'
 $diag=Join-Path $env:userprofile 'downloads\v20-night-20261103-protection-readonly.ps1'
