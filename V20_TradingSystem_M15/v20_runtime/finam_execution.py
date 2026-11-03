@@ -70,18 +70,47 @@ def _v20_order_views(response: Any) -> tuple[list[BrokerOrderView], int]:
             raise ProductionBrokerStateError("STAGE8_12_4_ORDER_ID_INVALID")
         known_ids.add(oid)
         try:
-            order_views([row])
+            view = order_views([row])[0]
         except ProductionBrokerStateError as exc:
             if str(exc) != "STAGE8_12_4_ORDER_REQUEST_INVALID":
                 raise
-            # A malformed ACTIVE stop/entry must NEVER disappear from proof.
+            # Observed FINAM 2026-11-03: a live WATCHING SLTP may lose
+            # client_order_id while preserving order_id and full comment.
+            # Parse the REST shape with a temporary local value ONLY; the
+            # returned BrokerOrderView retains the REAL empty client id.
+            # Ownership must independently prove the broker order_id against
+            # the durable :stop intent; no trading permission comes from
+            # the comment alone.
+            request = row.get("sltp_order")
+            regular = row.get("order")
             status = normalize_order_status(row.get("status"))
+            comment = request.get("comment") if isinstance(request, dict) else None
+            missing_client = (
+                status == "WATCHING"
+                and not (isinstance(regular, dict) and regular)
+                and isinstance(request, dict) and bool(request)
+                and request.get("client_order_id") == ""
+                and isinstance(comment, str)
+                and re.fullmatch(
+                    r"v20:v20-(?:shallow|obv|inside):[a-f0-9]{16}:.+:stop",
+                    comment) is not None
+            )
+            if missing_client:
+                shape = dict(row)
+                check_request = dict(request)
+                check_request["client_order_id"] = compact_client_order_id(comment)
+                shape["sltp_order"] = check_request
+                validated = order_views([shape])[0]
+                _validate_production_sltp(validated)
+                # Never report a synthetic identifier as broker data.
+                kept.append(replace(validated, client_order_id="", request=request))
+                continue
             if status not in TERMINAL_ORDER_STATUSES:
                 raise
             omitted += 1
         else:
-            kept.append(row)
-    return order_views(kept), omitted
+            kept.append(view)
+    return kept, omitted
 
 
 ACTIVE_STATUSES = frozenset({"ACCOUNT_ACTIVE", "ACCOUNT_STATUS_ACTIVE"})
@@ -280,6 +309,17 @@ class V20FinamReadAdapter:
         candidate = unique_order_by_client_id(
             list(snapshot.orders), compact_client_order_id(stop_key),
         )
+        if candidate is None:
+            # A WATCHING stop with an empty client id is matched by its
+            # FULL comment, never an invented client_id. The caller must
+            # additionally verify its broker order_id from SQLite.
+            matches = [o for o in snapshot.orders
+                       if o.active and o.kind == "SLTP"
+                       and o.client_order_id == ""
+                       and o.status == "WATCHING"
+                       and o.comment == stop_key]
+            if len(matches) == 1:
+                candidate = matches[0]
         active_stops = [
             order for order in snapshot.orders
             if order.active and order.kind == "SLTP" and order.symbol == finam_symbol
@@ -617,6 +657,11 @@ class V20TradeJournal(IsolatedReferenceJournal):
                 snapshot, entry_key=key, symbol=symbol, direction=direction,
                 stop_price=stop_to_verify, now=now,
             )
+            durable_stop = self.store.intent(key + ":stop")
+            if (durable_stop is None
+                    or durable_stop["status"] not in ("ACK", "RECONCILED")
+                    or durable_stop["broker_order_id"] != stop.order_id):
+                raise V20FinamBlocked("STOP_BROKER_ID_MISMATCH")
             if prior is not None and stop.order_id != prior.get("broker_stop_id"):
                 raise V20FinamBlocked("POSITION_GROWTH_STOP_ORDER_ID_CHANGED")
         except Exception:
