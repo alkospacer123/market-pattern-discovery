@@ -146,12 +146,23 @@ def run(root:Path,out:Path):
   (tmp/'base.py').write_text(base_original,encoding='utf-8')
   for k in (1,3,4):
    (tmp/f'base_cap{k}.py').write_text(base_original.replace('and nent<2:',f'and nent<{k}:'),encoding='utf-8')
+  # Research-only close at 17:30 Moscow: use observed 17:30 bar Open.
+  # The 17:15 bar's stop-first logic is completed before this Open.
+  exit_anchor='if day_sess[i]-en_day[s]>=2: x=op[i];why=3'
+  assert base_original.count(exit_anchor)==1, 'FROZEN_EXIT_ANCHOR_MISMATCH'
+  exit_dayflat=('if ts[i]//60000000000%1440>=1050: x=op[i];why=8\n'
+                '   elif '+exit_anchor)
+  for k in (2,3):
+   clone=base_original.replace(exit_anchor,exit_dayflat)
+   if k==3:clone=clone.replace('and nent<2:','and nent<3:')
+   (tmp/f'base_dayflat_{k}.py').write_text(clone,encoding='utf-8')
   shutil.copy2(ORIGINAL/'run.py',tmp/'run.py')
   sys.path.insert(0,str(tmp))
   baseline=importlib.import_module('base')
   variants={2:baseline}
   for k in (1,3,4):
    variants[k]=importlib.import_module(f'base_cap{k}')
+  dayflat_variants={k:importlib.import_module(f'base_dayflat_{k}') for k in (2,3)}
   signals=importlib.import_module('run')
   legacy=ORIGINAL/'legacy_v4'
   prep=function(legacy/'dependencies'/'study.py','prep',dict(pd=pd,np=np,ROOT=quotes))
@@ -233,6 +244,9 @@ def run(root:Path,out:Path):
    outcomes[m]=dict(baseline_parity_accepted=bool(parity),
                     quotas=variations)
    print('CAP1234_SUMMARY '+m+' '+json.dumps(outcomes[m],ensure_ascii=False,separators=(',',':')),flush=True)
+  from research_dayflat_1730 import analyze as audit_dayflat
+  dayflat_results=audit_dayflat(d,MODES,variants,dayflat_variants)
+  for m in MODES:outcomes[m]['dayflat_1730_research']=dayflat_results[m]
   for m in MODES:
    checks={}
    for k in (2,3):
