@@ -52,7 +52,7 @@ def arrays(d, mode):
 
 @njit
 def replay_cash(ts,sym,day,day_sess,op,hi,lo,atr,atr_old,signal,target,
-                tpr,weekend,bank,quota,policy,block_weekend):
+                tpr,weekend,bank,quota,policy,block_weekend,go_factor=1.0):
     pos=np.zeros(4,np.int64)
     pending=np.full(4,-1,np.int64)
     used=np.full(4,-1,np.int64)
@@ -161,10 +161,10 @@ def replay_cash(ts,sym,day,day_sess,op,hi,lo,atr,atr_old,signal,target,
                                     eligible=not np.isfinite(old) or (
                                         2*old*RUB[j]+FEE[j]<=.015*equity)
                                     if eligible:
-                                        reserve=max(reserve,GO[j]+FEE[j])
+                                        reserve=max(reserve,go_factor*GO[j]+FEE[j])
                                 available-=reserve
                             if policy!=-1:
-                                max_q=int(np.floor((available+1e-7)/(GO[s]+FEE[s])))
+                                max_q=int(np.floor((available+1e-7)/(go_factor*GO[s]+FEE[s])))
                                 qty=min(qty,max_q)
                             if qty<1:
                                 rejected_go+=1
@@ -174,7 +174,7 @@ def replay_cash(ts,sym,day,day_sess,op,hi,lo,atr,atr_old,signal,target,
                                 en_day[s]=day_sess[i];used[s]=day_sess[i]
                                 used_global_day[s]=day[i]
                                 pos[s]=1;q[s]=qty;nent+=1;accepted+=1
-                                committed[s]=qty*(GO[s]+FEE[s])
+                                committed[s]=qty*(go_factor*GO[s]+FEE[s])
                                 trade_risk[s]=qty*per_lot
                                 total_go=0.;total_risk=0.
                                 for j in range(4):
@@ -294,19 +294,20 @@ def run(d,modes,variants):
             print("CASH_FULL_REPLAY_FROZEN_PARITY",mode,q,len(reference),flush=True)
             for bank in BANKS:
                 for policy,name in enumerate(POLICIES):
-                    ev,accepted,blocked_go,blocked_risk,weekend_skips,peak_go,peak_risk,dd,ddp,mineq,end_equity,unclosed=(
-                        replay_cash(*a,float(bank),q,policy,True))
-                    z=metrics(ev,a,bank)
-                    z.update(bank=bank,quota=q,policy=name,accepted=accepted,
-                        rejected_go=blocked_go,rejected_risk=blocked_risk,
-                        rejected_weekend=weekend_skips,peak_go=round(peak_go,2),
-                        peak_risk=round(peak_risk,2),
-                        closed_dd_rub=round(dd,2),
-                        closed_dd_pct=round(100*ddp,2),
-                        min_realized_equity=round(mineq,2),unclosed=unclosed)
-                    scenarios[f"{q}:{bank}:{name}"]=z
-                    print("CASH_FULL_REPLAY",mode,
-                          __import__("json").dumps(z,ensure_ascii=False,
-                          separators=(",",":")),flush=True)
+                    for go_factor in (1.0,0.5):
+                        ev,accepted,blocked_go,blocked_risk,weekend_skips,peak_go,peak_risk,dd,ddp,mineq,end_equity,unclosed=(
+                            replay_cash(*a,float(bank),q,policy,True,go_factor))
+                        z=metrics(ev,a,bank)
+                        z.update(bank=bank,quota=q,policy=name,go_factor=go_factor,accepted=accepted,
+                            rejected_go=blocked_go,rejected_risk=blocked_risk,
+                            rejected_weekend=weekend_skips,peak_go=round(peak_go,2),
+                            peak_risk=round(peak_risk,2),
+                            closed_dd_rub=round(dd,2),
+                            closed_dd_pct=round(100*ddp,2),
+                            min_realized_equity=round(mineq,2),unclosed=unclosed)
+                        scenarios[f"{q}:{bank}:{name}:{go_factor}"]=z
+                        print("CASH_FULL_REPLAY_GO_SCALE",mode,
+                              __import__("json").dumps(z,ensure_ascii=False,
+                              separators=(",",":")),flush=True)
         results[mode]=scenarios
     return results
