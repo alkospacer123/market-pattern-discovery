@@ -278,6 +278,19 @@ def run(root:Path,out:Path):
      print('GO_EQUALRISK '+m+' '+json.dumps(
       {'quota':k,**result},separators=(',',':')),flush=True)
    outcomes[m]['go_equal_risk_cash_audit']=alt
+  # Cash collateral sized separately from the notional fixed risk base.
+  # This is a cash-required diagnostic, not a change in LIVE risk formula.
+  from research_fixed_risk_collateral import simulate as fixed_collateral
+  for m in MODES:
+   fixed={}
+   for k in (2,3):
+    ledger,_=variants[k].merged(d,m)
+    for risk_base in (45000,68000,100000,150000,250000,500000,1000000):
+     result=fixed_collateral(ledger,risk_base,GO,RUB_PER_PRICE,TICK_RUB)
+     fixed[f"{k}:{risk_base}"]=result
+     print('FIXED_BASE_COLLATERAL '+m+' '+json.dumps(
+      {'quota':k,**result},separators=(",",":")),flush=True)
+   outcomes[m]['fixed_risk_base_cash_diagnostic']=fixed
   common={}
   for k in (1,2,3,4):
    risk=max(outcomes[m]['quotas'][str(k)]['floor_bank_for_one_lot_risk'] for m in MODES)
