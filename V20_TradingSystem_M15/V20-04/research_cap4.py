@@ -255,6 +255,29 @@ def run(root:Path,out:Path):
       print("GO_COMPARE "+m+" "+json.dumps(
        {"quota":k,**observation},separators=(",",":")),flush=True)
    outcomes[m]['go_reservation_cash_audit']=allocation
+  # One more CASH admission allocation, still using the identical frozen
+  # trades. Estimated candidate sizing uses only last completed N4 ATR.
+  from research_go_equal_risk import CompletedBarRisk, compare_equal_risk, balanced_integer_plan
+  proxy=CompletedBarRisk(d,RUB_PER_PRICE,TICK_RUB,
+                         {'USDRUBF':.01,'CNYRUBF':.001,'GLDRUBF':.1,'IMOEXF':.5})
+  synthetic=balanced_integer_plan(free_cash=45000,instruments=tuple(GO),
+    stop_rub={'USDRUBF':300.,'CNYRUBF':90.,'GLDRUBF':100.,'IMOEXF':500.},
+    go_rub=GO,equity=45000,fee_rub={sym:2*TICK_RUB[sym] for sym in GO})
+  assert synthetic is not None and set(synthetic)==set(GO)
+  assert sum(synthetic[s]*(GO[s]+2*TICK_RUB[s]) for s in GO)<=45000+1e-6
+  assert all(synthetic[s]*(risk)<=675+1e-6 for s,risk in {
+    'USDRUBF':300,'CNYRUBF':90,'GLDRUBF':100,'IMOEXF':500}.items())
+  print('GO_EQUALRISK_SYNTHETIC=PASS '+json.dumps(synthetic,sort_keys=True),flush=True)
+  for m in MODES:
+   alt={}
+   for k in (2,3):
+    ledger,_=variants[k].merged(d,m)
+    for bank in (45000,68000,100000,150000):
+     result=compare_equal_risk(ledger,bank,GO,RUB_PER_PRICE,TICK_RUB,proxy)
+     alt[f"{k}:{bank}"]=result
+     print('GO_EQUALRISK '+m+' '+json.dumps(
+      {'quota':k,**result},separators=(',',':')),flush=True)
+   outcomes[m]['go_equal_risk_cash_audit']=alt
   common={}
   for k in (1,2,3,4):
    risk=max(outcomes[m]['quotas'][str(k)]['floor_bank_for_one_lot_risk'] for m in MODES)
