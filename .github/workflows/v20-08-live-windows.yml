@@ -10,6 +10,7 @@ on:
       - 'V20_TradingSystem_M15/V20-08/v20-08-friday-flat-recovery.py'
       - 'V20_TradingSystem_M15/V20-08/v20-08-flat-weekend-cutover.ps1'
       - 'V20_TradingSystem_M15/V20-08/v20-08-broker-stability-update.ps1'
+      - 'V20_TradingSystem_M15/V20-08/v20-08-watching-stop-live-repair.ps1'
       - '.github/workflows/v20-08-live-windows.yml'
   push:
     branches:
@@ -43,7 +44,7 @@ jobs:
       - name: PowerShell syntax only for new V20 install launcher and cutover
         shell: pwsh
         run: |
-          $scripts = @('V20_TradingSystem_M15/V20-08/v20-08-live-prep.ps1', 'V20_TradingSystem_M15/V20-08/v20-08-live-launch.ps1', 'V20_TradingSystem_M15/V20-08/v20-08-live-cutover.ps1', 'V20_TradingSystem_M15/V20-08/v20-08-live-operator.ps1', 'V20_TradingSystem_M15/V20-08/v20-08-finam-read-recovery.ps1', 'V20_TradingSystem_M15/V20-08/v20-08-night-protected-update.ps1', 'V20_TradingSystem_M15/V20-08/v20-08-weekend-entry-update.ps1', 'V20_TradingSystem_M15/V20-08/v20-08-open-witness-recovery.ps1', 'V20_TradingSystem_M15/V20-08/v20-08-flat-weekend-cutover.ps1', 'V20_TradingSystem_M15/V20-08/v20-08-broker-stability-update.ps1')
+          $scripts = @('V20_TradingSystem_M15/V20-08/v20-08-live-prep.ps1', 'V20_TradingSystem_M15/V20-08/v20-08-live-launch.ps1', 'V20_TradingSystem_M15/V20-08/v20-08-live-cutover.ps1', 'V20_TradingSystem_M15/V20-08/v20-08-live-operator.ps1', 'V20_TradingSystem_M15/V20-08/v20-08-finam-read-recovery.ps1', 'V20_TradingSystem_M15/V20-08/v20-08-night-protected-update.ps1', 'V20_TradingSystem_M15/V20-08/v20-08-weekend-entry-update.ps1', 'V20_TradingSystem_M15/V20-08/v20-08-open-witness-recovery.ps1', 'V20_TradingSystem_M15/V20-08/v20-08-flat-weekend-cutover.ps1', 'V20_TradingSystem_M15/V20-08/v20-08-broker-stability-update.ps1', 'V20_TradingSystem_M15/V20-08/v20-08-watching-stop-live-repair.ps1')
           foreach ($script in $scripts) {
             $tokens = $null
             $errors = $null
@@ -214,7 +215,7 @@ jobs:
           # The new after-hours candidate is separate and NOT deployed yet.
           $installedExecution='0d5ee2c6eb7195ec9f59aa82a2881bfb0a058827'
           $installedWorker='519710efffbedfdfc236e9c063c2c9dda6f475f5'
-          if($workerHash -cne '2a1814a5aecb2a586e839b14f20076a98de0c1e0'){
+          if($workerHash -cne '1bb83f9c6c8634afec8ece44537c95563450472b'){
               throw 'V20_AFTERHOURS_CANDIDATE_SOURCE_MISMATCH'
           }
           foreach($pin in @($installedExecution,$installedWorker)){
@@ -288,7 +289,9 @@ jobs:
           $newWorker=(& git.exe hash-object -- 'V20_TradingSystem_M15/v20_runtime/finam_live.py').Trim()
           $newExecution=(& git.exe hash-object -- 'V20_TradingSystem_M15/v20_runtime/finam_execution.py').Trim()
           $newLauncher=(& git.exe hash-object -- 'V20_TradingSystem_M15/V20-08/v20-08-live-launch.ps1').Trim()
-          foreach($pin in @($newWorker,$newExecution,$newLauncher,'2462e86ad7f829e451b1a0c5cd7cebf1457c1adb','60a00ce58c436fd745f1fcbcb9e7f14b87fec787','87f9ee5e5d18bd5a9b68f91e54e15e755c510529')){
+          # This earlier flat-only installer is immutable; check its own
+          # old/new pins, not the CURRENT candidate files.
+          foreach($pin in @('2a1814a5aecb2a586e839b14f20076a98de0c1e0','4ea5cec17a31413c96531dd4f80f77e2a96f3f00','3beac63e0e8985485bb43bb1627aabc96fbd107a','2462e86ad7f829e451b1a0c5cd7cebf1457c1adb','60a00ce58c436fd745f1fcbcb9e7f14b87fec787','87f9ee5e5d18bd5a9b68f91e54e15e755c510529')){
             if(-not $script.Contains($pin)){throw ('V20_STABILITY_MISSING_PIN '+$pin)}
           }
           if(-not $launch.Contains($newWorker) -or -not $launch.Contains($newExecution)){throw 'V20_STABILITY_LAUNCHER_PIN_INVALID'}
@@ -298,6 +301,30 @@ jobs:
           python -m py_compile V20_TradingSystem_M15/v20_runtime/finam_live.py V20_TradingSystem_M15/v20_runtime/finam_execution.py
           if($LASTEXITCODE -ne 0){throw 'V20_STABILITY_PYTHON_SYNTAX_INVALID'}
           Write-Output 'V20_STABILITY_PS51_PIN_AND_GUARDS=PASS'
+      - name: 2026-11-03 exact watching stop protected-open repair pin and safety guards
+        shell: powershell
+        run: |
+          $ErrorActionPreference='Stop'
+          $p='V20_TradingSystem_M15/V20-08/v20-08-watching-stop-live-repair.ps1'
+          $errors=$null;$tokens=$null
+          [void][System.Management.Automation.Language.Parser]::ParseFile((Resolve-Path -LiteralPath $p).Path,[ref]$tokens,[ref]$errors)
+          if(@($errors).Count -ne 0){throw 'V20_WATCHING_STOP_PS51_SYNTAX_INVALID'}
+          $script=Get-Content -LiteralPath $p -Raw
+          $launch=Get-Content -LiteralPath 'V20_TradingSystem_M15/V20-08/v20-08-live-launch.ps1' -Raw
+          $exec=(& git.exe hash-object -- 'V20_TradingSystem_M15/v20_runtime/finam_execution.py').Trim()
+          $worker=(& git.exe hash-object -- 'V20_TradingSystem_M15/v20_runtime/finam_live.py').Trim()
+          $entry=(& git.exe hash-object -- 'V20_TradingSystem_M15/V20-08/v20-08-live-launch.ps1').Trim()
+          foreach($pin in @($exec,$worker,$entry,'4ea5cec17a31413c96531dd4f80f77e2a96f3f00','2a1814a5aecb2a586e839b14f20076a98de0c1e0','3beac63e0e8985485bb43bb1627aabc96fbd107a','34ee6bb057012b4f3c5c0348d95cbaec39bceaf6')){
+            if(-not $script.Contains($pin)){throw ('V20_WATCHING_STOP_PIN_MISSING '+$pin)}
+          }
+          if(-not $launch.Contains($exec) -or -not $launch.Contains($worker)){throw 'V20_WATCHING_STOP_LAUNCHER_PIN_INVALID'}
+          foreach($guard in @('function need(', 'broker-preflight', 'V20_STOPREPAIR_REQUIRES_HALTED_', 'V20_STOPREPAIR_BROKER_STOP_UNPROVEN_', 'V20_STOPREPAIR_PROTECTED_INSTALL_ONLY_0700_TO_0940_MSK', 'call-operator', 'Stop-ScheduledTask', 'Start-ScheduledTask', 'active_sltps', 'stored_protected_proofs', 'v20_stoprepair_cutover=pass_3_of_3_monitored_new_entries_remain_halted')) {
+            if(-not $script.Contains($guard) -and $guard -ne 'call-operator'){throw ('V20_WATCHING_STOP_GUARD_MISSING '+$guard)}
+          }
+          if($script.IndexOf('function need(') -ge $script.IndexOf('need (')){throw 'V20_WATCHING_STOP_NEED_DECLARATION_ORDER'}
+          if($script.IndexOf('broker-preflight') -ge $script.IndexOf('Stop-ScheduledTask')){throw 'V20_WATCHING_STOP_NO_PREFLIGHT'}
+          if($script -match 'place_order|cancel_order|place_sltp_order|--arm|call-operator .start.|write_kill_switch'){throw 'V20_WATCHING_STOP_UNAUTHORIZED_TRADE_OR_ARM'}
+          Write-Output 'V20_WATCHING_STOP_PS51_AND_SAFETY_GUARDS=PASS'
       - name: Only new V20 LIVE syntax and scoped mock tests
         shell: pwsh
         env:
