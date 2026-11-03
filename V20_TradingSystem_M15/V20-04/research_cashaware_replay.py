@@ -14,7 +14,7 @@ import numpy as np
 import pandas as pd
 from numba import njit
 
-POLICIES = ("current_cash", "half", "reserve_next")
+POLICIES = ("current_cash", "half", "reserve_next", "reserve_n4")
 BANKS = (45000,60000,75000,100000,150000)
 QUOTAS = (2,3)
 SYMS = ("CNYRUBF","GLDRUBF","IMOEXF","USDRUBF")
@@ -162,6 +162,19 @@ def replay_cash(ts,sym,day,day_sess,op,hi,lo,atr,atr_old,signal,target,
                                         2*old*RUB[j]+FEE[j]<=.015*equity)
                                     if eligible:
                                         reserve=max(reserve,go_factor*GO[j]+FEE[j])
+                                available-=reserve
+                            elif policy==3:
+                                # Strict N4 cash reservation: hold one lot of
+                                # margin + model C1 per other FLAT instrument,
+                                # even if its next eligible signal is unknown.
+                                # Active positions are already charged in
+                                # held_go; never double-count their margin.
+                                # Carry positions can span future sessions,
+                                # so this is intentionally NOT limited to
+                                # remaining entries today.
+                                for j in range(4):
+                                    if j!=s and pos[j]==0:
+                                        reserve+=go_factor*GO[j]+FEE[j]
                                 available-=reserve
                             if policy!=-1:
                                 max_q=int(np.floor((available+1e-7)/(go_factor*GO[s]+FEE[s])))
