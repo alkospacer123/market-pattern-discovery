@@ -44,7 +44,7 @@ jobs:
       - name: PowerShell syntax only for new V20 install launcher and cutover
         shell: pwsh
         run: |
-          $scripts = @('V20_TradingSystem_M15/V20-08/v20-08-live-prep.ps1', 'V20_TradingSystem_M15/V20-08/v20-08-live-launch.ps1', 'V20_TradingSystem_M15/V20-08/v20-08-live-cutover.ps1', 'V20_TradingSystem_M15/V20-08/v20-08-live-operator.ps1', 'V20_TradingSystem_M15/V20-08/v20-08-finam-read-recovery.ps1', 'V20_TradingSystem_M15/V20-08/v20-08-night-protected-update.ps1', 'V20_TradingSystem_M15/V20-08/v20-08-weekend-entry-update.ps1', 'V20_TradingSystem_M15/V20-08/v20-08-open-witness-recovery.ps1', 'V20_TradingSystem_M15/V20-08/v20-08-flat-weekend-cutover.ps1', 'V20_TradingSystem_M15/V20-08/v20-08-broker-stability-update.ps1', 'V20_TradingSystem_M15/V20-08/v20-08-watching-stop-live-repair.ps1')
+          $scripts = @('V20_TradingSystem_M15/V20-08/v20-08-live-prep.ps1', 'V20_TradingSystem_M15/V20-08/v20-08-live-launch.ps1', 'V20_TradingSystem_M15/V20-08/v20-08-live-cutover.ps1', 'V20_TradingSystem_M15/V20-08/v20-08-live-operator.ps1', 'V20_TradingSystem_M15/V20-08/v20-08-finam-read-recovery.ps1', 'V20_TradingSystem_M15/V20-08/v20-08-night-protected-update.ps1', 'V20_TradingSystem_M15/V20-08/v20-08-weekend-entry-update.ps1', 'V20_TradingSystem_M15/V20-08/v20-08-open-witness-recovery.ps1', 'V20_TradingSystem_M15/V20-08/v20-08-flat-weekend-cutover.ps1', 'V20_TradingSystem_M15/V20-08/v20-08-broker-stability-update.ps1', 'V20_TradingSystem_M15/V20-08/v20-08-watching-stop-live-repair.ps1', 'V20_TradingSystem_M15/V20-08/v20-08-nov3-flat-repair.ps1')
           foreach ($script in $scripts) {
             $tokens = $null
             $errors = $null
@@ -215,7 +215,7 @@ jobs:
           # The new after-hours candidate is separate and NOT deployed yet.
           $installedExecution='0d5ee2c6eb7195ec9f59aa82a2881bfb0a058827'
           $installedWorker='519710efffbedfdfc236e9c063c2c9dda6f475f5'
-          if($workerHash -cne 'bd1858ad63de00bd6b142f5678848ed6d83e63e9'){
+          if($workerHash -cne 'c4c576189510a847ce20c43f5bb39d0e517eb0b4'){
               throw 'V20_AFTERHOURS_CANDIDATE_SOURCE_MISMATCH'
           }
           foreach($pin in @($installedExecution,$installedWorker)){
@@ -314,7 +314,7 @@ jobs:
           $exec=(& git.exe hash-object -- 'V20_TradingSystem_M15/v20_runtime/finam_execution.py').Trim()
           $worker=(& git.exe hash-object -- 'V20_TradingSystem_M15/v20_runtime/finam_live.py').Trim()
           $entry=(& git.exe hash-object -- 'V20_TradingSystem_M15/V20-08/v20-08-live-launch.ps1').Trim()
-          foreach($pin in @($exec,$worker,$entry,'4ea5cec17a31413c96531dd4f80f77e2a96f3f00','2a1814a5aecb2a586e839b14f20076a98de0c1e0','3beac63e0e8985485bb43bb1627aabc96fbd107a','34ee6bb057012b4f3c5c0348d95cbaec39bceaf6')){
+          foreach($pin in @('4a362059691bf2e902b2be11d4ff365788d76ae6','bd1858ad63de00bd6b142f5678848ed6d83e63e9','8e7ff959901d42e89755f5ba2f80563d2745bab5','4ea5cec17a31413c96531dd4f80f77e2a96f3f00','2a1814a5aecb2a586e839b14f20076a98de0c1e0','3beac63e0e8985485bb43bb1627aabc96fbd107a','34ee6bb057012b4f3c5c0348d95cbaec39bceaf6')){
             if(-not $script.Contains($pin)){throw ('V20_WATCHING_STOP_PIN_MISSING '+$pin)}
           }
           if(-not $launch.Contains($exec) -or -not $launch.Contains($worker)){throw 'V20_WATCHING_STOP_LAUNCHER_PIN_INVALID'}
@@ -326,6 +326,33 @@ jobs:
           if(-not $script.Contains('$affected=@(''v20-shallow'',''v20-inside'')') -or -not $script.Contains('foreach($n in $affected){Stop-ScheduledTask') -or -not $script.Contains('foreach($n in $affected){Start-ScheduledTask')){throw 'V20_WATCHING_STOP_OBV_MUST_REMAIN_RUNNING'}
           if($script -match 'place_order|cancel_order|place_sltp_order|--arm|call-operator .start.|write_kill_switch'){throw 'V20_WATCHING_STOP_UNAUTHORIZED_TRADE_OR_ARM'}
           Write-Output 'V20_WATCHING_STOP_PS51_AND_SAFETY_GUARDS=PASS'
+      - name: 2026-11-03 flat-only combined FINAM and GO cutover guards
+        shell: powershell
+        run: |
+          $ErrorActionPreference='Stop'
+          $p='V20_TradingSystem_M15/V20-08/v20-08-nov3-flat-repair.ps1'
+          $s=Get-Content -LiteralPath $p -Raw
+          $oldExec='4ea5cec17a31413c96531dd4f80f77e2a96f3f00'
+          $newExec=(& git.exe hash-object -- 'V20_TradingSystem_M15/v20_runtime/finam_execution.py').Trim()
+          $newWorker=(& git.exe hash-object -- 'V20_TradingSystem_M15/v20_runtime/finam_live.py').Trim()
+          $newLauncher=(& git.exe hash-object -- 'V20_TradingSystem_M15/V20-08/v20-08-live-launch.ps1').Trim()
+          foreach($pin in @($oldExec,$newExec,$newWorker,$newLauncher,
+            'b06957ea7833daeda65296eb372890951860c008')){
+            if(-not $s.Contains($pin)){throw ('NOV3_INSTALL_PIN_MISSING '+$pin)}
+          }
+          foreach($guard in @('halted $name','flat $name','-mode backup',
+            'Stop-ScheduledTask','Start-ScheduledTask',
+            'v20_nov3_auto_arm=NO','v20_08_4_active_orders=0',
+            'v20_08_4_positions=0','oldSet','newSet')){
+            if(-not $s.Contains($guard)){throw ('NOV3_INSTALL_GUARD_MISSING '+$guard)}
+          }
+          if($s -match ' -mode arm| -mode start -robot|--arm|place_order|cancel_order'){
+            throw 'NOV3_INSTALL_AUTO_TRADE_FORBIDDEN'
+          }
+          $errs=$null;$tokens=$null
+          [void][System.Management.Automation.Language.Parser]::ParseFile((Resolve-Path $p).Path,[ref]$tokens,[ref]$errs)
+          if(@($errs).Count -ne 0){throw 'NOV3_INSTALL_PS_PARSE_FAILED'}
+          Write-Output 'V20_NOV3_PINNED_FLAT_ONLY_INSTALL=PASS_NO_ARM'
       - name: Only new V20 LIVE syntax and scoped mock tests
         shell: pwsh
         env:
