@@ -150,7 +150,7 @@ def run(root:Path,out:Path):
   # The 17:15 bar's stop-first logic is completed before this Open.
   exit_anchor='if day_sess[i]-en_day[s]>=2: x=op[i];why=3'
   assert base_original.count(exit_anchor)==1, 'FROZEN_EXIT_ANCHOR_MISMATCH'
-  exit_dayflat=('if ts[i]//60000000000%1440>=1050: x=op[i];why=8\n'
+  exit_dayflat=('if ts[i]//60000000000%1440==1050: x=op[i];why=8\n'
                 '   elif '+exit_anchor.removeprefix('if '))
   for k in (2,3):
    clone=base_original.replace(exit_anchor,exit_dayflat)
