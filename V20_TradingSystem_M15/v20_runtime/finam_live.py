@@ -25,7 +25,7 @@ from fractions import Fraction
 
 from TradingSystemLab.stage8_robot.broker import compact_client_order_id
 from TradingSystemLab.stage8_robot.account_cleanliness import TERMINAL_ORDER_STATUSES
-from TradingSystemLab.stage8_robot.production_broker_state import unique_order_by_client_id
+from TradingSystemLab.stage8_robot.production_broker_state import unique_order_by_client_id, _validate_production_sltp
 from TradingSystemLab.stage8_robot.execution_grid import project_stop
 from TradingSystemLab.stage8_robot.finam_api import FinamAPI, FinamError, FinamNotFound, FinamServerError, FinamTimeout, FinamRateLimit
 from TradingSystemLab.stage8_robot.production_runtime import _load_registry
