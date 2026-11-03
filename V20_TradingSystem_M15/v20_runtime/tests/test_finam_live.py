@@ -39,6 +39,86 @@ class StubStore:
         self.values[key] = value
 
 
+class LiveWatchingStopMissingClientIdTests(unittest.TestCase):
+    """2026-11-03: FINAM returns WATCHING SLTP with empty client_order_id."""
+
+    def example(self):
+        from decimal import Decimal
+        from V20_TradingSystem_M15.v20_runtime.finam_execution import (
+            _v20_order_views, V20FinamReadAdapter, LiveAccountSnapshot,
+        )
+        account_hash = "a" * 64
+        key = "v20:v20-inside:" + account_hash[:16] + ":20261102-entry"
+        raw = {
+            "order_id": "exact-stop-broker-id", "status": "ORDER_STATUS_WATCHING",
+            "sltp_order": {
+                "symbol": "USDRUBF@RTSX", "side": "SIDE_SELL",
+                "client_order_id": "", "comment": key + ":stop",
+                "quantity_sl": {"value": "100"},
+                "sl_qty_measure": "SLTP_QTY_MEASURE_PERCENT",
+                "sl_price": {"value": "100"},
+                "valid_before": "VALID_BEFORE_GOOD_TILL_CANCEL",
+            },
+        }
+        order, omitted = _v20_order_views({"orders": [raw]})
+        self.assertEqual(omitted, 0)
+        self.assertEqual(order[0].client_order_id, "")
+        self.assertEqual(order[0].request["client_order_id"], "")
+        payload = {"kind": "ENTRY", "mode": "PRETRADE_NOT_AUTHORIZED",
+                   "robot_id": "v20-inside", "account_sha256": account_hash,
+                   "symbol": "USDRUBF", "finam_symbol": "USDRUBF@RTSX",
+                   "direction": "LONG", "quantity": 2}
+        entry = {"idempotency_key": key, "status": "RECONCILED",
+                 "broker_order_id": "entry-broker-id", "payload": payload}
+        journal = SimpleNamespace(robot_id="v20-inside", account_hash=account_hash,
+                                  store=StubStore(rows=[entry]))
+        journal.store.intents[key + ":stop"] = {
+            "status": "RECONCILED", "broker_order_id": "exact-stop-broker-id"}
+        journal.store.values["protected_fill:" + key] = {
+            "account_sha256": account_hash,
+            "broker_order_id": "entry-broker-id",
+            "broker_stop_id": "exact-stop-broker-id",
+            "installed_stop": "100", "broker_stop_percent": "100",
+            "filled_quantity": 2,
+            "risk_assessment": {"status": "PASS", "stop_conforms": True}}
+        snap = LiveAccountSnapshot("v20-inside", account_hash,
+                                   datetime.now(timezone.utc),
+                                   Decimal("45000"), Decimal("10000"),
+                                   {"USDRUBF@RTSX": 2}, tuple(order))
+        reader = object.__new__(V20FinamReadAdapter)
+        reader.robot_id = "v20-inside"
+        reader.account_hash = account_hash
+        reader._bound = True
+        return raw, journal, snap, reader, entry
+
+    def test_confirmed_broker_stop_no_synthetic_client_id(self):
+        from V20_TradingSystem_M15.v20_runtime.finam_execution import _v20_order_views
+        raw, journal, snap, reader, entry = self.example()
+        self.assertEqual(len(_ownership(journal, snap)), 1)
+        now = snap.observed_at
+        _verify_sealed_protection(journal, reader, snap, now, entry)
+        self.assertEqual(snap.orders[0].client_order_id, "")
+        self.assertEqual(raw["sltp_order"]["client_order_id"], "")
+
+    def test_missing_broker_identity_and_foreign_active_fail_closed(self):
+        from V20_TradingSystem_M15.v20_runtime.finam_execution import _v20_order_views
+        raw, journal, snap, reader, entry = self.example()
+        journal.store.intents[entry["idempotency_key"] + ":stop"]["broker_order_id"] = "wrong-id"
+        with self.assertRaisesRegex(V20FinamBlocked, "STOP_BROKER_IDENTITY_MISMATCH"):
+            _ownership(journal, snap)
+        journal.store.intents[entry["idempotency_key"] + ":stop"]["broker_order_id"] = "exact-stop-broker-id"
+        damaged = dict(raw, sltp_order=dict(raw["sltp_order"], quantity_sl={"value": "50"}))
+        from TradingSystemLab.stage8_robot.production_broker_state import ProductionBrokerStateError
+        with self.assertRaisesRegex(ProductionBrokerStateError, "SLTP_CLOSE_ONLY_CONTRACT_INVALID"):
+            _v20_order_views({"orders": [damaged]})
+        damaged = dict(raw, sltp_order=dict(raw["sltp_order"], comment="foreign:stop"))
+        with self.assertRaisesRegex(ProductionBrokerStateError, "STAGE8_12_4_ORDER_REQUEST_INVALID"):
+            _v20_order_views({"orders": [damaged]})
+        damaged = dict(raw, order={"symbol": "USDRUBF@RTSX", "side": "SIDE_BUY",
+                                   "client_order_id": ""}, sltp_order={})
+        with self.assertRaisesRegex(ProductionBrokerStateError, "STAGE8_12_4_ORDER_REQUEST_INVALID"):
+            _v20_order_views({"orders": [damaged]})
+
 class PostWeekendSafetyFixTests(unittest.TestCase):
     def test_sealed_entry_uses_current_broker_stop_without_historical_replay(self):
         journal = SimpleNamespace(account_hash="a" * 64, store=StubStore())
