@@ -99,6 +99,10 @@ class LiveWatchingStopMissingClientIdTests(unittest.TestCase):
         _verify_sealed_protection(journal, reader, snap, now, entry)
         self.assertEqual(snap.orders[0].client_order_id, "")
         self.assertEqual(raw["sltp_order"]["client_order_id"], "")
+        # Broker-flat may precede FINAM stop deactivation. Its exact
+        # known stop must remain visible for safe stop cleanup, not vanish.
+        from dataclasses import replace as dc_replace
+        self.assertEqual(len(_ownership(journal, dc_replace(snap, positions={}))), 1)
 
     def test_missing_broker_identity_and_foreign_active_fail_closed(self):
         from V20_TradingSystem_M15.v20_runtime.finam_execution import _v20_order_views
