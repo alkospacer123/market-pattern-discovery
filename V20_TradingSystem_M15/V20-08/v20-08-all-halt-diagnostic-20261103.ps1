@@ -2,7 +2,7 @@
 # READONLY FINAM snapshots, WAL-safe SQLite copies, worker logs, task and switch state.
 [CmdletBinding()]
 param()
-$ErrorActionPreference='Stop'
+$ErrorActionPreference='Continue' # Capture expected HALT/error output from child commands; explicit file operations still fail closed.
 Set-StrictMode -Version Latest
 $root='c:\v20lab'
 $stage=Join-Path $root 'pretrade-08\live-08'
