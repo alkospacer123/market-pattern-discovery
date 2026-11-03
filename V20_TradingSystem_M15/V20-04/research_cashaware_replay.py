@@ -67,6 +67,9 @@ def replay_cash(ts,sym,day,day_sess,op,hi,lo,atr,atr_old,signal,target,
     committed=np.zeros(4)
     trade_risk=np.zeros(4)
     latest_atr=np.full(4,np.nan)
+    prior_atr=np.full(4,np.nan)
+    latest_ts=np.full(4,-1,np.int64)
+    used_global_day=np.full(4,-1,np.int64)
     equity=bank
     peak=bank
     max_dd=0.
@@ -150,9 +153,9 @@ def replay_cash(ts,sym,day,day_sess,op,hi,lo,atr,atr_old,signal,target,
                                 # reserve for the already-open or used symbol.
                                 # A next day/session may need rebalancing anew.
                                 for j in range(4):
-                                    if j==s or pos[j] or used[j]==day_sess[i]:
+                                    if j==s or pos[j] or used_global_day[j]==day[i]:
                                         continue
-                                    old=latest_atr[j]
+                                    old=prior_atr[j] if latest_ts[j]==ts[i] else latest_atr[j]
                                     # If we cannot establish eligibility
                                     # safely, reserve one GO lot anyway.
                                     eligible=not np.isfinite(old) or (
@@ -169,6 +172,7 @@ def replay_cash(ts,sym,day,day_sess,op,hi,lo,atr,atr_old,signal,target,
                                 en_idx[s]=i;side[s]=direction
                                 entry[s]=price;stop[s]=sp;risk[s]=dist;tp[s]=targ
                                 en_day[s]=day_sess[i];used[s]=day_sess[i]
+                                used_global_day[s]=day[i]
                                 pos[s]=1;q[s]=qty;nent+=1;accepted+=1
                                 committed[s]=qty*(GO[s]+FEE[s])
                                 trade_risk[s]=qty*per_lot
@@ -207,7 +211,9 @@ def replay_cash(ts,sym,day,day_sess,op,hi,lo,atr,atr_old,signal,target,
                 np.isfinite(atr[i]) and atr[i]>0):
             pending[s]=i
         if np.isfinite(atr[i]) and atr[i]>0:
+            prior_atr[s]=latest_atr[s]
             latest_atr[s]=atr[i]
+            latest_ts[s]=ts[i]
     return (exits,accepted,rejected_go,rejected_risk,rejected_weekend,
             go_peak,risk_peak,max_dd,max_dd_pct,min_equity,equity,
             int(np.sum(pos)))
