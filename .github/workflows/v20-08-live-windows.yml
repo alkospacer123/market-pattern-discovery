@@ -323,7 +323,7 @@ jobs:
           }
           if($script.IndexOf('function need(') -ge $script.IndexOf('need (')){throw 'V20_WATCHING_STOP_NEED_DECLARATION_ORDER'}
           if($script.IndexOf('broker-preflight') -ge $script.IndexOf('Stop-ScheduledTask')){throw 'V20_WATCHING_STOP_NO_PREFLIGHT'}
-          if(-not $script.Contains("$affected=@('v20-shallow','v20-inside')") -or -not $script.Contains('foreach($n in $affected){Stop-ScheduledTask') -or -not $script.Contains('foreach($n in $affected){Start-ScheduledTask')){throw 'V20_WATCHING_STOP_OBV_MUST_REMAIN_RUNNING'}
+          if(-not $script.Contains('$affected=@(''v20-shallow'',''v20-inside'')') -or -not $script.Contains('foreach($n in $affected){Stop-ScheduledTask') -or -not $script.Contains('foreach($n in $affected){Start-ScheduledTask')){throw 'V20_WATCHING_STOP_OBV_MUST_REMAIN_RUNNING'}
           if($script -match 'place_order|cancel_order|place_sltp_order|--arm|call-operator .start.|write_kill_switch'){throw 'V20_WATCHING_STOP_UNAUTHORIZED_TRADE_OR_ARM'}
           Write-Output 'V20_WATCHING_STOP_PS51_AND_SAFETY_GUARDS=PASS'
       - name: Only new V20 LIVE syntax and scoped mock tests
