@@ -204,8 +204,7 @@ def _ownership(journal: V20LiveJournal, snapshot) -> list[dict]:
             if (stop_intent is None
                     or stop_intent["status"] not in ("ACK", "RECONCILED")
                     or stop_intent["broker_order_id"] != order.order_id
-                    or order.side != side
-                    or not snapshot.positions.get(order.symbol)):
+                    or order.side != side):
                 raise V20FinamBlocked("V20_LIVE_STOP_BROKER_IDENTITY_MISMATCH")
             if isinstance(proof, dict) and (
                     proof.get("account_sha256") != journal.account_hash
