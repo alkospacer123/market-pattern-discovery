@@ -251,13 +251,23 @@ def metrics(events,arr,bank):
                            pd.Timestamp(ts[-1]).to_period("M"),freq="M")
     pnl_by_month=(closed.groupby(closed.exit.dt.to_period("M")).pnl.sum()
                    if len(closed) else pd.Series(dtype=float))
+    # Comparable monthly trade counts and monetary PF for EVERY policy,
+    # including strict N4, from actual accepted cash-aware exits.
+    month_stats={}
+    if not closed.empty:
+        for month,f in closed.groupby(closed.exit.dt.to_period("M")):
+            win=float(f.loc[f.pnl>0,"pnl"].sum())
+            loss=float(-f.loc[f.pnl<0,"pnl"].sum())
+            month_stats[str(month)]={"trades":len(f),
+                                    "pf":round(win/loss,4) if loss else None}
     capital=bank
     returns=[]
     for month in months:
         p=float(pnl_by_month.get(month,0.))
         rate=100.*p/capital if capital>0 else float("nan")
         returns.append({"month":str(month),"pnl":round(p,2),
-                        "return_pct":round(rate,4)})
+                        "return_pct":round(rate,4),
+                        **month_stats.get(str(month),{"trades":0,"pf":None})})
         capital+=p
     valid=[x["return_pct"] for x in returns if math.isfinite(x["return_pct"])]
     # Last quoted month is partial; provide both full and all-month views.
