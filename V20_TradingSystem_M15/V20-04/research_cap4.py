@@ -308,7 +308,7 @@ def run(root:Path,out:Path):
   # Integrated cash-aware N4 replay. CASH_FULL_REPLAY_FROZEN_PARITY
   # must agree with the frozen N4 no-GO baseline before presenting results.
   from research_cashaware_replay import run as replay_cash_all, POLICIES as cash_policies
-  assert cash_policies[-1] == "reserve_n4", "N4_CASH_REPLAY_POLICY_MISSING"
+  assert cash_policies[-2:] == ("reserve_n4", "one_position_full_go"), "N4_OR_SINGLE_POSITION_POLICY_MISSING"
   cash_results=replay_cash_all(d,MODES,variants)
   for m in MODES:
    outcomes[m]['cash_aware_live_equity_policy_replay']=cash_results[m]
