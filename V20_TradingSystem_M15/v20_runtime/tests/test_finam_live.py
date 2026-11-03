@@ -196,6 +196,87 @@ class LiveAdmissionTests(unittest.TestCase):
             },
         }
 
+    def test_20261103_insufficient_go_skips_entry_without_halt_or_post(self):
+        # Incident: OBV already had a fully protected IMOEX position;
+        # a later candidate with insufficient free GO must NOT HALT.
+        from unittest.mock import Mock
+        from V20_TradingSystem_M15.v20_runtime.account_risk import RiskBlocked
+        with TemporaryDirectory() as tmp:
+            journal = self.fake_journal(Path(tmp))
+            journal.prepare_entry = Mock(side_effect=RiskBlocked(
+                "NO_ACCOUNT_RISK_OR_MARGIN_CAPACITY"))
+            snapshot = SimpleNamespace(positions={}, orders=[])
+            reader = SimpleNamespace(snapshot=lambda now: snapshot)
+            sender = SimpleNamespace(
+                journal=journal, reader=reader, source="0" * 40,
+                auth_path=Path(tmp)/"safety"/"v20-live-authorization.json",
+                auth=self.valid_auth(journal, "0" * 40),
+                submit_entry_once=Mock(side_effect=AssertionError("NO_ORDER_POST")),
+            )
+            candidate = (object(), object(), object(), snapshot)
+            calls = []
+            def propose(*args, **kwargs):
+                calls.append(kwargs["symbol"])
+                return candidate if len(calls) == 1 else None
+            with ExitStack() as stack:
+                stack.enter_context(patch(
+                    "V20_TradingSystem_M15.v20_runtime.finam_live._safe_auth",
+                    return_value=sender.auth))
+                stack.enter_context(patch(
+                    "V20_TradingSystem_M15.v20_runtime.finam_live._follow_existing",
+                    return_value="BROKER_RECONCILED_PROTECTION_PASS"))
+                stack.enter_context(patch(
+                    "V20_TradingSystem_M15.v20_runtime.finam_live.load_kill_switch",
+                    return_value=({"state": "ARMED"}, None)))
+                stack.enter_context(patch(
+                    "V20_TradingSystem_M15.v20_runtime.finam_live._entries",
+                    return_value=[]))
+                stack.enter_context(patch(
+                    "V20_TradingSystem_M15.v20_runtime.finam_live._ownership"))
+                stack.enter_context(patch(
+                    "V20_TradingSystem_M15.v20_runtime.finam_live.propose_finam_m15_next_open",
+                    side_effect=propose))
+                result = run_cycle(sender, datetime(2026, 11, 3, 13, 15, tzinfo=timezone.utc))
+            self.assertEqual(result, "NO_FROZEN_SIGNAL")
+            self.assertEqual(calls, list(SYMBOLS))
+            journal.prepare_entry.assert_called_once()
+            sender.submit_entry_once.assert_not_called()
+
+    def test_20261103_unsafe_risk_block_still_fails_closed(self):
+        from unittest.mock import Mock
+        from V20_TradingSystem_M15.v20_runtime.account_risk import RiskBlocked
+        with TemporaryDirectory() as tmp:
+            journal = self.fake_journal(Path(tmp))
+            journal.prepare_entry = Mock(side_effect=RiskBlocked(
+                "CROSS_ACCOUNT_RESERVATION"))
+            reader = SimpleNamespace(snapshot=lambda now: SimpleNamespace(positions={}, orders=[]))
+            sender = SimpleNamespace(
+                journal=journal, reader=reader, source="0" * 40,
+                auth_path=Path(tmp)/"auth.json",
+                auth=self.valid_auth(journal, "0" * 40),
+                submit_entry_once=Mock())
+            with ExitStack() as stack:
+                stack.enter_context(patch(
+                    "V20_TradingSystem_M15.v20_runtime.finam_live._safe_auth",
+                    return_value=sender.auth))
+                stack.enter_context(patch(
+                    "V20_TradingSystem_M15.v20_runtime.finam_live._follow_existing",
+                    return_value="BROKER_RECONCILED_PROTECTION_PASS"))
+                stack.enter_context(patch(
+                    "V20_TradingSystem_M15.v20_runtime.finam_live.load_kill_switch",
+                    return_value=({"state": "ARMED"}, None)))
+                stack.enter_context(patch(
+                    "V20_TradingSystem_M15.v20_runtime.finam_live._entries",
+                    return_value=[]))
+                stack.enter_context(patch(
+                    "V20_TradingSystem_M15.v20_runtime.finam_live._ownership"))
+                stack.enter_context(patch(
+                    "V20_TradingSystem_M15.v20_runtime.finam_live.propose_finam_m15_next_open",
+                    return_value=(object(), object(), object(), object())))
+                with self.assertRaisesRegex(RiskBlocked, "CROSS_ACCOUNT_RESERVATION"):
+                    run_cycle(sender, datetime(2026, 11, 3, 13, 15, tzinfo=timezone.utc))
+            sender.submit_entry_once.assert_not_called()
+
     def test_exact_owner_account_source_and_costs_mandatory(self):
         with TemporaryDirectory() as tmp:
             root = Path(tmp)
