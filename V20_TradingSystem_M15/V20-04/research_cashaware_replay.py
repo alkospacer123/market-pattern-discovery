@@ -148,7 +148,7 @@ def replay_cash(ts,sym,day,day_sess,op,hi,lo,atr,atr_old,signal,target,
                             reserve=0.
                             if policy==1: # half of equity nominal max per new position
                                 available=min(available,equity*.5)
-                            elif policy==2 and nent+1<quota:
+                            elif policy==2 and nent+1<quota and ((ts[i]//60000000000)%1440)<1035:
                                 # One next different N4 instrument; never
                                 # reserve for the already-open or used symbol.
                                 # A next day/session may need rebalancing anew.
