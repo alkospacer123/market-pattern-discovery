@@ -45,6 +45,10 @@ def analyze(d,modes,base_variants,flat_variants):
             entered=pd.to_datetime(flat.entry_time)
             assert not len(flat) or ((entered.dt.hour*60+entered.dt.minute)<1050).all(),(
                 "DAYFLAT_LATE_ENTRY",m,k)
+            forced=flat.loc[flat.exit_reason==8]
+            hours=pd.to_datetime(forced.exit_time)
+            late_mask=hours.dt.hour*60+hours.dt.minute>1050
+            late=forced.loc[late_mask]
             y={}
             for year in (2023,2024,2025,2026):
                 old=orig.loc[orig.exit_year==year]
@@ -54,6 +58,8 @@ def analyze(d,modes,base_variants,flat_variants):
             # may close early or be replaced by next-session opportunities.
             o={"frozen":metric(orig),"dayflat_1730":metric(flat),
                "by_exit_year":y, "terminal_open_flat":len(flat_open),
+               "late_open_fallback_count":len(late),
+               "late_open_fallback_examples":late[["symbol","entry_time","exit_time","net_R"]].head(5).to_dict("records"),
                "not_live":True,"source_quote_scope":"2023-2026 YTD"}
             print("DAYFLAT_1730 "+m+" "+json.dumps({"quota":k,**o},
                    separators=(",",":"),ensure_ascii=False),flush=True)
