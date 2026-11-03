@@ -657,7 +657,7 @@ class V20TradeJournal(IsolatedReferenceJournal):
                 snapshot, entry_key=key, symbol=symbol, direction=direction,
                 stop_price=stop_to_verify, now=now,
             )
-            if stop.client_order_id == "":
+            if getattr(stop, "client_order_id", None) == "":
                 # Only the FINAM empty-client WATCHING fallback requires
                 # this extra independent durable broker ID. Normal H1
                 # protected-entry confirmation remains unchanged.
