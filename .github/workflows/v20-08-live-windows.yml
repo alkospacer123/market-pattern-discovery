@@ -318,11 +318,12 @@ jobs:
             if(-not $script.Contains($pin)){throw ('V20_WATCHING_STOP_PIN_MISSING '+$pin)}
           }
           if(-not $launch.Contains($exec) -or -not $launch.Contains($worker)){throw 'V20_WATCHING_STOP_LAUNCHER_PIN_INVALID'}
-          foreach($guard in @('function need(', 'broker-preflight', 'V20_STOPREPAIR_REQUIRES_HALTED_', 'V20_STOPREPAIR_BROKER_STOP_UNPROVEN_', 'V20_STOPREPAIR_PROTECTED_INSTALL_ONLY_0700_TO_0940_MSK', 'call-operator', 'Stop-ScheduledTask', 'Start-ScheduledTask', 'active_sltps', 'stored_protected_proofs', 'v20_stoprepair_cutover=pass_3_of_3_monitored_new_entries_remain_halted')) {
+          foreach($guard in @('function need(', 'broker-preflight', 'V20_STOPREPAIR_SWITCH_CHANGED_', 'V20_STOPREPAIR_BROKER_STOP_UNPROVEN_', 'V20_STOPREPAIR_PROTECTED_INSTALL_ONLY_0700_TO_0940_MSK', 'call-operator', 'Stop-ScheduledTask', 'Start-ScheduledTask', 'active_sltps', 'stored_protected_proofs', 'v20_stoprepair_cutover=pass_2_protected_reconciled_obv_armed_untouched')) {
             if(-not $script.Contains($guard) -and $guard -ne 'call-operator'){throw ('V20_WATCHING_STOP_GUARD_MISSING '+$guard)}
           }
           if($script.IndexOf('function need(') -ge $script.IndexOf('need (')){throw 'V20_WATCHING_STOP_NEED_DECLARATION_ORDER'}
           if($script.IndexOf('broker-preflight') -ge $script.IndexOf('Stop-ScheduledTask')){throw 'V20_WATCHING_STOP_NO_PREFLIGHT'}
+          if(-not $script.Contains("$affected=@('v20-shallow','v20-inside')") -or -not $script.Contains('foreach($n in $affected){Stop-ScheduledTask') -or -not $script.Contains('foreach($n in $affected){Start-ScheduledTask')){throw 'V20_WATCHING_STOP_OBV_MUST_REMAIN_RUNNING'}
           if($script -match 'place_order|cancel_order|place_sltp_order|--arm|call-operator .start.|write_kill_switch'){throw 'V20_WATCHING_STOP_UNAUTHORIZED_TRADE_OR_ARM'}
           Write-Output 'V20_WATCHING_STOP_PS51_AND_SAFETY_GUARDS=PASS'
       - name: Only new V20 LIVE syntax and scoped mock tests
