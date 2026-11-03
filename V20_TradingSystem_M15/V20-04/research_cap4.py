@@ -144,7 +144,18 @@ def run(root:Path,out:Path):
    counts=b.groupby('entry_day').size() if len(b) else pd.Series(dtype='int64')
    peaks=peak_positions(b)
    money=[money_stats(b,B) for B in CAPITAL]
-   outcomes[m]=dict(baseline=old,candidate=new,
+   one_lot_losses=defaultdict(list)
+   for t in b.itertuples():
+    one_lot_losses[t.symbol].append(abs(float(t.risk))*RUB_PER_PRICE[t.symbol]+2*TICK_RUB[t.symbol])
+   max_one_lot={sym:round(max(one_lot_losses.get(sym,[0.0])),2) for sym in GO}
+   peak_one_lot_loss=max(max_one_lot.values())
+   from math import ceil
+   one_lot_min_bank_risk=ceil(peak_one_lot_loss/0.015)
+   one_lot_min_bank_with_go_buffer=max(one_lot_min_bank_risk,ceil(sum(GO.values())*1.5))
+   outcomes[m]=dict(one_lot_max_risk_rub_by_symbol=max_one_lot,
+      one_lot_min_bank_risk_2023_2026=one_lot_min_bank_risk,
+      one_lot_min_bank_with_go_50pct_buffer=one_lot_min_bank_with_go_buffer,
+      baseline=old,candidate=new,
       baseline_parity_accepted=bool(parity),accepted_expected_trades=expected[0],
       delta_trades=len(b)-len(a),delta_net_R=round(new['net_R']-old['net_R'],6),
       delta_pf=round(new['pf']-old['pf'],6) if new['pf'] is not None and old['pf'] is not None else None,
@@ -156,6 +167,12 @@ def run(root:Path,out:Path):
           ('baseline','candidate','baseline_parity_accepted','delta_trades','delta_net_R',
            'delta_pf','sessions_3_new_entries','sessions_4_new_entries','peak_simultaneous_positions')},
           ensure_ascii=False,separators=(',',':')),flush=True)
+   print('CAP4_ONE_LOT_BANK '+m+' '+json.dumps({
+         'max_risk_by_symbol':max_one_lot,
+         'min_bank_for_all_one_lot_stop_risks':one_lot_min_bank_risk,
+         'bank_with_50pct_GO_reserve':one_lot_min_bank_with_go_buffer,
+         'scope':'C1_tik_cost_H1_tick_values_2023_2026_not_current_FINAM'
+         },ensure_ascii=False,separators=(',',':')),flush=True)
    print('CAP4_SIZING '+m+' '+json.dumps(money,ensure_ascii=False,separators=(',',':')),flush=True)
   report=dict(schema='v20.cap4.offline.candidate.20261103',source_repo='market-pattern-data',
     source_ref='f8486b446cf3d5f9f3cba6dfec32bdef8fd184c8',
