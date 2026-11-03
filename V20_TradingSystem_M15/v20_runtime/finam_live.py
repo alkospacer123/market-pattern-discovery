@@ -31,7 +31,7 @@ from TradingSystemLab.stage8_robot.finam_api import FinamAPI, FinamError, FinamN
 from TradingSystemLab.stage8_robot.production_runtime import _load_registry
 from TradingSystemLab.stage8_robot.trading_safety_gate import load_kill_switch, emergency_halt, write_kill_switch
 
-from .account_risk import RiskReservation
+from .account_risk import RiskReservation, RiskBlocked
 from .finam_execution import (
     V20FinamBlocked, V20FinamReadAdapter, V20SingleTradeTransport,
     V20TradeJournal, propose_finam_m15_next_open, read_finam_m15_boundary,
@@ -661,9 +661,20 @@ def run_cycle(sender: V20LiveTransport, now: datetime) -> str:
         # intention. A crash cannot replay the same frozen NEXT_OPEN.
         journal.store.put("live_decision:" + symbol, boundary_id)
         _ownership(journal, broker)
-        key = journal.prepare_entry(
-            signal=signal, entry=candidate,
-            authority=authority, snapshot=broker)
+        try:
+            key = journal.prepare_entry(
+                signal=signal, entry=candidate,
+                authority=authority, snapshot=broker)
+        except RiskBlocked as exc:
+            if str(exc) in (
+                "NO_ACCOUNT_RISK_OR_MARGIN_CAPACITY",
+                "INSUFFICIENT_RISK_OR_MARGIN_FOR_ONE_LOT",
+            ):
+                # No intent/POST was created: reserve_entry is atomic inside
+                # prepare_entry. An unaffordable signal is a normal NO-ENTRY,
+                # not a Kill Switch. Continue checking other N4 symbols.
+                continue
+            raise  # Invalid/cross-account or untrusted evidence still HALT.
         sender.submit_entry_once(
             key=key, snapshot=reader.snapshot(now=now), now=now)
         return "ENTRY_ACK_NEEDS_FILL_AND_STOP"
