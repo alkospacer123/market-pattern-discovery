@@ -182,11 +182,42 @@ def _ownership(journal: V20LiveJournal, snapshot) -> list[dict]:
     for order in snapshot.orders:
         if not order.active:
             continue
-        owner = expected_orders.get(order.client_order_id)
-        if (owner is None or order.client_order_id in active_seen
+        client = order.client_order_id
+        if client == "":
+            # FINAM 2026-11-03: live WATCHING stop may omit client_order_id.
+            # Correlate ONLY with the exact durable stop broker ID, full
+            # comment, account-owned position, and 100% stop contract.
+            # Do not claim that FINAM actually returned a client ID.
+            matches = [
+                row for row in entries
+                if not journal.store.get("flat_cleanup:" + row["idempotency_key"])
+                and order.comment == row["idempotency_key"] + ":stop"
+                and order.symbol == row["payload"]["finam_symbol"]
+            ]
+            if (order.kind != "SLTP" or order.status != "WATCHING"
+                    or len(matches) != 1):
+                raise V20FinamBlocked("V20_LIVE_UNIDENTIFIED_ACTIVE_STOP")
+            entry = matches[0]
+            stop_intent = journal.store.intent(entry["idempotency_key"] + ":stop")
+            proof = journal.store.get("protected_fill:" + entry["idempotency_key"])
+            side = "SIDE_SELL" if entry["payload"]["direction"] == "LONG" else "SIDE_BUY"
+            if (stop_intent is None
+                    or stop_intent["status"] not in ("ACK", "RECONCILED")
+                    or stop_intent["broker_order_id"] != order.order_id
+                    or order.side != side
+                    or not snapshot.positions.get(order.symbol)):
+                raise V20FinamBlocked("V20_LIVE_STOP_BROKER_IDENTITY_MISMATCH")
+            if isinstance(proof, dict) and (
+                    proof.get("account_sha256") != journal.account_hash
+                    or proof.get("broker_stop_id") != order.order_id):
+                raise V20FinamBlocked("V20_LIVE_STOP_DURABLE_PROOF_MISMATCH")
+            _validate_production_sltp(order)
+            client = compact_client_order_id(entry["idempotency_key"] + ":stop")
+        owner = expected_orders.get(client)
+        if (owner is None or client in active_seen
                 or owner != (order.symbol, order.kind)):
             raise V20FinamBlocked("V20_LIVE_FOREIGN_OR_DUPLICATE_ACTIVE_ORDER")
-        active_seen.add(order.client_order_id)
+        active_seen.add(client)
     return entries
 
 
