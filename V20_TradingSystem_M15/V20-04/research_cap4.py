@@ -90,8 +90,13 @@ def run(root:Path,out:Path):
  for sym,expected in DATA_SHA.items():
   p=root/sym/(sym+'_M15.csv')
   assert sha(p)==expected, 'DATA_SHA_FAIL_'+sym
- assert sha(ORIGINAL/'base.py')=='b7b9df00f8d7fb0a88c5cba103034e5a2335d8ebd5476aa59d'
- assert sha(ORIGINAL/'run.py')=='223545374f98d8c87cf2c09b3a7302b05b07020dc8bf34b5984ebaa3d74389fe'
+ import subprocess
+ for name,expected in [('base.py','b917cc9c7c99fbad38423d9f4fdfbb82767545be'),
+                       ('run.py','7d9ddf0ef498f0c93a139c0104af2a72d0e79151')]:
+  p=ORIGINAL/name
+  actual=subprocess.check_output(['git','hash-object','--',str(p)],text=True).strip()
+  assert actual==expected, f'FROZEN_GIT_BLOB_MISMATCH_{name}:{actual}'
+  print('FROZEN_SHA256_'+name+'='+sha(p),flush=True)
  with TemporaryDirectory(prefix='v20-cap4-scratch-') as scratch:
   tmp=Path(scratch);quotes=tmp/'marketdata_m15';quotes.mkdir()
   for sym in DATA_SHA:shutil.copy2(root/sym/(sym+'_M15.csv'),quotes/(sym+'_M15.csv'))
