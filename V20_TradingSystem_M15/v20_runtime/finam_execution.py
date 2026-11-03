@@ -438,6 +438,60 @@ class V20TradeJournal(IsolatedReferenceJournal):
                     raise V20FinamBlocked("ONE_ENTRY_PER_SYMBOL_PER_SESSION")
             risks = self.store.get("risk_reservations", {})
             reservations = [RiskReservation.restore(record) for record in risks.values()]
+            if getattr(self, "live_runtime", False) and reservations:
+                # FINAM available_cash ALREADY excludes GO for broker-filled
+                # positions. Never deduct their durable GO again. Only mark
+                # margin as broker-reflected after exact account/position/
+                # order-ID/100%-SLTP proof in THIS fresh broker snapshot.
+                # Pending or uncertain intents remain fully cash-reserved.
+                reflected = []
+                for old in reservations:
+                    prior = self.store.intent(old.entry_key)
+                    proof = self.store.get("protected_fill:" + old.entry_key)
+                    stop = self.store.intent(old.entry_key + ":stop")
+                    if not (prior and prior["status"] == "RECONCILED"
+                            and isinstance(proof, dict)
+                            and isinstance(proof.get("risk_assessment"), dict)
+                            and proof["risk_assessment"].get("status") == "PASS"
+                            and proof.get("account_sha256") == self.account_hash
+                            and proof.get("filled_quantity") == old.quantity
+                            and proof.get("broker_stop_percent") == "100"
+                            and stop and stop["status"] in ("ACK", "RECONCILED")
+                            and stop["broker_order_id"] == proof.get("broker_stop_id")
+                            and old.account_id == authority.account_id):
+                        continue
+                    entry_payload = prior["payload"]
+                    if (entry_payload.get("kind") != "ENTRY"
+                            or entry_payload.get("symbol") != old.symbol
+                            or entry_payload.get("direction") != old.direction
+                            or entry_payload.get("quantity") != old.quantity):
+                        continue
+                    broker_symbol = entry_payload.get("finam_symbol")
+                    broker_position = snapshot.positions.get(broker_symbol, 0)
+                    direction = 1 if old.direction == "LONG" else -1
+                    if broker_position != direction * old.quantity:
+                        continue
+                    matching_stop = [
+                        o for o in snapshot.orders
+                        if o.active and o.kind == "SLTP"
+                        and o.order_id == proof["broker_stop_id"]
+                        and o.symbol == broker_symbol
+                    ]
+                    if len(matching_stop) != 1:
+                        continue
+                    try:
+                        _validate_production_sltp(matching_stop[0])
+                    except ProductionBrokerStateError:
+                        continue
+                    reflected.append(compact_client_order_id(old.entry_key))
+                if reflected:
+                    # Revision identifies the exact observed broker snapshot;
+                    # it is not a fabricated FINAM-provided revision.
+                    authority = replace(
+                        authority,
+                        snapshot_revision=int(snapshot.observed_at.timestamp() * 1000000),
+                        margin_reflected_client_ids=tuple(reflected),
+                    )
             reservation = reserve_entry(
                 authority=authority, entry_key=key, symbol=entry.symbol,
                 direction=entry.direction, entry=entry.reference_entry,
