@@ -657,11 +657,15 @@ class V20TradeJournal(IsolatedReferenceJournal):
                 snapshot, entry_key=key, symbol=symbol, direction=direction,
                 stop_price=stop_to_verify, now=now,
             )
-            durable_stop = self.store.intent(key + ":stop")
-            if (durable_stop is None
-                    or durable_stop["status"] not in ("ACK", "RECONCILED")
-                    or durable_stop["broker_order_id"] != stop.order_id):
-                raise V20FinamBlocked("STOP_BROKER_ID_MISMATCH")
+            if stop.client_order_id == "":
+                # Only the FINAM empty-client WATCHING fallback requires
+                # this extra independent durable broker ID. Normal H1
+                # protected-entry confirmation remains unchanged.
+                durable_stop = self.store.intent(key + ":stop")
+                if (durable_stop is None
+                        or durable_stop["status"] not in ("ACK", "RECONCILED")
+                        or durable_stop["broker_order_id"] != stop.order_id):
+                    raise V20FinamBlocked("STOP_BROKER_ID_MISMATCH")
             if prior is not None and stop.order_id != prior.get("broker_stop_id"):
                 raise V20FinamBlocked("POSITION_GROWTH_STOP_ORDER_ID_CHANGED")
         except Exception:
