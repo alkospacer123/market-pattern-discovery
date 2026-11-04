@@ -53,7 +53,8 @@ def arrays(d, mode):
 @njit
 def replay_cash(ts,sym,day,day_sess,op,hi,lo,atr,atr_old,signal,target,
                 tpr,weekend,bank,quota,policy,block_weekend,go_factor=1.0,
-                fixed_equity_risk=False, allowed_mask=15):
+                fixed_equity_risk=False, allowed_mask=15,
+                usd_limit_mode=0):
     pos=np.zeros(4,np.int64)
     pending=np.full(4,-1,np.int64)
     used=np.full(4,-1,np.int64)
@@ -154,6 +155,11 @@ def replay_cash(ts,sym,day,day_sess,op,hi,lo,atr,atr_old,signal,target,
                             rejected_risk+=1
                         else:
                             available=equity-held_go
+                            # Research-only remedies for USD crowding out other N4:
+                            # 1 = USD at most 1 lot; 2 = USD at most 50% equity GO.
+                            # All other instruments keep the frozen size/risk gate.
+                            if s==3 and usd_limit_mode==2:
+                                available=min(available, equity*.5)
                             reserve=0.
                             if policy==1: # half of equity nominal max per new position
                                 available=min(available,equity*.5)
@@ -188,6 +194,8 @@ def replay_cash(ts,sym,day,day_sess,op,hi,lo,atr,atr_old,signal,target,
                             if policy!=-1:
                                 max_q=int(np.floor((available+1e-7)/(go_factor*GO[s]+FEE[s])))
                                 qty=min(qty,max_q)
+                                if s==3 and usd_limit_mode==1:
+                                    qty=min(qty,1)
                             if qty<1:
                                 rejected_go+=1
                             else:
@@ -347,6 +355,61 @@ def run_instrument_subsets(d, modes, full_results):
                       __import__("json").dumps(record,ensure_ascii=False,
                                                separators=(",",":")),flush=True)
         results[mode] = candidates
+    return results
+
+
+def run_usd_margin_remedies(d, modes, full_results):
+    """One isolated live-GO issue: 2 USD lots crowd out the next instrument.
+
+    Replays identical frozen N4, 2/2/2 and risk model at 45k per account.
+    Applies extra margin admission ONLY when entering USD (index 3):
+    1: hard 1-lot max, 2: USD margin no more than 50% of equity.
+    Research only. Never imports live code or changes frozen signals.
+    """
+    results = {}
+    for mode in modes:
+        a=arrays(d,mode)
+        outcome={}
+        for go_factor in (1.0,0.5):
+            baseline=full_results[mode][f"2:45000:current_cash:{go_factor}"]
+            baseline_usd2=0
+            baseline_usd_trades=0
+            baseline_events,*_=replay_cash(*a,45000.,2,0,True,go_factor)
+            assert len(baseline_events)==baseline["trades"],"USD_BASELINE_REPLAY_PARITY"
+            for ev in baseline_events:
+                if ev[1]==3:
+                    baseline_usd_trades+=1
+                    baseline_usd2+=int(ev[3]>=2)
+            for usd_mode, policy in ((1,"usd_max_one_lot"),
+                                     (2,"usd_max_half_equity_go")):
+                ev, accepted, reject_go, reject_risk, reject_weekend, go_peak, risk_peak, dd, dd_pct, min_eq, end_eq, remaining, rejected_busy = (
+                    replay_cash(*a,45000.,2,0,True,go_factor,
+                                False,15,usd_mode))
+                z=metrics(ev,a,45000.)
+                assert accepted==z["trades"],"USD_REMEDY_ACCEPTED_CLOSED_PARITY"
+                used_usd=sum(1 for item in ev if item[1]==3)
+                usd2=sum(1 for item in ev if item[1]==3 and item[3]>=2)
+                if usd_mode==1:
+                    assert usd2==0,"USD_MAX_ONE_LOT_NOT_ENFORCED"
+                output={
+                    "robot":mode,"policy":policy,"bank":45000,"go_factor":go_factor,
+                    "trades":z["trades"],"pf":z["pf"],
+                    "net_rub":z["net_rub"],"mean_month_pct_full":z["mean_month_pct_full"],
+                    "months_negative_full":z["months_negative_full"],
+                    "closed_dd_pct":round(100*dd_pct,2),
+                    "rejected_go":reject_go,"rejected_risk":reject_risk,
+                    "yearly":z["yearly"],
+                    "usd_trades":used_usd,"usd_entries_2plus_lots":usd2,
+                    "baseline_usd_trades":baseline_usd_trades,
+                    "baseline_usd_entries_2plus_lots":baseline_usd2,
+                    "baseline_trades":baseline["trades"],
+                    "baseline_pf":baseline["pf"],"baseline_net_rub":baseline["net_rub"]
+                }
+                outcome[f"{policy}:{go_factor}"]=output
+                print("CASH_USD_MARGIN_REMEDY",
+                      __import__("json").dumps(output,ensure_ascii=False,
+                                               separators=(",",":")),flush=True)
+        results[mode]=outcome
     return results
 
 
