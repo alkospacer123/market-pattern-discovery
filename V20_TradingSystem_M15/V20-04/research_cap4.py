@@ -312,9 +312,12 @@ def run(root:Path,out:Path):
   cash_results=replay_cash_all(d,MODES,variants)
   from research_cashaware_replay import run_instrument_subsets
   subset_results=run_instrument_subsets(d,MODES,cash_results)
+  from research_cashaware_replay import run_usd_margin_remedies
+  usd_remedies=run_usd_margin_remedies(d,MODES,cash_results)
   for m in MODES:
    outcomes[m]['cash_aware_live_equity_policy_replay']=cash_results[m]
    outcomes[m]['cash_instrument_subset_replay']=subset_results[m]
+   outcomes[m]['usd_margin_remedies_replay']=usd_remedies[m]
   common={}
   for k in (1,2,3,4):
    risk=max(outcomes[m]['quotas'][str(k)]['floor_bank_for_one_lot_risk'] for m in MODES)
