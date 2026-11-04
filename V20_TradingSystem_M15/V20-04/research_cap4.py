@@ -310,8 +310,11 @@ def run(root:Path,out:Path):
   from research_cashaware_replay import run as replay_cash_all, POLICIES as cash_policies
   assert cash_policies[-2:] == ("reserve_n4", "one_position_full_go"), "N4_OR_SINGLE_POSITION_POLICY_MISSING"
   cash_results=replay_cash_all(d,MODES,variants)
+  from research_cashaware_replay import run_instrument_subsets
+  subset_results=run_instrument_subsets(d,MODES,cash_results)
   for m in MODES:
    outcomes[m]['cash_aware_live_equity_policy_replay']=cash_results[m]
+   outcomes[m]['cash_instrument_subset_replay']=subset_results[m]
   common={}
   for k in (1,2,3,4):
    risk=max(outcomes[m]['quotas'][str(k)]['floor_bank_for_one_lot_risk'] for m in MODES)
