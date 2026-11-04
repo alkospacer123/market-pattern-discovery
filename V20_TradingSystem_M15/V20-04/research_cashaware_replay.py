@@ -414,29 +414,36 @@ def run_usd_margin_remedies(d, modes, full_results):
 
 
 def run_large_bank_live_go_comparison(d, modes):
-    """Research-only 500k / 1m starting-bank sensitivity, unchanged N4 rules.
+    """OFFLINE 500k / 1m bank: all five GO policies + three targeted variants.
 
-    Uses ordinary GO, frozen 2/2/2 signals and risk; current_cash vs 50/50.
-    Results use modeled realized-equity compounding, not FINAM equity or VМ.
+    Run same frozen 2/2/2 replay with N4, real initial bank, no qualified
+    investor haircut. All accounts independent; no dynamic inter-account cash
+    transfers. Uses fixed GO snapshot, realized-equity approximation.
     """
     scenarios={}
     for mode in modes:
         a=arrays(d,mode)
+        allowed=3 if mode=="OBV_PRESSURE" else 9
         for bank in (500000.,1000000.):
-            for policy in (0,1):
+            variants=[(POLICIES[i],i,15,0) for i in range(5)]
+            variants.extend([("usd_max_one_lot",0,15,1),
+                             ("usd_max_half_equity_go",0,15,2),
+                             ("best_two_instruments",0,allowed,0)])
+            for name,policy,mask,usd_mode in variants:
                 ev,accepted,rgo,rrisk,rweek,gopeak,riskpeak,dd,ddpct,mineq,end,unclosed,rb=(
-                    replay_cash(*a,bank,2,policy,True,1.0))
+                    replay_cash(*a,bank,2,policy,True,1.0,False,mask,usd_mode))
                 z=metrics(ev,a,bank)
                 assert accepted==z["trades"] and unclosed==0,(
-                    "LARGE_BANK_ACCEPTED_VS_CLOSED",mode,bank,policy,
+                    "BANK_MATRIX_ACCEPTED_VS_CLOSED",mode,bank,name,
                     accepted,z["trades"],unclosed)
                 z.update(robot=mode,bank=bank,go_factor=1.0,quota=2,
-                         policy=POLICIES[policy],accepted=accepted,
+                         policy=name,allowed_mask=mask,accepted=accepted,
                          rejected_go=rgo,rejected_risk=rrisk,
-                         rejected_weekend=rweek,closed_dd_pct=round(100*ddpct,2),
+                         rejected_busy=rb,rejected_weekend=rweek,
+                         closed_dd_pct=round(100*ddpct,2),
                          peak_go=round(gopeak,2))
-                scenarios[f"{mode}:{int(bank)}:{policy}"]=z
-                print("CASH_LARGE_BANK_REPLAY",
+                scenarios[f"{mode}:{int(bank)}:{name}"]=z
+                print("CASH_BANK_MATRIX_REPLAY",
                       __import__("json").dumps(z,ensure_ascii=False,
                                                separators=(",",":")),flush=True)
     return scenarios
