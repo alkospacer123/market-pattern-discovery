@@ -53,7 +53,7 @@ def arrays(d, mode):
 @njit
 def replay_cash(ts,sym,day,day_sess,op,hi,lo,atr,atr_old,signal,target,
                 tpr,weekend,bank,quota,policy,block_weekend,go_factor=1.0,
-                fixed_equity_risk=False):
+                fixed_equity_risk=False, allowed_mask=15):
     pos=np.zeros(4,np.int64)
     pending=np.full(4,-1,np.int64)
     used=np.full(4,-1,np.int64)
@@ -229,8 +229,8 @@ def replay_cash(ts,sym,day,day_sess,op,hi,lo,atr,atr_old,signal,target,
             pending[s]=-1
         # As in frozen replay, a rejected pending entry does not consume
         # per-day/symbol limits. A new valid signal may re-arm after it.
-        if signal[i]!=0 and pos[s]==0 and used[s]!=day_sess[i] and (
-                np.isfinite(atr[i]) and atr[i]>0):
+        if (allowed_mask & (1 << s)) and signal[i]!=0 and pos[s]==0 and (
+                used[s]!=day_sess[i] and np.isfinite(atr[i]) and atr[i]>0):
             pending[s]=i
         if np.isfinite(atr[i]) and atr[i]>0:
             prior_atr[s]=latest_atr[s]
@@ -295,6 +295,59 @@ def metrics(events,arr,bank):
             "min_month_pct_full":round(min(full),3) if full else None,
             "max_month_pct_full":round(max(full),3) if full else None,
             "yearly":years,"monthly":returns}
+
+
+# Offline counterfactual: single/pair N4 instruments per robot. Every
+# scenario recomputes signal admission, pending next-open, risk, exits,
+# broker-margin proxy, and compounding. No LIVE imports or changes.
+SUBSET_MASKS = (1, 2, 4, 8, 3, 5, 9, 6, 10, 12, 15)
+
+
+def run_instrument_subsets(d, modes, full_results):
+    results = {}
+    for mode in modes:
+        a = arrays(d, mode)
+        candidates = {}
+        for mask in SUBSET_MASKS:
+            symbols = [s for j,s in enumerate(SYMS) if mask & (1 << j)]
+            for go_factor in (1.0, 0.5):
+                ev, accepted, reject_go, reject_risk, reject_weekend, go_peak, risk_peak, dd, dd_pct, min_eq, end_eq, remaining, rejected_busy = (
+                    replay_cash(*a,45000.,2,0,True,go_factor,False,mask))
+                z = metrics(ev,a,45000.)
+                assert z["trades"]==accepted, ("SUBSET_CLOSED_ACCEPTED_MISMATCH",mode,mask,go_factor)
+                by_symbol = {}
+                for j,symbol in enumerate(SYMS):
+                    if not (mask & (1 << j)):
+                        continue
+                    zz = metrics([e for e in ev if e[1]==j],a,45000.)
+                    by_symbol[symbol] = {"trades":zz["trades"],"pf":zz["pf"],
+                                         "net_rub":zz["net_rub"],"yearly":zz["yearly"]}
+                # Full-N4 control must be exactly identical to the already
+                # verified integrated cash-aware current_cash scenario.
+                if mask==15:
+                    reference=full_results[mode][f"2:45000:current_cash:{go_factor}"]
+                    assert z["trades"]==reference["trades"], ("FULL_N4_SUBSET_COUNT",mode,go_factor)
+                    assert abs(z["net_rub"]-reference["net_rub"])<0.01, ("FULL_N4_SUBSET_PNL",mode,go_factor)
+                    assert z["pf"]==reference["pf"], ("FULL_N4_SUBSET_PF",mode,go_factor)
+                record={"robot":mode,"symbols":symbols,"mask":mask,
+                        "go_factor":go_factor,"bank":45000,"quota":2,
+                        "trades":z["trades"],"pf":z["pf"],"net_rub":z["net_rub"],
+                        "mean_month_pct_full":z["mean_month_pct_full"],
+                        "median_month_pct_full":z["median_month_pct_full"],
+                        "months_ge10_full":z["months_ge10_full"],
+                        "months_negative_full":z["months_negative_full"],
+                        "closed_dd_pct":round(100*dd_pct,2),
+                        "closed_dd_rub":round(dd,2),
+                        "rejected_go":reject_go,"rejected_risk":reject_risk,
+                        "rejected_weekend":reject_weekend,
+                        "unclosed":remaining,
+                        "yearly":z["yearly"],"by_symbol":by_symbol}
+                candidates[f"{mask}:{go_factor}"]=record
+                print("CASH_INSTRUMENT_SUBSET_REPLAY",
+                      __import__("json").dumps(record,ensure_ascii=False,
+                                               separators=(",",":")),flush=True)
+        results[mode] = candidates
+    return results
 
 
 def run(d,modes,variants):
