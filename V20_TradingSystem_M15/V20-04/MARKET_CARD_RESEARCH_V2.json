@@ -1,0 +1,970 @@
+{
+  "schema": "v20.market_outcome.research.v2",
+  "metric_schema": "v20.market_metrics.clv_inside.v2",
+  "status": "EXPLORATORY_NO_VALIDATED_CLASSIFICATION",
+  "locked_feature_year": 2025,
+  "raw_contrast": [
+    {
+      "period": "2018-2022",
+      "strategy": "SHALLOW_PULLBACK",
+      "raw_signals": 989,
+      "observed_horizons": 962,
+      "unverified_horizons": 27,
+      "mean_horizon_R": 0.4061623769370345,
+      "median_horizon_R": 0.291686922703,
+      "positive_horizon_share": 0.5332640332640333,
+      "stop_touch_share": 0.7151767151767152,
+      "horizon_status_counts": {
+        "OBSERVED_V1": 962,
+        "UNKNOWN_INTRASESSION_GAP": 27
+      }
+    },
+    {
+      "period": "2018-2022",
+      "strategy": "OBV_PRESSURE",
+      "raw_signals": 620,
+      "observed_horizons": 598,
+      "unverified_horizons": 22,
+      "mean_horizon_R": 0.22646624774679147,
+      "median_horizon_R": -0.116718266254,
+      "positive_horizon_share": 0.479933110367893,
+      "stop_touch_share": 0.754180602006689,
+      "horizon_status_counts": {
+        "OBSERVED_V1": 598,
+        "UNKNOWN_INTRASESSION_GAP": 22
+      }
+    },
+    {
+      "period": "2018-2022",
+      "strategy": "INSIDE_DAY_RELEASE",
+      "raw_signals": 172,
+      "observed_horizons": 165,
+      "unverified_horizons": 7,
+      "mean_horizon_R": 0.2048073179980927,
+      "median_horizon_R": 0.133333333333,
+      "positive_horizon_share": 0.5272727272727272,
+      "stop_touch_share": 0.7090909090909091,
+      "horizon_status_counts": {
+        "UNKNOWN_INTRASESSION_GAP": 7,
+        "OBSERVED_V1": 165
+      }
+    },
+    {
+      "period": "2018-2022",
+      "strategy": "ALL_INDEPENDENT_ACCOUNTS",
+      "raw_signals": 1781,
+      "observed_horizons": 1725,
+      "unverified_horizons": 56,
+      "mean_horizon_R": 0.32460766970185145,
+      "median_horizon_R": 0.111111111111,
+      "positive_horizon_share": 0.5142028985507247,
+      "stop_touch_share": 0.7281159420289856,
+      "horizon_status_counts": {
+        "OBSERVED_V1": 1725,
+        "UNKNOWN_INTRASESSION_GAP": 56
+      }
+    },
+    {
+      "period": "2023-2026",
+      "strategy": "SHALLOW_PULLBACK",
+      "raw_signals": 1604,
+      "observed_horizons": 1395,
+      "unverified_horizons": 209,
+      "mean_horizon_R": 0.9526122570720122,
+      "median_horizon_R": 0.58275862069,
+      "positive_horizon_share": 0.5670250896057347,
+      "stop_touch_share": 0.6623655913978495,
+      "horizon_status_counts": {
+        "OBSERVED_V1": 1395,
+        "UNKNOWN_INTRASESSION_GAP": 209
+      }
+    },
+    {
+      "period": "2023-2026",
+      "strategy": "OBV_PRESSURE",
+      "raw_signals": 1299,
+      "observed_horizons": 1055,
+      "unverified_horizons": 244,
+      "mean_horizon_R": 0.6952668092922663,
+      "median_horizon_R": 0.375,
+      "positive_horizon_share": 0.5374407582938389,
+      "stop_touch_share": 0.6976303317535545,
+      "horizon_status_counts": {
+        "OBSERVED_V1": 1055,
+        "UNKNOWN_INTRASESSION_GAP": 242,
+        "END_OF_ARCHIVE": 2
+      }
+    },
+    {
+      "period": "2023-2026",
+      "strategy": "INSIDE_DAY_RELEASE",
+      "raw_signals": 302,
+      "observed_horizons": 256,
+      "unverified_horizons": 46,
+      "mean_horizon_R": 0.7334922428905141,
+      "median_horizon_R": 0.409444693908,
+      "positive_horizon_share": 0.5390625,
+      "stop_touch_share": 0.671875,
+      "horizon_status_counts": {
+        "UNKNOWN_INTRASESSION_GAP": 43,
+        "OBSERVED_V1": 256,
+        "NO_NEXT_OPEN": 2,
+        "END_OF_ARCHIVE": 1
+      }
+    },
+    {
+      "period": "2023-2026",
+      "strategy": "ALL_INDEPENDENT_ACCOUNTS",
+      "raw_signals": 3205,
+      "observed_horizons": 2706,
+      "unverified_horizons": 499,
+      "mean_horizon_R": 0.8315501096078232,
+      "median_horizon_R": 0.5034129692835,
+      "positive_horizon_share": 0.5528455284552846,
+      "stop_touch_share": 0.6770140428677014,
+      "horizon_status_counts": {
+        "OBSERVED_V1": 2706,
+        "UNKNOWN_INTRASESSION_GAP": 494,
+        "END_OF_ARCHIVE": 3,
+        "NO_NEXT_OPEN": 2
+      }
+    }
+  ],
+  "five_group_table": [
+    {
+      "period": "2018-2022",
+      "strategy": "SHALLOW_PULLBACK",
+      "metric": "atr14_pct_close",
+      "card_feature_signals": 0,
+      "card_feature_median": null,
+      "coverage": "NO_OLD_QUOTES_FOR_CARD",
+      "published_signal_ATR_pct_median": 0.1582722018125,
+      "published_side_times_pressure_median": 0.2307138082065
+    },
+    {
+      "period": "2018-2022",
+      "strategy": "SHALLOW_PULLBACK",
+      "metric": "directional_efficiency",
+      "card_feature_signals": 0,
+      "card_feature_median": null,
+      "coverage": "NO_OLD_QUOTES_FOR_CARD",
+      "published_signal_ATR_pct_median": 0.1582722018125,
+      "published_side_times_pressure_median": 0.2307138082065
+    },
+    {
+      "period": "2018-2022",
+      "strategy": "SHALLOW_PULLBACK",
+      "metric": "continuation_rate",
+      "card_feature_signals": 0,
+      "card_feature_median": null,
+      "coverage": "NO_OLD_QUOTES_FOR_CARD",
+      "published_signal_ATR_pct_median": 0.1582722018125,
+      "published_side_times_pressure_median": 0.2307138082065
+    },
+    {
+      "period": "2018-2022",
+      "strategy": "SHALLOW_PULLBACK",
+      "metric": "pressure_direction_alignment",
+      "card_feature_signals": 0,
+      "card_feature_median": null,
+      "coverage": "NO_OLD_QUOTES_FOR_CARD",
+      "published_signal_ATR_pct_median": 0.1582722018125,
+      "published_side_times_pressure_median": 0.2307138082065
+    },
+    {
+      "period": "2018-2022",
+      "strategy": "SHALLOW_PULLBACK",
+      "metric": "range_compression_ratio",
+      "card_feature_signals": 0,
+      "card_feature_median": null,
+      "coverage": "NO_OLD_QUOTES_FOR_CARD",
+      "published_signal_ATR_pct_median": 0.1582722018125,
+      "published_side_times_pressure_median": 0.2307138082065
+    },
+    {
+      "period": "2018-2022",
+      "strategy": "SHALLOW_PULLBACK",
+      "metric": "inside_release_continuation_rate",
+      "card_feature_signals": 0,
+      "card_feature_median": null,
+      "coverage": "NO_OLD_QUOTES_FOR_CARD",
+      "published_signal_ATR_pct_median": 0.1582722018125,
+      "published_side_times_pressure_median": 0.2307138082065
+    },
+    {
+      "period": "2018-2022",
+      "strategy": "OBV_PRESSURE",
+      "metric": "atr14_pct_close",
+      "card_feature_signals": 0,
+      "card_feature_median": null,
+      "coverage": "NO_OLD_QUOTES_FOR_CARD",
+      "published_signal_ATR_pct_median": 0.157773243818,
+      "published_side_times_pressure_median": 0.4416600609375
+    },
+    {
+      "period": "2018-2022",
+      "strategy": "OBV_PRESSURE",
+      "metric": "directional_efficiency",
+      "card_feature_signals": 0,
+      "card_feature_median": null,
+      "coverage": "NO_OLD_QUOTES_FOR_CARD",
+      "published_signal_ATR_pct_median": 0.157773243818,
+      "published_side_times_pressure_median": 0.4416600609375
+    },
+    {
+      "period": "2018-2022",
+      "strategy": "OBV_PRESSURE",
+      "metric": "continuation_rate",
+      "card_feature_signals": 0,
+      "card_feature_median": null,
+      "coverage": "NO_OLD_QUOTES_FOR_CARD",
+      "published_signal_ATR_pct_median": 0.157773243818,
+      "published_side_times_pressure_median": 0.4416600609375
+    },
+    {
+      "period": "2018-2022",
+      "strategy": "OBV_PRESSURE",
+      "metric": "pressure_direction_alignment",
+      "card_feature_signals": 0,
+      "card_feature_median": null,
+      "coverage": "NO_OLD_QUOTES_FOR_CARD",
+      "published_signal_ATR_pct_median": 0.157773243818,
+      "published_side_times_pressure_median": 0.4416600609375
+    },
+    {
+      "period": "2018-2022",
+      "strategy": "OBV_PRESSURE",
+      "metric": "range_compression_ratio",
+      "card_feature_signals": 0,
+      "card_feature_median": null,
+      "coverage": "NO_OLD_QUOTES_FOR_CARD",
+      "published_signal_ATR_pct_median": 0.157773243818,
+      "published_side_times_pressure_median": 0.4416600609375
+    },
+    {
+      "period": "2018-2022",
+      "strategy": "OBV_PRESSURE",
+      "metric": "inside_release_continuation_rate",
+      "card_feature_signals": 0,
+      "card_feature_median": null,
+      "coverage": "NO_OLD_QUOTES_FOR_CARD",
+      "published_signal_ATR_pct_median": 0.157773243818,
+      "published_side_times_pressure_median": 0.4416600609375
+    },
+    {
+      "period": "2018-2022",
+      "strategy": "INSIDE_DAY_RELEASE",
+      "metric": "atr14_pct_close",
+      "card_feature_signals": 0,
+      "card_feature_median": null,
+      "coverage": "NO_OLD_QUOTES_FOR_CARD",
+      "published_signal_ATR_pct_median": 0.154818796682,
+      "published_side_times_pressure_median": 0.0238814909253
+    },
+    {
+      "period": "2018-2022",
+      "strategy": "INSIDE_DAY_RELEASE",
+      "metric": "directional_efficiency",
+      "card_feature_signals": 0,
+      "card_feature_median": null,
+      "coverage": "NO_OLD_QUOTES_FOR_CARD",
+      "published_signal_ATR_pct_median": 0.154818796682,
+      "published_side_times_pressure_median": 0.0238814909253
+    },
+    {
+      "period": "2018-2022",
+      "strategy": "INSIDE_DAY_RELEASE",
+      "metric": "continuation_rate",
+      "card_feature_signals": 0,
+      "card_feature_median": null,
+      "coverage": "NO_OLD_QUOTES_FOR_CARD",
+      "published_signal_ATR_pct_median": 0.154818796682,
+      "published_side_times_pressure_median": 0.0238814909253
+    },
+    {
+      "period": "2018-2022",
+      "strategy": "INSIDE_DAY_RELEASE",
+      "metric": "pressure_direction_alignment",
+      "card_feature_signals": 0,
+      "card_feature_median": null,
+      "coverage": "NO_OLD_QUOTES_FOR_CARD",
+      "published_signal_ATR_pct_median": 0.154818796682,
+      "published_side_times_pressure_median": 0.0238814909253
+    },
+    {
+      "period": "2018-2022",
+      "strategy": "INSIDE_DAY_RELEASE",
+      "metric": "range_compression_ratio",
+      "card_feature_signals": 0,
+      "card_feature_median": null,
+      "coverage": "NO_OLD_QUOTES_FOR_CARD",
+      "published_signal_ATR_pct_median": 0.154818796682,
+      "published_side_times_pressure_median": 0.0238814909253
+    },
+    {
+      "period": "2018-2022",
+      "strategy": "INSIDE_DAY_RELEASE",
+      "metric": "inside_release_continuation_rate",
+      "card_feature_signals": 0,
+      "card_feature_median": null,
+      "coverage": "NO_OLD_QUOTES_FOR_CARD",
+      "published_signal_ATR_pct_median": 0.154818796682,
+      "published_side_times_pressure_median": 0.0238814909253
+    },
+    {
+      "period": "2023-2026",
+      "strategy": "SHALLOW_PULLBACK",
+      "metric": "atr14_pct_close",
+      "card_feature_signals": 815,
+      "card_feature_median": 0.0016569512044950613,
+      "coverage": "LAGGED_COMPLETE_WINDOW_EXCLUDING_2025",
+      "published_signal_ATR_pct_median": 0.172439208298,
+      "published_side_times_pressure_median": 0.232918638475
+    },
+    {
+      "period": "2023-2026",
+      "strategy": "SHALLOW_PULLBACK",
+      "metric": "directional_efficiency",
+      "card_feature_signals": 815,
+      "card_feature_median": 0.26595744680851097,
+      "coverage": "LAGGED_COMPLETE_WINDOW_EXCLUDING_2025",
+      "published_signal_ATR_pct_median": 0.172439208298,
+      "published_side_times_pressure_median": 0.232918638475
+    },
+    {
+      "period": "2023-2026",
+      "strategy": "SHALLOW_PULLBACK",
+      "metric": "continuation_rate",
+      "card_feature_signals": 815,
+      "card_feature_median": 0.4794520547945205,
+      "coverage": "LAGGED_COMPLETE_WINDOW_EXCLUDING_2025",
+      "published_signal_ATR_pct_median": 0.172439208298,
+      "published_side_times_pressure_median": 0.232918638475
+    },
+    {
+      "period": "2023-2026",
+      "strategy": "SHALLOW_PULLBACK",
+      "metric": "pressure_direction_alignment",
+      "card_feature_signals": 815,
+      "card_feature_median": 0.09217265344441408,
+      "coverage": "LAGGED_COMPLETE_WINDOW_EXCLUDING_2025",
+      "published_signal_ATR_pct_median": 0.172439208298,
+      "published_side_times_pressure_median": 0.232918638475
+    },
+    {
+      "period": "2023-2026",
+      "strategy": "SHALLOW_PULLBACK",
+      "metric": "range_compression_ratio",
+      "card_feature_signals": 815,
+      "card_feature_median": 0.9576271186440612,
+      "coverage": "LAGGED_COMPLETE_WINDOW_EXCLUDING_2025",
+      "published_signal_ATR_pct_median": 0.172439208298,
+      "published_side_times_pressure_median": 0.232918638475
+    },
+    {
+      "period": "2023-2026",
+      "strategy": "SHALLOW_PULLBACK",
+      "metric": "inside_release_continuation_rate",
+      "card_feature_signals": 716,
+      "card_feature_median": 0.5,
+      "coverage": "LAGGED_COMPLETE_WINDOW_EXCLUDING_2025",
+      "published_signal_ATR_pct_median": 0.172439208298,
+      "published_side_times_pressure_median": 0.232918638475
+    },
+    {
+      "period": "2023-2026",
+      "strategy": "OBV_PRESSURE",
+      "metric": "atr14_pct_close",
+      "card_feature_signals": 646,
+      "card_feature_median": 0.0016784505624898962,
+      "coverage": "LAGGED_COMPLETE_WINDOW_EXCLUDING_2025",
+      "published_signal_ATR_pct_median": 0.154257271134,
+      "published_side_times_pressure_median": 0.453131197172
+    },
+    {
+      "period": "2023-2026",
+      "strategy": "OBV_PRESSURE",
+      "metric": "directional_efficiency",
+      "card_feature_signals": 646,
+      "card_feature_median": 0.28222656249999994,
+      "coverage": "LAGGED_COMPLETE_WINDOW_EXCLUDING_2025",
+      "published_signal_ATR_pct_median": 0.154257271134,
+      "published_side_times_pressure_median": 0.453131197172
+    },
+    {
+      "period": "2023-2026",
+      "strategy": "OBV_PRESSURE",
+      "metric": "continuation_rate",
+      "card_feature_signals": 646,
+      "card_feature_median": 0.4827586206896552,
+      "coverage": "LAGGED_COMPLETE_WINDOW_EXCLUDING_2025",
+      "published_signal_ATR_pct_median": 0.154257271134,
+      "published_side_times_pressure_median": 0.453131197172
+    },
+    {
+      "period": "2023-2026",
+      "strategy": "OBV_PRESSURE",
+      "metric": "pressure_direction_alignment",
+      "card_feature_signals": 646,
+      "card_feature_median": 0.09630848015064122,
+      "coverage": "LAGGED_COMPLETE_WINDOW_EXCLUDING_2025",
+      "published_signal_ATR_pct_median": 0.154257271134,
+      "published_side_times_pressure_median": 0.453131197172
+    },
+    {
+      "period": "2023-2026",
+      "strategy": "OBV_PRESSURE",
+      "metric": "range_compression_ratio",
+      "card_feature_signals": 646,
+      "card_feature_median": 0.9661016949152612,
+      "coverage": "LAGGED_COMPLETE_WINDOW_EXCLUDING_2025",
+      "published_signal_ATR_pct_median": 0.154257271134,
+      "published_side_times_pressure_median": 0.453131197172
+    },
+    {
+      "period": "2023-2026",
+      "strategy": "OBV_PRESSURE",
+      "metric": "inside_release_continuation_rate",
+      "card_feature_signals": 561,
+      "card_feature_median": 0.5,
+      "coverage": "LAGGED_COMPLETE_WINDOW_EXCLUDING_2025",
+      "published_signal_ATR_pct_median": 0.154257271134,
+      "published_side_times_pressure_median": 0.453131197172
+    },
+    {
+      "period": "2023-2026",
+      "strategy": "INSIDE_DAY_RELEASE",
+      "metric": "atr14_pct_close",
+      "card_feature_signals": 143,
+      "card_feature_median": 0.0012516293616361808,
+      "coverage": "LAGGED_COMPLETE_WINDOW_EXCLUDING_2025",
+      "published_signal_ATR_pct_median": 0.131909753874,
+      "published_side_times_pressure_median": 0.0592002090957
+    },
+    {
+      "period": "2023-2026",
+      "strategy": "INSIDE_DAY_RELEASE",
+      "metric": "directional_efficiency",
+      "card_feature_signals": 143,
+      "card_feature_median": 0.271874999999999,
+      "coverage": "LAGGED_COMPLETE_WINDOW_EXCLUDING_2025",
+      "published_signal_ATR_pct_median": 0.131909753874,
+      "published_side_times_pressure_median": 0.0592002090957
+    },
+    {
+      "period": "2023-2026",
+      "strategy": "INSIDE_DAY_RELEASE",
+      "metric": "continuation_rate",
+      "card_feature_signals": 143,
+      "card_feature_median": 0.46153846153846156,
+      "coverage": "LAGGED_COMPLETE_WINDOW_EXCLUDING_2025",
+      "published_signal_ATR_pct_median": 0.131909753874,
+      "published_side_times_pressure_median": 0.0592002090957
+    },
+    {
+      "period": "2023-2026",
+      "strategy": "INSIDE_DAY_RELEASE",
+      "metric": "pressure_direction_alignment",
+      "card_feature_signals": 143,
+      "card_feature_median": 0.08858156617490229,
+      "coverage": "LAGGED_COMPLETE_WINDOW_EXCLUDING_2025",
+      "published_signal_ATR_pct_median": 0.131909753874,
+      "published_side_times_pressure_median": 0.0592002090957
+    },
+    {
+      "period": "2023-2026",
+      "strategy": "INSIDE_DAY_RELEASE",
+      "metric": "range_compression_ratio",
+      "card_feature_signals": 143,
+      "card_feature_median": 0.9302325581395487,
+      "coverage": "LAGGED_COMPLETE_WINDOW_EXCLUDING_2025",
+      "published_signal_ATR_pct_median": 0.131909753874,
+      "published_side_times_pressure_median": 0.0592002090957
+    },
+    {
+      "period": "2023-2026",
+      "strategy": "INSIDE_DAY_RELEASE",
+      "metric": "inside_release_continuation_rate",
+      "card_feature_signals": 126,
+      "card_feature_median": 0.5,
+      "coverage": "LAGGED_COMPLETE_WINDOW_EXCLUDING_2025",
+      "published_signal_ATR_pct_median": 0.131909753874,
+      "published_side_times_pressure_median": 0.0592002090957
+    }
+  ],
+  "associations": [
+    {
+      "strategy": "SHALLOW_PULLBACK",
+      "block": "2023-2024",
+      "metric": "atr14_pct_close",
+      "signals": 554,
+      "instrument_sessions": 334,
+      "median_feature": 0.001565405642480101,
+      "median_positive_horizon": 0.0016494689879437293,
+      "median_nonpositive_horizon": 0.0014729010430319742,
+      "spearman_horizon_R": 0.03784903082790352
+    },
+    {
+      "strategy": "SHALLOW_PULLBACK",
+      "block": "2023-2024",
+      "metric": "directional_efficiency",
+      "signals": 554,
+      "instrument_sessions": 334,
+      "median_feature": 0.25117129875494193,
+      "median_positive_horizon": 0.24916880402773842,
+      "median_nonpositive_horizon": 0.2515489467162333,
+      "spearman_horizon_R": 0.00623929834663735
+    },
+    {
+      "strategy": "SHALLOW_PULLBACK",
+      "block": "2023-2024",
+      "metric": "continuation_rate",
+      "signals": 554,
+      "instrument_sessions": 334,
+      "median_feature": 0.48507130124777187,
+      "median_positive_horizon": 0.4864864864864865,
+      "median_nonpositive_horizon": 0.4827586206896552,
+      "spearman_horizon_R": 0.002040900345006091
+    },
+    {
+      "strategy": "SHALLOW_PULLBACK",
+      "block": "2023-2024",
+      "metric": "pressure_direction_alignment",
+      "signals": 554,
+      "instrument_sessions": 334,
+      "median_feature": 0.09578774059594156,
+      "median_positive_horizon": 0.09496135998447561,
+      "median_nonpositive_horizon": 0.09609737512189526,
+      "spearman_horizon_R": -0.08254336174163297
+    },
+    {
+      "strategy": "SHALLOW_PULLBACK",
+      "block": "2023-2024",
+      "metric": "range_compression_ratio",
+      "signals": 554,
+      "instrument_sessions": 334,
+      "median_feature": 0.9627659574467972,
+      "median_positive_horizon": 0.9661016949152612,
+      "median_nonpositive_horizon": 0.9537037037037063,
+      "spearman_horizon_R": 0.15919237631421274
+    },
+    {
+      "strategy": "SHALLOW_PULLBACK",
+      "block": "2023-2024",
+      "metric": "inside_release_continuation_rate",
+      "signals": 473,
+      "instrument_sessions": 281,
+      "median_feature": 0.5,
+      "median_positive_horizon": 0.5,
+      "median_nonpositive_horizon": 0.5,
+      "spearman_horizon_R": -0.00024346071446515862
+    },
+    {
+      "strategy": "SHALLOW_PULLBACK",
+      "block": "2026_YTD",
+      "metric": "atr14_pct_close",
+      "signals": 261,
+      "instrument_sessions": 163,
+      "median_feature": 0.0018248084161104241,
+      "median_positive_horizon": 0.0017554810744182328,
+      "median_nonpositive_horizon": 0.0020947370904908767,
+      "spearman_horizon_R": -0.21046369522291772
+    },
+    {
+      "strategy": "SHALLOW_PULLBACK",
+      "block": "2026_YTD",
+      "metric": "directional_efficiency",
+      "signals": 261,
+      "instrument_sessions": 163,
+      "median_feature": 0.2920227920227914,
+      "median_positive_horizon": 0.2871246772613957,
+      "median_nonpositive_horizon": 0.30087789305666324,
+      "spearman_horizon_R": 0.014667808937239277
+    },
+    {
+      "strategy": "SHALLOW_PULLBACK",
+      "block": "2026_YTD",
+      "metric": "continuation_rate",
+      "signals": 261,
+      "instrument_sessions": 163,
+      "median_feature": 0.4696969696969697,
+      "median_positive_horizon": 0.46660069272637306,
+      "median_nonpositive_horizon": 0.47191011235955055,
+      "spearman_horizon_R": -0.07651073860937979
+    },
+    {
+      "strategy": "SHALLOW_PULLBACK",
+      "block": "2026_YTD",
+      "metric": "pressure_direction_alignment",
+      "signals": 261,
+      "instrument_sessions": 163,
+      "median_feature": 0.08962366891612125,
+      "median_positive_horizon": 0.08835287756929038,
+      "median_nonpositive_horizon": 0.09029974532263209,
+      "spearman_horizon_R": -0.05828498766546742
+    },
+    {
+      "strategy": "SHALLOW_PULLBACK",
+      "block": "2026_YTD",
+      "metric": "range_compression_ratio",
+      "signals": 261,
+      "instrument_sessions": 163,
+      "median_feature": 0.9438202247190925,
+      "median_positive_horizon": 0.9231925968768101,
+      "median_nonpositive_horizon": 0.9622641509433905,
+      "spearman_horizon_R": -0.14488195356156497
+    },
+    {
+      "strategy": "SHALLOW_PULLBACK",
+      "block": "2026_YTD",
+      "metric": "inside_release_continuation_rate",
+      "signals": 243,
+      "instrument_sessions": 152,
+      "median_feature": 0.5,
+      "median_positive_horizon": 0.5,
+      "median_nonpositive_horizon": 0.5,
+      "spearman_horizon_R": -0.14768229871973332
+    },
+    {
+      "strategy": "OBV_PRESSURE",
+      "block": "2023-2024",
+      "metric": "atr14_pct_close",
+      "signals": 493,
+      "instrument_sessions": 248,
+      "median_feature": 0.0015845449504726442,
+      "median_positive_horizon": 0.0015593449646814832,
+      "median_nonpositive_horizon": 0.0016081732515721026,
+      "spearman_horizon_R": -0.028804408156237776
+    },
+    {
+      "strategy": "OBV_PRESSURE",
+      "block": "2023-2024",
+      "metric": "directional_efficiency",
+      "signals": 493,
+      "instrument_sessions": 248,
+      "median_feature": 0.2520829929750037,
+      "median_positive_horizon": 0.30258450726619324,
+      "median_nonpositive_horizon": 0.23424369747899085,
+      "spearman_horizon_R": 0.09548165908954152
+    },
+    {
+      "strategy": "OBV_PRESSURE",
+      "block": "2023-2024",
+      "metric": "continuation_rate",
+      "signals": 493,
+      "instrument_sessions": 248,
+      "median_feature": 0.484375,
+      "median_positive_horizon": 0.48461174242424243,
+      "median_nonpositive_horizon": 0.484375,
+      "spearman_horizon_R": -0.030320620181256197
+    },
+    {
+      "strategy": "OBV_PRESSURE",
+      "block": "2023-2024",
+      "metric": "pressure_direction_alignment",
+      "signals": 493,
+      "instrument_sessions": 248,
+      "median_feature": 0.09839117393073532,
+      "median_positive_horizon": 0.09728203183159205,
+      "median_nonpositive_horizon": 0.10172961214570277,
+      "spearman_horizon_R": -0.14612004518387495
+    },
+    {
+      "strategy": "OBV_PRESSURE",
+      "block": "2023-2024",
+      "metric": "range_compression_ratio",
+      "signals": 493,
+      "instrument_sessions": 248,
+      "median_feature": 0.9745762711864279,
+      "median_positive_horizon": 0.9799999999999898,
+      "median_nonpositive_horizon": 0.963951935914555,
+      "spearman_horizon_R": 0.08625044678813935
+    },
+    {
+      "strategy": "OBV_PRESSURE",
+      "block": "2023-2024",
+      "metric": "inside_release_continuation_rate",
+      "signals": 414,
+      "instrument_sessions": 203,
+      "median_feature": 0.5,
+      "median_positive_horizon": 0.5,
+      "median_nonpositive_horizon": 0.5,
+      "spearman_horizon_R": -0.0778700892068656
+    },
+    {
+      "strategy": "OBV_PRESSURE",
+      "block": "2026_YTD",
+      "metric": "atr14_pct_close",
+      "signals": 153,
+      "instrument_sessions": 93,
+      "median_feature": 0.0018667088710836617,
+      "median_positive_horizon": 0.0017276086578274772,
+      "median_nonpositive_horizon": 0.0022743479898003436,
+      "spearman_horizon_R": -0.17991758422542242
+    },
+    {
+      "strategy": "OBV_PRESSURE",
+      "block": "2026_YTD",
+      "metric": "directional_efficiency",
+      "signals": 153,
+      "instrument_sessions": 93,
+      "median_feature": 0.3373063170441022,
+      "median_positive_horizon": 0.33019755409219387,
+      "median_nonpositive_horizon": 0.33878292461398746,
+      "spearman_horizon_R": 0.009504972438009941
+    },
+    {
+      "strategy": "OBV_PRESSURE",
+      "block": "2026_YTD",
+      "metric": "continuation_rate",
+      "signals": 153,
+      "instrument_sessions": 93,
+      "median_feature": 0.4745762711864407,
+      "median_positive_horizon": 0.4788732394366197,
+      "median_nonpositive_horizon": 0.47191011235955055,
+      "spearman_horizon_R": -0.11176549551992104
+    },
+    {
+      "strategy": "OBV_PRESSURE",
+      "block": "2026_YTD",
+      "metric": "pressure_direction_alignment",
+      "signals": 153,
+      "instrument_sessions": 93,
+      "median_feature": 0.08770608234470044,
+      "median_positive_horizon": 0.08359218418510525,
+      "median_nonpositive_horizon": 0.08962366891612125,
+      "spearman_horizon_R": -0.17208641179897108
+    },
+    {
+      "strategy": "OBV_PRESSURE",
+      "block": "2026_YTD",
+      "metric": "range_compression_ratio",
+      "signals": 153,
+      "instrument_sessions": 93,
+      "median_feature": 0.9390243902439138,
+      "median_positive_horizon": 0.9390243902439138,
+      "median_nonpositive_horizon": 0.9464114832535873,
+      "spearman_horizon_R": -0.06973486334433321
+    },
+    {
+      "strategy": "OBV_PRESSURE",
+      "block": "2026_YTD",
+      "metric": "inside_release_continuation_rate",
+      "signals": 147,
+      "instrument_sessions": 88,
+      "median_feature": 0.46153846153846156,
+      "median_positive_horizon": 0.46153846153846156,
+      "median_nonpositive_horizon": 0.5,
+      "spearman_horizon_R": -0.11807414251360873
+    },
+    {
+      "strategy": "INSIDE_DAY_RELEASE",
+      "block": "2023-2024",
+      "metric": "atr14_pct_close",
+      "signals": 80,
+      "instrument_sessions": 49,
+      "median_feature": 0.001204095419913895,
+      "median_positive_horizon": 0.00106799036146992,
+      "median_nonpositive_horizon": 0.0014212817329524083,
+      "spearman_horizon_R": -0.22510936302401463
+    },
+    {
+      "strategy": "INSIDE_DAY_RELEASE",
+      "block": "2023-2024",
+      "metric": "directional_efficiency",
+      "signals": 80,
+      "instrument_sessions": 49,
+      "median_feature": 0.2865412445730828,
+      "median_positive_horizon": 0.2994062057758391,
+      "median_nonpositive_horizon": 0.2636718750000004,
+      "spearman_horizon_R": -0.0010318587324780336
+    },
+    {
+      "strategy": "INSIDE_DAY_RELEASE",
+      "block": "2023-2024",
+      "metric": "continuation_rate",
+      "signals": 80,
+      "instrument_sessions": 49,
+      "median_feature": 0.46774193548387094,
+      "median_positive_horizon": 0.456575682382134,
+      "median_nonpositive_horizon": 0.472473604826546,
+      "spearman_horizon_R": -0.17407883900642074
+    },
+    {
+      "strategy": "INSIDE_DAY_RELEASE",
+      "block": "2023-2024",
+      "metric": "pressure_direction_alignment",
+      "signals": 80,
+      "instrument_sessions": 49,
+      "median_feature": 0.09939205853544006,
+      "median_positive_horizon": 0.10457814492810191,
+      "median_nonpositive_horizon": 0.08291328147679447,
+      "spearman_horizon_R": 0.26570362361309363
+    },
+    {
+      "strategy": "INSIDE_DAY_RELEASE",
+      "block": "2023-2024",
+      "metric": "range_compression_ratio",
+      "signals": 80,
+      "instrument_sessions": 49,
+      "median_feature": 0.9545454545454526,
+      "median_positive_horizon": 0.9545454545454526,
+      "median_nonpositive_horizon": 0.9319611206403597,
+      "spearman_horizon_R": 0.1739952148947468
+    },
+    {
+      "strategy": "INSIDE_DAY_RELEASE",
+      "block": "2023-2024",
+      "metric": "inside_release_continuation_rate",
+      "signals": 68,
+      "instrument_sessions": 43,
+      "median_feature": 0.3875,
+      "median_positive_horizon": 0.4444444444444444,
+      "median_nonpositive_horizon": 0.3333333333333333,
+      "spearman_horizon_R": 0.32988073991847633
+    },
+    {
+      "strategy": "INSIDE_DAY_RELEASE",
+      "block": "2026_YTD",
+      "metric": "atr14_pct_close",
+      "signals": 63,
+      "instrument_sessions": 34,
+      "median_feature": 0.001279110241037528,
+      "median_positive_horizon": 0.0012244850724656853,
+      "median_nonpositive_horizon": 0.0020539374243689216,
+      "spearman_horizon_R": -0.332436591618497
+    },
+    {
+      "strategy": "INSIDE_DAY_RELEASE",
+      "block": "2026_YTD",
+      "metric": "directional_efficiency",
+      "signals": 63,
+      "instrument_sessions": 34,
+      "median_feature": 0.271874999999999,
+      "median_positive_horizon": 0.20348966790842823,
+      "median_nonpositive_horizon": 0.2812280811623241,
+      "spearman_horizon_R": -0.16591200780526427
+    },
+    {
+      "strategy": "INSIDE_DAY_RELEASE",
+      "block": "2026_YTD",
+      "metric": "continuation_rate",
+      "signals": 63,
+      "instrument_sessions": 34,
+      "median_feature": 0.45161290322580644,
+      "median_positive_horizon": 0.45098039215686275,
+      "median_nonpositive_horizon": 0.4716981132075472,
+      "spearman_horizon_R": -0.4097080115558298
+    },
+    {
+      "strategy": "INSIDE_DAY_RELEASE",
+      "block": "2026_YTD",
+      "metric": "pressure_direction_alignment",
+      "signals": 63,
+      "instrument_sessions": 34,
+      "median_feature": 0.08054956063339816,
+      "median_positive_horizon": 0.08085783021179495,
+      "median_nonpositive_horizon": 0.07579738810501639,
+      "spearman_horizon_R": -0.2541709981298195
+    },
+    {
+      "strategy": "INSIDE_DAY_RELEASE",
+      "block": "2026_YTD",
+      "metric": "range_compression_ratio",
+      "signals": 63,
+      "instrument_sessions": 34,
+      "median_feature": 0.8846153846153809,
+      "median_positive_horizon": 0.8846153846153809,
+      "median_nonpositive_horizon": 0.8928571428571389,
+      "spearman_horizon_R": -0.19850982185989804
+    },
+    {
+      "strategy": "INSIDE_DAY_RELEASE",
+      "block": "2026_YTD",
+      "metric": "inside_release_continuation_rate",
+      "signals": 58,
+      "instrument_sessions": 30,
+      "median_feature": 0.5,
+      "median_positive_horizon": 0.5,
+      "median_nonpositive_horizon": 0.5,
+      "spearman_horizon_R": -0.42915544688868285
+    }
+  ],
+  "joined_signals": 1604,
+  "skipped": {
+    "OLD_SOURCE_QUOTES_UNAVAILABLE": 1781,
+    "NO_PRIOR_20_SESSION_WINDOW": 21,
+    "UNVERIFIED_HORIZON": 464,
+    "INCOMPLETE_PRIOR_WINDOW": 337,
+    "LOCKED_2025": 710,
+    "WINDOW_WOULD_CROSS_LOCKED_YEAR": 69
+  },
+  "coverage": {
+    "USDRUBF": {
+      "observed_sessions_excluding_2025": 685,
+      "incomplete_observed_sessions": 12,
+      "candidate_windows": 647,
+      "complete_windows": 544
+    },
+    "CNYRUBF": {
+      "observed_sessions_excluding_2025": 685,
+      "incomplete_observed_sessions": 23,
+      "candidate_windows": 647,
+      "complete_windows": 483
+    },
+    "GLDRUBF": {
+      "observed_sessions_excluding_2025": 615,
+      "incomplete_observed_sessions": 14,
+      "candidate_windows": 577,
+      "complete_windows": 424
+    },
+    "IMOEXF": {
+      "observed_sessions_excluding_2025": 525,
+      "incomplete_observed_sessions": 19,
+      "candidate_windows": 487,
+      "complete_windows": 354
+    }
+  },
+  "quote_horizon_checks": 2031,
+  "source_clv_checks": 2018,
+  "source_sha256": {
+    "V20-03/comparison/QUOTE_PATH_DIAGNOSTICS.csv": "1f936dca02b9c99ed1df6ca30ef52c4c33128c9d06743175b6f5d6f59dee9c0f",
+    "V20-03/comparison/TRADE_DISTRIBUTION.csv": "029d6cb91f14e523aeea76c1ec6e82187e5b8824b3157414e105fb9dbfe74556",
+    "USDRUBF": "fef80630080a4e2a5e968d620b663f51acd1b7ab9d5d326a42c68cf2b80c67b8",
+    "CNYRUBF": "259298733d1528c0d917b100118896009519a9f08bdad33d4b373d9ce86f99b4",
+    "GLDRUBF": "7381d672485b5687ca2c4d92aa5960c24bb132f527589bae3c622b2dfa20a83d",
+    "IMOEXF": "a1b9fa6102a955103d61b28e81533ed19de68117e30fd84ceb53e8e617559773"
+  },
+  "notes": [
+    "Observed-date research schedule; FINAM calendar and wholly absent days unverified",
+    "Signals/windows overlap; correlations are descriptive, no iid significance claim",
+    "2026 diagnostic temporal control, already researched; not independent OOS",
+    "No PF, thresholds, parameter search or original 1589 ledger parity claim"
+  ],
+  "tested_code_sha256": {
+    "v20_runtime/market_outcome_research.py": "9bc2f642ac2e384cbb0225baa74c64d8c6e0353e2e2db68409fac3259c459360",
+    "v20_runtime/market_reference_descriptive.py": "ae119e17ada096bcf2db4bd496c82572ca1c543746ec8bb6af651c2429a0eac7",
+    "v20_runtime/market_suitability.py": "f4bd0ce7c0b489792fe63154354e462ab984a141a866056d4364be3f9614a157",
+    "v20_runtime/market_suitability_cli.py": "a6e6202cf1cd79b9644557a0f93a92421b4b43d0a6481ec188008c834d384a7c",
+    "v20_runtime/market_verdict.py": "9acade410b7a8bd762e0a16c5d488ce332c468d470e9b4bf67c6a353e77f9dbf",
+    "v20_runtime/tests/test_market_outcome_research.py": "518189f1278cc1676bb5bd561bcfc661c5191d4d86df8521ff984fa97feb129d",
+    "v20_runtime/tests/test_market_suitability.py": "5aea44ae7117afaf9b1788396ef58c23184492251a638a771cc1f152efe1d135",
+    "v20_runtime/tests/test_market_verdict.py": "f85efcbda3add7186f099f2eb7e08ed9a6d9449b9630b15b3f7c51aed5267404"
+  },
+  "verification": {
+    "runtime_unittests": {
+      "status": "PASS",
+      "tests": 61
+    },
+    "published_raw_contrast": "PASS",
+    "source_quote_horizon_R": "PASS",
+    "source_CLV_pressure": "PASS",
+    "old_five_group_recalculation": "NOT_VERIFIED_SOURCE_UNAVAILABLE",
+    "three_status_validation": "NO_EVIDENCE",
+    "independent_holdout": "NOT_PASSED",
+    "source_inside_pair_and_cross": "PASS",
+    "shared_descriptive_adapter": "PASS: 1805 complete windows",
+    "minimalism_decision": "PASS: compact text; five aspects not five AND conditions; one weak metric cannot reject"
+  },
+  "source_inside_pair_and_cross_checks": 177
+}
