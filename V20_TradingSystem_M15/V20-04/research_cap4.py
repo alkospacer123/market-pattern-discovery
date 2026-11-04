@@ -314,6 +314,8 @@ def run(root:Path,out:Path):
   subset_results=run_instrument_subsets(d,MODES,cash_results)
   from research_cashaware_replay import run_usd_margin_remedies
   usd_remedies=run_usd_margin_remedies(d,MODES,cash_results)
+  from research_cashaware_replay import run_large_bank_live_go_comparison
+  large_bank_results=run_large_bank_live_go_comparison(d,MODES)
   for m in MODES:
    outcomes[m]['cash_aware_live_equity_policy_replay']=cash_results[m]
    outcomes[m]['cash_instrument_subset_replay']=subset_results[m]
