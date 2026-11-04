@@ -413,6 +413,35 @@ def run_usd_margin_remedies(d, modes, full_results):
     return results
 
 
+def run_large_bank_live_go_comparison(d, modes):
+    """Research-only 500k / 1m starting-bank sensitivity, unchanged N4 rules.
+
+    Uses ordinary GO, frozen 2/2/2 signals and risk; current_cash vs 50/50.
+    Results use modeled realized-equity compounding, not FINAM equity or VМ.
+    """
+    scenarios={}
+    for mode in modes:
+        a=arrays(d,mode)
+        for bank in (500000.,1000000.):
+            for policy in (0,1):
+                ev,accepted,rgo,rrisk,rweek,gopeak,riskpeak,dd,ddpct,mineq,end,unclosed,rb=(
+                    replay_cash(*a,bank,2,policy,True,1.0))
+                z=metrics(ev,a,bank)
+                assert accepted==z["trades"] and unclosed==0,(
+                    "LARGE_BANK_ACCEPTED_VS_CLOSED",mode,bank,policy,
+                    accepted,z["trades"],unclosed)
+                z.update(robot=mode,bank=bank,go_factor=1.0,quota=2,
+                         policy=POLICIES[policy],accepted=accepted,
+                         rejected_go=rgo,rejected_risk=rrisk,
+                         rejected_weekend=rweek,closed_dd_pct=round(100*ddpct,2),
+                         peak_go=round(gopeak,2))
+                scenarios[f"{mode}:{int(bank)}:{policy}"]=z
+                print("CASH_LARGE_BANK_REPLAY",
+                      __import__("json").dumps(z,ensure_ascii=False,
+                                               separators=(",",":")),flush=True)
+    return scenarios
+
+
 def run(d,modes,variants):
     results={}
     for mode in modes:
