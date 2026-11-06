@@ -169,6 +169,27 @@ $script:mockcycle='PASS'
 if((proof $false $true) -cne 'READY_HALTED'){throw 'cc07_ready_last_pass_refused'}
 write-output 'cc07_native_ready_start_only=pass'
 
+# Recovery from the exact post-fill risk HALT is allowed for START only,
+# but an unknown FAIL remains denied. Broker FLAT is checked by caller.
+$script:mockswitch='HALTED'
+$script:mocktask='Ready'
+$script:mockcycle='FAIL'
+$script:mockcode='HALT_V20_LIVE_POST_FILL_RISK_HALTED'
+$script:mockerror='V20_08_5_HEALTH_PARTIAL'
+$script:mockexit=1
+$script:mockage='220'
+try{$got=proof $false $true}catch{throw 'cc07_known_risk_halt_rejected'}
+if($got -cne 'READY_HALTED'){throw 'cc07_known_risk_halt_wrong_status'}
+$script:mockcode='HALT_UNKNOWN'
+$rejected=$false
+try{[void](proof $false $true)}catch{$rejected=$true}
+if(-not $rejected){throw 'cc07_unknown_risk_halt_accepted'}
+$script:mockcode='HALT_V20_LIVE_POST_FILL_RISK_HALTED'
+$rejected=$false
+try{[void](proof)}catch{$rejected=$true}
+if(-not $rejected){throw 'cc07_risk_halt_nonstart_accepted'}
+write-output 'cc07_native_risk_recovery=pass'
+
 # Transitional ARMED/HALTED is unacceptable for START proof.
 $script:mockswitch='ARMED'
 $script:mockcycle='HALTED'
@@ -221,11 +242,14 @@ write-output 'cc07_native_protected_poll=pass'
         assert "cc07_native_" + case + "=pass" in completed.stdout
     assert "cc07_native_ready_start_only=pass" in completed.stdout
     assert "cc07_native_protected_poll=pass" in completed.stdout
+    assert "cc07_native_risk_recovery=pass" in completed.stdout
 
 def test_stopped_task_start_only_guard():
     assert "if($allowStoppedStart -and $task.count -eq 1" in SCRIPT
     assert "cc07_stopped_switch_not_halted" in SCRIPT
     assert "cc07_stopped_check_not_partial" in SCRIPT
     assert "cc07_stopped_cycle_untrusted" in SCRIPT
+    assert "cc07_stopped_risk_halt_untrusted" in SCRIPT
+    assert "HALT_V20_LIVE_POST_FILL_RISK_HALTED" in SCRIPT
     assert "$state=proof ($action -eq 'pause') ($action -eq 'start')" in SCRIPT
     assert "if($action -ne 'pause'){release;flat}" in SCRIPT
