@@ -9,8 +9,8 @@ SCRIPT=PATH.read_text(encoding='utf-8')
 def test_action_semantics_and_immutable_v20_operator():
     assert "'start','pause','stop','restart'" in SCRIPT
     assert "'preview','execute'" in SCRIPT
-    assert "6f539f9c421efb56d492f1c903b998b4e8f4a9ca" in SCRIPT
-    assert "93fc1ce4aded6c40453da14deb4846e10da1b14f" in SCRIPT
+    assert "b06957ea7833daeda65296eb372890951860c008" in SCRIPT
+    assert "2b47dab60c5494e8265d3ba1aed57a550f0d4ed7" in SCRIPT
     assert "$modeStock=if($action -in @('pause','stop')){'stop'}else{$action}" in SCRIPT
     assert "stop-scheduledtask" in SCRIPT
     assert "flat" in SCRIPT and "v20_08_4_active_orders=0" in SCRIPT
@@ -184,6 +184,26 @@ $r=proof $true
 if($r -cne 'ARMED'){throw 'cc07_pause_transitional_not_accepted'}
 write-output 'cc07_native_transitional_pause_only=pass'
 
+# Market-closed protected polling runs every 120s. Accept only its exact code.
+$script:mockswitch='ARMED'
+$script:mockcycle='PASS'
+$script:mockcode='MOEX_CLOSED_PROTECTED_MONITOR'
+$script:mocktask='Running'
+$script:mockage='120'
+$script:mockerror=''
+$script:mockexit=0
+if((proof) -cne 'ARMED'){throw 'cc07_protected_120s_refused'}
+$script:mockage='181'
+$refused=$false
+try{[void](proof)}catch{$refused=$true}
+if(-not $refused){throw 'cc07_protected_stale_accepted'}
+$script:mockage='120'
+$script:mockcode='NONE'
+$refused=$false
+try{[void](proof)}catch{$refused=$true}
+if(-not $refused){throw 'cc07_unprotected_120s_accepted'}
+write-output 'cc07_native_protected_poll=pass'
+
 '''
     script = tmp_path / "cc07-native-proof-test.ps1"
     script.write_text(payload, encoding="utf-8-sig")
@@ -200,6 +220,7 @@ write-output 'cc07_native_transitional_pause_only=pass'
                  "healthy_exit_but_halted", "stale_halted", "not_running"):
         assert "cc07_native_" + case + "=pass" in completed.stdout
     assert "cc07_native_ready_start_only=pass" in completed.stdout
+    assert "cc07_native_protected_poll=pass" in completed.stdout
 
 def test_stopped_task_start_only_guard():
     assert "if($allowStoppedStart -and $task.count -eq 1" in SCRIPT
