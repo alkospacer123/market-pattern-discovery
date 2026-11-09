@@ -106,7 +106,7 @@ def test_ui_one_click_pause_and_two_step_dangerous_action(monkeypatch):
     app.session_state["cc07-admin-ready"] = True
     app.run()
     assert not app.exception
-    assert len(app.button) == 13
+    assert len(app.button) == 16
     assert len(app.text_input) == 0
     assert all(not button.disabled for button in app.tabs[2].button)
 
@@ -149,6 +149,32 @@ def test_ui_controls_disabled_without_admin_operator(monkeypatch):
                         (_ for _ in ()).throw(AssertionError("no admin dispatch")))
     app = AppTest.from_file(str(ROOT / "v20_app.py"), default_timeout=15).run()
     assert not app.exception
-    assert len(app.button) == 13
+    assert len(app.button) == 16
     assert all(button.disabled for button in app.tabs[2].button)
     assert "cc07-pending" not in app.session_state
+
+
+def test_ui_recover_requires_separate_confirmation_and_no_automatic_retry(monkeypatch):
+    import v20_admin_control as commands
+    dispatched = []
+    monkeypatch.setattr(commands, "submit", lambda *args:
+                        (dispatched.append(args) or {"decision": "FAILED_UNKNOWN",
+                                                     "request_id": "d" * 32}))
+    app = AppTest.from_file(str(ROOT / "v20_app.py"), default_timeout=15)
+    app.session_state["cc07-admin-ready"] = True
+    app.run()
+    assert not app.exception
+    assert len(app.tabs[2].button) == 15
+    app.button(key="cc07-v20_shallow-recover").click().run()
+    assert not app.exception
+    assert dispatched == []
+    assert app.session_state["cc07-pending"] == ("v20-shallow", "recover")
+    app.button(key="cc07-cancel-action").click().run()
+    assert dispatched == []
+    app.button(key="cc07-v20_shallow-recover").click().run()
+    app.button(key="cc07-confirm-action").click().run()
+    assert not app.exception
+    assert dispatched == [("v20-shallow", "recover", "cc07 recover v20-shallow")]
+    assert "cc07-pending" not in app.session_state
+    app.run()
+    assert len(dispatched) == 1
