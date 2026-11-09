@@ -167,7 +167,7 @@
     },
     {
       "path": "controller/cc07-v20-operator.ps1",
-      "sha256": "fd8640d1f28e623d6858c4364722feec4cd3c70f89d9c8156f9537c626cec73d"
+      "sha256": "f345e3ae6f90e33bf183c2b9408a1be248f20637c4a776457aa49a757ff0d20c"
     },
     {
       "path": "controller/cc07_command_worker.py",
