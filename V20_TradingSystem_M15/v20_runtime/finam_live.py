@@ -320,6 +320,10 @@ def _verify_sealed_protection(journal, reader, snapshot, now, row):
 def _follow_existing(sender: V20LiveTransport, now: datetime, snapshot) -> str:
     journal, reader = sender.journal, sender.reader
     entries = _ownership(journal, snapshot)
+    # Unsettled entries need protection before already RECONCILED positions.
+    # 2026-11-06: this prevents the earlier protected CNY entry from blocking
+    # GLD's SLTP via its still-unresolved pre-POST checkpoint. Keep HALT strict.
+    entries = sorted(entries, key=lambda row: row["status"] == "RECONCILED")
     for row in entries:
         key, payload = row["idempotency_key"], row["payload"]
         if journal.store.get("flat_cleanup:" + key):
