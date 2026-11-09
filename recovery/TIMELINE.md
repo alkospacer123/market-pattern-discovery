@@ -23,7 +23,7 @@
 | 09.11 | CC-07 подтверждён PREVIEW/CI; реальный START/PAUSE принят; STOP/RESTART и RECOVER ожидают отдельных тестов. | [RECON] |
 | 09.11 | Повторно запрошен официальный экспорт ChatGPT; результат не подтверждён; подготовка GitHub memory. | [OP] |
 | 09.11 15:33 | RECOVERY v3 V20 + CC: `RECOVERY-BASE-V20-CC-20261109-153322.zip`, 27,645 файлов / 78 SQLite snapshots, issues=0; CRC/SHA/manifest PASS; SSD-копия v3 подтверждена по SHA256 (`ssd_copy_verified=pass`); cold restore не выполнен. | [OP] |
-| 09.11 после 15:33 | Два GitHub full mirror клонированы на Intel, проверка `git fsck --full --no-reflogs` PASS: discovery 41 047 объектов/418.39 MiB; data 1 195 объектов/45.06 MiB; SSD-копия зеркал ожидается. | [OP] |
+| 09.11 после 15:33 | Два GitHub full mirror клонированы на Intel, проверка `git fsck --full --no-reflogs` PASS: discovery 41 047 объектов/418.39 MiB; data 1 195 объектов/45.06 MiB; затем ZIP с обоими зеркалами создан, повторный `git fsck`/сравнение refs PASS, SHA256 ZIP `9e5d490410f7fbe3ddab983d557b981eb96146f2e5c023e42b2a1d0ee9fd0754`; SSD-копия зеркал ожидается. | [OP] |
 
 ## Важно
 Ни одно из исторических `ARMED`, `PASS`, `HALTED` не описывает торговлю *сейчас*. Пользовательская команда `operator.ps1 -mode check -robot all` по месту предоставляет ограниченный READONLY. Финансовые позиции/стопы сверяются отдельно. Добавлять новые события append-only с временем, командой/отчётом, ссылкой на коммит и степенью подтверждения. Не удалять инциденты после установки исправлений.
