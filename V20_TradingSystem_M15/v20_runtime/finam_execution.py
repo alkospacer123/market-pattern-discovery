@@ -1244,9 +1244,14 @@ class V20SingleTradeTransport:
             })
             return "BROKER_FLAT_NO_ACTIVE_STOP"
         stop_key = key + ":stop"
+        # FINAM sometimes omits client_order_id for a WATCHING SLTP.
+        # Use the existing broker-ID + full-comment ownership proof; never
+        # cancel a different or insufficiently identified stop.
         if (len(active) != 1 or active[0].order_id != proof.get("broker_stop_id")
-                or active[0].client_order_id != compact_client_order_id(stop_key)
-                or active[0].comment != stop_key):
+                or active[0].comment != stop_key
+                or not (active[0].client_order_id == compact_client_order_id(stop_key)
+                        or (active[0].client_order_id == ""
+                            and active[0].status == "WATCHING"))):
             raise V20FinamBlocked("FLAT_CLEANUP_STOP_ID_MISMATCH")
         cancel_key = key + ":cancel-after-flat"
         with self.journal.store.transaction():
