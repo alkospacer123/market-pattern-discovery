@@ -309,10 +309,29 @@ def _verify_sealed_protection(journal, reader, snapshot, now, row):
             or not stop_intent or stop_intent["status"] not in {"ACK", "RECONCILED"}
             or stop_intent["broker_order_id"] != proof.get("broker_stop_id")):
         raise V20FinamBlocked("SEALED_ENTRY_DURABLE_PROTECTION_INVALID")
-    broker_stop = reader.inspect_protective_stop(
-        snapshot, entry_key=key, symbol=payload["symbol"],
-        direction=payload["direction"],
-        stop_price=Decimal(str(proof["installed_stop"])), now=now)
+    try:
+        broker_stop = reader.inspect_protective_stop(
+            snapshot, entry_key=key, symbol=payload["symbol"],
+            direction=payload["direction"],
+            stop_price=Decimal(str(proof["installed_stop"])), now=now)
+    except V20FinamBlocked as exc:
+        # FINAM daily maintenance (05:00-06:15 MSK) can omit a previously
+        # sealed WATCHING stop from a successful /orders GET. A missing row
+        # is NOT proof of protection. Retry read-only with NO entries or
+        # order POST/DELETE; at 06:15 a still-missing stop strictly HALTs.
+        clock = now.astimezone(ZoneInfo("Europe/Moscow"))
+        minutes = 60 * clock.hour + clock.minute
+        if (str(exc) == "STOP_NOT_EXACTLY_ACTIVE"
+                and 5 * 60 <= minutes < 6 * 60 + 15
+                and journal.store.get("execution_halt") is None
+                and not any(o.symbol == payload["finam_symbol"]
+                            and (o.kind == "SLTP" or o.active)
+                            for o in snapshot.orders)):
+            raise V20FinamSnapshotReadRetry(
+                "FINAM_MAINTENANCE_STOP_VIEW_UNVERIFIED") from exc
+        # Wrong broker ID, price, side, quantity, terminal stop or any
+        # conflicting active order is a real safety failure, never ignored.
+        raise
     if broker_stop.order_id != proof["broker_stop_id"]:
         raise V20FinamBlocked("SEALED_ENTRY_BROKER_STOP_ID_CHANGED")
 
@@ -807,6 +826,13 @@ def run(*, root: Path, robot: str, source: str, once: bool = False,
                     f.write(json.dumps(event, sort_keys=True)+"\n")
                 if once:
                     return 1
+                if (isinstance(exc, V20FinamSnapshotReadRetry)
+                        and str(exc) == "FINAM_MAINTENANCE_STOP_VIEW_UNVERIFIED"):
+                    # Bounded GET-only cadence during FINAM maintenance:
+                    # no 3-second polling storm, no durable HALT from one
+                    # missing /orders row, no new trading action.
+                    time.sleep(30)
+                    continue
                 last_protected = getattr(reader, "_night_last_good_protected_at", None)
                 recently_protected = (
                     isinstance(last_protected, datetime)
