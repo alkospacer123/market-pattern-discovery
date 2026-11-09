@@ -141,14 +141,14 @@ def controls():
         st.session_state.pop("cc07-pending", None)
         st.info("Административный оператор пока не подтверждён. Нажмите «Обновить данные» для проверки.")
     else:
-        st.caption("PAUSE — одно нажатие. START, STOP и RESTART — нажатие и подтверждение. Все действия проверяет штатный оператор CC-07.")
+        st.caption("PAUSE — одно нажатие. START, STOP, RESTART и ВОССТАНОВИТЬ — с подтверждением. Восстановление не снимает внутреннюю блокировку V20.")
 
     for robot in ROBOTS:
         st.markdown("**" + LABELS[robot] + "**")
-        columns = st.columns(4)
+        columns = st.columns(5)
         local_id = robot.lower().replace("_", "-")
-        for column, action in zip(columns, ("START", "PAUSE", "STOP", "RESTART")):
-            name = action.lower()
+        for column, action in zip(columns, ("START", "PAUSE", "STOP", "RESTART", "ВОССТАНОВИТЬ")):
+            name = "recover" if action == "ВОССТАНОВИТЬ" else action.lower()
             with column:
                 clicked = st.button(
                     action, key="cc07-" + robot.lower() + "-" + name,
@@ -171,7 +171,8 @@ def controls():
         robot, action = pending
         st.warning(
             "Подтвердите " + action.upper() + " для " + LABELS[robot.upper().replace("-", "_")] +
-            (". Будут разрешены новые торговые входы (ARMED)." if action in ("start", "restart")
+            (". Нужны FINAM FLAT и отсутствие внутренней блокировки V20; журнал не очищается." if action == "recover"
+             else ". Будут разрешены новые торговые входы (ARMED)." if action in ("start", "restart")
              else ". STOP допускается только после подтверждённого FINAM FLAT.")
         )
         confirm_col, cancel_col = st.columns(2)

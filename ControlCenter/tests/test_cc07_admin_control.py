@@ -11,7 +11,7 @@ def test_intel_only_and_stock_operator_pin():
     source = Path(__file__).resolve().parents[1] / "v20_admin_control.py"
     text = source.read_text(encoding="utf-8")
     for marker in ("URIU-PC", "IsUserAnAdmin", "cc07-v20-operator.ps1",
-                   "975b59fc250dd7d4e000efb12b8732af2edd7bd5",
+                   "bace1b6b00cf726a10b6ef8c4d51144d40dcdc08",
                    "cc07-gateway-policy.json", "powershell.exe",
                    "cc.v20.release.v1", "O_EXCL", "CC07_RELEASE_SIZE",
                    "FAILED_UNKNOWN", "cc07_result=verified_"):
@@ -107,4 +107,25 @@ def test_no_success_on_ambiguous_exit(tmp_path, monkeypatch):
                         SimpleNamespace(returncode=1, stdout="cc07_result=verified_stop\n"))
     result = admin.submit("v20-shallow", "stop", "cc07 stop v20-shallow")
     assert result["decision"] == "FAILED_UNKNOWN"
+    assert not release.exists()
+
+
+def test_recover_exact_release_single_dispatch_and_no_retry(tmp_path, monkeypatch):
+    release = tmp_path / "private" / "cc07-v20-release.json"
+    release.parent.mkdir()
+    monkeypatch.setattr(admin, "RELEASE", release)
+    monkeypatch.setattr(admin, "admin_ready", lambda: True)
+    monkeypatch.setattr(admin, "_actor_sid", lambda: "S-1-5-21-1-2-3-4")
+    monkeypatch.setattr(admin.secrets, "token_hex", lambda n: "c" * 32)
+    calls = []
+    def fake_run(args, **kwargs):
+        calls.append((args, kwargs, json.loads(release.read_text(encoding="utf-8"))))
+        return SimpleNamespace(returncode=0, stdout="cc07_result=verified_recover\n")
+    monkeypatch.setattr(admin.subprocess, "run", fake_run)
+    outcome = admin.submit("v20-shallow", "recover", "cc07 recover v20-shallow")
+    assert outcome["decision"] == "EXECUTED"
+    assert len(calls) == 1
+    assert calls[0][2]["action"] == "recover"
+    assert calls[0][0][-4:] == ["-action", "recover", "-requestid", "c" * 32]
+    assert calls[0][1]["input"] == "cc07 recover v20-shallow " + "c" * 32 + "\n"
     assert not release.exists()

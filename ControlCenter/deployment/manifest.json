@@ -243,7 +243,7 @@
     },
     {
       "path": "deployment/cc07-install-operator.ps1",
-      "sha256": "00ddbd9d7d1eba7ceace62ce95ec8979f6ce1f91f91bd9252d440781ebfcbe07"
+      "sha256": "122c78d302ad12db47d12f127865a5696cd14edc7f44263d892275e069b291cf"
     },
     {
       "path": "deployment/check_wheels.py",
@@ -507,7 +507,7 @@
     },
     {
       "path": "tests/test_cc07_admin_control.py",
-      "sha256": "60caf7b6bebd5e0fb9c429f1b31d9b0c8c87b4492e8175caeece377e5d7b76fb"
+      "sha256": "f990ad58cf673e90278f65629d8d4c525277b39df168789a43da1f03f34948bb"
     },
     {
       "path": "tests/test_cc07_channel_install.py",
@@ -523,11 +523,11 @@
     },
     {
       "path": "tests/test_cc07_install.py",
-      "sha256": "a47670bca14c00d4518667b2c2bfecfb35b238bf00c2cfde423007220612380d"
+      "sha256": "60a2d9ef99f96a9f76f1246a143bc9a9d199548550af3ca1acda262272ece559"
     },
     {
       "path": "tests/test_cc07_operator_stage.py",
-      "sha256": "b58c9c1b3c8c3f76a3e240c1a9d26c74000674722ce85f73705aeffe9cb1e862"
+      "sha256": "cf6704664b6ad22f38da3a92d0d9ae01ceadc077cbfb35c285d880ca98b03c04"
     },
     {
       "path": "tests/test_ci_paths.py",
@@ -595,7 +595,7 @@
     },
     {
       "path": "tests/test_v20_control_center.py",
-      "sha256": "b5c8433146bad655151cb0449487eecc49afe42b0b40482fe6eaecf4c186b66c"
+      "sha256": "c8b4125f5d2b44b530064e1575890d0ec78df49496d12fd112dbae4ee4722e37"
     },
     {
       "path": "tests/test_v20_controller.py",
@@ -639,11 +639,11 @@
     },
     {
       "path": "v20_admin_control.py",
-      "sha256": "2607b341863abc8bd1f32774eac7e77e073c3e3e368b512ccd65f3c670b0885b"
+      "sha256": "13cfc66ba7afb0dec81b581c075d4e4fb491d477c24af2aa61ef9d624104efdc"
     },
     {
       "path": "v20_app.py",
-      "sha256": "0af03f59e6e2a8ff2940f2b6d1339f9e21094dc2e22ca08aa572376e09cf1127"
+      "sha256": "b8e67d9064ae1dd656fef2294ed15ab08303ec1a20cd7c0ca8f9293f49d12852"
     },
     {
       "path": "v20_command_channel.py",

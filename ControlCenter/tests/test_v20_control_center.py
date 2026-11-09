@@ -156,7 +156,7 @@ def test_minimal_streamlit_starts_without_read_or_trading_controls(monkeypatch):
     assert not app.exception
     assert [tab.label for tab in app.tabs] == ["Главная", "Журнал", "Управление"]
     assert not app.sidebar.button and not app.sidebar.radio
-    assert len(app.button) == 13  # refresh + 12 CC-07 permanently disabled controls
+    assert len(app.button) == 16  # refresh + 15 disabled CC-07 controls
     assert len(app.metric) == 0
     visible = "\\n".join(str(item.value) for kind in ("markdown", "caption", "info", "warning", "success", "error")
                          for item in getattr(app, kind))
@@ -173,7 +173,7 @@ def test_minimal_streamlit_starts_without_read_or_trading_controls(monkeypatch):
     assert any("Административный оператор пока не подтверждён." in x.value for x in app.tabs[2].info)
     app.run()  # rerun without explicit click must not access any V20 source
     assert not app.exception
-    assert len(app.button) == 13  # refresh + 12 CC-07 permanently disabled controls
+    assert len(app.button) == 16  # refresh + 15 disabled CC-07 controls
 
 
 def test_manual_click_one_acquire_and_no_navigation_reread(monkeypatch):
@@ -228,7 +228,7 @@ def test_main_shows_only_current_operational_health_without_trade_metrics():
     assert "Позиции · локально" not in visible
     assert "Стопы · локально" not in visible
     assert "Цикл" not in visible
-    assert len(app.button) == 13  # refresh + 12 CC-07 permanently disabled controls
+    assert len(app.button) == 16  # refresh + 15 disabled CC-07 controls
     assert [tab.label for tab in app.tabs] == ["Главная", "Журнал", "Управление"]
     assert not app.sidebar.button and not app.sidebar.radio
     assert not app.exception
@@ -293,7 +293,7 @@ def test_staging_overview_compact_and_robot_only_journal():
     assert not any("FINAM READONLY" in item.value or "Деньги PASS" in item.value
                    for item in app.caption)
     assert "v20-finam" not in app.session_state
-    assert len(app.button) == 13  # refresh + 12 CC-07 permanently disabled controls
+    assert len(app.button) == 16  # refresh + 15 disabled CC-07 controls
 
 
 def test_ten_latest_completed_cycles_newest_first():
@@ -340,7 +340,7 @@ def test_manual_refresh_does_not_read_broker_history(monkeypatch):
     assert "v20-finam" not in app.session_state
 
 
-def test_cc07_buttons_visible_but_all_twelve_inert_and_disabled(monkeypatch):
+def test_cc07_buttons_visible_but_all_fifteen_inert_and_disabled(monkeypatch):
     """The UI never dispatches, even when an operator visits controls."""
     import cc.v20_receiver as source
     import cc.v20_staging as stage
@@ -352,17 +352,17 @@ def test_cc07_buttons_visible_but_all_twelve_inert_and_disabled(monkeypatch):
     monkeypatch.setattr(finam, "acquire", forbidden)
     app = AppTest.from_file(str(ROOT / "v20_app.py"), default_timeout=15).run()
     assert not app.exception
-    assert len(app.button) == 13
+    assert len(app.button) == 16
     assert app.button(key="v20-manual-refresh").disabled is False
     controls = app.tabs[2].button
-    assert len(controls) == 12
+    assert len(controls) == 15
     for robot in ROBOTS:
-        for action in ("start", "pause", "stop", "restart"):
+        for action in ("start", "pause", "stop", "restart", "recover"):
             key = "cc07-" + robot.lower() + "-" + action
             item = app.button(key=key)
             assert item.disabled is True
-            assert item.label == action.upper()
-    assert [item.disabled for item in controls] == [True] * 12
+            assert item.label == ("ВОССТАНОВИТЬ" if action == "recover" else action.upper())
+    assert [item.disabled for item in controls] == [True] * 15
     assert "v20-last-checked-at" not in app.session_state
     app.run()
     assert not app.exception

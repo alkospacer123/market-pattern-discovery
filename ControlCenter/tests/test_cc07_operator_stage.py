@@ -7,11 +7,11 @@ PATH=ROOT/'controller/cc07-v20-operator.ps1'
 SCRIPT=PATH.read_text(encoding='utf-8')
 
 def test_action_semantics_and_immutable_v20_operator():
-    assert "'start','pause','stop','restart'" in SCRIPT
+    assert "'start','pause','stop','restart','recover'" in SCRIPT
     assert "'preview','execute'" in SCRIPT
     assert "b06957ea7833daeda65296eb372890951860c008" in SCRIPT
-    assert "2b47dab60c5494e8265d3ba1aed57a550f0d4ed7" in SCRIPT
-    assert "$modeStock=if($action -in @('pause','stop')){'stop'}else{$action}" in SCRIPT
+    assert "90e2171bd425015b6b7fd7f5d8e97e331e8b64cb" in SCRIPT
+    assert "$modeStock=if($action -in @('pause','stop')){'stop'}elseif($action -eq 'recover'){'start'}else{$action}" in SCRIPT
     assert "stop-scheduledtask" in SCRIPT
     assert "flat" in SCRIPT and "v20_08_4_active_orders=0" in SCRIPT
     assert "v20_08_4_positions=0" in SCRIPT
@@ -190,6 +190,42 @@ try{[void](proof)}catch{$rejected=$true}
 if(-not $rejected){throw 'cc07_risk_halt_nonstart_accepted'}
 write-output 'cc07_native_risk_recovery=pass'
 
+# RECOVER accepts only recognized halted FAIL; never ARMED/unknown/forged.
+$action='recover'
+$script:mockswitch='HALTED'
+$script:mocktask='Ready'
+$script:mockcycle='FAIL'
+$script:mockcode='HALT_V20_LIVE_POST_FILL_RISK_HALTED'
+$script:mockage='220'
+$script:mockerror='V20_08_5_HEALTH_PARTIAL'
+$script:mockexit=1
+if((proof $false $true) -cne 'RECOVERY_HALTED'){throw 'cc07_recover_ready_refused'}
+$script:mocktask='Running'
+if((proof $false $true) -cne 'RECOVERY_HALTED'){throw 'cc07_recover_running_refused'}
+$script:mockcode='FAULT_OPERATOR'
+if((proof $false $true) -cne 'RECOVERY_HALTED'){throw 'cc07_recover_fault_refused'}
+$script:mockcode='UNKNOWN_ERROR'
+$refused=$false
+try{[void](proof $false $true)}catch{$refused=$true}
+if(-not $refused){throw 'cc07_recover_unknown_accepted'}
+$script:mockcode='HALT_V20_LIVE_POST_FILL_RISK_HALTED'
+$script:mockswitch='ARMED'
+$refused=$false
+try{[void](proof $false $true)}catch{$refused=$true}
+if(-not $refused){throw 'cc07_recover_armed_accepted'}
+$script:mockswitch='HALTED'
+$script:mockcycle='PASS'
+$refused=$false
+try{[void](proof $false $true)}catch{$refused=$true}
+if(-not $refused){throw 'cc07_recover_pass_accepted'}
+$script:mockcycle='FAIL'
+$script:mockerror='WRONG_NATIVE_ERROR'
+$refused=$false
+try{[void](proof $false $true)}catch{$refused=$true}
+if(-not $refused){throw 'cc07_recover_partial_accepted'}
+$action='start'
+write-output 'cc07_native_recover=pass'
+
 # Transitional ARMED/HALTED is unacceptable for START proof.
 $script:mockswitch='ARMED'
 $script:mockcycle='HALTED'
@@ -243,6 +279,7 @@ write-output 'cc07_native_protected_poll=pass'
     assert "cc07_native_ready_start_only=pass" in completed.stdout
     assert "cc07_native_protected_poll=pass" in completed.stdout
     assert "cc07_native_risk_recovery=pass" in completed.stdout
+    assert "cc07_native_recover=pass" in completed.stdout
 
 def test_stopped_task_start_only_guard():
     assert "if($allowStoppedStart -and $task.count -eq 1" in SCRIPT
@@ -250,6 +287,8 @@ def test_stopped_task_start_only_guard():
     assert "cc07_stopped_check_not_partial" in SCRIPT
     assert "cc07_stopped_cycle_untrusted" in SCRIPT
     assert "cc07_stopped_risk_halt_untrusted" in SCRIPT
+    assert "cc07_recovery_error_code_untrusted" in SCRIPT
+    assert "cc07_recovery_not_required" in SCRIPT
     assert "HALT_V20_LIVE_POST_FILL_RISK_HALTED" in SCRIPT
-    assert "$state=proof ($action -eq 'pause') ($action -eq 'start')" in SCRIPT
+    assert "$state=proof ($action -eq 'pause') ($action -in @('start','recover'))" in SCRIPT
     assert "if($action -ne 'pause'){release;flat}" in SCRIPT

@@ -4,7 +4,7 @@
 param(
  [ValidateSet('preview','execute')][string]$mode='preview',
  [ValidateSet('v20-shallow','v20-obv','v20-inside')][string]$robot='v20-shallow',
- [ValidateSet('start','pause','stop','restart')][string]$action='pause',
+ [ValidateSet('start','pause','stop','restart','recover')][string]$action='pause',
  [string]$requestid=''
 )
 $ErrorActionPreference='Stop'
@@ -48,6 +48,17 @@ function proof([bool]$allowArmedHalted=$false,[bool]$allowStoppedStart=$false) {
  $code=@($lines | where-object {$_ -match ('^v20_08_5_'+$robot+'_cycle_code=')})
  $banner=@($lines | where-object {$_ -ceq 'NO_ORDER_NO_CANCEL_NO_FINAM_API_NO_SQLITE_OPEN_NO_TASK_MUTATION_NO_REARM=YES'})
  need ($banner.count -eq 1) 'cc07_stock_readonly_banner_missing'
+ # RECOVER is explicit one-shot operator action, never a journal reset.
+ # The stock V20 ARM independently enforces the durable halt and broker gate.
+ if($allowStoppedStart -and $action -ceq 'recover' -and $task.count -eq 1 -and
+    [string]$task[0] -match '=(Ready|Running)$'){
+  need ($switch.count -eq 1 -and [string]$switch[0] -match '=HALTED$') 'cc07_recovery_switch_not_halted'
+  need ($checkexit -eq 1 -and ($lines -join '|') -match 'V20_08_5_HEALTH_PARTIAL') 'cc07_recovery_stock_check_untrusted'
+  need ($cycle.count -eq 1 -and [string]$cycle[0] -match '=FAIL$') 'cc07_recovery_requires_failed_cycle'
+  need ($code.count -eq 1 -and [string]$code[0] -cmatch ('^v20_08_5_'+$robot+'_cycle_code=(HALT|FAULT|FINAM)_[A-Z0-9_]{3,80}$')) 'cc07_recovery_error_code_untrusted'
+  need ($age.count -eq 1 -and [string]$age[0] -match '=-?[0-9]+$') 'cc07_recovery_age_unknown'
+  return 'RECOVERY_HALTED'
+ }
  # CC-07 STOP leaves a Ready Task without fresh cycles. Only START may
  # recover Ready/HALTED, and FINAM FLAT is separately required.
  if($allowStoppedStart -and $task.count -eq 1 -and [string]$task[0] -match '=Ready$'){
@@ -129,15 +140,16 @@ function release {
 }
 need ($env:os -ceq 'Windows_NT' -and $env:computername -ceq 'URIU-PC') 'cc07_wrong_host'
 pin $operator 'b06957ea7833daeda65296eb372890951860c008'
-pin $launcher '2b47dab60c5494e8265d3ba1aed57a550f0d4ed7'
+pin $launcher '90e2171bd425015b6b7fd7f5d8e97e331e8b64cb'
 $sid=[security.principal.windowsidentity]::getcurrent().user.value
 $task=get-scheduledtask -taskname $robot -taskpath '\' -erroraction stop
 $taskSid=if([string]$task.principal.userid -match '^S-\d+-'){[string]$task.principal.userid}else{([security.principal.ntaccount]::new([string]$task.principal.userid)).translate([security.principal.securityidentifier]).value}
 need ($sid -ceq $taskSid) 'cc07_operator_sid_mismatch'
-$state=proof ($mode -eq 'execute' -and $action -eq 'pause') ($action -eq 'start')
+$state=proof ($mode -eq 'execute' -and $action -eq 'pause') ($action -in @('start','recover'))
+if($action -eq 'recover'){need ($state -ceq 'RECOVERY_HALTED') 'cc07_recovery_not_required'}
 if($mode -eq 'preview'){
- $previewTask=if($state -ceq 'READY_HALTED'){'ready'}else{'running'}
-  $previewSwitch=if($state -ceq 'READY_HALTED'){'HALTED'}else{$state}
+ $previewTask=if($state -ceq 'READY_HALTED'){'ready'}elseif($state -ceq 'RECOVERY_HALTED'){'recovery'}else{'running'}
+  $previewSwitch=if($state -in @('READY_HALTED','RECOVERY_HALTED')){'HALTED'}else{$state}
   write-output ('cc07_preview=pass robot='+$robot+' action='+$action+' task='+$previewTask+' switch='+$previewSwitch)
  write-output 'cc07_no_finam_no_arm_no_task_mutation=yes'
  return
@@ -168,7 +180,8 @@ try{
    }
   }
  }
- $state=proof ($action -eq 'pause') ($action -eq 'start')
+ $state=proof ($action -eq 'pause') ($action -in @('start','recover'))
+ if($action -eq 'recover'){need ($state -ceq 'RECOVERY_HALTED') 'cc07_recovery_not_required'}
  if($action -ne 'pause'){release;flat}
  audit 'began' 'preflight_pass'
  try{
@@ -177,7 +190,7 @@ try{
    write-output 'cc07_result=already_halted_no_change'
    return
   }
-  $modeStock=if($action -in @('pause','stop')){'stop'}else{$action}
+  $modeStock=if($action -in @('pause','stop')){'stop'}elseif($action -eq 'recover'){'start'}else{$action}
   $rows=@(& powershell.exe -noprofile -noninteractive -executionpolicy bypass -file $operator -mode $modeStock -robot $robot 2>&1)
   need ($lastexitcode -eq 0) 'cc07_stock_operator_failed'
   if($action -eq 'stop'){
@@ -190,7 +203,7 @@ try{
    $expected=if($action -eq 'pause'){'HALTED'}else{'ARMED'}
    $after=settle $expected
    if($action -eq 'pause'){need ($after -ceq 'HALTED') 'cc07_pause_not_verified'}
-   if($action -in @('start','restart')){need ($after -ceq 'ARMED') 'cc07_arm_not_verified'}
+   if($action -in @('start','restart','recover')){need ($after -ceq 'ARMED') 'cc07_arm_not_verified'}
   }
   audit 'finished' ('verified_'+$action)
   write-output ('cc07_result=verified_'+$action)
