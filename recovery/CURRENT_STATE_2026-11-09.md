@@ -12,7 +12,8 @@
 - Draft [V20 PR #567](https://github.com/alkospacer123/market-pattern-discovery/pull/567) открыт на 09.11, head `2181467e71304c16df0803199b3f6398c10131a1`.
 - Draft [CC PR #568](https://github.com/alkospacer123/market-pattern-discovery/pull/568) открыт на 09.11, head `b5f90cbb8e95a118aa3a1b66fdd8d9e4783f82fd`.
 - TRL PR #569 закрыт, документация TRL-00 вошла в main.
-- Intel: `C:\V20Lab\source` head `6cec624c5456`, shallow=true, ~379 MiB pack — не полноисторический Git mirror; `C:\TradingSystemLab\market-pattern-discovery` head `4c7cd7cbbde5`, shallow=false, ~377 MiB pack; каталог CC-preview не отдельный Git-репозиторий. Значение head **не** равно deployed worker commit, пока не сверено.
+- Intel: `C:\V20Lab\source` head `6cec624c5456`, shallow=true, ~379 MiB pack; `C:\TradingSystemLab\market-pattern-discovery` head `4c7cd7cbbde5`, shallow=false, ~377 MiB pack; каталог CC-preview не отдельный Git-репозиторий. Значение head **не** равно deployed worker commit, пока не сверено.
+- **09.11.2026:** оператор создал новые `git clone --mirror` из GitHub в `C:\TradingSystemsRecovery\git-mirror-20261109`: `market-pattern-discovery.git` (41 047 Git объектов, 418.39 MiB transfer) и `market-pattern-data.git` (1 195 объектов, 45.06 MiB transfer); оба не shallow и `git fsck --full --no-reflogs = PASS`. Зеркала **ещё не упакованы и их независимая копия на SSD не подтверждена**. Git LFS, PR/Issues/CI artifacts отдельно.
 
 ## Статусы восстановления
 `FILES_CAPTURE_2026-11-02=PASS`; `SSD_HASH_2026-11-02=PASS`; `FILES_CAPTURE_2026-11-09=PASS`; `SSD_HASH_2026-11-09=PASS`; `GIT_FULL_HISTORY_MIRROR_LOCAL=PASS`; `GIT_MIRROR_SSD=PENDING`; `CHATGPT_EXPORT=PENDING`; `TRL_MEMORY=RECONSTRUCTED`; `COLD_RESTORE_TEST=PENDING`; `RECOVERY_GOLD=NOT_READY`.
