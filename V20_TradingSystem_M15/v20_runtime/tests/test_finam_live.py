@@ -147,6 +147,61 @@ class LiveWatchingStopMissingClientIdTests(unittest.TestCase):
             "CANCEL_ACK_REQUIRE_BROKER_NO_STOP_CONFIRMATION")
         self.assertEqual(canceled, [("test-account", "exact-stop-broker-id")])
 
+    def test_20261107_maintenance_missing_stop_never_becomes_protected(self):
+        # Real OBV event 07 Nov 06:10 MSK: a successful /orders GET
+        # did not prove the previously sealed active stop.
+        from dataclasses import replace as dc_replace
+        from datetime import timedelta
+        raw, journal, snap, reader, entry = self.example()
+        at = datetime(2026, 11, 7, 3, 10, 13, tzinfo=timezone.utc)
+        empty = dc_replace(snap, observed_at=at, orders=())
+        with self.assertRaisesRegex(V20FinamSnapshotReadRetry,
+                                    "FINAM_MAINTENANCE_STOP_VIEW_UNVERIFIED"):
+            _verify_sealed_protection(journal, reader, empty, at, entry)
+        # No durable HALT cleared, no fabricated stop, no risk-proof mutation.
+        self.assertIsNone(journal.store.get("execution_halt"))
+        self.assertEqual(journal.store.intent(entry["idempotency_key"] + ":stop")["status"],
+                         "RECONCILED")
+        # Even if FINAM stays inconsistent, at 06:15 MSK the normal
+        # strict missing-stop HALT is mandatory.
+        at = datetime(2026, 11, 7, 3, 15, tzinfo=timezone.utc)
+        empty = dc_replace(empty, observed_at=at)
+        with self.assertRaisesRegex(V20FinamBlocked, "STOP_NOT_EXACTLY_ACTIVE"):
+            _verify_sealed_protection(journal, reader, empty, at, entry)
+        # If current broker evidence returns, normal sealed proof succeeds.
+        restored = dc_replace(snap, observed_at=at)
+        _verify_sealed_protection(journal, reader, restored, at, entry)
+
+    def test_20261107_maintenance_wrong_or_canceled_stop_still_halts(self):
+        from dataclasses import replace as dc_replace
+        raw, journal, snap, reader, entry = self.example()
+        at = datetime(2026, 11, 7, 3, 10, 13, tzinfo=timezone.utc)
+        # Different broker order ID, incorrect price, or terminal stop
+        # cannot be silently treated as an intermittent empty /orders view.
+        altered = dc_replace(snap.orders[0], order_id="foreign-stop-id")
+        with self.assertRaisesRegex(V20FinamBlocked,
+                                    "SEALED_ENTRY_BROKER_STOP_ID_CHANGED"):
+            _verify_sealed_protection(
+                journal, reader,
+                dc_replace(snap, observed_at=at, orders=(altered,)), at, entry)
+        price = dict(snap.orders[0].request)
+        price["sl_price"] = {"value": "101"}
+        altered = dc_replace(snap.orders[0], request=price)
+        with self.assertRaisesRegex(V20FinamBlocked, "STOP_NOT_EXACTLY_ACTIVE"):
+            _verify_sealed_protection(
+                journal, reader,
+                dc_replace(snap, observed_at=at, orders=(altered,)), at, entry)
+        altered = dc_replace(snap.orders[0], active=False, status="CANCELED")
+        with self.assertRaisesRegex(V20FinamBlocked, "STOP_NOT_EXACTLY_ACTIVE"):
+            _verify_sealed_protection(
+                journal, reader,
+                dc_replace(snap, observed_at=at, orders=(altered,)), at, entry)
+        journal.store.values["execution_halt"] = "STOP_ORDER_REJECTED"
+        with self.assertRaisesRegex(V20FinamBlocked, "STOP_NOT_EXACTLY_ACTIVE"):
+            _verify_sealed_protection(
+                journal, reader,
+                dc_replace(snap, observed_at=at, orders=()), at, entry)
+
     def test_missing_broker_identity_and_foreign_active_fail_closed(self):
         from V20_TradingSystem_M15.v20_runtime.finam_execution import _v20_order_views
         raw, journal, snap, reader, entry = self.example()
