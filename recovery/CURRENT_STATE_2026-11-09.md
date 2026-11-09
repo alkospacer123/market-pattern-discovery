@@ -15,7 +15,7 @@
 - Intel: `C:\V20Lab\source` head `6cec624c5456`, shallow=true, ~379 MiB pack — не полноисторический Git mirror; `C:\TradingSystemLab\market-pattern-discovery` head `4c7cd7cbbde5`, shallow=false, ~377 MiB pack; каталог CC-preview не отдельный Git-репозиторий. Значение head **не** равно deployed worker commit, пока не сверено.
 
 ## Статусы восстановления
-`FILES_CAPTURE_2026-11-02=PASS`; `SSD_HASH_2026-11-02=PASS`; `FILES_CAPTURE_2026-11-09=PASS`; `SSD_HASH_2026-11-09=PASS`; `GIT_FULL_HISTORY_MIRROR=PENDING`; `CHATGPT_EXPORT=PENDING`; `TRL_MEMORY=RECONSTRUCTED`; `COLD_RESTORE_TEST=PENDING`; `RECOVERY_GOLD=NOT_READY`.
+`FILES_CAPTURE_2026-11-02=PASS`; `SSD_HASH_2026-11-02=PASS`; `FILES_CAPTURE_2026-11-09=PASS`; `SSD_HASH_2026-11-09=PASS`; `GIT_FULL_HISTORY_MIRROR_LOCAL=PASS`; `GIT_MIRROR_SSD=PENDING`; `CHATGPT_EXPORT=PENDING`; `TRL_MEMORY=RECONSTRUCTED`; `COLD_RESTORE_TEST=PENDING`; `RECOVERY_GOLD=NOT_READY`.
 
 ## Следующий безопасный шаг
 Перенести проверенный Recovery v3 ZIP/sha256/report на SSD и сверить хеш `b98f80f...aaeaf8`, не стирая старый. После этого сделать mirror полного GitHub репозитория `market-pattern-discovery` из полноисторического источника, создать независимый архив `market-pattern-data` по отдельной оценке, не копируя H1/M15 runtime. Затем обновить `recovery/` по первоисточникам и протестировать cold restore.
