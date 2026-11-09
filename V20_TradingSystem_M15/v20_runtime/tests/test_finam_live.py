@@ -104,6 +104,48 @@ class LiveWatchingStopMissingClientIdTests(unittest.TestCase):
         from dataclasses import replace as dc_replace
         self.assertEqual(len(_ownership(journal, dc_replace(snap, positions={}))), 1)
 
+    def test_20261108_flat_cleanup_watching_stop_uses_exact_broker_id(self):
+        # FINAM WATCHING may omit client_order_id even after an exact
+        # protected-fill observation; cancellation must stay owner-scoped.
+        from dataclasses import replace as dc_replace
+        from V20_TradingSystem_M15.v20_runtime.finam_execution import V20SingleTradeTransport
+        raw, journal, snap, reader, entry = self.example()
+        key = entry["idempotency_key"]
+        class CancelStore(StubStore):
+            def transaction(self):
+                return nullcontext()
+            def persist_intent(self, name, payload):
+                self.intents[name] = {"status": "INTENT_PERSISTED", "payload": payload}
+            def transition_intent(self, name, status, broker_id=None):
+                self.intents[name]["status"] = status
+        store = CancelStore(rows=[entry])
+        store.intents.update(journal.store.intents)
+        store.intents[key + ":frozen-exit"] = {
+            "status": "ACK", "payload": {"kind": "FROZEN_EXIT"}}
+        store.values.update(journal.store.values)
+        journal.store = store
+        flat = dc_replace(snap, positions={})
+        current = [flat]
+        canceled = []
+        api = SimpleNamespace(cancel_order=lambda account, oid: canceled.append((account, oid)))
+        transport = SimpleNamespace(journal=journal,
+            reader=SimpleNamespace(_fresh=lambda *args: None,
+                snapshot=lambda **kw: current[0], api=api, account_id="test-account"),
+            _permit=lambda **kw: {"instrument": "USDRUBF"})
+        # Reject a different broker order or a non-WATCHING empty client ID.
+        for altered in (dc_replace(flat.orders[0], order_id="wrong-id"),
+                        dc_replace(flat.orders[0], status="NEW")):
+            current[0] = dc_replace(flat, orders=(altered,))
+            with self.assertRaisesRegex(V20FinamBlocked, "FLAT_CLEANUP_STOP_ID_MISMATCH"):
+                V20SingleTradeTransport.cancel_stop_after_flat_once(
+                    transport, key=key, snapshot=current[0], now=flat.observed_at)
+        self.assertEqual(canceled, [])
+        current[0] = flat
+        self.assertEqual(V20SingleTradeTransport.cancel_stop_after_flat_once(
+            transport, key=key, snapshot=flat, now=flat.observed_at),
+            "CANCEL_ACK_REQUIRE_BROKER_NO_STOP_CONFIRMATION")
+        self.assertEqual(canceled, [("test-account", "exact-stop-broker-id")])
+
     def test_missing_broker_identity_and_foreign_active_fail_closed(self):
         from V20_TradingSystem_M15.v20_runtime.finam_execution import _v20_order_views
         raw, journal, snap, reader, entry = self.example()
@@ -181,6 +223,56 @@ class LiveAdmissionTests(unittest.TestCase):
             account_hash=hashlib.sha256(b"v20-test-account").hexdigest(),
             store=StubStore(),
         )
+
+    def test_20261106_second_position_gets_stop_before_prior_protected_entry_halt(self):
+        # CNY is already protected; GLD ACK has no stop and a durable
+        # pre-POST checkpoint. Prioritise GLD's protection without clearing
+        # the halt, bypassing risk checks or creating a duplicate entry.
+        from decimal import Decimal
+        from unittest.mock import Mock
+        from V20_TradingSystem_M15.v20_runtime.finam_live import _follow_existing
+        with TemporaryDirectory() as tmp:
+            journal = self.fake_journal(Path(tmp))
+            cny = {"idempotency_key": "cny-key", "status": "RECONCILED",
+                   "broker_order_id": "cny-entry", "payload": {
+                       "symbol": "CNYRUBF", "finam_symbol": "FUTCNYRUBF",
+                       "direction": "LONG", "entry_at": "2026-11-06T10:45:00",
+                       "atr14": "0.01", "quantity": 20}}
+            gld = {"idempotency_key": "gld-key", "status": "ACK",
+                   "broker_order_id": "gld-entry", "payload": {
+                       "symbol": "GLDRUBF", "finam_symbol": "FUTGLDRUBF",
+                       "direction": "LONG", "entry_at": "2026-11-06T12:00:00",
+                       "atr14": "29", "quantity": 11}}
+            journal.store.rows = [cny, gld]
+            journal.store.intents["cny-key:stop"] = {"status": "ACK"}
+            journal.store.values["execution_halt"] = "UNKNOWN_POST_REQUIRE_BROKER_RECONCILIATION"
+            journal.store.values["entry_submission:gld-key"] = {
+                "submitted_at": "2026-11-06T09:00:14+00:00"}
+            journal.reconcile_order = Mock()
+            snap = SimpleNamespace(positions={"FUTCNYRUBF": 20, "FUTGLDRUBF": 11}, orders=[])
+            reader = SimpleNamespace(inspect_entry_fills=Mock(return_value={
+                "matched_quantity": 11,
+                "matched_unique_fills": [{"quantity": 11, "price": "10788.6"}]}))
+            sender = SimpleNamespace(journal=journal, reader=reader,
+                                     submit_protection_once=Mock())
+            with patch("V20_TradingSystem_M15.v20_runtime.finam_live._ownership",
+                       return_value=[cny, gld]), patch(
+                "V20_TradingSystem_M15.v20_runtime.finam_live._verify_sealed_protection"
+            ) as sealed, patch(
+                "V20_TradingSystem_M15.v20_runtime.finam_live._load_registry",
+                return_value={"GLDRUBF": {"price_step": "0.1"}}
+            ), patch(
+                "V20_TradingSystem_M15.v20_runtime.finam_live.project_stop",
+                return_value=Decimal("10729.9")
+            ):
+                state = _follow_existing(sender, datetime(
+                    2026, 11, 6, 9, 0, 22, tzinfo=timezone.utc), snap)
+            self.assertEqual(state, "STOP_ACK_NEEDS_BROKER_PROOF")
+            sender.submit_protection_once.assert_called_once()
+            self.assertEqual(sender.submit_protection_once.call_args.kwargs["key"], "gld-key")
+            sealed.assert_not_called()
+            self.assertEqual(journal.store.get("execution_halt"),
+                             "UNKNOWN_POST_REQUIRE_BROKER_RECONCILIATION")
 
     def valid_auth(self, journal, source):
         return {
