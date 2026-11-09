@@ -333,9 +333,9 @@ jobs:
           $p='V20_TradingSystem_M15/V20-08/v20-08-nov3-flat-repair.ps1'
           $s=Get-Content -LiteralPath $p -Raw
           $oldExec='4ea5cec17a31413c96531dd4f80f77e2a96f3f00'
-          $newExec=(& git.exe hash-object -- 'V20_TradingSystem_M15/v20_runtime/finam_execution.py').Trim()
-          $newWorker=(& git.exe hash-object -- 'V20_TradingSystem_M15/v20_runtime/finam_live.py').Trim()
-          $newLauncher=(& git.exe hash-object -- 'V20_TradingSystem_M15/V20-08/v20-08-live-launch.ps1').Trim()
+          $newExec='c7e62495fcc64d613693174492659f62df5c0af1' # Nov3 immutable installer pin
+          $newWorker='c4c576189510a847ce20c43f5bb39d0e517eb0b4' # Nov3 immutable installer pin
+          $newLauncher='2b47dab60c5494e8265d3ba1aed57a550f0d4ed7' # Nov3 immutable installer pin
           foreach($pin in @($oldExec,$newExec,$newWorker,$newLauncher,
             'b06957ea7833daeda65296eb372890951860c008')){
             if(-not $s.Contains($pin)){throw ('NOV3_INSTALL_PIN_MISSING '+$pin)}
