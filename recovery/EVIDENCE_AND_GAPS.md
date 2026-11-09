@@ -13,7 +13,7 @@
 - [TRL source index](../TradingResearchLab/STATUS.md), [closeout](../TradingResearchLab/reports/TRL-00-CLOSEOUT-2026-10-31.md), [V1–V24 registry](../TradingResearchLab/reports/TRL-00-V1-V24-REGISTRY-2026-10-31.md).
 - [V20 methodology](../V20_TradingSystem_M15/V20-03/comparison/METHODOLOGY_EFFECTS_RU.md), [PF](../V20_TradingSystem_M15/V20-03/comparison/PF_DIAGNOSTIC_REPORT_RU.md), [roadmap](../V20_TradingSystem_M15/docs/ROADMAP_RU.md).
 - SSD Recovery-BASE 02.11: original SHA256 `c2d4d935d41405528cfa28033951e5cfefb65c5130997e4455fc643faab2dca5`; 27,589 files; 64 snapshots; hash PASS.
-- Новый Recovery v3 09.11: `RECOVERY-BASE-V20-CC-20261109-153322.zip`; SHA256 `b98f80f35ccee6f0716786142c05870f97d9f459221b6b5a314e6883f4aaeaf8`; 27,645 files, SQLite snapshots 78; issues 0, outer ZIP CRC/file SHA/SQLite snapshot SHA = PASS; **копия на SSD и cold restore не подтверждены**. Пользовательские backup report/сырые журналы — приватные артефакты, не размещать в публичном репозитории.
+- Новый Recovery v3 09.11: `RECOVERY-BASE-V20-CC-20261109-153322.zip`; SHA256 `b98f80f35ccee6f0716786142c05870f97d9f459221b6b5a314e6883f4aaeaf8`; 27,645 files, SQLite snapshots 78; issues 0, outer ZIP CRC/file SHA/SQLite snapshot SHA = PASS; **копия на SSD подтверждена: `ssd_copy_verified=pass`; cold restore не подтверждён**. Пользовательские backup report/сырые журналы — приватные артефакты, не размещать в публичном репозитории.
 
 ## Открытые пробелы (нельзя заполнять догадками)
 - Полный дословный архив ChatGPT не получен; повторный запрос экспорта в работе на 09.11. Иные чаты, контекст и скрытые ветки могут не отражаться в документах.
