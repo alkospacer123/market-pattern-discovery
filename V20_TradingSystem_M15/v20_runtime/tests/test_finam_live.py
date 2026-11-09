@@ -120,6 +120,7 @@ class LiveWatchingStopMissingClientIdTests(unittest.TestCase):
                 self.intents[name]["status"] = status
         store = CancelStore(rows=[entry])
         store.intents.update(journal.store.intents)
+        store.intents[key] = entry
         store.intents[key + ":frozen-exit"] = {
             "status": "ACK", "payload": {"kind": "FROZEN_EXIT"}}
         store.values.update(journal.store.values)
