@@ -19,7 +19,7 @@
 - Полный дословный архив ChatGPT не получен; повторный запрос экспорта в работе на 09.11. Иные чаты, контекст и скрытые ветки могут не отражаться в документах.
 - Несколько V20 fixes и CC updates после 02.11 требуют нового архивного снимка PASS, установленного hash/CI/FINAM reconciliation. Последнее локальное состояние 09.11 устаревает сразу после следующего цикла.
 - На `main` V20/CC README устарели по фактическому процессу, так как поздние изменения в Draft PR/Intel; проверять HEAD, pinned blob SHA и installed hash.
-- `C:\V20Lab\source` shallow=true. Один ZIP репозитория или копия shallow `.git` не содержит полной Git-истории. На 09.11 два независимых полноисторических GitHub mirrors на Intel **созданы и `git fsck` PASS**; их упаковка/SSD-хэш ещё не подтверждены. Git LFS, PR/Issues/CI вложения отдельно.
+- `C:\V20Lab\source` shallow=true. Один ZIP репозитория или копия shallow `.git` не содержит полной Git-истории. На 09.11 два независимых полноисторических GitHub mirrors на Intel **созданы и `git fsck` PASS**; упаковка в ZIP/распаковка и повторный `git fsck` PASS, `git_zip_verified=pass`, SHA256 ZIP `9e5d490410f7fbe3ddab983d557b981eb96146f2e5c023e42b2a1d0ee9fd0754`; SSD-хэш ещё не подтверждён. Git LFS, PR/Issues/CI вложения отдельно.
 - TRL financial READONLY trade ledger отсутствует/не подтверждён, V1–V24 provenance partial; истории H1/M15 125 ГБ **вне текущего архивирования**.
 - Восстановление Windows/FINAM/DPAPI/Task/CC-07 на новом ПК **не испытано**; статус CAPTURED_NOT_RESTORE_TESTED.
 - Гипотезы ATR и limit-entry, квалификация инвестора/КПУР, альтернативы ГО — не принятые LIVE улучшения.
