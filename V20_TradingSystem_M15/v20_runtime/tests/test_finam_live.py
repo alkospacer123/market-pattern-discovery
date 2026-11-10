@@ -759,6 +759,30 @@ class LiveAdmissionTests(unittest.TestCase):
                     follow.assert_not_called()
                     self.assertEqual(journal.store.values, {})
 
+    def test_20261110_initial_finam_remote_disconnected_retries_without_halt(self):
+        # Actual Inside 2026-11-10 09:39:55 MSK: urllib's
+        # http.client.RemoteDisconnected escapes FinamAPI's URLError catch.
+        # A disconnected initial broker GET must never trigger a kill switch.
+        from http.client import RemoteDisconnected
+        with TemporaryDirectory() as tmp:
+            journal = self.fake_journal(Path(tmp))
+            reader = SimpleNamespace(snapshot=lambda **kw: (_ for _ in ()).throw(
+                RemoteDisconnected("Remote end closed connection without response")))
+            sender = SimpleNamespace(journal=journal, reader=reader,
+                                     auth_path=Path(tmp)/"none", source="0"*40)
+            with patch("V20_TradingSystem_M15.v20_runtime.finam_live._safe_auth"), patch(
+                "V20_TradingSystem_M15.v20_runtime.finam_live._follow_existing"
+            ) as follow, patch(
+                "V20_TradingSystem_M15.v20_runtime.finam_live.V20LiveTransport.submit_entry_once"
+            ) as place:
+                with self.assertRaisesRegex(V20FinamSnapshotReadRetry,
+                                            "FINAM_SNAPSHOT_REMOTE_DISCONNECTED"):
+                    run_cycle(sender, datetime(2026, 11, 10, 6, 39, 55,
+                                               tzinfo=timezone.utc))
+                follow.assert_not_called()
+                place.assert_not_called()
+                self.assertEqual(journal.store.values, {})
+
     def test_night_snapshot_generic_http_400_408_retries_without_entry(self):
         for status in (400, 408):
             with self.subTest(status=status), TemporaryDirectory() as tmp:
