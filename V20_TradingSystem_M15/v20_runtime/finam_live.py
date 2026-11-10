@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import argparse
 from contextlib import closing
+from http.client import RemoteDisconnected
 import sqlite3
 from types import SimpleNamespace
 from datetime import datetime, timedelta, timezone
@@ -601,6 +602,11 @@ def run_cycle(sender: V20LiveTransport, now: datetime) -> str:
         if status is None:
             raise
         raise V20FinamSnapshotReadRetry("FINAM_NIGHT_SNAPSHOT_HTTP_" + status) from exc
+    except RemoteDisconnected as exc:
+        # urllib.urlopener may raise http.client.RemoteDisconnected directly,
+        # not URLError / FinamTimeout. Only the initial READONLY broker
+        # snapshot is eligible; never retry or reinterpret an order POST.
+        raise V20FinamSnapshotReadRetry("FINAM_SNAPSHOT_REMOTE_DISCONNECTED") from exc
     state = _follow_existing(sender, now, snapshot)
     # A CURRENT successful broker position and exact 100% stop check is the
     # only permission to slow retries of overnight GET 5xx/timeouts. After
