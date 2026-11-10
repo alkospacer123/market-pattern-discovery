@@ -190,7 +190,7 @@ try{[void](proof)}catch{$rejected=$true}
 if(-not $rejected){throw 'cc07_risk_halt_nonstart_accepted'}
 write-output 'cc07_native_risk_recovery=pass'
 
-# RECOVER accepts only recognized halted FAIL; never ARMED/unknown/forged.
+# RECOVER accepts a fresh known HALTED cycle or recognized FAIL; never ARMED/unknown/forged.
 $action='recover'
 $script:mockswitch='HALTED'
 $script:mocktask='Ready'
@@ -225,6 +225,38 @@ try{[void](proof $false $true)}catch{$refused=$true}
 if(-not $refused){throw 'cc07_recover_partial_accepted'}
 $action='start'
 write-output 'cc07_native_recover=pass'
+
+# Actual Intel regression: a worker remains Running/HALTED and its latest
+# cycle is HALTED_NO_NEW_ENTRIES after the earlier failure.
+$action='recover'
+$script:mockswitch='HALTED'
+$script:mocktask='Running'
+$script:mockcycle='HALTED'
+$script:mockcode='HALTED_NO_NEW_ENTRIES'
+$script:mockage='12'
+$script:mockerror='V20_08_5_HEALTH_PARTIAL'
+$script:mockexit=1
+if((proof $false $true) -cne 'RECOVERY_HALTED'){throw 'cc07_recover_running_halted_refused'}
+$script:mockage='120'
+$refused=$false
+try{[void](proof $false $true)}catch{$refused=$true}
+if(-not $refused){throw 'cc07_recover_stale_running_accepted'}
+$script:mockage='12'
+$script:mockcode='HALTED_UNKNOWN'
+$refused=$false
+try{[void](proof $false $true)}catch{$refused=$true}
+if(-not $refused){throw 'cc07_recover_unknown_halted_accepted'}
+$script:mockcode='HALTED_NO_NEW_ENTRIES'
+$script:mocktask='Ready'
+$script:mockage='800'
+if((proof $false $true) -cne 'RECOVERY_HALTED'){throw 'cc07_recover_ready_halted_refused'}
+$script:mocktask='Running'
+$script:mockcycle='FAIL'
+$script:mockcode='HALT_RemoteDisconnected'
+$script:mockage='12'
+if((proof $false $true) -cne 'RECOVERY_HALTED'){throw 'cc07_recover_mixed_case_fail_refused'}
+$action='start'
+write-output 'cc07_native_halted_recover=pass'
 
 # Transitional ARMED/HALTED is unacceptable for START proof.
 $script:mockswitch='ARMED'
@@ -280,6 +312,7 @@ write-output 'cc07_native_protected_poll=pass'
     assert "cc07_native_protected_poll=pass" in completed.stdout
     assert "cc07_native_risk_recovery=pass" in completed.stdout
     assert "cc07_native_recover=pass" in completed.stdout
+    assert "cc07_native_halted_recover=pass" in completed.stdout
 
 def test_stopped_task_start_only_guard():
     assert "if($allowStoppedStart -and $task.count -eq 1" in SCRIPT
@@ -288,6 +321,8 @@ def test_stopped_task_start_only_guard():
     assert "cc07_stopped_cycle_untrusted" in SCRIPT
     assert "cc07_stopped_risk_halt_untrusted" in SCRIPT
     assert "cc07_recovery_error_code_untrusted" in SCRIPT
+    assert "cc07_recovery_halt_code_untrusted" in SCRIPT
+    assert "cc07_recovery_cycle_stale" in SCRIPT
     assert "cc07_recovery_not_required" in SCRIPT
     assert "HALT_V20_LIVE_POST_FILL_RISK_HALTED" in SCRIPT
     assert "$state=proof ($action -eq 'pause') ($action -in @('start','recover'))" in SCRIPT

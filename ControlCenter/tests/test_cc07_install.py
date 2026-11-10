@@ -10,7 +10,7 @@ S = INSTALL.read_text(encoding="utf-8")
 
 
 def test_installer_only_cc_owned_paths_and_exact_pins():
-    assert "bace1b6b00cf726a10b6ef8c4d51144d40dcdc08" in S
+    assert "0124fc1f186ac3ac5145602b4ededa1f54e32203" in S
     assert "c:\\control center" in S.lower()
     assert "control-audit" in S
     assert "cc07-v20-operator.ps1" in S

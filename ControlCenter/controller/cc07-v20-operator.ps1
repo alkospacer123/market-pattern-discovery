@@ -54,9 +54,23 @@ function proof([bool]$allowArmedHalted=$false,[bool]$allowStoppedStart=$false) {
     [string]$task[0] -match '=(Ready|Running)$'){
   need ($switch.count -eq 1 -and [string]$switch[0] -match '=HALTED$') 'cc07_recovery_switch_not_halted'
   need ($checkexit -eq 1 -and ($lines -join '|') -match 'V20_08_5_HEALTH_PARTIAL') 'cc07_recovery_stock_check_untrusted'
-  need ($cycle.count -eq 1 -and [string]$cycle[0] -match '=FAIL$') 'cc07_recovery_requires_failed_cycle'
-  need ($code.count -eq 1 -and [string]$code[0] -cmatch ('^v20_08_5_'+$robot+'_cycle_code=(HALT|FAULT|FINAM)_[A-Z0-9_]{3,80}$')) 'cc07_recovery_error_code_untrusted'
-  need ($age.count -eq 1 -and [string]$age[0] -match '=-?[0-9]+$') 'cc07_recovery_age_unknown'
+  need ($cycle.count -eq 1 -and [string]$cycle[0] -match '=(HALTED|FAIL)$') 'cc07_recovery_requires_halted_or_failed_cycle'
+  need ($age.count -eq 1 -and [string]$age[0] -match '=-?[0-9]{1,7}$') 'cc07_recovery_age_unknown'
+  need ($code.count -eq 1) 'cc07_recovery_code_missing'
+  if([string]$cycle[0] -match '=HALTED$'){
+   # Normal worker cycles become HALTED_NO_NEW_ENTRIES after a historical
+   # failure or operator PAUSE. Allow explicit recovery, but never infer
+   # readiness from stale Running telemetry or a different halt code.
+   need ([string]$code[0] -ceq ('v20_08_5_'+$robot+'_cycle_code=HALTED_NO_NEW_ENTRIES')) 'cc07_recovery_halt_code_untrusted'
+   if([string]$task[0] -match '=Running$'){
+    $seconds=[int](([string]$age[0]).split('=')[-1])
+    need ($seconds -ge -5 -and $seconds -le 90) 'cc07_recovery_cycle_stale'
+   }
+  }else{
+   # Preserve mixed-case stock error identifiers (e.g. HALT_RemoteDisconnected).
+   # The V20 stock ARM still refuses unresolved durable execution_halt.
+   need ([string]$code[0] -cmatch ('^v20_08_5_'+$robot+'_cycle_code=(HALT|FAULT|FINAM)_[A-Za-z0-9_]{3,80}$')) 'cc07_recovery_error_code_untrusted'
+  }
   return 'RECOVERY_HALTED'
  }
  # CC-07 STOP leaves a Ready Task without fresh cycles. Only START may

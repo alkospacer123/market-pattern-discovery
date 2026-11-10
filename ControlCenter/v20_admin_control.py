@@ -19,11 +19,25 @@ import subprocess
 ROBOTS = ("v20-shallow", "v20-obv", "v20-inside")
 ACTIONS = ("start", "pause", "stop", "restart", "recover")
 OPERATOR = Path(r"C:\Control Center\cc07-operator\cc07-v20-operator.ps1")
-OPERATOR_BLOB = "bace1b6b00cf726a10b6ef8c4d51144d40dcdc08"
+OPERATOR_BLOB = "0124fc1f186ac3ac5145602b4ededa1f54e32203"
 RELEASE = Path(r"C:\Control Center\data\private\cc07-v20-release.json")
 GATEWAY_POLICY = Path(r"C:\Control Center\data\private\cc07-gateway-policy.json")
 HEX = re.compile(r"[a-f0-9]{32}\Z")
 SID = re.compile(r"S-[0-9]+(?:-[0-9]+)+\Z")
+
+# These exact CC-07 codes are emitted only before any stock V20 action.
+# Never label an unknown child failure as a safe preflight refusal.
+RECOVER_PREFLIGHT_CODES = (
+    "cc07_recovery_switch_not_halted",
+    "cc07_recovery_stock_check_untrusted",
+    "cc07_recovery_requires_halted_or_failed_cycle",
+    "cc07_recovery_age_unknown",
+    "cc07_recovery_code_missing",
+    "cc07_recovery_halt_code_untrusted",
+    "cc07_recovery_cycle_stale",
+    "cc07_recovery_error_code_untrusted",
+    "cc07_recovery_not_required",
+)
 
 
 def confirmation(robot, action):
@@ -134,6 +148,13 @@ def submit(robot, action, typed):
             if (action == "pause"
                     and "cc07_result=already_halted_no_change" in result.stdout.splitlines()):
                 return {"decision": "ALREADY_HALTED", "request_id": request_id}
+        if action == "recover" and result.returncode != 0:
+            stderr = getattr(result, "stderr", "") or ""
+            if isinstance(stderr, str):
+                for code in RECOVER_PREFLIGHT_CODES:
+                    if code in stderr:
+                        return {"decision": "REFUSED_PREFLIGHT",
+                                "code": code, "request_id": request_id}
         return {"decision": "FAILED_UNKNOWN", "request_id": request_id}
     except (OSError, ValueError, subprocess.SubprocessError):
         return {"decision": "FAILED_UNKNOWN" if dispatched else "REFUSED_PREFLIGHT"}

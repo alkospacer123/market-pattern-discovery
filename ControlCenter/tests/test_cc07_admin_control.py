@@ -11,7 +11,7 @@ def test_intel_only_and_stock_operator_pin():
     source = Path(__file__).resolve().parents[1] / "v20_admin_control.py"
     text = source.read_text(encoding="utf-8")
     for marker in ("URIU-PC", "IsUserAnAdmin", "cc07-v20-operator.ps1",
-                   "bace1b6b00cf726a10b6ef8c4d51144d40dcdc08",
+                   "0124fc1f186ac3ac5145602b4ededa1f54e32203",
                    "cc07-gateway-policy.json", "powershell.exe",
                    "cc.v20.release.v1", "O_EXCL", "CC07_RELEASE_SIZE",
                    "FAILED_UNKNOWN", "cc07_result=verified_"):
@@ -128,4 +128,30 @@ def test_recover_exact_release_single_dispatch_and_no_retry(tmp_path, monkeypatc
     assert calls[0][2]["action"] == "recover"
     assert calls[0][0][-4:] == ["-action", "recover", "-requestid", "c" * 32]
     assert calls[0][1]["input"] == "cc07 recover v20-shallow " + "c" * 32 + "\n"
+    assert not release.exists()
+
+
+@pytest.mark.parametrize("stderr,expected", [
+    ("cc07_recovery_requires_halted_or_failed_cycle", "REFUSED_PREFLIGHT"),
+    ("cc07_recovery_cycle_stale", "REFUSED_PREFLIGHT"),
+    ("cc07_stock_operator_failed", "FAILED_UNKNOWN"),
+])
+def test_recover_reports_only_proven_preflight_codes(tmp_path, monkeypatch, stderr, expected):
+    release = tmp_path / "private" / "cc07-v20-release.json"
+    release.parent.mkdir()
+    monkeypatch.setattr(admin, "RELEASE", release)
+    monkeypatch.setattr(admin, "admin_ready", lambda: True)
+    monkeypatch.setattr(admin, "_actor_sid", lambda: "S-1-5-21-1-2-3-4")
+    calls = []
+    def fake_run(*args, **kwargs):
+        calls.append(args)
+        return SimpleNamespace(returncode=1, stdout="", stderr=stderr)
+    monkeypatch.setattr(admin.subprocess, "run", fake_run)
+    result = admin.submit("v20-inside", "recover", "cc07 recover v20-inside")
+    assert result["decision"] == expected
+    if expected == "REFUSED_PREFLIGHT":
+        assert result["code"] == stderr
+    else:
+        assert "code" not in result
+    assert len(calls) == 1
     assert not release.exists()
