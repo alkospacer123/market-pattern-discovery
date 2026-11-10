@@ -92,6 +92,22 @@ def _night_flat_snapshot_fault(exc, *, journal, reader, now):
     return match.group(1)
 
 
+class V20FinamAPI(FinamAPI):
+    """Keep H1 JWT refresh; bound only a subsequent FINAM 401 on a GET."""
+
+    def _request(self, method, path, payload=None, auth=True, retries=2):
+        try:
+            return super()._request(method, path, payload, auth, retries)
+        except FinamError as exc:
+            # H1 already refreshed JWT and retried once. A second HTTP 401
+            # during a READ cannot establish broker state. Only GET is
+            # retryable: never reinterpret POST, DELETE or session rejection.
+            if (method == "GET" and type(exc) is FinamError
+                    and str(exc) == "HTTP_401:" + path):
+                raise V20FinamSnapshotReadRetry("FINAM_GET_HTTP_401_UNVERIFIED") from exc
+            raise
+
+
 class V20LiveJournal(V20TradeJournal):
     """Uses the PRE-EXISTING real V20 SQLite, identity and H1 InstanceLock."""
     live_runtime = True
@@ -787,7 +803,7 @@ def run(*, root: Path, robot: str, source: str, once: bool = False,
         print("v20_08_4_order_posts=zero", flush=True)
         return 0
     with V20LiveJournal(root, robot, account) as journal:
-        api = FinamAPI(token)
+        api = V20FinamAPI(token)
         reader = V20FinamReadAdapter(
             api=api, robot_id=robot, account_id=account,
             expected_account_hash=scope)
@@ -800,11 +816,19 @@ def run(*, root: Path, robot: str, source: str, once: bool = False,
         output = logs / "live-m15.jsonl"
         if output.is_symlink():
             raise V20FinamBlocked("V20_LIVE_LOG_FILE_LINK")
+        read_401_failures = 0
         while True:
             now = datetime.now(timezone.utc)
             try:
                 state = run_cycle(sender, now)
             except Exception as exc:
+                if (isinstance(exc, V20FinamSnapshotReadRetry)
+                        and str(exc) == "FINAM_GET_HTTP_401_UNVERIFIED"):
+                    read_401_failures += 1
+                    if read_401_failures >= 3:
+                        # Persistent auth failure is NOT a network transient.
+                        # Keep fail-closed and require manual recovery.
+                        exc = V20FinamBlocked("FINAM_GET_HTTP_401_PERSISTENT")
                 # Reuse H1 ProductionService.run(): a failed FINAM cycle
                 # records a fault and retries after 3s, never exits its Task.
                 # Preserve V20's stronger existing fail-closed switch for
@@ -855,6 +879,7 @@ def run(*, root: Path, robot: str, source: str, once: bool = False,
                 time.sleep(_night_protected_sleep_seconds(datetime.now(timezone.utc))
                            if slow_night_get_retry else FAST_RECONCILIATION_SECONDS)
                 continue
+            read_401_failures = 0
             event = {"utc": now.isoformat(), "robot": robot, "state": state}
             if getattr(reader, "_closed_night_flat_no_get", False):
                 event["broker_cycle"] = "MOEX_CLOSED_FLAT_NO_FINAM_GET"
