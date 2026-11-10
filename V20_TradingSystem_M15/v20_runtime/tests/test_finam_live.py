@@ -1089,6 +1089,103 @@ class LiveAdmissionTests(unittest.TestCase):
             self.assertNotIn(account, json.dumps(rows))
             self.assertNotIn("synthetic", json.dumps(rows))
 
+    def test_20261110_finam_get_401_retries_only_read_not_trade(self):
+        from TradingSystemLab.stage8_robot.finam_api import FinamAPI
+        from V20_TradingSystem_M15.v20_runtime.finam_live import V20FinamAPI
+        api = V20FinamAPI("synthetic-token")
+        account_path = "/v1/accounts/example/orders"
+        with patch.object(FinamAPI, "_request",
+                          side_effect=FinamError("HTTP_401:" + account_path)):
+            with self.assertRaisesRegex(V20FinamSnapshotReadRetry,
+                                        "FINAM_GET_HTTP_401_UNVERIFIED"):
+                api._request("GET", account_path)
+            # A failed trading submission must never be reclassified as a
+            # safe repeatable GET. Same for a session POST.
+            with self.assertRaisesRegex(FinamError, "HTTP_401:"):
+                api._request("POST", account_path, {"symbol": "USDRUBF"})
+            with self.assertRaisesRegex(FinamError, "HTTP_401:"):
+                api._request("DELETE", account_path)
+        # A 401 originating in JWT session creation, not the GET endpoint,
+        # remains a strict error.
+        with patch.object(FinamAPI, "_request",
+                          side_effect=FinamError("HTTP_401:/v1/sessions")):
+            with self.assertRaisesRegex(FinamError, "HTTP_401:/v1/sessions"):
+                api._request("GET", account_path)
+
+    def test_20261110_obv_get_401_retries_twice_then_halts(self):
+        class EndAfterThird(BaseException):
+            pass
+        with TemporaryDirectory() as tmp:
+            root = Path(tmp) / "V20Lab"
+            instance = root / "robots" / "obv"
+            (instance / "logs").mkdir(parents=True)
+            journal = self.fake_journal(instance)
+            account = "test-401-account"
+            env = {"V20_FINAM_ACCOUNT": account,
+                   "V20_FINAM_TOKEN": "synthetic-token",
+                   "V20_FINAM_ACCOUNT_SHA256": hashlib.sha256(account.encode()).hexdigest()}
+            with ExitStack() as stack:
+                stack.enter_context(patch.dict("os.environ", env))
+                stack.enter_context(patch("V20_TradingSystem_M15.v20_runtime.finam_live.V20LiveJournal",
+                                          return_value=nullcontext(journal)))
+                stack.enter_context(patch("V20_TradingSystem_M15.v20_runtime.finam_live.V20FinamReadAdapter",
+                                          return_value=SimpleNamespace(authenticate=lambda: None)))
+                stack.enter_context(patch("V20_TradingSystem_M15.v20_runtime.finam_live.V20LiveTransport"))
+                cycles = stack.enter_context(patch(
+                    "V20_TradingSystem_M15.v20_runtime.finam_live.run_cycle",
+                    side_effect=[V20FinamSnapshotReadRetry("FINAM_GET_HTTP_401_UNVERIFIED")] * 3))
+                halt = stack.enter_context(patch(
+                    "V20_TradingSystem_M15.v20_runtime.finam_live.emergency_halt"))
+                sleep = stack.enter_context(patch(
+                    "V20_TradingSystem_M15.v20_runtime.finam_live.time.sleep",
+                    side_effect=[None, None, EndAfterThird()]))
+                with self.assertRaises(EndAfterThird):
+                    run(root=root, robot="v20-obv", source="0" * 40)
+                self.assertEqual(cycles.call_count, 3)
+                self.assertEqual([c.args[0] for c in sleep.call_args_list], [3, 3, 3])
+                halt.assert_called_once_with(instance)
+            rows = [json.loads(line) for line in
+                    (instance / "logs" / "live-m15.jsonl").read_text(encoding="utf-8").splitlines()]
+            self.assertEqual([r["state"] for r in rows], [
+                "FAULT_FINAM_GET_HTTP_401_UNVERIFIED",
+                "FAULT_FINAM_GET_HTTP_401_UNVERIFIED",
+                "HALT_FINAM_GET_HTTP_401_PERSISTENT"])
+
+    def test_20261110_obv_get_401_counter_resets_on_recovery(self):
+        class EndAfterSuccess(BaseException):
+            pass
+        with TemporaryDirectory() as tmp:
+            root = Path(tmp) / "V20Lab"
+            instance = root / "robots" / "obv"
+            (instance / "logs").mkdir(parents=True)
+            journal = self.fake_journal(instance)
+            account = "test-401-account"
+            env = {"V20_FINAM_ACCOUNT": account,
+                   "V20_FINAM_TOKEN": "synthetic-token",
+                   "V20_FINAM_ACCOUNT_SHA256": hashlib.sha256(account.encode()).hexdigest()}
+            with ExitStack() as stack:
+                stack.enter_context(patch.dict("os.environ", env))
+                stack.enter_context(patch("V20_TradingSystem_M15.v20_runtime.finam_live.V20LiveJournal",
+                                          return_value=nullcontext(journal)))
+                stack.enter_context(patch("V20_TradingSystem_M15.v20_runtime.finam_live.V20FinamReadAdapter",
+                                          return_value=SimpleNamespace(authenticate=lambda: None)))
+                stack.enter_context(patch("V20_TradingSystem_M15.v20_runtime.finam_live.V20LiveTransport"))
+                stack.enter_context(patch(
+                    "V20_TradingSystem_M15.v20_runtime.finam_live.run_cycle",
+                    side_effect=[V20FinamSnapshotReadRetry("FINAM_GET_HTTP_401_UNVERIFIED"),
+                                 "WAIT_NEXT_M15_OPEN",
+                                 V20FinamSnapshotReadRetry("FINAM_GET_HTTP_401_UNVERIFIED"),
+                                 V20FinamSnapshotReadRetry("FINAM_GET_HTTP_401_UNVERIFIED"),
+                                 "WAIT_NEXT_M15_OPEN"]))
+                halt = stack.enter_context(patch(
+                    "V20_TradingSystem_M15.v20_runtime.finam_live.emergency_halt"))
+                stack.enter_context(patch(
+                    "V20_TradingSystem_M15.v20_runtime.finam_live.time.sleep",
+                    side_effect=[None, None, None, None, EndAfterSuccess()]))
+                with self.assertRaises(EndAfterSuccess):
+                    run(root=root, robot="v20-obv", source="0" * 40)
+                halt.assert_not_called()
+
     def test_h1_style_broker_fault_retry_keeps_process_and_existing_switch(self):
         class EndAfterRecoveredCycle(BaseException):
             pass
