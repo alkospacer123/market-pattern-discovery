@@ -20,6 +20,12 @@ function pin([string]$path,[string]$sha){
  $hash=(& git.exe hash-object -- $path).trim()
  need ($lastexitcode -eq 0 -and $hash -ceq $sha) 'cc07_script_hash_mismatch'
 }
+function pin-one-of([string]$path,[string[]]$shas){
+ need (test-path -literalpath $path -pathtype leaf) 'cc07_script_missing'
+ need (-not [bool]((get-item -literalpath $path -force).attributes -band [io.fileattributes]::reparsepoint)) 'cc07_script_reparse'
+ $hash=(& git.exe hash-object -- $path).trim()
+ need ($lastexitcode -eq 0 -and ($shas -ccontains $hash)) 'cc07_script_hash_mismatch'
+}
 function trusted([string]$path){
  need (test-path -literalpath $path) 'cc07_trusted_path_missing'
  need (-not [bool]((get-item -literalpath $path -force).attributes -band [io.fileattributes]::reparsepoint)) 'cc07_reparse_forbidden'
@@ -154,7 +160,13 @@ function release {
 }
 need ($env:os -ceq 'Windows_NT' -and $env:computername -ceq 'URIU-PC') 'cc07_wrong_host'
 pin $operator 'b06957ea7833daeda65296eb372890951860c008'
-pin $launcher '90e2171bd425015b6b7fd7f5d8e97e331e8b64cb'
+# Known launcher blobs: only the pinned finam_live.py integrity reference differs.
+# Do not accept arbitrary V20 changes, bypass its own internal pinning, or mutate V20.
+pin-one-of $launcher @(
+ '90e2171bd425015b6b7fd7f5d8e97e331e8b64cb',
+ 'e68eba0b522a08493549a5cd9ed60d27188c700c',
+ '0ea762e73b76e64255489e2bb5428c62397a6e55'
+)
 $sid=[security.principal.windowsidentity]::getcurrent().user.value
 $task=get-scheduledtask -taskname $robot -taskpath '\' -erroraction stop
 $taskSid=if([string]$task.principal.userid -match '^S-\d+-'){[string]$task.principal.userid}else{([security.principal.ntaccount]::new([string]$task.principal.userid)).translate([security.principal.securityidentifier]).value}

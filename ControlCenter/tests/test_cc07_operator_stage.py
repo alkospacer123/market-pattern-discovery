@@ -11,6 +11,11 @@ def test_action_semantics_and_immutable_v20_operator():
     assert "'preview','execute'" in SCRIPT
     assert "b06957ea7833daeda65296eb372890951860c008" in SCRIPT
     assert "90e2171bd425015b6b7fd7f5d8e97e331e8b64cb" in SCRIPT
+    assert "e68eba0b522a08493549a5cd9ed60d27188c700c" in SCRIPT
+    assert "0ea762e73b76e64255489e2bb5428c62397a6e55" in SCRIPT
+    assert "function pin-one-of(" in SCRIPT
+    assert "($shas -ccontains $hash)" in SCRIPT
+    assert "pin-one-of $launcher @(" in SCRIPT
     assert "$modeStock=if($action -in @('pause','stop')){'stop'}elseif($action -eq 'recover'){'start'}else{$action}" in SCRIPT
     assert "stop-scheduledtask" in SCRIPT
     assert "flat" in SCRIPT and "v20_08_4_active_orders=0" in SCRIPT
