@@ -1097,20 +1097,28 @@ class LiveAdmissionTests(unittest.TestCase):
         with patch.object(FinamAPI, "_request",
                           side_effect=FinamError("HTTP_401:" + account_path)):
             with self.assertRaisesRegex(V20FinamSnapshotReadRetry,
-                                        "FINAM_GET_HTTP_401_UNVERIFIED"):
+                                        "FINAM_READ_AUTH_HTTP_401_UNVERIFIED"):
                 api._request("GET", account_path)
             # A failed trading submission must never be reclassified as a
-            # safe repeatable GET. Same for a session POST.
+            # safe repeatable broker read or session authorization.
             with self.assertRaisesRegex(FinamError, "HTTP_401:"):
                 api._request("POST", account_path, {"symbol": "USDRUBF"})
             with self.assertRaisesRegex(FinamError, "HTTP_401:"):
                 api._request("DELETE", account_path)
-        # A 401 originating in JWT session creation, not the GET endpoint,
-        # remains a strict error.
+        # Session creation is authentication-only POST and safe for the
+        # same BOUNDED retry. A 401 from an unrelated endpoint stays strict.
         with patch.object(FinamAPI, "_request",
                           side_effect=FinamError("HTTP_401:/v1/sessions")):
+            with self.assertRaisesRegex(V20FinamSnapshotReadRetry,
+                                        "FINAM_READ_AUTH_HTTP_401_UNVERIFIED"):
+                api._request("POST", "/v1/sessions", {"secret": "synthetic"}, auth=False)
             with self.assertRaisesRegex(FinamError, "HTTP_401:/v1/sessions"):
                 api._request("GET", account_path)
+        with patch.object(FinamAPI, "_request",
+                          side_effect=FinamError("HTTP_401:/v1/sessions/details")):
+            with self.assertRaisesRegex(FinamError, "HTTP_401:/v1/sessions/details"):
+                api._request("POST", "/v1/sessions/details", {"token": "synthetic"},
+                             auth=False)
 
     def test_20261110_obv_get_401_retries_twice_then_halts(self):
         class EndAfterThird(BaseException):
@@ -1133,7 +1141,7 @@ class LiveAdmissionTests(unittest.TestCase):
                 stack.enter_context(patch("V20_TradingSystem_M15.v20_runtime.finam_live.V20LiveTransport"))
                 cycles = stack.enter_context(patch(
                     "V20_TradingSystem_M15.v20_runtime.finam_live.run_cycle",
-                    side_effect=[V20FinamSnapshotReadRetry("FINAM_GET_HTTP_401_UNVERIFIED")] * 3))
+                    side_effect=[V20FinamSnapshotReadRetry("FINAM_READ_AUTH_HTTP_401_UNVERIFIED")] * 3))
                 halt = stack.enter_context(patch(
                     "V20_TradingSystem_M15.v20_runtime.finam_live.emergency_halt"))
                 sleep = stack.enter_context(patch(
@@ -1147,9 +1155,9 @@ class LiveAdmissionTests(unittest.TestCase):
             rows = [json.loads(line) for line in
                     (instance / "logs" / "live-m15.jsonl").read_text(encoding="utf-8").splitlines()]
             self.assertEqual([r["state"] for r in rows], [
-                "FAULT_FINAM_GET_HTTP_401_UNVERIFIED",
-                "FAULT_FINAM_GET_HTTP_401_UNVERIFIED",
-                "HALT_FINAM_GET_HTTP_401_PERSISTENT"])
+                "FAULT_FINAM_READ_AUTH_HTTP_401_UNVERIFIED",
+                "FAULT_FINAM_READ_AUTH_HTTP_401_UNVERIFIED",
+                "HALT_FINAM_READ_AUTH_HTTP_401_PERSISTENT"])
 
     def test_20261110_obv_get_401_counter_resets_on_recovery(self):
         class EndAfterSuccess(BaseException):
@@ -1172,10 +1180,10 @@ class LiveAdmissionTests(unittest.TestCase):
                 stack.enter_context(patch("V20_TradingSystem_M15.v20_runtime.finam_live.V20LiveTransport"))
                 stack.enter_context(patch(
                     "V20_TradingSystem_M15.v20_runtime.finam_live.run_cycle",
-                    side_effect=[V20FinamSnapshotReadRetry("FINAM_GET_HTTP_401_UNVERIFIED"),
+                    side_effect=[V20FinamSnapshotReadRetry("FINAM_READ_AUTH_HTTP_401_UNVERIFIED"),
                                  "WAIT_NEXT_M15_OPEN",
-                                 V20FinamSnapshotReadRetry("FINAM_GET_HTTP_401_UNVERIFIED"),
-                                 V20FinamSnapshotReadRetry("FINAM_GET_HTTP_401_UNVERIFIED"),
+                                 V20FinamSnapshotReadRetry("FINAM_READ_AUTH_HTTP_401_UNVERIFIED"),
+                                 V20FinamSnapshotReadRetry("FINAM_READ_AUTH_HTTP_401_UNVERIFIED"),
                                  "WAIT_NEXT_M15_OPEN"]))
                 halt = stack.enter_context(patch(
                     "V20_TradingSystem_M15.v20_runtime.finam_live.emergency_halt"))
