@@ -1,5 +1,6 @@
 """Source audit plus runtime guards. Framework server networking is out of scope."""
 import ast
+from hashlib import sha1
 import os
 from pathlib import Path
 import socket
@@ -25,6 +26,12 @@ def test_no_trade_or_system_capabilities_in_runtime(path):
         'readonly_file.py': {'os', 'pathlib', 'stat'},
         'windows_file.py': {'ctypes', 'pathlib', 'hashlib', 'os', 're', 'json', 'subprocess', 'sys'},
         'h1_export.py': {'json', 'pathlib', 'threading'},
+        'v20_contract.py': {'hashlib', 'json', 're'},
+        'v20_receiver.py': {'json', 'pathlib'},
+        # CC-02 sole opt-in V20 publisher: guarded by an exact AST executor test below.
+        'v20_manual_export.py': {'hashlib', 'os', 'pathlib', 'subprocess', 'sys'},
+        'v20_staging.py': {'hashlib', 'os', 'pathlib', 'subprocess'},
+        'v20_finam.py': {'json', 're'},
         'h1_windows_os.py': {'json', 'pathlib', 're', 'observer'},
         'deployment_paths.py': {'os', 'pathlib', 're'},
         'manual_gate.py': {'contextlib', 'os', 'ctypes', 'fcntl'},
@@ -95,3 +102,43 @@ def test_native_reader_has_only_one_fixed_isolated_child_and_no_shell():
     writes = [ast.unparse(node) for node in ast.walk(tree) if isinstance(node, ast.Call)
               and isinstance(node.func, ast.Attribute) and node.func.attr == 'write']
     assert sorted(writes) == ["sys.stdout.buffer.write(b'N')", "sys.stdout.buffer.write(b'Y' + data)"]
+
+def test_v20_manual_refresh_only_fixed_pinned_readonly_exporter():
+    """Explicitly constrain the only extra CC-side subprocess capability.
+
+    This does NOT authorize arbitrary shell commands, FINAM, trading control
+    or dynamic subprocess arguments. Existing generic boundary tests apply.
+    """
+    path = ROOT / 'cc/v20_manual_export.py'
+    source = path.read_text(encoding='utf-8')
+    tree = ast.parse(source)
+    executions = [node for node in ast.walk(tree)
+                  if isinstance(node, ast.Call)
+                  and isinstance(node.func, ast.Attribute)
+                  and isinstance(node.func.value, ast.Name)
+                  and node.func.value.id == 'subprocess'
+                  and node.func.attr in {'run', 'call', 'Popen', 'check_call', 'check_output'}]
+    assert len(executions) == 1
+    child = executions[0]
+    assert child.func.attr == 'run'
+    assert len(child.args) == 1
+    assert ast.unparse(child.args[0]) == (
+        "[str(PYTHON), '-I', '-B', str(PUBLISHER), '--publish']"
+    )
+    options = {kw.arg: ast.unparse(kw.value) for kw in child.keywords}
+    assert options == {
+        'stdout': 'subprocess.PIPE', 'stderr': 'subprocess.DEVNULL',
+        'timeout': '90', 'check': 'False',
+        'creationflags': "getattr(subprocess, 'CREATE_NO_WINDOW', 0)",
+    }
+    exporter = (ROOT / 'deployment/v20_live_export.py').read_bytes()
+    expected = sha1(b'blob ' + str(len(exporter)).encode('ascii') + b'\x00' + exporter).hexdigest()
+    assert 'BLOB = "' + expected + '"' in source
+    assert 'PUBLISHER = Path(r"C:\\Control Center\\v20-preview-d80f2446\\deployment\\v20_live_export.py")' in source
+    assert 'PYTHON = Path(r"C:\\Control Center\\runtime\\python312\\python.exe")' in source
+    assert 'if actual != BLOB:' in source
+    assert 'PUBLISHER.is_symlink()' in source
+    assert 'READONLY_EXPORT_PASS' in source
+    for dangerous in ('start-scheduledtask', 'stop-scheduledtask', 'finamapi',
+                      '"--arm"', '"--halt"', '"--restart"', 'shell=true'):
+        assert dangerous not in source.lower()
