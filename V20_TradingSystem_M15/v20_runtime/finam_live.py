@@ -93,18 +93,23 @@ def _night_flat_snapshot_fault(exc, *, journal, reader, now):
 
 
 class V20FinamAPI(FinamAPI):
-    """Keep H1 JWT refresh; bound only a subsequent FINAM 401 on a GET."""
+    """Keep H1 JWT refresh; bound GET / session-auth 401 retries only."""
 
     def _request(self, method, path, payload=None, auth=True, retries=2):
         try:
             return super()._request(method, path, payload, auth, retries)
         except FinamError as exc:
-            # H1 already refreshed JWT and retried once. A second HTTP 401
-            # during a READ cannot establish broker state. Only GET is
-            # retryable: never reinterpret POST, DELETE or session rejection.
-            if (method == "GET" and type(exc) is FinamError
+            # H1 refreshes JWT and repeats an authorized GET once. A second
+            # HTTP 401, or a 401 during its read-only session renewal, cannot
+            # establish broker state. Auth POST is NOT a trading POST.
+            safe_read_or_auth = (method == "GET" or
+                                 (method == "POST" and path == "/v1/sessions"))
+            if (safe_read_or_auth and type(exc) is FinamError
                     and str(exc) == "HTTP_401:" + path):
-                raise V20FinamSnapshotReadRetry("FINAM_GET_HTTP_401_UNVERIFIED") from exc
+                raise V20FinamSnapshotReadRetry(
+                    "FINAM_READ_AUTH_HTTP_401_UNVERIFIED") from exc
+            # Any order/SLTP POST, DELETE, or unrecognized session rejection
+            # remains strict HALT. No blind re-submission.
             raise
 
 
@@ -823,12 +828,12 @@ def run(*, root: Path, robot: str, source: str, once: bool = False,
                 state = run_cycle(sender, now)
             except Exception as exc:
                 if (isinstance(exc, V20FinamSnapshotReadRetry)
-                        and str(exc) == "FINAM_GET_HTTP_401_UNVERIFIED"):
+                        and str(exc) == "FINAM_READ_AUTH_HTTP_401_UNVERIFIED"):
                     read_401_failures += 1
                     if read_401_failures >= 3:
                         # Persistent auth failure is NOT a network transient.
                         # Keep fail-closed and require manual recovery.
-                        exc = V20FinamBlocked("FINAM_GET_HTTP_401_PERSISTENT")
+                        exc = V20FinamBlocked("FINAM_READ_AUTH_HTTP_401_PERSISTENT")
                 # Reuse H1 ProductionService.run(): a failed FINAM cycle
                 # records a fault and retries after 3s, never exits its Task.
                 # Preserve V20's stronger existing fail-closed switch for
