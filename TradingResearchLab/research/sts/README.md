@@ -24,7 +24,7 @@
 - [Подпрограмма roadmap](STS_ROADMAP.md)
 - [Сопоставимый тест трёх отдельных счетов](STS_TEST_PROTOCOL.md)
 - [Историческая исследовательская база](EVIDENCE_REGISTER.md)
-- [R040: новый сравнительный денежный тест 3 счетов](../../research/sts/TRL_R_2026_040_STS_Three_Accounts_Research.md)
+- [R040: новый сравнительный денежный тест 3 счетов](TRL_R_2026_040_STS_Three_Accounts_Research.md)
 - [STS-EXP-001: односчётная Shallow-only альтернатива](EXPERIMENT_001_INITIAL_CASH_BENCHMARK.md)
 - [Воспроизводимый STS-EXP-001](experiments/sts_exp_001_replay.py)
 
