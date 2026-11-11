@@ -1,0 +1,9 @@
+{
+  "schema_id": "cc03.broker-readonly-policy.v1",
+  "source_approved": false,
+  "export_root_id": [0, 0, 0],
+  "principal_sid_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+  "credential_blob_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+  "probe_sha256": "33668f23c7ffb774e198b4f7ef55c85d73a6d407cd84b2a3cb1ea5bd6a97fc7c",
+  "received_ttl_seconds": 180
+}
