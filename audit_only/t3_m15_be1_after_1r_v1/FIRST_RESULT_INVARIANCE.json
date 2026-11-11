@@ -1,0 +1,20 @@
+{
+  "status": "PASS",
+  "same_generated_data_files": 38,
+  "data_bytes_equal": true,
+  "mechanism_and_verifier_code_unchanged": [
+    "engine.py",
+    "verifier.py",
+    "analysis.py",
+    "stats_verifier.py",
+    "control.py",
+    "support.py",
+    "run.py",
+    "test_contract.py"
+  ],
+  "excluded_files": [
+    "AUDIT.json: code-freeze metadata and documentation inventory",
+    "REPORT_RU.md: negative-result interpretation added after first calculation"
+  ],
+  "no_parameter_changes": true
+}

@@ -1,0 +1,14 @@
+{
+  "status": "PASS",
+  "base_main": "c3695b1304aef1acdd889264b3451184f7332bf7",
+  "code_freeze_commit": "509adb267a0133d2020ecf20cbdfc95d20e16f0e",
+  "changed_directory": "audit_only/t3_m15_be1_after_1r_v1/",
+  "only_added_files": true,
+  "existing_files_unchanged": true,
+  "source_data_read_only": true,
+  "production_services_accessed": false,
+  "merge": false,
+  "auto_merge": false,
+  "metadata_correction_only": true,
+  "all_replay_results_unchanged": true
+}

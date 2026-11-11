@@ -1,0 +1,13 @@
+{
+  "external_review": "NOT_PERFORMED",
+  "fields": 3144652,
+  "independence": "Separate event-agenda scalar execution and PR518 streaming indicators; same author; no primary engine/features/report imports",
+  "independent_statistics": {
+    "fresh_CSV_Decimal_fields": 11620,
+    "scope": "all requested aggregate/year/month metrics, drawdowns, every cohort row, early profitable exits, >=2R winners, negative trailing prevention and new/missed entries",
+    "status": "PASS"
+  },
+  "max_abs_error": 4.440892098500626e-16,
+  "rows": 322307,
+  "status": "PASS"
+}

@@ -1,0 +1,57 @@
+[
+  {
+    "number": 518,
+    "html_url": "https://github.com/alkospacer123/market-pattern-discovery/pull/518",
+    "title": "IntradayLab: независимый повтор SESSION T1 — SIGNAL_CLOSE vs NEXT_OPEN, ATR 3.5 N4",
+    "state": "closed",
+    "draft": false,
+    "merged": true,
+    "merge_commit_sha": "a77fc3ce79db693041c06192f6525f6847017de7",
+    "head_sha": "d85cf85083d6fea047a1a960c9ead441f7b4a6ed",
+    "base_sha": "d6946056332ce71658a6ca933cefa0740a7570a2"
+  },
+  {
+    "number": 560,
+    "html_url": "https://github.com/alkospacer123/market-pattern-discovery/pull/560",
+    "title": "audit: INITIAL STOP FORENSICS V1 — T3/H1 и T3/M15",
+    "state": "open",
+    "draft": true,
+    "merged": false,
+    "merge_commit_sha": "f63254fe05b6ef3e92fe4364c4c26ea2cc390c36",
+    "head_sha": "90a0a552c05f9ae280f4f2350fd013ea507ea00f",
+    "base_sha": "c3695b1304aef1acdd889264b3451184f7332bf7"
+  },
+  {
+    "number": 562,
+    "html_url": "https://github.com/alkospacer123/market-pattern-discovery/pull/562",
+    "title": "audit: T3 ENTRY DIAGNOSTICS V1 — качество входов H1/M15",
+    "state": "open",
+    "draft": true,
+    "merged": false,
+    "merge_commit_sha": "b058356b8257eac01bdccacc06dc2785ffd9fe64",
+    "head_sha": "40b59a495936adc8110a60f8c25028bbbc9c2e8d",
+    "base_sha": "c3695b1304aef1acdd889264b3451184f7332bf7"
+  },
+  {
+    "number": 563,
+    "html_url": "https://github.com/alkospacer123/market-pattern-discovery/pull/563",
+    "title": "audit: T3/M15 — одно подтверждение растянутого пробоя, development 2023–2024",
+    "state": "open",
+    "draft": true,
+    "merged": false,
+    "merge_commit_sha": "77ec5ab11ad05296b4c5c38d94a8102f99ec67db",
+    "head_sha": "91b36991ea9b559cb318993948b061e154710e2c",
+    "base_sha": "c3695b1304aef1acdd889264b3451184f7332bf7"
+  },
+  {
+    "number": 496,
+    "html_url": "https://github.com/alkospacer123/market-pattern-discovery/pull/496",
+    "title": "research(IntradayLab): T3 M15 gross-only Stop & Exit v1",
+    "state": "closed",
+    "draft": false,
+    "merged": true,
+    "merge_commit_sha": "bf703671dca481d0451a9eb822de143b96a80037",
+    "head_sha": "7d068c7f524ff4ba58bd852c457c28aa5e619738",
+    "base_sha": "bc4f95f48b332f43d79ed10f26fc03c5ad01cd97"
+  }
+]

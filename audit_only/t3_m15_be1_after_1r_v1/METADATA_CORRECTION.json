@@ -1,0 +1,100 @@
+{
+  "all_39_non_AUDIT_artifacts_equal_to_prior_freeze": true,
+  "generated_files": 40,
+  "new_three_fresh_processes_completed": 3,
+  "new_three_fresh_processes_required": true,
+  "prior_freeze": {
+    "alternatives": [
+      "BE1_AFTER_1R"
+    ],
+    "base_main": "c3695b1304aef1acdd889264b3451184f7332bf7",
+    "data_commit": "f8486b446cf3d5f9f3cba6dfec32bdef8fd184c8",
+    "files": {
+      "DATA_DICTIONARY_RU.md": "92ce3c0788ffb7e00cc6ca2752d91cf6ba24a403ad8f495aed6b2c8e7140c91a",
+      "ENGINE_LINEAGE.patch": "87f0469816560c7deeac0666e44303139f7358eaf2ec8e0e9c206f972c002c94",
+      "PROTOCOL_RU.md": "3e2a16332e07e924054163e0e2ee27b597323199ea1e78efd5d31c267584c642",
+      "README.md": "f260eff908d3d17ded14d1b5dce495dd8ad301caa066253c669bcb0df63da4bb",
+      "analysis.py": "0fc552cdcea677c43e526f980726c3a1ec3b5c0c2abbf9e6d60bc50cffc15015",
+      "control.py": "a5e0296595ef94652f224bc0114d370753cb6feb457da85ae745d94c085ebc7f",
+      "engine.py": "7cc1bda3a9268221c169c649db7c4b4be683df42945511a7de3fd57735e0857c",
+      "io_utils.py": "4057c96f8c09e89ff68e181ac70d243362b19d2a64baa03d800c767b897c9b9f",
+      "repeat.py": "55c42814ab0a4bba4422deda64abf41443cbf97171ccfab79a429b9194217244",
+      "report.py": "6eeb50fcceade78c19ae1c01e24b5011900ef448ca81e15db06ec07e1049f499",
+      "requirements.txt": "50bd36afe0a4a4950f51db01fddfedc5d16814a1664c8a21a02e7c247b481bda",
+      "run.py": "e74bdade7f8782d0bbe7db0d5b16c2378eabd65b7b3bd909515f8588bec124a7",
+      "stats_verifier.py": "8700f9a04dcdbfa8f1c303e81539d9b91792fd9ed675513a969e7d8da6212298",
+      "support.py": "bf8b77ae42ca1d87fda4ccb86506ff275bb1f3f476082a6f28d7d52dd968a3d7",
+      "test_contract.py": "8b7a33dd8905df7293e0863a4be56d9eabeb156ad9a63c6dc4c4c9bc5028ab4e",
+      "verifier.py": "fb21f56e3139920746d0f4343bb2fefd1d8d53eff0f4037856bdd08f216fd7d4"
+    },
+    "mechanism_parameters_changed_after_first_result": false,
+    "protocol_commit": "407960fa"
+  },
+  "prior_repeatability": {
+    "code_freeze_sha256": "c8892402124bdf6203eeb53780ca0bb1efd4163b429585ec06a1376aa4ff24e4",
+    "compared_generated_files": 40,
+    "comparisons": [
+      {
+        "direct_bytes_equal": true,
+        "files": 40,
+        "run": "final2",
+        "sha256_equal": true
+      },
+      {
+        "direct_bytes_equal": true,
+        "files": 40,
+        "run": "final3",
+        "sha256_equal": true
+      }
+    ],
+    "files_sha256": {
+      "AUDIT.json": "3b2afc7a906d1bcb800f0b7fa7f6d1792d7ed718d3ceb229b8c4023ea5b21536",
+      "BE1_OPEN.csv": "fd8c0c0f4cba9148a4ef190e77c85b0b1b7770aded8c60aa4800e7485c9dec0d",
+      "BE1_marks.csv.gz": "1e3ab5c472fa06803c783391b202234ecd68d5aef9a1737ea5ae8e9ff6e9b14b",
+      "BE1_occupancy.csv": "f780ae2df95a468350deff4f3c0618d8965bfd23d489449c8f9ffd950c342bb1",
+      "BE1_signals.csv.gz": "0d30df15365e4c6cdf977867cb1df29ddfff2a9342e037f7b79d09126f356f90",
+      "BE1_snapshots.csv": "6e09d2ac7ab16171eb6741cd72d214553c065af7b1b72ba7284a2ddd64ffe71a",
+      "BE1_stops.csv.gz": "1b8963290cf7a26bfeffc334a6daaecadb769d762d9b4779290ebbc79d6cc586",
+      "BE1_trades.csv": "f3cf2546e9c532d7e627ce7e13a612f2f8028c830f0e684b43782bcffb6f86e2",
+      "CAPITAL_FEASIBILITY.json": "733f60204189776202c2c0f91dabf98034cafc3fa6e45d2cf73f8300c1dcc7d0",
+      "COMPARISON.json": "9c7d767d1b3812798303e7555dc372f9ea9db4c56ff79ea29f26b15cb6aecfc2",
+      "CONTROL_OPEN.csv": "11c52260dc1f0805f043360167b30a2f6697c9b586d468cd0a5d766fa3283c4c",
+      "CONTROL_marks.csv.gz": "91d54f3d677723e5e725d26bee359a64b8da47f525e9fbaadcce7b8cd46abcbe",
+      "CONTROL_occupancy.csv": "336c2c0a5e5d0059ab0d179c6777beee10576216c76c28279b95e5d767912c9b",
+      "CONTROL_signals.csv.gz": "5b221e5b79d24eb69e3fe07e5f2688caf9d55594b6a88df53019d55ae8770cce",
+      "CONTROL_snapshots.csv": "c4446ff64e62ed56e0275100ce5d4c3cc158a82acd332f8e2bcd4d9adcb585e0",
+      "CONTROL_stops.csv.gz": "176af67025b8c5e67007287d496d38cae67e845fb34610843398a4063aa959e3",
+      "CONTROL_trades.csv": "1f15418931409f1db8a6f39d077b50e20cf09376e57591ede529f95892f389fa",
+      "COVERAGE.csv": "0f9e054e0ac633fc7563c686a189423e9b19ee29cca00991bf8844cb4c1975d5",
+      "DEVELOPMENT_CONTROL.json": "5c1dece121cec6ed6d2c361bef6ee49273ea72888a3a9938142773644df22317",
+      "EARLY_PROFITABLE_EXITS.csv": "6613ad14b4f5365af390f865d9fe6b9ba59934b915b58d7ec3f60b07db7e68a5",
+      "INDEPENDENT_VERIFICATION.json": "c9c76c1e51ef7da34f97f0a279e5b851b880130e93e594d7764edbf65435310e",
+      "MECHANISM_SUMMARY.csv": "dc040e1e5e0ae83eb36826ef6b64479436b7283daba44afcc87b9d62059fc82a",
+      "MONTHLY.csv": "cdc4f70c5ae4f3ddd1952f57b4a78c8f04109510c50b5047c0653f19f8ac7e86",
+      "MONTH_SIGN_TRANSITIONS.csv": "e456c896fc74cb3cfe3607588b2736c2c49702b00a75778aa7c8501332dce53f",
+      "NEGATIVE_TRAILING_COHORT.csv": "2e83da7565759b7eb6dd0d02382a2a3d34d13fe231cde7cbcae228edca42f23f",
+      "NEW_AND_MISSED_ENTRIES.csv": "088cff590a47342784862fb42784e346ba5fc41a898331d110bd02d49e76a5b8",
+      "NORMALIZED_COST_SENSITIVITY.csv": "2881d223f26f0b7300cf6234fafde43c07a28e495d500783002ae87a36f23101",
+      "ORIGINAL_GE_2R_BY_YEAR.csv": "d9a5ccee1fdb44daf265d74f1b8fad4ed127d62c61e942d1f8a09bb22d00eb16",
+      "ORIGINAL_GE_2R_WINNERS.csv": "c907420c23199650e3e6da901a74bc49360420b2b40133e3906500c4ac8f174a",
+      "PORTFOLIO_CURVES.csv.gz": "a62c9d2d43a39b2d2d4bf6ebd974461d6a1a8f9a7423cac9183b62d2f6b5f8b0",
+      "REPORT_RU.md": "aa6540af38db24280ea4c75bf39946008e4b3191160de1c7c86ed1dc6e999c97",
+      "SUMMARY.csv": "5d1248ef7c17c5ca701b6860d8bec2e3bd4268e6c81c151e5036debb3a3baccd",
+      "SYNTHETIC_TESTS.json": "d678f3eda6f4b2ea966e2eacb05dd94a69fbc3150ca34ff4c997657b9e508b05",
+      "TRADE_COMPARISON.csv": "5546accc5d9923d88afacd5f06a4a738e2fc8f49c83affbb283f6d28a628fd77",
+      "control/CONTROL_RECONCILIATION.json": "fad20756cd08af5627f41a5cc9352679f31419b1d5016e0217bd4b4c292224bf",
+      "control/SOURCE_MANIFEST.json": "c3d6f82d31738c5d07095ef83699186e775cefcc411bc14c534424875208d6a8",
+      "features/CNYRUBF.csv.gz": "92a1d95ef8efa59428f9df313ca057a231f091f38ed4d1ef02511041137a3ba8",
+      "features/GLDRUBF.csv.gz": "4a4ad96c2e7e0737e034dc3772d3d9ffbb64c2a179af80cf638a127a5fd5372c",
+      "features/IMOEXF.csv.gz": "8a644eb85093c4ed30effc5010e3cb414e2c8dc81e702c516025db279844d69d",
+      "features/USDRUBF.csv.gz": "49d3fc9d4ed9fdb7ff026b80661640b543dcc1351a7f234eb55f744f6fbca0d7"
+    },
+    "first_full_process": "final1",
+    "fresh_repeats": 2,
+    "scope": "Every artifact emitted by run.py including full CONTROL receipts, both development replays, scalar/Decimal checks, tests, Russian report, audit; source documentation/code and this receipt are outside generated set",
+    "status": "PASS"
+  },
+  "reason": "README stated Python 3.11; actual AUDIT runtime is 3.12.14",
+  "trading_and_verifier_code_unchanged": true,
+  "trading_results_changed": false
+}
