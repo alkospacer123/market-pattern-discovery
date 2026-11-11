@@ -2,7 +2,7 @@
 
 **Дата:** 11.11.2026. **Статус:** `RESEARCH_COMPLETE / HOLD_FORWARD / LIVE_UNCHANGED`.
 
-**Контракт:** [замороженный протокол](FROZEN_PROTOCOL.md), SHA256 `9132408fea082fc169e9e4771a12c8fe59de142740aa939d33925acee92554fb`. Источник: R038/R039/R041, исходные N4 M15 OHLCV. **Не TRUE OOS.**
+**Контракт:** [замороженный протокол](experiments/r045/FROZEN_PROTOCOL.md), SHA256 `9132408fea082fc169e9e4771a12c8fe59de142740aa939d33925acee92554fb`. Источник: R038/R039/R041, исходные N4 M15 OHLCV. **Не TRUE OOS.**
 
 ## 1. Вопрос, архитектуры и сопоставимость
 
