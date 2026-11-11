@@ -79,3 +79,7 @@
 ## R051 — месячная статистика V20 / капитал / GLD (11.11.2026)
 
 [Исследовательский отчёт R051](TRL_R_2026_051_V20_Monthly_Allocation_GLD_Research.md) · [Journal](../../journal/2026-11-11-sts-r051-portfolio-monthly-gld.md). На SHA-verified R045 источниках заново исполнены 148 сценариев для N4/N3 без GLDRUBF, BASE/TP6+защита, ГО Oct/Nov, общий стартовый банк 135k ₽. 20/20 денежный parity PASS. Excel/полный CSV и автономный ZIP представлены в TRL-диалоге. В GO Oct/N4/TP6 Shallow+Inside 60/40 +461857 ₽ PF2.007 M15DD20035 ₽ (40/45 месяцев), 70/30 +496776 ₽ PF1.968 DD23939 ₽. Без GLD 60/40 +372736 ₽, M15DD22404 ₽; повышенные +30 тик/сторона GLD в FULL replay +420727 ₽, но реальная ликвидность не подтверждена. `SH_INSIDE_60_40_FORWARD_CANDIDATE / LIVE_UNCHANGED`. 2026 покрыт не полностью и TRUE OOS нет.
+
+### R051 — месячный разрез, распределение капитала и исключение GLD
+
+[Исследовательский отчёт R051](TRL_R_2026_051_Monthly_Portfolio_Allocation_GLD.md) · [Journal](../../journal/2026-11-11-sts-r051-monthly-portfolio-gld.md). Отдельная книга в TRL: 45 месяцев × 3 робота × N4 по двум выходам, двум статичным GO, с GLD и без; 148 повторных денежных сценариев, 20 exact parity PASS. Sh+Inside 60/40 N4 Oct TP6 = +461857 ₽ PF2.007 M15DD20035 ₽ (40/45 месяцев), Shallow-only low-risk 0.667% = +404160 PF1.995 DD16563 ₽. N3 без GLD не гарантирует снижения DD. `FORWARD_CANDIDATE / LIVE_UNCHANGED`.
