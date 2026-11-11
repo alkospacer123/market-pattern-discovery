@@ -65,3 +65,7 @@ Frozen protocol SHA256 `da6327e30ea8e8f6c69f02294177ac95938b1a7c743814eebb33d77c
 ### R051 (11.11.2026) — full monthly/ratio/GLD comparison
 
 [Подробный отчёт R051](TRL_R_2026_051_V20_Monthly_Allocation_GLD_Research.md). 148 full cash scenarios, 20 R045 exact money parity PASS, 4320 робот×инструмент×месяц, 6660 портфель×месяц, 34834 разреженных распределение×робот×инструмент×месяц. GO Oct/N4/TP6 Sh+Inside60/40 +461857 ₽ PF2.007 M15DD20035, V20 60/30/45 +422224 PF1.914 DD18667, Sh-only 1.5% +666387 PF1.991 DD33484; сравнение не при равной ставке риска. N3 Sh+Inside60/40 +372736, DD22404; условная GLD +30 тик/side full replay +420727. Inside полностью компенсировал отрицательные месяцы Shallow 60/40 в 3/6 случаев. 2023–2026 OOS_COMPROMISED; статичные GO, C1, не FINAM; `SH_INSIDE_60_40_FORWARD_CANDIDATE`, LIVE_UNCHANGED.
+
+### R051 (11.11.2026) — 45 месяцев × роботы × инструменты, GLD
+
+[Отчёт R051](TRL_R_2026_051_Monthly_Portfolio_Allocation_GLD.md): 4320 строк подробного N4/N3 monthly robot×symbol для BASE/TP6 GO Oct/Nov, 6660 строк портфелей, 148 replay сценариев, 20/20 parity PASS. При Oct GO/TP6: V20 60/30/45 +422224 PF1.914 M15DD18667; Sh+Inside 60/40 +461857 PF2.007 M15DD20035; 70/30 +496776 PF1.968 DD23939; Shallow-only 0.667% +404160 PF1.995 DD16563; 1.5% +666387 PF1.991 DD33484. Без GLD Sh+Inside60/40 +372736 DD22404. Статичное ГО и 2023–2026 OOS_COMPROMISED; не утверждать какой-либо исторический максимум как optimum.
