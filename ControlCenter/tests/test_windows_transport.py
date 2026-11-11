@@ -2,7 +2,9 @@
 import hashlib
 import json
 import os
+import multiprocessing
 from pathlib import Path
+import subprocess
 import threading
 import pytest
 from cc.providers import windows_file as win
@@ -101,16 +103,114 @@ def test_blocked_legacy_observer_does_not_interfere_with_unchanged_producer(tmp_
     errors=[]
     def produce():
         try:
-            for i in range(200):
+            for i in range(600):
                 temporary=tmp_path/'next.tmp'; temporary.write_bytes(str(i).encode())
                 os.replace(temporary,path)
         except BaseException as exc: errors.append(exc)
     thread=threading.Thread(target=produce); thread.start()
-    for _ in range(200):
+    for _ in range(600):
         with pytest.raises(ValueError,match='CC03_LIVE_SOURCE_COMPATIBILITY_BLOCKED'):
-            read_source(tmp_path,path.name,pin(tmp_path))
+            # No H1 directory metadata/handle is needed to reject this reader.
+            read_source(tmp_path,path.name,(1,2,3))
     thread.join(10)
-    assert not thread.is_alive() and not errors and path.read_bytes()==b'199'
+    assert not thread.is_alive() and not errors and path.read_bytes()==b'599'
+
+
+def test_native_one_manual_immutable_read_with_legacy_replacements_zero_h1_opens(
+        policy, sources, now, tmp_path, monkeypatch):
+    from datetime import datetime, timezone
+    from cc.models import RobotId, State
+    from cc.providers import h1_export as receiver
+    from ci.file_open_trace import file_create_trace, events_for, descendant_pids, process_edges
+    from test_cc03_source import approved
+    from test_manual_os_native import replace_producer
+
+    # Entirely synthetic source and separate CC output in disposable hosted VM.
+    legacy_root = tmp_path / 'legacy'; legacy_root.mkdir()
+    cc_root = tmp_path / 'cc-export'; cc_root.mkdir()
+    legacy = legacy_root / 'stage8-12-4-production-heartbeat.json'
+    legacy.write_bytes(b'initial')
+    before = tmp_path / 'before-positive.txt'; before.write_bytes(b'before')
+    after = tmp_path / 'after-positive.txt'; after.write_bytes(b'after')
+    monkeypatch.setattr(writer, 'EXPORT_ROOT', cc_root)
+    monkeypatch.setattr(receiver, 'EXPORT_ROOT', cc_root)
+    # Current wall clock is required for receiving a bounded synthetic observation.
+    now = datetime.now(timezone.utc)
+    sources[writer.HB]['timestamp'] = sources[writer.HB]['last_successful_finam_api_contact'] = now.isoformat()
+    completed = writer.publish(export(policy, sources, now))
+    expected_raw = completed.read_bytes()
+    p = approved(policy, export_root_id=pin(cc_root))
+    context = multiprocessing.get_context('spawn')
+    stop, started = context.Event(), context.Event()
+    receive, send = context.Pipe(False)
+    producer = context.Process(target=replace_producer, args=(str(legacy_root), stop, started, send))
+    observed_pids = [os.getpid()]
+    reader_launchers = []
+    original_popen = subprocess.Popen
+    def tracked_popen(*args, **kwargs):
+        child = original_popen(*args, **kwargs)
+        observed_pids.append(child.pid)
+        command = args[0]
+        if (isinstance(command, list) and len(command) == 4 and command[1:3] == ['-I', '-B']
+                and Path(command[3]).name == 'windows_file.py'):
+            reader_launchers.append(child.pid)
+        return child
+    monkeypatch.setattr(subprocess, 'Popen', tracked_popen)
+    try:
+        with file_create_trace(tmp_path, process_events=True) as trace:
+            # Warm the provider before the canary bracket, as in existing OS audit.
+            env = os.environ.copy(); env['CC03_OPEN_CONTROL'] = str(before)
+            control = subprocess.run(['powershell.exe', '-NoProfile', '-NonInteractive', '-Command',
+                '[IO.File]::ReadAllBytes($env:CC03_OPEN_CONTROL).Length'],
+                env=env, capture_output=True, text=True, timeout=10)
+            assert control.returncode == 0
+            before.read_bytes()
+            producer.start(); send.close()
+            assert started.wait(10) and producer.is_alive()
+            probes = []
+            def read_once():
+                probes.append(True)
+                return receiver.H1ExportProvider(p).snapshot(RobotId.H1, 'READONLY_EXPORT', now)
+            result, accepted = receiver.manual_export_refresh(now, reader=read_once)
+            assert accepted and len(probes) == 1 and result.status.state == State.HALTED
+            assert result.positions is None and result.portfolio.equity is None
+            assert producer.is_alive()
+            after.read_bytes()
+            stop.set(); producer.join(15)
+            assert not producer.is_alive() and producer.exitcode == 0 and receive.poll(1)
+            done = receive.recv()
+            assert not done['errors'] and done['replacements'] >= 500, done
+        assert events_for(trace, before) and events_for(trace, after), 'CANARY_BRACKET_MISSING'
+        assert any(e['pid'] == os.getpid() for e in events_for(trace, before))
+        assert any(e['pid'] == os.getpid() for e in events_for(trace, after))
+        # Include each fixed child's real interpreter descendants, excluding the
+        # independent producer tree. Never accept an arbitrary PID's file event.
+        assert len(reader_launchers) == 1
+        reader_family = descendant_pids(trace, reader_launchers)
+        observer_family = {os.getpid()} | descendant_pids(trace, observed_pids[1:])
+        assert producer.pid not in observer_family
+        completed_events = events_for(trace, completed)
+        assert any(e['pid'] in reader_family for e in completed_events), (
+            'CC_READER_NOT_OBSERVED', sorted(reader_family), completed_events, process_edges(trace))
+        assert not [e for e in events_for(trace, legacy) if e['pid'] in observer_family], 'H1_OPEN_DETECTED'
+        assert completed.read_bytes() == expected_raw and not list(cc_root.glob('*.tmp'))
+        evidence = dict(classification='SYNTHETIC_IMMUTABLE_TRANSPORT_ONLY_NO_LIVE_AUTHORITY',
+            replacements=done['replacements'], producer_errors=0, legacy_opens=0,
+            manual_probes=len(probes), observer_pids=sorted(observer_family), producer_pid=producer.pid,
+            reader_launcher_pids=reader_launchers, reader_family=sorted(reader_family),
+            completed_open_pids=sorted({e['pid'] for e in completed_events}), process_edges=process_edges(trace),
+            before_canary_opens=len(events_for(trace, before)), after_canary_opens=len(events_for(trace, after)),
+            live_source='NOT_AUTHORIZED / NO_SAFE_SOURCE')
+        (Path(os.environ['RUNNER_TEMP']) / 'cc03-evidence/source-feasibility-noninterference.json').write_text(
+            json.dumps(evidence, indent=2))
+        print('SOURCE_FEASIBILITY_ZERO_H1_OPENS=' + json.dumps(evidence))
+    finally:
+        stop.set()
+        if producer.pid is not None:
+            producer.join(15)
+            if producer.is_alive():
+                producer.terminate(); producer.join(5)
+        receive.close(); send.close()
 
 
 def test_publisher_capacity_rejects_before_writing(policy,sources,now,tmp_path,monkeypatch):
