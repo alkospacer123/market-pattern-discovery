@@ -43,3 +43,7 @@
 ## R043 — H1/H4 и двухдневная коррекция (11.11.2026)
 
 [Отчёт R043](TRL_R_2026_043_STS_MTF_Staircase_Research.md) · [Frozen protocol](experiments/r043/FROZEN_PROTOCOL.md) · [Воспроизводимый код](experiments/r043/run_r043.py) · [Аудит](experiments/r043/audit_r043.py). Проверены две новые структуры: H1/H4 Ledge (313 BASE-сделок, PF R1,628) и Multi-Session Staircase (22 BASE, PF R2,826, но 2024/2026 убыточные и top5-зависимость). В трёх отдельных счетах ни одна не оправдала замену OBV/Inside. `NO_REPLACEMENT / LIVE_UNCHANGED`. Следующая проверка только с реальной новой независимой информацией, без подбора на старой истории.
+
+## R045 — денежный риск и M15 equity (11.11.2026)
+
+[Отчёт R045](TRL_R_2026_045_V20_vs_Shallow_MTM_Research.md) · [замороженный протокол](experiments/r045/FROZEN_PROTOCOL.md) · [общий Journal](../../journal/2026-11-11-sts-r045-v20-shallow-mtm.md). 60 historical offline сценариев, 20 точных денежных parity PASS. Три модели: A V20 45/45/45, B V20 60/30/45, C Shallow-only с единым капиталом (C не STS). Для 135k ГО Oct TP6: B +422224 ₽ / M15DD18667 ₽; C при риске 0,667% +404160 ₽ / M15DD16563 ₽. При GO Nov C 0,5% +285066 ₽ / M15DD11416 ₽ против B +283607 ₽ / M15DD15818 ₽. GO занимает почти весь банк, комиссия FINAM и истинная внутрисвечная MTM не проверены. **HOLD_FORWARD / KEEP_V20_LIVE**, Shallow-only low-risk оставить исследовательским кандидатом; объединение счетов STS НЕ одобрено.
