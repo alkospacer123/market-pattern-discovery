@@ -8,4 +8,4 @@
 
 **Аудит:** Classic 773/808 и V20 1449 / +381607.6 точный parity PASS; 1729 causal prefix, 2841 outcome, 9628 денежных сделок и 16 смен состава портфеля перепроверены — PASS. Новые ноябрьские данные не использовались. История 2023–2026 OOS_COMPROMISED, static GO, C1, без полной MTM.
 
-**Решение:** REJECT_CORE оба варианта; BAR_ACCEPT сохраняется только как диагностический признак для будущего проспективного набора. LIVE_UNCHANGED; STS_CONTINUE; далее не оптимизировать прежнюю историю. См. [отчёт](TRL_R_2026_050_Trend_Start_Attempts_Research.md) и frozen protocol.
+**Решение:** REJECT_CORE оба варианта; BAR_ACCEPT сохраняется только как диагностический признак для будущего проспективного набора. LIVE_UNCHANGED; STS_CONTINUE; далее не оптимизировать прежнюю историю. См. [отчёт](../research/sts/TRL_R_2026_050_Trend_Start_Attempts_Research.md) и frozen protocol.
