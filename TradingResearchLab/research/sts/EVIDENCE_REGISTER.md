@@ -21,3 +21,9 @@
 **STS = 3 отдельных ядра / 3 собственных счёта / 3 капитала.** При 45 000 ₽/счёт, GO proxy Oct-2026 и экспериментальном TP6+защита: V20 Classic+OBV+Inside = +381 608 ₽, PF ₽1,845, closed DD11 774,50 ₽, 40/45 прибыльных месяцев; STS Classic+Micro+Dynamic = +401 564 ₽, PF ₽1,739, closed DD23 157,60 ₽, 37/45. 2025 PF: V20 1,554; STS 1,368. Остальные пять комбинаций не выигрывают по ₽/PF/DD одновременно. Пересчёт всех 3 банков (45k/500k/1m), обоих GO и двух выходов — [R040](TRL_R_2026_040_STS_Three_Accounts_Research.md). 10 exact parity R039 + 12 exact financial parity R038 PASS. **NO_REPLACEMENT / STS_CONTINUE / LIVE_UNCHANGED**.
 
 Shallow-only с общим банком — *отдельная альтернативная гипотеза*, не STS; прежние результаты STS-EXP-001 нельзя трактовать как тест новой трёхсчётной архитектуры.
+
+## R041 — роль OBV/Inside, выделение капитала, Two-Leg и Sweep (11.11.2026)
+
+Детали: [полный отчёт](TRL_R_2026_041_STS_OBV_Inside_New_Modules_Research.md). V20 60/30/45 тыс. ₽ TP6+защита: +422224.1 ₽ / PF ₽1.914 / closed DD12940.9 ₽ / 42/45; BASE +423132.5 ₽ / PF1.889 / DD17172.5 ₽ / 34/45. У 11 убыточных месяцев Shallow BASE OBV принёс −3308 ₽, Inside +3692 ₽; это не системная страховка.
+
+Новое: TWO_LEG_RESET 390 сделок / +121484.9 ₽ / PF1.998 (45k, Oct GO proxy, TP6). Замена Inside: +456585.5 ₽ / PF1.879 / DD12586.6 ₽ против V20 +381607.6 ₽ / PF1.845 / DD11774.5 ₽; 40/45 прибыльных месяцев в обоих. В 171 непересекающейся с Classic/Micro сделке PF1.059: новый кандидат **не доказал независимый денежный edge**, слабые дни Classic остаются слабыми. SWEEP_RECLAIM REJECT. Все цифры исторический OOS_COMPROMISED, нет реальных комиссий и MTM. `KEEP_V20 / STS_CONTINUE / LIVE_UNCHANGED`.
