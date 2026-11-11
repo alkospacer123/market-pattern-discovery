@@ -1,0 +1,4 @@
+signal_year,eligible_attempts,stretched_attempts,executed_confirmed,failed_price,outside_T1,missing_confirmation,missing_entry,unstretched_executed
+2023,212,109,48,53,7,1,0,103
+2024,396,172,71,95,6,0,0,224
+2023_2024,608,281,119,148,13,1,0,327

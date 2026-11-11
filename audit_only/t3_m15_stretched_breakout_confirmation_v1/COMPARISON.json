@@ -1,0 +1,19 @@
+{
+  "common_signals": 400,
+  "missed_control_entries": 150,
+  "missed_entries_CONTROL_R": -25.480510588740856,
+  "missed_profitable": 41,
+  "missed_profitable_CONTROL_R": 67.98046176335203,
+  "new_confirm_entries": 46,
+  "new_entries_R": 19.131945799759254,
+  "original_ge2R_CONFIRMED_CLOSED_contribution_R": 238.74975140766014,
+  "original_ge2R_OPEN": 0,
+  "original_ge2R_R": 318.17996851157784,
+  "original_ge2R_count": 74,
+  "original_ge2R_skipped": 13,
+  "original_ge2R_still_ge2R": 57,
+  "original_ge2R_to_nonpositive": 3,
+  "profitable_reduced": 44,
+  "profitable_to_OPEN": 0,
+  "profitable_to_nonpositive": 13
+}

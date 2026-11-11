@@ -1,0 +1,63 @@
+--- PR518/primary.py replay
++++ engine.py replay
+@@ -19,2 +19,2 @@
+-    trades=[];signals=[];stops=[];snapshots=[];q=None;pending=None;prev=None;seq=0;busy_bars=0
+-    model=f'T1_{mode}_TRAIL_3p5'
++    trades=[];signals=[];stops=[];snapshots=[];marks=[];q=None;pending=None;confirm=None;prev=None;seq=0;busy_bars=0;realized=0.
++    model='T1_NEXT_OPEN_TRAIL_3p5' if mode=='CONTROL' else 'T1_CONFIRM_ONE_BAR_TRAIL_3p5'
+@@ -27 +27 @@
+-        return dict(model=model,instrument=symbol,trade_id=p.trade_id,direction='LONG' if p.side>0 else 'SHORT',signal_time=s['at'],entry_time=s['at'],signal_close=s['Close'],entry_price=p.entry,initial_stop=p.initial,initial_risk=p.risk,ATR=s['ATR'],H1AvailableAt=s['H1AvailableAt'],breakout_level=s['PriorHigh'] if p.side>0 else s['PriorLow'])
++        return dict(model=model,instrument=symbol,trade_id=p.trade_id,direction='LONG' if p.side>0 else 'SHORT',signal_time=s['at'],entry_time=s['at'],signal_close=s['Close'],entry_price=p.entry,initial_stop=p.initial,initial_risk=p.risk,ATR=s['ATR'],H1AvailableAt=s['H1AvailableAt'],breakout_level=s['PriorHigh'] if p.side>0 else s['PriorLow'],actual_entry_time=s['actual_entry_time'],execution_bar_close=s['execution_bar_close'],confirmed=s['confirmed'])
+@@ -36 +36 @@
+-            if at==s['at']+STEP:
++            if at==row['ready_time']+STEP:
+@@ -38 +38,3 @@
+-                row.update(entry_accepted=True,reason='EXECUTED_NEXT_OPEN',entry_price=q.entry,initial_stop=q.initial,execution_bar_close=at)
++                row['actual_entry_time']=at-STEP
++                q.signal=q.signal|{'actual_entry_time':at-STEP,'execution_bar_close':at,'confirmed':row['stretched_delay']}
++                row.update(entry_accepted=True,reason='EXECUTED_CONFIRMED_OPEN' if row['stretched_delay'] else 'EXECUTED_NEXT_OPEN',entry_price=q.entry,initial_stop=q.initial,execution_bar_close=at)
+@@ -49,0 +52 @@
++                realized+=trades[-1]['gross_R']
+@@ -57,0 +61,18 @@
++        if confirm is not None:
++            original,ix,event=confirm
++            event['confirmation_time']=at
++            event['confirmation_close']=b['Close']
++            adjacent=at==original['at']+STEP
++            in_t1=600<=at.hour*60+at.minute<1080
++            side=original['Signal'];level=original['PriorHigh'] if side>0 else original['PriorLow']
++            passed=side*(b['Close']-original['Close'])>0 and side*(b['Close']-level)>0
++            event['confirmation_adjacent']=adjacent
++            event['confirmation_in_T1']=in_t1
++            event['confirmation_price_pass']=passed
++            if not adjacent:event['reason']='MISSING_ADJACENT_CONFIRMATION'
++            elif not in_t1:event['reason']='CONFIRMATION_OUTSIDE_T1'
++            elif not passed:event['reason']='CONFIRMATION_FAILED'
++            else:
++                event.update(reason='PENDING_CONFIRMED_OPEN',ready_time=at)
++                pending=(original,ix,event)
++            confirm=None
+@@ -59 +80 @@
+-            allowed=600<=at.hour*60+at.minute<1080;busy=q is not None;accepted=allowed and not busy
++            allowed=600<=at.hour*60+at.minute<1080;busy=q is not None;reserved=pending is not None;accepted=allowed and not busy and not reserved
+@@ -62 +83 @@
+-            reason='ACCEPTED' if accepted else 'OUTSIDE_T1_AND_OCCUPIED' if busy and not allowed else 'POSITION_OCCUPIED' if busy else 'OUTSIDE_T1'
++            reason='ACCEPTED' if accepted else 'CONFIRMATION_ENTRY_RESERVED' if reserved else 'OUTSIDE_T1_AND_OCCUPIED' if busy and not allowed else 'POSITION_OCCUPIED' if busy else 'OUTSIDE_T1'
+@@ -63,0 +85,2 @@
++            level=b['PriorHigh'] if b['Signal']>0 else b['PriorLow']
++            row.update(signal_id=symbol+'|'+at.isoformat()+'|'+row['direction'],breakout_ATR=b['Signal']*(b['Close']-level)/b['ATR'],pending_reserved=reserved,stretched_delay=mode=='CONFIRM' and b['Signal']*(b['Close']-level)/b['ATR']>=.5,ready_time=at,confirmation_time=None,confirmation_close=None,confirmation_adjacent=None,confirmation_in_T1=None,confirmation_price_pass=None,actual_entry_time=None)
+@@ -66,4 +89,5 @@
+-                if mode=='SIGNAL_CLOSE':q=enter(b,b['Close'],i,tid)
+-                else:
+-                    row.update(reason='PENDING_NEXT_OPEN',entry_accepted=False,entry_price=None,initial_stop=None)
+-                    pending=(b,i,row)
++                row.update(reason='PENDING_CONFIRMATION' if row['stretched_delay'] else 'PENDING_NEXT_OPEN',entry_accepted=False,entry_price=None,initial_stop=None)
++                if row['stretched_delay']:confirm=(b,i,row)
++                else:pending=(b,i,row)
++        unrealized=q.side*(b['Close']-q.entry)/q.risk if q else 0.
++        marks.append(dict(instrument=symbol,variant=mode,at=at,gross_realized_R=realized,gross_unrealized_R=unrealized,gross_MTM_R=realized+unrealized,position_trade_id=q.trade_id if q else None,waiting_signal_id=(pending or confirm)[2]['signal_id'] if pending or confirm else None,waiting_stage='ENTRY_OPEN' if pending else 'CONFIRMATION_CLOSE' if confirm else None))
+@@ -71,0 +96 @@
++    if confirm:confirm[2]['reason']='UNRESOLVED_CONFIRMATION_END_OF_DATA'
+@@ -74 +99 @@
+-    return dict(trades=trades,signals=signals,stops=stops,snapshots=snapshots,OPEN=opened,occupancy=dict(instrument=symbol,model=model,observed_bars=len(bars),stop_checked_bars=busy_bars,denominator=len(bars)-1,occupancy=busy_bars/(len(bars)-1) if len(bars)>1 else None))
++    return dict(marks=marks,trades=trades,signals=signals,stops=stops,snapshots=snapshots,OPEN=opened,occupancy=dict(instrument=symbol,model=model,observed_bars=len(bars),stop_checked_bars=busy_bars,denominator=len(bars)-1,occupancy=busy_bars/(len(bars)-1) if len(bars)>1 else None))

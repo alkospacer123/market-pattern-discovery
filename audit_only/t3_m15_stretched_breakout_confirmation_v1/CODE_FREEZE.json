@@ -1,0 +1,23 @@
+{
+  "code_commit": "577f4964ea9b8eb6efb18f0f3e728e44428fda74",
+  "files": {
+    "DATA_DICTIONARY_RU.md": "a413253ca82794ab737287e0f51b6a32bdd90649b3597dd72dc5fa68c03d364b",
+    "ENGINE_LINEAGE.patch": "6109e8344bfc0e0a01464b3324b0e593f831b2019b2341782d63377e9ffd000d",
+    "PROTOCOL_RU.md": "8100e9282d09a97d4188d1cc41acc2f44e416cfbf28d727b2b00843fdff7d26e",
+    "README.md": "0a398030d596c6856c1f4b4daf15babdd23e4a7c3fd868d6107f9c6bb7104577",
+    "analysis.py": "7a443296b59dee57101ea21ea987a6c5ce4a8467a30ff9f7e04130332fd7380d",
+    "control.py": "a5e0296595ef94652f224bc0114d370753cb6feb457da85ae745d94c085ebc7f",
+    "engine.py": "79b8e907f4ca7048cd23eb4f15f198d43d71bb94b7c4a2a4cc4c46602e51c610",
+    "io_utils.py": "4057c96f8c09e89ff68e181ac70d243362b19d2a64baa03d800c767b897c9b9f",
+    "repeat.py": "55c42814ab0a4bba4422deda64abf41443cbf97171ccfab79a429b9194217244",
+    "report.py": "ca1a892fa391e4d485f8a77faa1926bb57844241684288c507aa054b9fa3e5e2",
+    "requirements.txt": "50bd36afe0a4a4950f51db01fddfedc5d16814a1664c8a21a02e7c247b481bda",
+    "run.py": "246e9cb90bc9ab304db710005c9cff095b7767eac528f25108330fd2c5c05664",
+    "stats_verifier.py": "50949c68c77ea62c7024abfa5718ebbde55267f967cfff2ce788638087f9252d",
+    "support.py": "eafef65e4e571549b3784a3f1945375303daecceb73ba1eda90c4f5726bcc554",
+    "test_contract.py": "61483f130877745fb1e41ad4b2ae1c349838b00d1eebe4bb7439d35b8dfdbdb9",
+    "verifier.py": "2591d88c0ef5012d0b395f9a5a6cecc53bde1239f3e307d415694ac92c3e94b8"
+  },
+  "protocol_commit": "6cb232e1",
+  "scope": "Final code freeze before first plus two fresh full processes; only CONTROL and one predefined CONFIRM development replay; no tuning"
+}

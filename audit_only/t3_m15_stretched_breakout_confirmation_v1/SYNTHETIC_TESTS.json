@@ -1,0 +1,8 @@
+{
+  "both_execution_algorithms": true,
+  "causal_features": "prefix invariance and future OHLC suffix perturbation",
+  "errors": 0,
+  "failures": 0,
+  "status": "PASS",
+  "tests": 18
+}
