@@ -11,7 +11,7 @@
 
 ## Приоритетная исследовательская программа STS
 
-[STS — Shallow Trend System](research/sts/README.md): открытое семейство модулей продолжения тренда, единый риск, долговременная замена модулей по итогам квартальных тестов. [STS roadmap](research/sts/STS_ROADMAP.md) и [проверка A=V20 / B=Shallow-only / C=STS](research/sts/STS_TEST_PROTOCOL.md). Это отдельная подпрограмма внутри действующего TRL Roadmap, **без изменений LIVE**.
+[STS — Shallow Trend System](research/sts/README.md): три самостоятельные стратегии семейства Shallow, три отдельных счёта и капитала, сменяемые модули по итогам квартальных тестов. [STS roadmap](research/sts/STS_ROADMAP.md) и [проверка A=V20 / B=Shallow-only / C=STS](research/sts/STS_TEST_PROTOCOL.md). Это отдельная подпрограмма внутри действующего TRL Roadmap, **без изменений LIVE**.
 
 ## Регламент
 
