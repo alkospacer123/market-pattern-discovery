@@ -53,3 +53,11 @@
 [Подробный R046](TRL_R_2026_046_Inside_and_Missed_Trends_Research.md) · [замороженные правила Drive](experiments/r046/FROZEN_PROTOCOL.md) · [Journal](../../journal/2026-11-11-sts-r046-inside-missed-trends.md). Из пользовательских M15 CSV за 9–10 ноября frozen Classic/OBV/Inside не дали raw сигналов по USD/CNY/IMOEX (по GLD frozen Shallow 3 и OBV 2); CSV обрываются 11.11 в 08:30, скрин 17:55 вне данных. Исследовательский Drive Continuation находит ноябрьские breakouts без коррекции, но исторически GO Oct TP6 PF1,506, 2026 YTD убыточен, при замене Inside портфельная DD примерно удваивается — `REJECT_CORE`.
 
 Отдельно Shallow90k TP6+Inside45k TP6: +485202 ₽ / M15DD21827 ₽; с Inside BASE +510709 ₽ / M15DD22907 ₽, Oct GO, против V20 60/30/45 TP6 +422224 ₽ / M15DD18667 ₽. Inside положителен в 3/6 отрицательных месяцев Shallow90, не является постоянной защитой. **Двухсчётный Shallow+Inside — CANDIDATE_FOR_FORWARD, но LIVE V20 пока неизменна; V20 не объявлена оптимальной моделью.**
+
+## R047 — Missed Trend Opportunities: почему пропускаются тренды
+
+[Полный отчёт R047](TRL_R_2026_047_Missed_Trend_Opportunities.md) · [Фиксированный протокол](experiments/r047/FROZEN_PROTOCOL.md) · [Офлайн-код и аудит](experiments/r047/REPRODUCE_RU.md) · [Journal](../../journal/2026-11-11-sts-r047-missed-trends.md).
+
+Из 779 ex-post трендовых эпизодов R031 **366** без принятого Classic-входа: **334** не имели RAW сигнала, **32** были отклонены исследовательскими ограничениями. Из 366 эпизодов **196** не охвачены даже четырьмя предыдущими альтернативами. Разметка ex-post — не causal trading label и не OOS.
+
+Новые замороженные кандидаты: Early Trend Resume (до полного EMA50/200 подтверждения) и Tight Drift Break (короткая направленная пауза без обычного отката). В 3×45k Oct GO TP6 V20 +381608 ₽, PF1,845, closed DD11775 ₽; ни одна замена на эти модули не улучшила экономику. **Early 822 денежные сделки +13893 ₽ PF1,058** (C2 отрицательный), хотя в каталоге R031 найдено 156 пропущенных ex-post событий. **Tight 21 сделка +9906 ₽ PF2,757**, но лишь 1/366 пропущенных эпизодов и результат отрицательный после исключения top5 выигрышей. Решение: EARLY_REJECT_CORE / DRIFT_ARCHIVE_FORWARD / LIVE_UNCHANGED.
