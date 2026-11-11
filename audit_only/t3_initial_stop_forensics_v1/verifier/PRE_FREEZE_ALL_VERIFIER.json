@@ -1,0 +1,40 @@
+{
+  "arithmetic": {
+    "fields_checked": 916459,
+    "max_abs_numeric_error": 1.1368683772161603e-13,
+    "method": "Fresh CSV/gzip reads; Decimal trade returns and C1; stdlib portfolio/MTM, monthly signs/DD, lifecycle PF/expectancy/winloss/exit contributions/top5top10, no primary analysis imports",
+    "monthly_rows": 920,
+    "portfolio_rebuilt_from_per_symbol_marks": true,
+    "portfolio_rows": 179276,
+    "status": "PASS",
+    "summary_rows": 46
+  },
+  "execution": {
+    "cash_status": "NOT_VALIDATED",
+    "fields_checked": 6012733,
+    "independence": "Independent scalar position/occupancy/signal/stop/mark calculations; authenticated frozen features shared",
+    "marks": 633370,
+    "max_abs_numeric_error": 0.0,
+    "positions": 3645,
+    "provenance": "Adapted causal scalar state logic from PR518 verify.py and PR557 verify.py; no primary engine/accounting imports",
+    "signals": 13154,
+    "status": "PASS",
+    "stop_events": 75972,
+    "streams": 80
+  },
+  "forensics": {
+    "fields_checked": 54666,
+    "max_abs_numeric_error": 0.0,
+    "method": "Separate stdlib stop-first excursions, extrema bounds, first excursion times, early adverse and threshold recomputation from frozen bars; no primary forensics import",
+    "positions": 3645,
+    "status": "PASS"
+  },
+  "poststop": {
+    "fields_checked": 29812,
+    "method": "Independent stdlib parser reopens pinned raw OHLC blobs; observed trading-date windows, completeness/censoring, every threshold, touch and close crossings independently recomputed; no primary post-stop import",
+    "status": "PASS",
+    "windows": 1028
+  },
+  "stage": "PRE_FREEZE_INTEGRATION_ONLY",
+  "status": "PASS"
+}

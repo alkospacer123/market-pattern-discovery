@@ -1,0 +1,112 @@
+{
+  "CONTROL": {
+    "archive_all_state_fields": 4385052,
+    "calendar": "Frozen H1 reports UTC, frozen M15 MSK; primary new calendar tables MSK",
+    "checks": 1645,
+    "fields_checked": 202418,
+    "first_errors": [],
+    "h1_closed": 418,
+    "headline": {
+      "H1": {
+        "CLOSED": 355,
+        "INITIAL_STOP": 141,
+        "gross_PF": 2.206747303379261,
+        "gross_R": 172.41661951619082
+      },
+      "M15": {
+        "CLOSED": 1114,
+        "INITIAL_STOP": 356,
+        "gross_PF": 1.7784345758955205,
+        "gross_R": 390.44291793789307
+      }
+    },
+    "m15_closed": 1114,
+    "mismatches": 0,
+    "precision": "H1 per-trade equality at original 12 significant figures; M15 1e-8 absolute; aggregate 1e-8",
+    "status": "PASS"
+  },
+  "cash_status": "NOT_VALIDATED",
+  "code_sha256": {
+    "analyze.py": "4463a7889fb525f352e4f6156268dde576b1443cc73eccfc1bcdfa7f6743060a",
+    "common.py": "878260548db77f436f129f83e3639cd18f318868b08bf5e9c994895359ab7e21",
+    "engines.py": "0f9a71fe6e91d87dcea2e73cf6fe3f5efc6b7f6110371d10f7f832fdc2033514",
+    "forensics.py": "b0165c822345f783b2a0810fe6820cc02f85a4fcb39b119896f85eae01cb5561",
+    "gate.py": "08acad88f8111bf50cb658e3d0b2dfbd1ea4101b627e78afbd31fbff7b3da1f6",
+    "reconcile.py": "519de218078eb041cf4b3d1a241c2903eb266eb82ebddd2a1e1d48eefa31bc0c",
+    "repeat.py": "f947da91aed0ee67e28b9ce60fa381c4a8cf70f57eb418410eef101b254841e1",
+    "report.py": "69120c2f81112a691d9ea07557fd2964e7dbbea3525834927d9a0b9f0a708545",
+    "run.py": "5f61c34a18f1c0102b72c5d9117958545432d00866d999abf73acfe4e427d93c",
+    "test_synthetic.py": "42173180b084f803cc8db6c9dc93ebd8fecf1bc64d84b555c94976d7d60874b8",
+    "verifier/arithmetic_verifier.py": "04733ff7d88106eaa9c36a66e7b6eb95a7124041fdf5f3b9839b3162bc226633",
+    "verifier/check_all.py": "675818a6b8d7a1fd7566b6c1bee4da612e4a43c1e462b654d4d134d544dcefc6",
+    "verifier/comparison_verifier.py": "62102d62078f64f59fd67700ee1d701c4be7851ac9208bc140e617aeea34a6bc",
+    "verifier/forensics_verifier.py": "588cafde5b3c9e027fd6f012a66726af5f52873536e4bd879f192ee1c470fb83",
+    "verifier/replay_verifier.py": "55a632fddbe20d472914e6ef6b5cfa868f11d5044dac59532e936d5467e17444",
+    "verifier/source_control_receipt.py": "0ef4dc42b92a2adf0ed2a207e0ccb7d5118021d43c745b9a45d0a0daa129d423",
+    "verifier/verify.py": "5435363c8fad5b30fe7e1f8119011485df978bb405370cc17d4219d1cc6ea992"
+  },
+  "external_human_audit": "PENDING",
+  "h1_verdict": "SHORTER_STOPS_FAIL_PRIMARY_MONTHLY_CRITERION",
+  "independence": "Separate verifier agent; adapted archived scalar authority; not independent human signoff",
+  "independent_M15_features": {
+    "fields_checked": 2515452,
+    "max_abs_numeric_error": 4.440892098500626e-16,
+    "provenance": "Authenticated archived PR518 stdlib parser/feature_stream independently reopens source OHLC; no primary features imports",
+    "rows": 209621,
+    "status": "PASS"
+  },
+  "independent_arithmetic": {
+    "fields_checked": 916459,
+    "max_abs_numeric_error": 1.1368683772161603e-13,
+    "method": "Fresh CSV/gzip reads; Decimal trade returns and C1; stdlib portfolio/MTM, monthly signs/DD, lifecycle PF/expectancy/winloss/exit contributions/top5top10, no primary analysis imports",
+    "monthly_rows": 920,
+    "portfolio_rebuilt_from_per_symbol_marks": true,
+    "portfolio_rows": 179276,
+    "status": "PASS",
+    "summary_rows": 46
+  },
+  "independent_comparison_capital": {
+    "capital_rows": 3645,
+    "comparison_rows": 2110,
+    "fields_checked": 178156,
+    "large_winner_rows": 124,
+    "lost_winner_rows": 158,
+    "max_abs_numeric_error": 1.3642420526593924e-11,
+    "method": "Fresh CSV signal identity join; Decimal CONTROL-R0 exits; lost winners/newmissed/activation cohorts/ranks/profit shares; independent Decimal static-grid rounding/risk and unvalidated cash fields; fresh trace grid aggregation",
+    "new_missed_rows": 153,
+    "status": "PASS",
+    "stop_grid_groups": 160
+  },
+  "independent_forensics": {
+    "fields_checked": 94752,
+    "max_abs_numeric_error": 0.0,
+    "method": "Separate stdlib stop-first excursions, extrema bounds, first excursion times, early adverse and threshold recomputation from frozen bars; no primary forensics import",
+    "positions": 3645,
+    "status": "PASS"
+  },
+  "independent_post_stop": {
+    "fields_checked": 29812,
+    "method": "Independent stdlib parser reopens pinned raw OHLC blobs; observed trading-date windows, completeness/censoring, every threshold, touch and close crossings independently recomputed; no primary post-stop import",
+    "status": "PASS",
+    "windows": 1028
+  },
+  "independent_replay": {
+    "cash_status": "NOT_VALIDATED",
+    "fields_checked": 6012733,
+    "independence": "Independent scalar position/occupancy/signal/stop/mark calculations; authenticated frozen features shared",
+    "marks": 633370,
+    "max_abs_numeric_error": 0.0,
+    "positions": 3645,
+    "provenance": "Adapted causal scalar state logic from PR518 verify.py and PR557 verify.py; no primary engine/accounting imports",
+    "signals": 13154,
+    "status": "PASS",
+    "stop_events": 75972,
+    "streams": 80
+  },
+  "live_or_production_executed": false,
+  "m15_verdict": "SHORTER_STOP_FAILS_PRIMARY_MONTHLY_CRITERION",
+  "parameter_search": false,
+  "protocol_sha256": "c84b3488791387f79389629a661399429d55e0555f0d402d556bda7e15ac5561",
+  "status": "PASS_RESEARCH_CASH_NOT_VALIDATED",
+  "synthetic_tests": 30
+}

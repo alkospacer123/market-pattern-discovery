@@ -1,0 +1,26 @@
+{
+  "archive_all_state_fields": 4385052,
+  "calendar": "Frozen H1 reports UTC, frozen M15 MSK; primary new calendar tables MSK",
+  "checks": 1645,
+  "fields_checked": 202418,
+  "first_errors": [],
+  "h1_closed": 418,
+  "headline": {
+    "H1": {
+      "CLOSED": 355,
+      "INITIAL_STOP": 141,
+      "gross_PF": 2.206747303379261,
+      "gross_R": 172.41661951619082
+    },
+    "M15": {
+      "CLOSED": 1114,
+      "INITIAL_STOP": 356,
+      "gross_PF": 1.7784345758955205,
+      "gross_R": 390.44291793789307
+    }
+  },
+  "m15_closed": 1114,
+  "mismatches": 0,
+  "precision": "H1 per-trade equality at original 12 significant figures; M15 1e-8 absolute; aggregate 1e-8",
+  "status": "PASS"
+}

@@ -1,0 +1,22 @@
+{
+  "execution": {
+    "cash_status": "NOT_VALIDATED",
+    "fields_checked": 2688077,
+    "independence": "Independent scalar position/occupancy/signal/stop/mark calculations; authenticated frozen features shared",
+    "marks": 280997,
+    "max_abs_numeric_error": 0.0,
+    "positions": 1536,
+    "provenance": "Adapted causal scalar state logic from PR518 verify.py and PR557 verify.py; no primary engine/accounting imports",
+    "signals": 5829,
+    "status": "PASS",
+    "stop_events": 36444,
+    "streams": 28
+  },
+  "m15_features": {
+    "fields_checked": 2515452,
+    "max_abs_numeric_error": 4.440892098500626e-16,
+    "provenance": "Authenticated archived PR518 stdlib parser/feature_stream independently reopens source OHLC; no primary features imports",
+    "rows": 209621,
+    "status": "PASS"
+  }
+}

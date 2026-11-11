@@ -1,0 +1,21 @@
+{
+  "status": "REUSED_FROZEN_CAUSAL_ENGINES",
+  "changes": "Only source path git-blob reading, fixed initial stop_atr argument and allowed variant dispatcher; reconcile import paths. Frozen features, entry, stop, gap, trail and occupancy order preserved. Archived partial-TP helper is unreachable for every allowed variant.",
+  "files": {
+    "common.py": {
+      "archived_sha256": "878260548db77f436f129f83e3639cd18f318868b08bf5e9c994895359ab7e21",
+      "new_sha256": "878260548db77f436f129f83e3639cd18f318868b08bf5e9c994895359ab7e21",
+      "identical": true
+    },
+    "engines.py": {
+      "archived_sha256": "4067065bcf1436d3007eecd8721697cef60f46414d0d99a4260b2c23f1ae7fc1",
+      "new_sha256": "0f9a71fe6e91d87dcea2e73cf6fe3f5efc6b7f6110371d10f7f832fdc2033514",
+      "identical": false
+    },
+    "reconcile.py": {
+      "archived_sha256": "c8af2111d57ce93cd0bdc14e914a8d1009ecdac36e28565428e1660f6aca2e43",
+      "new_sha256": "519de218078eb041cf4b3d1a241c2903eb266eb82ebddd2a1e1d48eefa31bc0c",
+      "identical": false
+    }
+  }
+}
