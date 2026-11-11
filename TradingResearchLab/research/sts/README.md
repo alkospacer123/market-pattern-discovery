@@ -18,5 +18,6 @@ STS — долгосрочное (5–20 лет) исследовательск�
 - [Протокол равного сравнения A/B/C](STS_TEST_PROTOCOL.md)
 - [Реестр прошлых исследований](EVIDENCE_REGISTER.md)
 - [Первый Shallow-only cash/GO тест](EXPERIMENT_001_INITIAL_CASH_BENCHMARK.md)
+- [Воспроизводимый offline-скрипт STS-EXP-001](experiments/sts_exp_001_replay.py)\n
 
 Это **подпрограмма** уже утверждённого TRL Roadmap 1.0, без добавления этапов, отдельного монитора и дублирования OHLCV/тестеров. Никаких изменений торговых токенов, FINAM, production SQLite, заявок, Windows Tasks и рабочих роботов.
