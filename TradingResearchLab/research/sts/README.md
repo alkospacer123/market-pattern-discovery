@@ -39,3 +39,7 @@
 ## Новое исследование 11.11.2026: R042
 
 [TRL-R-2026-042: Reclaim Retest и Volume Dry Reset](TRL_R_2026_042_STS_New_Modules_Research.md) — два заранее зафиксированных новых способа коррекции. Три отдельных счёта по 45k/500k/1m; замены OBV и Inside проверены на C1, GO Oct/Nov, BASE/TP6+защита. Ни один модуль пока не пригоден для замены: RETEST REJECT, DRY ARCHIVE_FORWARD_ONLY. [Замороженный протокол](experiments/r042/FROZEN_PROTOCOL.md). Полный воспроизводимый ZIP с офлайн-скриптами и историческими данными сохранён как артефакт исследования. LIVE неизменён.
+
+## R043 — H1/H4 и двухдневная коррекция (11.11.2026)
+
+[Отчёт R043](TRL_R_2026_043_STS_MTF_Staircase_Research.md) · [Frozen protocol](experiments/r043/FROZEN_PROTOCOL.md) · [Воспроизводимый код](experiments/r043/run_r043.py) · [Аудит](experiments/r043/audit_r043.py). Проверены две новые структуры: H1/H4 Ledge (313 BASE-сделок, PF R1,628) и Multi-Session Staircase (22 BASE, PF R2,826, но 2024/2026 убыточные и top5-зависимость). В трёх отдельных счетах ни одна не оправдала замену OBV/Inside. `NO_REPLACEMENT / LIVE_UNCHANGED`. Следующая проверка только с реальной новой независимой информацией, без подбора на старой истории.
