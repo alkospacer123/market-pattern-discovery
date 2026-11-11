@@ -31,3 +31,7 @@ Shallow-only с общим банком — *отдельная альтерна
 ## R042 — Reclaim Retest и Volume Dry Reset (11.11.2026)
 
 [Полный отчёт](TRL_R_2026_042_STS_New_Modules_Research.md) и [протокол до прогона](experiments/r042/FROZEN_PROTOCOL.md): RETEST BASE 25 сделок/PF R1,226; DRY RESET BASE 68 сделок/PF R2,423. GO Oct, TP6+защита 3×45k: действующий V20 +381 608 ₽ / PF ₽1,845 / closed DD11 775 ₽; Classic+OBV+DRY +354 154 ₽ / PF1,841 / DD12 956 ₽; Classic+DRY+Inside +274 067 ₽ / PF1,930 / DD11 049 ₽. DRY пересекается с однонаправленной Classic-позицией в 33/68 случаях; после удаления 5 денежных выигрышей P&L -486 ₽; в убыточные месяцы Classic -982 ₽. Статичные ГО и C1, не TRUE OOS. Независимый loop-аудит 101 сырого сигнала PASS. **RETEST=REJECT_CORE / DRY=ARCHIVE_FOR_FORWARD / NO_REPLACEMENT / LIVE_UNCHANGED.**
+
+## R043 — H1/H4 Ledge и Multi-Session Staircase, 11.11.2026
+
+[Отчёт R043](TRL_R_2026_043_STS_MTF_Staircase_Research.md), [исходные правила](experiments/r043/FROZEN_PROTOCOL.md), независимый audit 321 cash trades PASS. MTF Ledge BASE 313 сделок PF R1,628; TP6+protect 316 PF R1,500; 2025 TP6 PF R1,214. Staircase BASE 22 сделки PF R2,826; убыточные 2024/2026, после пяти лучших −8,22R. Три собственных счёта 45k, GO Oct, TP6: V20 +381608 ₽ / PF ₽1,845 / DD11775 ₽; замена Inside на MTF +382499 ₽ / PF1,762 / DD14651 ₽. Остальные замены хуже по совокупности. Статичные GO/C1, closed DD не MTM, **НЕ TRUE OOS**. **Решение** `NO_REPLACEMENT / LIVE_UNCHANGED`, Staircase только архив будущего prospective.
