@@ -1,0 +1,248 @@
+{
+  "availability": "All feature_available_at == signal Close; all context_available_at <= signal",
+  "checks": [
+    {
+      "cut": "2023-02-21T00:00:00+03:00",
+      "future_suffix_price_multiplier": 1.03125,
+      "instrument": "USDRUBF",
+      "midnight_boundary": true,
+      "prefix_signal_rows": 1,
+      "publication_boundary": false,
+      "status": "PASS",
+      "system": "H1"
+    },
+    {
+      "cut": "2023-04-06T12:00:00+03:00",
+      "future_suffix_price_multiplier": 1.03125,
+      "instrument": "USDRUBF",
+      "midnight_boundary": false,
+      "prefix_signal_rows": 13,
+      "publication_boundary": true,
+      "status": "PASS",
+      "system": "H1"
+    },
+    {
+      "cut": "2024-11-27T13:00:00+03:00",
+      "future_suffix_price_multiplier": 1.03125,
+      "instrument": "USDRUBF",
+      "midnight_boundary": false,
+      "prefix_signal_rows": 212,
+      "publication_boundary": false,
+      "status": "PASS",
+      "system": "H1"
+    },
+    {
+      "cut": "2023-02-23T00:00:00+03:00",
+      "future_suffix_price_multiplier": 1.03125,
+      "instrument": "CNYRUBF",
+      "midnight_boundary": true,
+      "prefix_signal_rows": 2,
+      "publication_boundary": false,
+      "status": "PASS",
+      "system": "H1"
+    },
+    {
+      "cut": "2023-03-17T20:00:00+03:00",
+      "future_suffix_price_multiplier": 1.03125,
+      "instrument": "CNYRUBF",
+      "midnight_boundary": false,
+      "prefix_signal_rows": 5,
+      "publication_boundary": true,
+      "status": "PASS",
+      "system": "H1"
+    },
+    {
+      "cut": "2024-11-26T18:00:00+03:00",
+      "future_suffix_price_multiplier": 1.03125,
+      "instrument": "CNYRUBF",
+      "midnight_boundary": false,
+      "prefix_signal_rows": 138,
+      "publication_boundary": false,
+      "status": "PASS",
+      "system": "H1"
+    },
+    {
+      "cut": "2023-09-19T00:00:00+03:00",
+      "future_suffix_price_multiplier": 1.03125,
+      "instrument": "GLDRUBF",
+      "midnight_boundary": true,
+      "prefix_signal_rows": 1,
+      "publication_boundary": false,
+      "status": "PASS",
+      "system": "H1"
+    },
+    {
+      "cut": "2023-11-20T12:00:00+03:00",
+      "future_suffix_price_multiplier": 1.03125,
+      "instrument": "GLDRUBF",
+      "midnight_boundary": false,
+      "prefix_signal_rows": 2,
+      "publication_boundary": true,
+      "status": "PASS",
+      "system": "H1"
+    },
+    {
+      "cut": "2024-11-27T10:00:00+03:00",
+      "future_suffix_price_multiplier": 1.03125,
+      "instrument": "GLDRUBF",
+      "midnight_boundary": false,
+      "prefix_signal_rows": 122,
+      "publication_boundary": false,
+      "status": "PASS",
+      "system": "H1"
+    },
+    {
+      "cut": "2024-01-09T19:00:00+03:00",
+      "future_suffix_price_multiplier": 1.03125,
+      "instrument": "IMOEXF",
+      "midnight_boundary": false,
+      "prefix_signal_rows": 1,
+      "publication_boundary": true,
+      "status": "PASS",
+      "system": "H1"
+    },
+    {
+      "cut": "2024-01-10T00:00:00+03:00",
+      "future_suffix_price_multiplier": 1.03125,
+      "instrument": "IMOEXF",
+      "midnight_boundary": true,
+      "prefix_signal_rows": 1,
+      "publication_boundary": false,
+      "status": "PASS",
+      "system": "H1"
+    },
+    {
+      "cut": "2024-11-26T16:00:00+03:00",
+      "future_suffix_price_multiplier": 1.03125,
+      "instrument": "IMOEXF",
+      "midnight_boundary": false,
+      "prefix_signal_rows": 105,
+      "publication_boundary": false,
+      "status": "PASS",
+      "system": "H1"
+    },
+    {
+      "cut": "2023-01-12T10:45:00+03:00",
+      "future_suffix_price_multiplier": 1.03125,
+      "instrument": "USDRUBF",
+      "midnight_boundary": false,
+      "prefix_signal_rows": 1,
+      "publication_boundary": true,
+      "status": "PASS",
+      "system": "M15"
+    },
+    {
+      "cut": "2023-01-13T00:00:00+03:00",
+      "future_suffix_price_multiplier": 1.03125,
+      "instrument": "USDRUBF",
+      "midnight_boundary": true,
+      "prefix_signal_rows": 2,
+      "publication_boundary": false,
+      "status": "PASS",
+      "system": "M15"
+    },
+    {
+      "cut": "2024-12-06T16:45:00+03:00",
+      "future_suffix_price_multiplier": 1.03125,
+      "instrument": "USDRUBF",
+      "midnight_boundary": false,
+      "prefix_signal_rows": 608,
+      "publication_boundary": false,
+      "status": "PASS",
+      "system": "M15"
+    },
+    {
+      "cut": "2023-01-13T20:45:00+03:00",
+      "future_suffix_price_multiplier": 1.03125,
+      "instrument": "CNYRUBF",
+      "midnight_boundary": false,
+      "prefix_signal_rows": 1,
+      "publication_boundary": true,
+      "status": "PASS",
+      "system": "M15"
+    },
+    {
+      "cut": "2023-01-14T00:00:00+03:00",
+      "future_suffix_price_multiplier": 1.03125,
+      "instrument": "CNYRUBF",
+      "midnight_boundary": true,
+      "prefix_signal_rows": 1,
+      "publication_boundary": false,
+      "status": "PASS",
+      "system": "M15"
+    },
+    {
+      "cut": "2024-12-23T16:00:00+03:00",
+      "future_suffix_price_multiplier": 1.03125,
+      "instrument": "CNYRUBF",
+      "midnight_boundary": false,
+      "prefix_signal_rows": 493,
+      "publication_boundary": false,
+      "status": "PASS",
+      "system": "M15"
+    },
+    {
+      "cut": "2023-07-19T10:30:00+03:00",
+      "future_suffix_price_multiplier": 1.03125,
+      "instrument": "GLDRUBF",
+      "midnight_boundary": false,
+      "prefix_signal_rows": 1,
+      "publication_boundary": true,
+      "status": "PASS",
+      "system": "M15"
+    },
+    {
+      "cut": "2023-07-21T00:00:00+03:00",
+      "future_suffix_price_multiplier": 1.03125,
+      "instrument": "GLDRUBF",
+      "midnight_boundary": true,
+      "prefix_signal_rows": 3,
+      "publication_boundary": false,
+      "status": "PASS",
+      "system": "M15"
+    },
+    {
+      "cut": "2024-12-12T22:30:00+03:00",
+      "future_suffix_price_multiplier": 1.03125,
+      "instrument": "GLDRUBF",
+      "midnight_boundary": false,
+      "prefix_signal_rows": 509,
+      "publication_boundary": false,
+      "status": "PASS",
+      "system": "M15"
+    },
+    {
+      "cut": "2023-12-01T00:00:00+03:00",
+      "future_suffix_price_multiplier": 1.03125,
+      "instrument": "IMOEXF",
+      "midnight_boundary": true,
+      "prefix_signal_rows": 1,
+      "publication_boundary": false,
+      "status": "PASS",
+      "system": "M15"
+    },
+    {
+      "cut": "2023-12-04T11:45:00+03:00",
+      "future_suffix_price_multiplier": 1.03125,
+      "instrument": "IMOEXF",
+      "midnight_boundary": false,
+      "prefix_signal_rows": 2,
+      "publication_boundary": true,
+      "status": "PASS",
+      "system": "M15"
+    },
+    {
+      "cut": "2024-12-30T12:00:00+03:00",
+      "future_suffix_price_multiplier": 1.03125,
+      "instrument": "IMOEXF",
+      "midnight_boundary": false,
+      "prefix_signal_rows": 379,
+      "publication_boundary": false,
+      "status": "PASS",
+      "system": "M15"
+    }
+  ],
+  "fields_compared": 192696,
+  "future_features": "No outcomes read; NEXT_OPEN gap kept outside ENTRY_FEATURES",
+  "status": "PASS"
+}

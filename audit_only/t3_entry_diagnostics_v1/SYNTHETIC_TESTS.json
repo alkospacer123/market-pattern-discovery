@@ -1,0 +1,14 @@
+{
+  "cases": [
+    "test_cluster_resampling_is_paired",
+    "test_context_ewm_warmup",
+    "test_ema_slope_uses_published_values",
+    "test_empty_bootstrap_is_missing",
+    "test_locked_year_midnight_msk",
+    "test_seed_and_cluster_size",
+    "test_signal_calendar_vs_open_label",
+    "test_wilder_atr_first_true_range_and_gap"
+  ],
+  "status": "PASS",
+  "tests": 8
+}

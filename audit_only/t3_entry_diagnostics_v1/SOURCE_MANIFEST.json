@@ -1,0 +1,2038 @@
+{
+  "H1_read_mode": "pinned git blob in memory; current checkout H1 is NOT used",
+  "M15_read_mode": "clean pinned checkout",
+  "archive_checks": [
+    {
+      "commit": "90a0a552c05f9ae280f4f2350fd013ea507ea00f",
+      "path": "audit_only/t3_initial_stop_forensics_v1/.gitignore",
+      "scope": "pr560",
+      "sha256": "7c0e3807a109f275f04fa607825e26c8d69f2e23f684cf4ca68e03df1173780a"
+    },
+    {
+      "commit": "90a0a552c05f9ae280f4f2350fd013ea507ea00f",
+      "path": "audit_only/t3_initial_stop_forensics_v1/AUDIT.json",
+      "scope": "pr560",
+      "sha256": "d4bae7360684347723745dad7d7dda996040fd5ddc80f280aa8083c4022f287f"
+    },
+    {
+      "commit": "90a0a552c05f9ae280f4f2350fd013ea507ea00f",
+      "path": "audit_only/t3_initial_stop_forensics_v1/CAPITAL_FEASIBILITY.csv",
+      "scope": "pr560",
+      "sha256": "e62ff33df66705477770b819828b063d04836007d9fe72a6c603f4e081279fc2"
+    },
+    {
+      "commit": "90a0a552c05f9ae280f4f2350fd013ea507ea00f",
+      "path": "audit_only/t3_initial_stop_forensics_v1/CAPITAL_FEASIBILITY.json",
+      "scope": "pr560",
+      "sha256": "6e62e820cef9d292a5faa6897b8fd65ce4ee5ff296a8ef1d8d9e4871906ba1e1"
+    },
+    {
+      "commit": "90a0a552c05f9ae280f4f2350fd013ea507ea00f",
+      "path": "audit_only/t3_initial_stop_forensics_v1/CODE_FREEZE.json",
+      "scope": "pr560",
+      "sha256": "40d3862969d1a287dd6cdbf6eaf64447ff85db19bb8afcc5895781343f0e98f0"
+    },
+    {
+      "commit": "90a0a552c05f9ae280f4f2350fd013ea507ea00f",
+      "path": "audit_only/t3_initial_stop_forensics_v1/CONTROL_GATE.json",
+      "scope": "pr560",
+      "sha256": "868e686bcd021e0642ab7b7b85138703d18f8e514b999dd41cf13a7168eba17e"
+    },
+    {
+      "commit": "90a0a552c05f9ae280f4f2350fd013ea507ea00f",
+      "path": "audit_only/t3_initial_stop_forensics_v1/CONTROL_RECONCILIATION.csv",
+      "scope": "pr560",
+      "sha256": "ba93632b1bd26e6fb2bfd5509fb48ad5ba976e13d166b602aca445b3b57caf53"
+    },
+    {
+      "commit": "90a0a552c05f9ae280f4f2350fd013ea507ea00f",
+      "path": "audit_only/t3_initial_stop_forensics_v1/CONTROL_RECONCILIATION.json",
+      "scope": "pr560",
+      "sha256": "bc91d55aa3362eba9da69ecc92867111ce19999f6e731c201f2e90fa2ff402cf"
+    },
+    {
+      "commit": "90a0a552c05f9ae280f4f2350fd013ea507ea00f",
+      "path": "audit_only/t3_initial_stop_forensics_v1/DATA_DICTIONARY_RU.md",
+      "scope": "pr560",
+      "sha256": "98dd0aaea2940508642aab4e666ef553a9e76d88669f29f32713d1d4cae624ae"
+    },
+    {
+      "commit": "90a0a552c05f9ae280f4f2350fd013ea507ea00f",
+      "path": "audit_only/t3_initial_stop_forensics_v1/ENGINE_LINEAGE.json",
+      "scope": "pr560",
+      "sha256": "eb63fae19f2500afbec867bfb5a828c2263f9cbef5ca0f549b2da554d16552c6"
+    },
+    {
+      "commit": "90a0a552c05f9ae280f4f2350fd013ea507ea00f",
+      "path": "audit_only/t3_initial_stop_forensics_v1/ENGINE_LINEAGE.patch",
+      "scope": "pr560",
+      "sha256": "88cb80831bd28ba5e59269cefb2ec430f933aa68509be2f095f51256f8a2efe2"
+    },
+    {
+      "commit": "90a0a552c05f9ae280f4f2350fd013ea507ea00f",
+      "path": "audit_only/t3_initial_stop_forensics_v1/FORENSIC_COUNTS.csv",
+      "scope": "pr560",
+      "sha256": "ec4974a06baa76e2b1eb2420a75af5948acd0ba46b1632bb7ce78f648d586009"
+    },
+    {
+      "commit": "90a0a552c05f9ae280f4f2350fd013ea507ea00f",
+      "path": "audit_only/t3_initial_stop_forensics_v1/H1_BAR_PATH.csv.gz",
+      "scope": "pr560",
+      "sha256": "fe01f3662b099a19c9f53e422a33e5d72137f9a5cf9b084e65035db7fc7b68e0"
+    },
+    {
+      "commit": "90a0a552c05f9ae280f4f2350fd013ea507ea00f",
+      "path": "audit_only/t3_initial_stop_forensics_v1/H1_MARKS.csv.gz",
+      "scope": "pr560",
+      "sha256": "d8c9843f01c73a8b0a2c093fd99672cf89e9b7bc801cacd2e529ed95559fe3de"
+    },
+    {
+      "commit": "90a0a552c05f9ae280f4f2350fd013ea507ea00f",
+      "path": "audit_only/t3_initial_stop_forensics_v1/H1_SIGNALS.csv.gz",
+      "scope": "pr560",
+      "sha256": "de87fc034bfa4bf9a7026d42ce7e3f0fe29a757567c5398160464ddfd1d1f503"
+    },
+    {
+      "commit": "90a0a552c05f9ae280f4f2350fd013ea507ea00f",
+      "path": "audit_only/t3_initial_stop_forensics_v1/H1_TRACE.csv.gz",
+      "scope": "pr560",
+      "sha256": "3671473b4d72e2e6ca050d72bfc17f492d34a651e164c7d2a1494b36d0ce3836"
+    },
+    {
+      "commit": "90a0a552c05f9ae280f4f2350fd013ea507ea00f",
+      "path": "audit_only/t3_initial_stop_forensics_v1/H1_TRADES.csv",
+      "scope": "pr560",
+      "sha256": "19ceca45787018681b15a844a479c9a1d3f0490ec0371cc91996f4689156f003"
+    },
+    {
+      "commit": "90a0a552c05f9ae280f4f2350fd013ea507ea00f",
+      "path": "audit_only/t3_initial_stop_forensics_v1/H1_TRADE_FORENSICS.csv",
+      "scope": "pr560",
+      "sha256": "3a5f56c898ba2b8a745c01a464e6570b8db35e10b379c918d17913dbfa3722d2"
+    },
+    {
+      "commit": "90a0a552c05f9ae280f4f2350fd013ea507ea00f",
+      "path": "audit_only/t3_initial_stop_forensics_v1/LARGE_WINNERS.csv",
+      "scope": "pr560",
+      "sha256": "f2c446b38266ebf830f05130b55000c686ee53e871b3f019566ebfac757f5568"
+    },
+    {
+      "commit": "90a0a552c05f9ae280f4f2350fd013ea507ea00f",
+      "path": "audit_only/t3_initial_stop_forensics_v1/LOST_WINNERS.csv",
+      "scope": "pr560",
+      "sha256": "5add84365821d2143a14517e310b3a9eea27e0504773a9314c2fe36f3f370c1a"
+    },
+    {
+      "commit": "90a0a552c05f9ae280f4f2350fd013ea507ea00f",
+      "path": "audit_only/t3_initial_stop_forensics_v1/M15_BAR_PATH.csv.gz",
+      "scope": "pr560",
+      "sha256": "6725441eff623841f3056fee0d0da6a5fe1e4443999bdb8cdc1d34dce400aabf"
+    },
+    {
+      "commit": "90a0a552c05f9ae280f4f2350fd013ea507ea00f",
+      "path": "audit_only/t3_initial_stop_forensics_v1/M15_MARKS.csv.gz",
+      "scope": "pr560",
+      "sha256": "e384ffcabe41721ab5fc6fa880800ffe0a33cba877ab6ed9bcfe24efd4c4ee5e"
+    },
+    {
+      "commit": "90a0a552c05f9ae280f4f2350fd013ea507ea00f",
+      "path": "audit_only/t3_initial_stop_forensics_v1/M15_SIGNALS.csv.gz",
+      "scope": "pr560",
+      "sha256": "c8eea8677fec5c3dfbbd1c2277cb0d0c1d93dec41f07427eca04b95332b95fce"
+    },
+    {
+      "commit": "90a0a552c05f9ae280f4f2350fd013ea507ea00f",
+      "path": "audit_only/t3_initial_stop_forensics_v1/M15_TRACE.csv.gz",
+      "scope": "pr560",
+      "sha256": "4b551cd05587fb0ba68149843bda62e9c79f5e7ba420c97f9e8654efb10e4c62"
+    },
+    {
+      "commit": "90a0a552c05f9ae280f4f2350fd013ea507ea00f",
+      "path": "audit_only/t3_initial_stop_forensics_v1/M15_TRADES.csv",
+      "scope": "pr560",
+      "sha256": "22625b93edc6c94fee2287e3e1877db95b3af16fb33a020d3f9289b954ef8524"
+    },
+    {
+      "commit": "90a0a552c05f9ae280f4f2350fd013ea507ea00f",
+      "path": "audit_only/t3_initial_stop_forensics_v1/M15_TRADE_FORENSICS.csv",
+      "scope": "pr560",
+      "sha256": "2db8ccebe3c1673a5ee1b6f57a0b0812cb90fc753f65da5ed737aecb2ea1eab4"
+    },
+    {
+      "commit": "90a0a552c05f9ae280f4f2350fd013ea507ea00f",
+      "path": "audit_only/t3_initial_stop_forensics_v1/MONTH_SIGN_TRANSITIONS.csv",
+      "scope": "pr560",
+      "sha256": "17a11ff426008cf150a876448003160ed31c45b79201f981535bbdce08d583ac"
+    },
+    {
+      "commit": "90a0a552c05f9ae280f4f2350fd013ea507ea00f",
+      "path": "audit_only/t3_initial_stop_forensics_v1/NEW_AND_MISSED_ENTRIES.csv",
+      "scope": "pr560",
+      "sha256": "50ebf575795944ab236f2ea4bb4b25bda8c4a0b3c82b3f46b2dcd6fd14d6fe3d"
+    },
+    {
+      "commit": "90a0a552c05f9ae280f4f2350fd013ea507ea00f",
+      "path": "audit_only/t3_initial_stop_forensics_v1/PORTFOLIO_CURVES.csv.gz",
+      "scope": "pr560",
+      "sha256": "77157c52c18670ac209a2c131bf10e15f08f0a640d570475178f0627b1347edd"
+    },
+    {
+      "commit": "90a0a552c05f9ae280f4f2350fd013ea507ea00f",
+      "path": "audit_only/t3_initial_stop_forensics_v1/POST_STOP_1D_2D.csv",
+      "scope": "pr560",
+      "sha256": "0b71fcc540144252d6b4b9ff035422212f54bfb906973789fdaaa78170e6ddcc"
+    },
+    {
+      "commit": "90a0a552c05f9ae280f4f2350fd013ea507ea00f",
+      "path": "audit_only/t3_initial_stop_forensics_v1/PROTOCOL_RU.md",
+      "scope": "pr560",
+      "sha256": "c84b3488791387f79389629a661399429d55e0555f0d402d556bda7e15ac5561"
+    },
+    {
+      "commit": "90a0a552c05f9ae280f4f2350fd013ea507ea00f",
+      "path": "audit_only/t3_initial_stop_forensics_v1/PUBLICATION_CHECK.json",
+      "scope": "pr560",
+      "sha256": "fefda071f4328b098be60ad653166b134982d281c71149fc31e493899780d5fd"
+    },
+    {
+      "commit": "90a0a552c05f9ae280f4f2350fd013ea507ea00f",
+      "path": "audit_only/t3_initial_stop_forensics_v1/README.md",
+      "scope": "pr560",
+      "sha256": "3f782b5223970dd5f0a763551d1f15c43399bc73a18a7a93c6825252805e603c"
+    },
+    {
+      "commit": "90a0a552c05f9ae280f4f2350fd013ea507ea00f",
+      "path": "audit_only/t3_initial_stop_forensics_v1/REPEATABILITY.json",
+      "scope": "pr560",
+      "sha256": "b1a6c6f0c556e7d1a6712b08f2b4a232b5d0c5d9722b2cd8b9260c4ddd3a74e1"
+    },
+    {
+      "commit": "90a0a552c05f9ae280f4f2350fd013ea507ea00f",
+      "path": "audit_only/t3_initial_stop_forensics_v1/REPORT_RU.md",
+      "scope": "pr560",
+      "sha256": "a0590b0603fbb3b1685355bc098e6d7c001b644268354488b1acb2908959ba89"
+    },
+    {
+      "commit": "90a0a552c05f9ae280f4f2350fd013ea507ea00f",
+      "path": "audit_only/t3_initial_stop_forensics_v1/SOURCE_MANIFEST.json",
+      "scope": "pr560",
+      "sha256": "64476ce107c8509bc8202175884da5bf151104d35d3f5f97676a47b1ef125610"
+    },
+    {
+      "commit": "90a0a552c05f9ae280f4f2350fd013ea507ea00f",
+      "path": "audit_only/t3_initial_stop_forensics_v1/STOP_GRID_SUMMARY.csv",
+      "scope": "pr560",
+      "sha256": "bf1277763f3477652f50875d4c5e86b78dc5384950cec2468cbc020d67dd17b6"
+    },
+    {
+      "commit": "90a0a552c05f9ae280f4f2350fd013ea507ea00f",
+      "path": "audit_only/t3_initial_stop_forensics_v1/STOP_VARIANT_MONTHLY.csv",
+      "scope": "pr560",
+      "sha256": "0bed97a566a894f687286d0ce16aa8bc4c357a76892e4e2b2f5f62773f295c9e"
+    },
+    {
+      "commit": "90a0a552c05f9ae280f4f2350fd013ea507ea00f",
+      "path": "audit_only/t3_initial_stop_forensics_v1/STOP_VARIANT_SUMMARY.csv",
+      "scope": "pr560",
+      "sha256": "3c3ec8b7bdefd81511558f2c987191c12095921d56b52afb2e061e8ea7730fe8"
+    },
+    {
+      "commit": "90a0a552c05f9ae280f4f2350fd013ea507ea00f",
+      "path": "audit_only/t3_initial_stop_forensics_v1/STOP_VARIANT_TRADE_COMPARISON.csv",
+      "scope": "pr560",
+      "sha256": "93a9fa822b8317f7c5796d199b8ca99bee32ce760d332c0e6e9047eec34ce318"
+    },
+    {
+      "commit": "90a0a552c05f9ae280f4f2350fd013ea507ea00f",
+      "path": "audit_only/t3_initial_stop_forensics_v1/SYNTHETIC_TESTS.json",
+      "scope": "pr560",
+      "sha256": "f9c28de6048d03f4edfb703d277f8fb0281f46787cd21446982e200020d89817"
+    },
+    {
+      "commit": "90a0a552c05f9ae280f4f2350fd013ea507ea00f",
+      "path": "audit_only/t3_initial_stop_forensics_v1/analyze.py",
+      "scope": "pr560",
+      "sha256": "4463a7889fb525f352e4f6156268dde576b1443cc73eccfc1bcdfa7f6743060a"
+    },
+    {
+      "commit": "90a0a552c05f9ae280f4f2350fd013ea507ea00f",
+      "path": "audit_only/t3_initial_stop_forensics_v1/common.py",
+      "scope": "pr560",
+      "sha256": "878260548db77f436f129f83e3639cd18f318868b08bf5e9c994895359ab7e21"
+    },
+    {
+      "commit": "90a0a552c05f9ae280f4f2350fd013ea507ea00f",
+      "path": "audit_only/t3_initial_stop_forensics_v1/engines.py",
+      "scope": "pr560",
+      "sha256": "0f9a71fe6e91d87dcea2e73cf6fe3f5efc6b7f6110371d10f7f832fdc2033514"
+    },
+    {
+      "commit": "90a0a552c05f9ae280f4f2350fd013ea507ea00f",
+      "path": "audit_only/t3_initial_stop_forensics_v1/forensics.py",
+      "scope": "pr560",
+      "sha256": "b0165c822345f783b2a0810fe6820cc02f85a4fcb39b119896f85eae01cb5561"
+    },
+    {
+      "commit": "90a0a552c05f9ae280f4f2350fd013ea507ea00f",
+      "path": "audit_only/t3_initial_stop_forensics_v1/gate.py",
+      "scope": "pr560",
+      "sha256": "08acad88f8111bf50cb658e3d0b2dfbd1ea4101b627e78afbd31fbff7b3da1f6"
+    },
+    {
+      "commit": "90a0a552c05f9ae280f4f2350fd013ea507ea00f",
+      "path": "audit_only/t3_initial_stop_forensics_v1/reconcile.py",
+      "scope": "pr560",
+      "sha256": "519de218078eb041cf4b3d1a241c2903eb266eb82ebddd2a1e1d48eefa31bc0c"
+    },
+    {
+      "commit": "90a0a552c05f9ae280f4f2350fd013ea507ea00f",
+      "path": "audit_only/t3_initial_stop_forensics_v1/repeat.py",
+      "scope": "pr560",
+      "sha256": "f947da91aed0ee67e28b9ce60fa381c4a8cf70f57eb418410eef101b254841e1"
+    },
+    {
+      "commit": "90a0a552c05f9ae280f4f2350fd013ea507ea00f",
+      "path": "audit_only/t3_initial_stop_forensics_v1/report.py",
+      "scope": "pr560",
+      "sha256": "69120c2f81112a691d9ea07557fd2964e7dbbea3525834927d9a0b9f0a708545"
+    },
+    {
+      "commit": "90a0a552c05f9ae280f4f2350fd013ea507ea00f",
+      "path": "audit_only/t3_initial_stop_forensics_v1/requirements.txt",
+      "scope": "pr560",
+      "sha256": "50bd36afe0a4a4950f51db01fddfedc5d16814a1664c8a21a02e7c247b481bda"
+    },
+    {
+      "commit": "90a0a552c05f9ae280f4f2350fd013ea507ea00f",
+      "path": "audit_only/t3_initial_stop_forensics_v1/run.py",
+      "scope": "pr560",
+      "sha256": "5f61c34a18f1c0102b72c5d9117958545432d00866d999abf73acfe4e427d93c"
+    },
+    {
+      "commit": "90a0a552c05f9ae280f4f2350fd013ea507ea00f",
+      "path": "audit_only/t3_initial_stop_forensics_v1/test_synthetic.py",
+      "scope": "pr560",
+      "sha256": "42173180b084f803cc8db6c9dc93ebd8fecf1bc64d84b555c94976d7d60874b8"
+    },
+    {
+      "commit": "90a0a552c05f9ae280f4f2350fd013ea507ea00f",
+      "path": "audit_only/t3_initial_stop_forensics_v1/verifier/ADDED_FIELDS_SYNTHETIC.json",
+      "scope": "pr560",
+      "sha256": "5b9dd753c2ada28c94e9cc16ad745c6d188d8ff3cc4a3d2a4ee1a3ee27522c0d"
+    },
+    {
+      "commit": "90a0a552c05f9ae280f4f2350fd013ea507ea00f",
+      "path": "audit_only/t3_initial_stop_forensics_v1/verifier/COMPARISON_CAPITAL_VERIFIER.json",
+      "scope": "pr560",
+      "sha256": "c69867b7bd75c90e6d8d1ddcb1b7749e2de5d75f0ab70cd69231b7b8675e80d1"
+    },
+    {
+      "commit": "90a0a552c05f9ae280f4f2350fd013ea507ea00f",
+      "path": "audit_only/t3_initial_stop_forensics_v1/verifier/FRESH_CONTROL_VERIFIER.json",
+      "scope": "pr560",
+      "sha256": "89b017eb0eafd1231f453e3c1c9310ea514bc56e0d702fbb23df804eaf8b9e9e"
+    },
+    {
+      "commit": "90a0a552c05f9ae280f4f2350fd013ea507ea00f",
+      "path": "audit_only/t3_initial_stop_forensics_v1/verifier/PRE_FREEZE_ALL_VERIFIER.json",
+      "scope": "pr560",
+      "sha256": "1fc6cfcbfaf2502af718e8543da20877aeb2b48a235e798c2b13863ad0b76c01"
+    },
+    {
+      "commit": "90a0a552c05f9ae280f4f2350fd013ea507ea00f",
+      "path": "audit_only/t3_initial_stop_forensics_v1/verifier/SOURCE_CONTROL_RECEIPT.json",
+      "scope": "pr560",
+      "sha256": "9b8ba320c327c255b593e83f2304806de6d443c032ece171d6b9bc6939bcde8a"
+    },
+    {
+      "commit": "90a0a552c05f9ae280f4f2350fd013ea507ea00f",
+      "path": "audit_only/t3_initial_stop_forensics_v1/verifier/arithmetic_verifier.py",
+      "scope": "pr560",
+      "sha256": "04733ff7d88106eaa9c36a66e7b6eb95a7124041fdf5f3b9839b3162bc226633"
+    },
+    {
+      "commit": "90a0a552c05f9ae280f4f2350fd013ea507ea00f",
+      "path": "audit_only/t3_initial_stop_forensics_v1/verifier/check_all.py",
+      "scope": "pr560",
+      "sha256": "675818a6b8d7a1fd7566b6c1bee4da612e4a43c1e462b654d4d134d544dcefc6"
+    },
+    {
+      "commit": "90a0a552c05f9ae280f4f2350fd013ea507ea00f",
+      "path": "audit_only/t3_initial_stop_forensics_v1/verifier/comparison_verifier.py",
+      "scope": "pr560",
+      "sha256": "62102d62078f64f59fd67700ee1d701c4be7851ac9208bc140e617aeea34a6bc"
+    },
+    {
+      "commit": "90a0a552c05f9ae280f4f2350fd013ea507ea00f",
+      "path": "audit_only/t3_initial_stop_forensics_v1/verifier/forensics_verifier.py",
+      "scope": "pr560",
+      "sha256": "588cafde5b3c9e027fd6f012a66726af5f52873536e4bd879f192ee1c470fb83"
+    },
+    {
+      "commit": "90a0a552c05f9ae280f4f2350fd013ea507ea00f",
+      "path": "audit_only/t3_initial_stop_forensics_v1/verifier/replay_verifier.py",
+      "scope": "pr560",
+      "sha256": "55a632fddbe20d472914e6ef6b5cfa868f11d5044dac59532e936d5467e17444"
+    },
+    {
+      "commit": "90a0a552c05f9ae280f4f2350fd013ea507ea00f",
+      "path": "audit_only/t3_initial_stop_forensics_v1/verifier/source_control_receipt.py",
+      "scope": "pr560",
+      "sha256": "0ef4dc42b92a2adf0ed2a207e0ccb7d5118021d43c745b9a45d0a0daa129d423"
+    },
+    {
+      "commit": "90a0a552c05f9ae280f4f2350fd013ea507ea00f",
+      "path": "audit_only/t3_initial_stop_forensics_v1/verifier/verify.py",
+      "scope": "pr560",
+      "sha256": "5435363c8fad5b30fe7e1f8119011485df978bb405370cc17d4219d1cc6ea992"
+    },
+    {
+      "commit": "5836971e7ff8e472d8128c675c4f837b40a036ef",
+      "path": "audit_only/t3_h1_m15_partial_tp_2r_50/AUDIT.json",
+      "scope": "pr557",
+      "sha256": "e806b00639d8ff4a529a5010fc83752629cc944a043c8fe761116a0b0e3b53f9"
+    },
+    {
+      "commit": "5836971e7ff8e472d8128c675c4f837b40a036ef",
+      "path": "audit_only/t3_h1_m15_partial_tp_2r_50/CODE_FREEZE.json",
+      "scope": "pr557",
+      "sha256": "e4edd61e38a6f3b0d2325c81f7b1222ed7488825b0228c92417f43faf6138347"
+    },
+    {
+      "commit": "5836971e7ff8e472d8128c675c4f837b40a036ef",
+      "path": "audit_only/t3_h1_m15_partial_tp_2r_50/CONTROL_GATE.json",
+      "scope": "pr557",
+      "sha256": "868e686bcd021e0642ab7b7b85138703d18f8e514b999dd41cf13a7168eba17e"
+    },
+    {
+      "commit": "5836971e7ff8e472d8128c675c4f837b40a036ef",
+      "path": "audit_only/t3_h1_m15_partial_tp_2r_50/CONTROL_RECONCILIATION.csv",
+      "scope": "pr557",
+      "sha256": "ba93632b1bd26e6fb2bfd5509fb48ad5ba976e13d166b602aca445b3b57caf53"
+    },
+    {
+      "commit": "5836971e7ff8e472d8128c675c4f837b40a036ef",
+      "path": "audit_only/t3_h1_m15_partial_tp_2r_50/DEVELOPMENT_NOTES_RU.md",
+      "scope": "pr557",
+      "sha256": "5411c5941d155c49a67bd96229b5d31473f7efeaa0c6749040db44ce89bd0021"
+    },
+    {
+      "commit": "5836971e7ff8e472d8128c675c4f837b40a036ef",
+      "path": "audit_only/t3_h1_m15_partial_tp_2r_50/EXECUTION_CORRECTION.json",
+      "scope": "pr557",
+      "sha256": "9a5b1baea298b8caa7782cd447d0734b5dca8e5b31ccffb50bc25405307f8906"
+    },
+    {
+      "commit": "5836971e7ff8e472d8128c675c4f837b40a036ef",
+      "path": "audit_only/t3_h1_m15_partial_tp_2r_50/EXPOSURE.csv",
+      "scope": "pr557",
+      "sha256": "843a0d1fd9cae3f5ead6ad2f9f8be2f42959b6a566ecb5a2573e1eb9c631bf55"
+    },
+    {
+      "commit": "5836971e7ff8e472d8128c675c4f837b40a036ef",
+      "path": "audit_only/t3_h1_m15_partial_tp_2r_50/FINAL_REVIEW.json",
+      "scope": "pr557",
+      "sha256": "6fcbc43ebed195246a1aff2b7e57da8d0bfb2f4145175cc98b371fffd694090b"
+    },
+    {
+      "commit": "5836971e7ff8e472d8128c675c4f837b40a036ef",
+      "path": "audit_only/t3_h1_m15_partial_tp_2r_50/H1_MARKS.csv.gz",
+      "scope": "pr557",
+      "sha256": "7b944ce3d7c95944d9ae08295fa4e1b2031faa358df95e12868288ab17e7e2ef"
+    },
+    {
+      "commit": "5836971e7ff8e472d8128c675c4f837b40a036ef",
+      "path": "audit_only/t3_h1_m15_partial_tp_2r_50/H1_MONTHLY.csv",
+      "scope": "pr557",
+      "sha256": "cb529bb2247a158200443e329c5a1b581229e998e7192d4f9ae6913db2ef1f2a"
+    },
+    {
+      "commit": "5836971e7ff8e472d8128c675c4f837b40a036ef",
+      "path": "audit_only/t3_h1_m15_partial_tp_2r_50/H1_SIGNALS.csv.gz",
+      "scope": "pr557",
+      "sha256": "fd91562bea559809973f01c41d6fe95a5466548dfc5a7c84ef21108c1ed6c6f4"
+    },
+    {
+      "commit": "5836971e7ff8e472d8128c675c4f837b40a036ef",
+      "path": "audit_only/t3_h1_m15_partial_tp_2r_50/H1_SUMMARY.csv",
+      "scope": "pr557",
+      "sha256": "b64d3c227e4efe2bff22b18b5c20ba41af6690dbfd55c79dfc579ae74b070113"
+    },
+    {
+      "commit": "5836971e7ff8e472d8128c675c4f837b40a036ef",
+      "path": "audit_only/t3_h1_m15_partial_tp_2r_50/H1_TRACE.csv.gz",
+      "scope": "pr557",
+      "sha256": "ed685ed7147f531426f52d75247c55b4bd169ca33329d94a03561954269148d4"
+    },
+    {
+      "commit": "5836971e7ff8e472d8128c675c4f837b40a036ef",
+      "path": "audit_only/t3_h1_m15_partial_tp_2r_50/H1_TRADES.csv",
+      "scope": "pr557",
+      "sha256": "1f22c46528275e164dd94bbe7331d853d18a9ce3febfbc41750df60973847c2b"
+    },
+    {
+      "commit": "5836971e7ff8e472d8128c675c4f837b40a036ef",
+      "path": "audit_only/t3_h1_m15_partial_tp_2r_50/INITIAL_CONTROL_GATE.json",
+      "scope": "pr557",
+      "sha256": "90450395cd5518c013cab8c9e22ad34964736469c40c7b66536488d5df5092e4"
+    },
+    {
+      "commit": "5836971e7ff8e472d8128c675c4f837b40a036ef",
+      "path": "audit_only/t3_h1_m15_partial_tp_2r_50/M15_MARKS.csv.gz",
+      "scope": "pr557",
+      "sha256": "3faea929daa1cde093ecb66e46b7ef8ac4ea1b2879cd604f976308936cabfb47"
+    },
+    {
+      "commit": "5836971e7ff8e472d8128c675c4f837b40a036ef",
+      "path": "audit_only/t3_h1_m15_partial_tp_2r_50/M15_MONTHLY.csv",
+      "scope": "pr557",
+      "sha256": "b9c7f434caa57896fbf1ee381f3321cf98688f3842d004b883b0cb04e726894a"
+    },
+    {
+      "commit": "5836971e7ff8e472d8128c675c4f837b40a036ef",
+      "path": "audit_only/t3_h1_m15_partial_tp_2r_50/M15_SIGNALS.csv.gz",
+      "scope": "pr557",
+      "sha256": "eb4f64a5b8acbff9a64fa62fb84d2ccb95bb49f50ae36ee2ed4819347cdeb9c6"
+    },
+    {
+      "commit": "5836971e7ff8e472d8128c675c4f837b40a036ef",
+      "path": "audit_only/t3_h1_m15_partial_tp_2r_50/M15_SUMMARY.csv",
+      "scope": "pr557",
+      "sha256": "41028785ed1931dbcc19bc8ae9a35b1406a816640c4f65358369ac6e99511a35"
+    },
+    {
+      "commit": "5836971e7ff8e472d8128c675c4f837b40a036ef",
+      "path": "audit_only/t3_h1_m15_partial_tp_2r_50/M15_TRACE.csv.gz",
+      "scope": "pr557",
+      "sha256": "1adaad61f364b09f3ec768942934734a0769328bedf7d4bfde888a3666fbdda2"
+    },
+    {
+      "commit": "5836971e7ff8e472d8128c675c4f837b40a036ef",
+      "path": "audit_only/t3_h1_m15_partial_tp_2r_50/M15_TRADES.csv",
+      "scope": "pr557",
+      "sha256": "80f5a7b1223f4728b68df0ef4a2fe4a5ead908c5b755c13cd516d135276993a3"
+    },
+    {
+      "commit": "5836971e7ff8e472d8128c675c4f837b40a036ef",
+      "path": "audit_only/t3_h1_m15_partial_tp_2r_50/MONTH_SIGN_TRANSITIONS.csv",
+      "scope": "pr557",
+      "sha256": "d5a8680f7d2562ffaecb36f6206a4e831323260cd8f3c771924c43ca807f228c"
+    },
+    {
+      "commit": "5836971e7ff8e472d8128c675c4f837b40a036ef",
+      "path": "audit_only/t3_h1_m15_partial_tp_2r_50/OPEN_BOUNDARIES.csv",
+      "scope": "pr557",
+      "sha256": "441f651da9cbf8906aef6abe04d5289992095140a0e127482384b2c622cf2b75"
+    },
+    {
+      "commit": "5836971e7ff8e472d8128c675c4f837b40a036ef",
+      "path": "audit_only/t3_h1_m15_partial_tp_2r_50/PARTIAL_EXECUTION_FEASIBILITY.csv",
+      "scope": "pr557",
+      "sha256": "0b6a18454143b2951d95b12a8c828c0bf5890b27ca46b9508d7ef5dfb651b528"
+    },
+    {
+      "commit": "5836971e7ff8e472d8128c675c4f837b40a036ef",
+      "path": "audit_only/t3_h1_m15_partial_tp_2r_50/PROTOCOL_RU.md",
+      "scope": "pr557",
+      "sha256": "2fe0bac4c49c9bb8480f804a13f35d4d2170ec87f8c3bb6e3914c0861d3c8981"
+    },
+    {
+      "commit": "5836971e7ff8e472d8128c675c4f837b40a036ef",
+      "path": "audit_only/t3_h1_m15_partial_tp_2r_50/PROTOCOL_V1_RU.md",
+      "scope": "pr557",
+      "sha256": "9ec06b4da908a8fb80441b8e6fff2a328f026eb56e7356973b8916ccd29f3e05"
+    },
+    {
+      "commit": "5836971e7ff8e472d8128c675c4f837b40a036ef",
+      "path": "audit_only/t3_h1_m15_partial_tp_2r_50/README.md",
+      "scope": "pr557",
+      "sha256": "9d6e564d780bdfc76ce90e310e9d09dbf790d4ddcdfb0c442d5b10e10f98f092"
+    },
+    {
+      "commit": "5836971e7ff8e472d8128c675c4f837b40a036ef",
+      "path": "audit_only/t3_h1_m15_partial_tp_2r_50/REPEATABILITY.json",
+      "scope": "pr557",
+      "sha256": "c040458472132efa8d43d815cd2f715fcbcfd3b1e239808098667c2e89b12c33"
+    },
+    {
+      "commit": "5836971e7ff8e472d8128c675c4f837b40a036ef",
+      "path": "audit_only/t3_h1_m15_partial_tp_2r_50/REPORT_RU.md",
+      "scope": "pr557",
+      "sha256": "ef2cb7fba4cb3b4767231b28a4750bd50e159d28e6577c777d4b8cadf5922d4f"
+    },
+    {
+      "commit": "5836971e7ff8e472d8128c675c4f837b40a036ef",
+      "path": "audit_only/t3_h1_m15_partial_tp_2r_50/SOURCE_MANIFEST.json",
+      "scope": "pr557",
+      "sha256": "6f9f59726784c20ba0bda6a4590afc6bdf31f39d593d175ae9c4c88002c8dac6"
+    },
+    {
+      "commit": "5836971e7ff8e472d8128c675c4f837b40a036ef",
+      "path": "audit_only/t3_h1_m15_partial_tp_2r_50/SYNTHETIC_TESTS.json",
+      "scope": "pr557",
+      "sha256": "e4aeaa79ae760dceab3c29d4930fc411cc5ff77ebcbdc65225efcaa6967e9ae7"
+    },
+    {
+      "commit": "5836971e7ff8e472d8128c675c4f837b40a036ef",
+      "path": "audit_only/t3_h1_m15_partial_tp_2r_50/WINNER_GIVEBACK.csv",
+      "scope": "pr557",
+      "sha256": "ff7780898979b0f305cacb8b7ae38672bb96450e5e2e5d70dc167da40d301a37"
+    },
+    {
+      "commit": "5836971e7ff8e472d8128c675c4f837b40a036ef",
+      "path": "audit_only/t3_h1_m15_partial_tp_2r_50/analyze.py",
+      "scope": "pr557",
+      "sha256": "5e1bc3255fbd8079301ee190a815c79d201f5dc60996f1e5825732d760a6721a"
+    },
+    {
+      "commit": "5836971e7ff8e472d8128c675c4f837b40a036ef",
+      "path": "audit_only/t3_h1_m15_partial_tp_2r_50/common.py",
+      "scope": "pr557",
+      "sha256": "878260548db77f436f129f83e3639cd18f318868b08bf5e9c994895359ab7e21"
+    },
+    {
+      "commit": "5836971e7ff8e472d8128c675c4f837b40a036ef",
+      "path": "audit_only/t3_h1_m15_partial_tp_2r_50/engines.py",
+      "scope": "pr557",
+      "sha256": "4067065bcf1436d3007eecd8721697cef60f46414d0d99a4260b2c23f1ae7fc1"
+    },
+    {
+      "commit": "5836971e7ff8e472d8128c675c4f837b40a036ef",
+      "path": "audit_only/t3_h1_m15_partial_tp_2r_50/reconcile.py",
+      "scope": "pr557",
+      "sha256": "c8af2111d57ce93cd0bdc14e914a8d1009ecdac36e28565428e1660f6aca2e43"
+    },
+    {
+      "commit": "5836971e7ff8e472d8128c675c4f837b40a036ef",
+      "path": "audit_only/t3_h1_m15_partial_tp_2r_50/repeat.py",
+      "scope": "pr557",
+      "sha256": "004f9fe8cd13add37c450679d7757760756fbd089611fa98870fd0b2381ea221"
+    },
+    {
+      "commit": "5836971e7ff8e472d8128c675c4f837b40a036ef",
+      "path": "audit_only/t3_h1_m15_partial_tp_2r_50/report.py",
+      "scope": "pr557",
+      "sha256": "e708c61a3eb79e5c9989f0dea514e7012944005412a0a492a3b9bd5519cbf327"
+    },
+    {
+      "commit": "5836971e7ff8e472d8128c675c4f837b40a036ef",
+      "path": "audit_only/t3_h1_m15_partial_tp_2r_50/requirements.txt",
+      "scope": "pr557",
+      "sha256": "50bd36afe0a4a4950f51db01fddfedc5d16814a1664c8a21a02e7c247b481bda"
+    },
+    {
+      "commit": "5836971e7ff8e472d8128c675c4f837b40a036ef",
+      "path": "audit_only/t3_h1_m15_partial_tp_2r_50/run.py",
+      "scope": "pr557",
+      "sha256": "0b194be4faf8d9760fb35eb77399ed51b27161a0f3db7de39e11fc06a9157c2c"
+    },
+    {
+      "commit": "5836971e7ff8e472d8128c675c4f837b40a036ef",
+      "path": "audit_only/t3_h1_m15_partial_tp_2r_50/sources.py",
+      "scope": "pr557",
+      "sha256": "b6ff9867d6cc6bf8de3e678d687a83ac98ab6ec6015eb9bb2270364ce3c85e56"
+    },
+    {
+      "commit": "5836971e7ff8e472d8128c675c4f837b40a036ef",
+      "path": "audit_only/t3_h1_m15_partial_tp_2r_50/test_synthetic.py",
+      "scope": "pr557",
+      "sha256": "383a6235135535c841c6f7b60f485ce46e4e7e3831b862fe20b4d1f4226ca585"
+    },
+    {
+      "commit": "5836971e7ff8e472d8128c675c4f837b40a036ef",
+      "path": "audit_only/t3_h1_m15_partial_tp_2r_50/verify.py",
+      "scope": "pr557",
+      "sha256": "6652f9a6fdcfb0fd9fbc17f96c7cf414017283297771cbe5c1bb4958eb018719"
+    },
+    {
+      "commit": "d85cf85083d6fea047a1a960c9ead441f7b4a6ed",
+      "path": "IntradayLab/t3_m15_t1_entry_retest_v1/FREEZE.json",
+      "scope": "pr518",
+      "sha256": "4be9a047497753e72aedc584389998619eceee373bcde2965e986a1abb9fb4eb"
+    },
+    {
+      "commit": "d85cf85083d6fea047a1a960c9ead441f7b4a6ed",
+      "path": "IntradayLab/t3_m15_t1_entry_retest_v1/FULL_RUN_LOG.txt",
+      "scope": "pr518",
+      "sha256": "81db7ee4fbc43bbbb26eae038401a3dc408823ad88e4b0c2f3f4c1d14fbdd304"
+    },
+    {
+      "commit": "d85cf85083d6fea047a1a960c9ead441f7b4a6ed",
+      "path": "IntradayLab/t3_m15_t1_entry_retest_v1/README.md",
+      "scope": "pr518",
+      "sha256": "eb3ae7a6701b3b3f0ea3869637d11c0d076828e61a36744c4070c90340d687c6"
+    },
+    {
+      "commit": "d85cf85083d6fea047a1a960c9ead441f7b4a6ed",
+      "path": "IntradayLab/t3_m15_t1_entry_retest_v1/SPEC.json",
+      "scope": "pr518",
+      "sha256": "477cbb4da585b3f024c9663908070cb85451d1dba3b538861c46a4680ec64d93"
+    },
+    {
+      "commit": "d85cf85083d6fea047a1a960c9ead441f7b4a6ed",
+      "path": "IntradayLab/t3_m15_t1_entry_retest_v1/independent_stats.py",
+      "scope": "pr518",
+      "sha256": "40f48d8088dbd97d58cc33b10c33310816c777852e887e8ee0af544059790656"
+    },
+    {
+      "commit": "d85cf85083d6fea047a1a960c9ead441f7b4a6ed",
+      "path": "IntradayLab/t3_m15_t1_entry_retest_v1/initial_git_context.json",
+      "scope": "pr518",
+      "sha256": "f566d58bf18d30fb086466a32598dd63e828fd8ad0d5c09ac5006ef76391160b"
+    },
+    {
+      "commit": "d85cf85083d6fea047a1a960c9ead441f7b4a6ed",
+      "path": "IntradayLab/t3_m15_t1_entry_retest_v1/io_utils.py",
+      "scope": "pr518",
+      "sha256": "4057c96f8c09e89ff68e181ac70d243362b19d2a64baa03d800c767b897c9b9f"
+    },
+    {
+      "commit": "d85cf85083d6fea047a1a960c9ead441f7b4a6ed",
+      "path": "IntradayLab/t3_m15_t1_entry_retest_v1/metrics.py",
+      "scope": "pr518",
+      "sha256": "2dc959a930f18116a25e843fc66ace7831d7d74f42d2ae76ab606a255b62c219"
+    },
+    {
+      "commit": "d85cf85083d6fea047a1a960c9ead441f7b4a6ed",
+      "path": "IntradayLab/t3_m15_t1_entry_retest_v1/primary.py",
+      "scope": "pr518",
+      "sha256": "df4054477f87947ff93e962a70590c20006c487d0c4ba70a58c425f07b6e14f8"
+    },
+    {
+      "commit": "d85cf85083d6fea047a1a960c9ead441f7b4a6ed",
+      "path": "IntradayLab/t3_m15_t1_entry_retest_v1/publication_check.json",
+      "scope": "pr518",
+      "sha256": "15b8fb0c74eed39355dc44c5bdd3dfc00da06bd9e58bdc49e1d859628a6a9518"
+    },
+    {
+      "commit": "d85cf85083d6fea047a1a960c9ead441f7b4a6ed",
+      "path": "IntradayLab/t3_m15_t1_entry_retest_v1/published.py",
+      "scope": "pr518",
+      "sha256": "7cc1c101cda598edc880a3b01c888e30cea8c977e792fc912f698be80dd56c66"
+    },
+    {
+      "commit": "d85cf85083d6fea047a1a960c9ead441f7b4a6ed",
+      "path": "IntradayLab/t3_m15_t1_entry_retest_v1/repeat.py",
+      "scope": "pr518",
+      "sha256": "7c0d814ccc4c650bf92ef7891acbc5de28a7c30b6b26bea9480a7ef1a74e9976"
+    },
+    {
+      "commit": "d85cf85083d6fea047a1a960c9ead441f7b4a6ed",
+      "path": "IntradayLab/t3_m15_t1_entry_retest_v1/repeatability.json",
+      "scope": "pr518",
+      "sha256": "3475818ab33351ec0e417b0e0843cf7dc139e02e486fb4c85f3ec5884ea27da9"
+    },
+    {
+      "commit": "d85cf85083d6fea047a1a960c9ead441f7b4a6ed",
+      "path": "IntradayLab/t3_m15_t1_entry_retest_v1/report.py",
+      "scope": "pr518",
+      "sha256": "b06afb90f7168261785a9f1cb275b79c2a05674a156c1d6472f35b21682973d3"
+    },
+    {
+      "commit": "d85cf85083d6fea047a1a960c9ead441f7b4a6ed",
+      "path": "IntradayLab/t3_m15_t1_entry_retest_v1/requirements.txt",
+      "scope": "pr518",
+      "sha256": "50bd36afe0a4a4950f51db01fddfedc5d16814a1664c8a21a02e7c247b481bda"
+    },
+    {
+      "commit": "d85cf85083d6fea047a1a960c9ead441f7b4a6ed",
+      "path": "IntradayLab/t3_m15_t1_entry_retest_v1/results/REPORT_RU.md",
+      "scope": "pr518",
+      "sha256": "1de99f052e8164aec776f8f1a795ba6cd9a0f0fb4ae923b74724eb13b5b323dc"
+    },
+    {
+      "commit": "d85cf85083d6fea047a1a960c9ead441f7b4a6ed",
+      "path": "IntradayLab/t3_m15_t1_entry_retest_v1/results/audit_result.json",
+      "scope": "pr518",
+      "sha256": "a24bf585a8527e9f83717323f4dc86dd19197abef6da8cfeaf7ec51c7dbbc8ee"
+    },
+    {
+      "commit": "d85cf85083d6fea047a1a960c9ead441f7b4a6ed",
+      "path": "IntradayLab/t3_m15_t1_entry_retest_v1/results/comparison_summary.csv",
+      "scope": "pr518",
+      "sha256": "a1d8b9240a455d5523711759db888a0f24de53b517fd0f6c929109f426529131"
+    },
+    {
+      "commit": "d85cf85083d6fea047a1a960c9ead441f7b4a6ed",
+      "path": "IntradayLab/t3_m15_t1_entry_retest_v1/results/difference_summary.json",
+      "scope": "pr518",
+      "sha256": "066978ea181c757d297aa8efb6fdeb9a64f932846e94dd21c8b7a3ef9a22537c"
+    },
+    {
+      "commit": "d85cf85083d6fea047a1a960c9ead441f7b4a6ed",
+      "path": "IntradayLab/t3_m15_t1_entry_retest_v1/results/entry_reason_counts.csv",
+      "scope": "pr518",
+      "sha256": "65177294d9968bb00f56fbdac1bb12b96e63ec45372870fe98e6eaee0c384a61"
+    },
+    {
+      "commit": "d85cf85083d6fea047a1a960c9ead441f7b4a6ed",
+      "path": "IntradayLab/t3_m15_t1_entry_retest_v1/results/features/CNYRUBF.csv.gz",
+      "scope": "pr518",
+      "sha256": "e112e3d2b0dd66674357f3fdb5a747724ff920fdca14805fd1bd4d5a0ccfa905"
+    },
+    {
+      "commit": "d85cf85083d6fea047a1a960c9ead441f7b4a6ed",
+      "path": "IntradayLab/t3_m15_t1_entry_retest_v1/results/features/GLDRUBF.csv.gz",
+      "scope": "pr518",
+      "sha256": "8bbb7674213390b3a4c6b7eea0aee5b692d97c2e5e9e2fde997354c83681be0d"
+    },
+    {
+      "commit": "d85cf85083d6fea047a1a960c9ead441f7b4a6ed",
+      "path": "IntradayLab/t3_m15_t1_entry_retest_v1/results/features/IMOEXF.csv.gz",
+      "scope": "pr518",
+      "sha256": "5230cb731b166923287bb013f740a3b8b71d61469fe5fe1f22510dfc3dfefd76"
+    },
+    {
+      "commit": "d85cf85083d6fea047a1a960c9ead441f7b4a6ed",
+      "path": "IntradayLab/t3_m15_t1_entry_retest_v1/results/features/USDRUBF.csv.gz",
+      "scope": "pr518",
+      "sha256": "2d881203892f3247a76bdc3e4da6d52eb28051ae497fb603a14373a3fdd4d130"
+    },
+    {
+      "commit": "d85cf85083d6fea047a1a960c9ead441f7b4a6ed",
+      "path": "IntradayLab/t3_m15_t1_entry_retest_v1/results/independent_run_completed.json",
+      "scope": "pr518",
+      "sha256": "b00d22d4e0b6a72bda32017b01e51cdd410bdc14f9224cf530111558c0b80b6b"
+    },
+    {
+      "commit": "d85cf85083d6fea047a1a960c9ead441f7b4a6ed",
+      "path": "IntradayLab/t3_m15_t1_entry_retest_v1/results/independent_statistics.json",
+      "scope": "pr518",
+      "sha256": "fd2e98f2ce7d63db656668f64e30b461921158fccd0f94993caa02a594990f08"
+    },
+    {
+      "commit": "d85cf85083d6fea047a1a960c9ead441f7b4a6ed",
+      "path": "IntradayLab/t3_m15_t1_entry_retest_v1/results/independent_verification.json",
+      "scope": "pr518",
+      "sha256": "18f0e57551b1df28a8f407fcb45cf1cfcf6c865b8a37c0e550baecc66b897d56"
+    },
+    {
+      "commit": "d85cf85083d6fea047a1a960c9ead441f7b4a6ed",
+      "path": "IntradayLab/t3_m15_t1_entry_retest_v1/results/instrument_direction_comparison.csv",
+      "scope": "pr518",
+      "sha256": "0f412b91f29ab7a9f14c33cd29c6c901dfd5eb4c82700e3ea362563e060dccb8"
+    },
+    {
+      "commit": "d85cf85083d6fea047a1a960c9ead441f7b4a6ed",
+      "path": "IntradayLab/t3_m15_t1_entry_retest_v1/results/monthly_comparison.csv",
+      "scope": "pr518",
+      "sha256": "1fc7e294f06f0806e794e1640b996edec8fc6904496cffc2af246e66757f128c"
+    },
+    {
+      "commit": "d85cf85083d6fea047a1a960c9ead441f7b4a6ed",
+      "path": "IntradayLab/t3_m15_t1_entry_retest_v1/results/monthly_sign_comparison.csv",
+      "scope": "pr518",
+      "sha256": "729b8e1dfbea6570a4e498c00ca3f6f2545437acce58ddfd107f7f2e96ed5957"
+    },
+    {
+      "commit": "d85cf85083d6fea047a1a960c9ead441f7b4a6ed",
+      "path": "IntradayLab/t3_m15_t1_entry_retest_v1/results/next_open_OPEN.csv",
+      "scope": "pr518",
+      "sha256": "7c3f99d7035c100fee105023bf18727aa2ba59bb8988d0e5021d58faf325ada9"
+    },
+    {
+      "commit": "d85cf85083d6fea047a1a960c9ead441f7b4a6ed",
+      "path": "IntradayLab/t3_m15_t1_entry_retest_v1/results/next_open_occupancy.csv",
+      "scope": "pr518",
+      "sha256": "ad7cfc988f7f9e994af439fb2b59c1a42cc53815f92d7dd4b32ed4d0cb346a55"
+    },
+    {
+      "commit": "d85cf85083d6fea047a1a960c9ead441f7b4a6ed",
+      "path": "IntradayLab/t3_m15_t1_entry_retest_v1/results/next_open_signals.csv.gz",
+      "scope": "pr518",
+      "sha256": "bc8c8419e39a738c9503cf9b0d4942914f04c1e656221627552594da3b9b6640"
+    },
+    {
+      "commit": "d85cf85083d6fea047a1a960c9ead441f7b4a6ed",
+      "path": "IntradayLab/t3_m15_t1_entry_retest_v1/results/next_open_snapshots.csv",
+      "scope": "pr518",
+      "sha256": "d570f8defdd2b0c302f14db3002b8694a2754c78447960b8d38f55ced6d3a112"
+    },
+    {
+      "commit": "d85cf85083d6fea047a1a960c9ead441f7b4a6ed",
+      "path": "IntradayLab/t3_m15_t1_entry_retest_v1/results/next_open_stops.csv.gz",
+      "scope": "pr518",
+      "sha256": "76d7c6de625429fadfd3760aaefc6cbc39a0899a2dbea4d1a82140f64cc917be"
+    },
+    {
+      "commit": "d85cf85083d6fea047a1a960c9ead441f7b4a6ed",
+      "path": "IntradayLab/t3_m15_t1_entry_retest_v1/results/next_open_trades.csv",
+      "scope": "pr518",
+      "sha256": "77d5e16077ade70b821e42eec9011d4931545100fa2a7d383ed9391dfce77b4f"
+    },
+    {
+      "commit": "d85cf85083d6fea047a1a960c9ead441f7b4a6ed",
+      "path": "IntradayLab/t3_m15_t1_entry_retest_v1/results/profit_concentration.csv",
+      "scope": "pr518",
+      "sha256": "b4a3e6099255ca549f431713c4b6e38879a0e632f59d2727f75c7ea4d0ae14de"
+    },
+    {
+      "commit": "d85cf85083d6fea047a1a960c9ead441f7b4a6ed",
+      "path": "IntradayLab/t3_m15_t1_entry_retest_v1/results/published_differences.csv",
+      "scope": "pr518",
+      "sha256": "c0c6f3d960ffd073b84ddf0fca8387a69bdc427ded14837a1d6619c8889dd8c6"
+    },
+    {
+      "commit": "d85cf85083d6fea047a1a960c9ead441f7b4a6ed",
+      "path": "IntradayLab/t3_m15_t1_entry_retest_v1/results/published_reconciliation.json",
+      "scope": "pr518",
+      "sha256": "679a1f5f3a69419c265e6a2565b4633c798c43af646f5e1830ee3a6f81ac65b2"
+    },
+    {
+      "commit": "d85cf85083d6fea047a1a960c9ead441f7b4a6ed",
+      "path": "IntradayLab/t3_m15_t1_entry_retest_v1/results/signal_close_OPEN.csv",
+      "scope": "pr518",
+      "sha256": "7c3f99d7035c100fee105023bf18727aa2ba59bb8988d0e5021d58faf325ada9"
+    },
+    {
+      "commit": "d85cf85083d6fea047a1a960c9ead441f7b4a6ed",
+      "path": "IntradayLab/t3_m15_t1_entry_retest_v1/results/signal_close_occupancy.csv",
+      "scope": "pr518",
+      "sha256": "4de9f35d2a0c598889d384e74d5d0cb219a6ff427f9361ca0211f8a87c375666"
+    },
+    {
+      "commit": "d85cf85083d6fea047a1a960c9ead441f7b4a6ed",
+      "path": "IntradayLab/t3_m15_t1_entry_retest_v1/results/signal_close_signals.csv.gz",
+      "scope": "pr518",
+      "sha256": "cda0a649911b6cc3d629ad2bbc4e522dd8c8b769ad7b95f1a4eb1400b19a266b"
+    },
+    {
+      "commit": "d85cf85083d6fea047a1a960c9ead441f7b4a6ed",
+      "path": "IntradayLab/t3_m15_t1_entry_retest_v1/results/signal_close_snapshots.csv",
+      "scope": "pr518",
+      "sha256": "6175248c141a6dfe2b6ff5ddf813f307ca7ffd9ae45f7288aacabf77cf7314a5"
+    },
+    {
+      "commit": "d85cf85083d6fea047a1a960c9ead441f7b4a6ed",
+      "path": "IntradayLab/t3_m15_t1_entry_retest_v1/results/signal_close_stops.csv.gz",
+      "scope": "pr518",
+      "sha256": "464d676d5b235189ac8b150d08072a6e7491b624cc71868e5e239679238ed968"
+    },
+    {
+      "commit": "d85cf85083d6fea047a1a960c9ead441f7b4a6ed",
+      "path": "IntradayLab/t3_m15_t1_entry_retest_v1/results/signal_close_trades.csv",
+      "scope": "pr518",
+      "sha256": "c71b88ea860558c385cc5d9c05388cafbfa7c197fd639ad90787eda8f63d5a2f"
+    },
+    {
+      "commit": "d85cf85083d6fea047a1a960c9ead441f7b4a6ed",
+      "path": "IntradayLab/t3_m15_t1_entry_retest_v1/results/signal_differences.csv.gz",
+      "scope": "pr518",
+      "sha256": "0f5982d6aec3136f3a07d104123059af690bb26c162318a43c5157b2963523a0"
+    },
+    {
+      "commit": "d85cf85083d6fea047a1a960c9ead441f7b4a6ed",
+      "path": "IntradayLab/t3_m15_t1_entry_retest_v1/results/source_gaps.csv",
+      "scope": "pr518",
+      "sha256": "a443a546b61a65bdd56421e2ccd43bccf43953ad3745366ec22b4968171dec2b"
+    },
+    {
+      "commit": "d85cf85083d6fea047a1a960c9ead441f7b4a6ed",
+      "path": "IntradayLab/t3_m15_t1_entry_retest_v1/results/source_manifest.json",
+      "scope": "pr518",
+      "sha256": "b3cb2ccea9c46b35ec71664318c8d99c0eabf09dfb48b3b36ee50f1b3be363ec"
+    },
+    {
+      "commit": "d85cf85083d6fea047a1a960c9ead441f7b4a6ed",
+      "path": "IntradayLab/t3_m15_t1_entry_retest_v1/results/source_monthly_coverage.csv",
+      "scope": "pr518",
+      "sha256": "9597d5df8ad51c9bb9ed8ab5eac1f16e4282dab17485ea5af0d789994ba01cd0"
+    },
+    {
+      "commit": "d85cf85083d6fea047a1a960c9ead441f7b4a6ed",
+      "path": "IntradayLab/t3_m15_t1_entry_retest_v1/results/test_results.txt",
+      "scope": "pr518",
+      "sha256": "a7178010b7ea30a6d77e71bd67375f36fafcdde56aca27a93c11ac4d4ff123ce"
+    },
+    {
+      "commit": "d85cf85083d6fea047a1a960c9ead441f7b4a6ed",
+      "path": "IntradayLab/t3_m15_t1_entry_retest_v1/results/trade_differences.csv",
+      "scope": "pr518",
+      "sha256": "1ce40a30d10025d3846af4a059167dad49116149b78a1389d12a6e8cc5404e67"
+    },
+    {
+      "commit": "d85cf85083d6fea047a1a960c9ead441f7b4a6ed",
+      "path": "IntradayLab/t3_m15_t1_entry_retest_v1/results/yearly_comparison.csv",
+      "scope": "pr518",
+      "sha256": "22e6be0937484688334472b945dfbb4764469edc3d07eaf0aa86ce052d3d3c24"
+    },
+    {
+      "commit": "d85cf85083d6fea047a1a960c9ead441f7b4a6ed",
+      "path": "IntradayLab/t3_m15_t1_entry_retest_v1/run.py",
+      "scope": "pr518",
+      "sha256": "c636f28ea27964432fbd5d2020e1082bb60d17ec1841d56afc946e48498751bd"
+    },
+    {
+      "commit": "d85cf85083d6fea047a1a960c9ead441f7b4a6ed",
+      "path": "IntradayLab/t3_m15_t1_entry_retest_v1/source.py",
+      "scope": "pr518",
+      "sha256": "29e6b56bce2283ca321b9331bade810d858201a7d6c45cf74ebd6eb6892c0136"
+    },
+    {
+      "commit": "d85cf85083d6fea047a1a960c9ead441f7b4a6ed",
+      "path": "IntradayLab/t3_m15_t1_entry_retest_v1/test_causal.py",
+      "scope": "pr518",
+      "sha256": "f65000d3020af8ad115d8cd347719a392d9311c6cf983ca22d01eac8d0b18dd0"
+    },
+    {
+      "commit": "d85cf85083d6fea047a1a960c9ead441f7b4a6ed",
+      "path": "IntradayLab/t3_m15_t1_entry_retest_v1/verify.py",
+      "scope": "pr518",
+      "sha256": "4911256e7b164694e93b321600c7e6e6409b1ff93c512a7028c1e37eeacf5930"
+    }
+  ],
+  "authority": "Archived research only; no production application imported or run",
+  "checks": [
+    {
+      "path": "AUDIT.json",
+      "scope": "PR557",
+      "sha256": "e806b00639d8ff4a529a5010fc83752629cc944a043c8fe761116a0b0e3b53f9",
+      "status": "PASS"
+    },
+    {
+      "path": "CODE_FREEZE.json",
+      "scope": "PR557",
+      "sha256": "e4edd61e38a6f3b0d2325c81f7b1222ed7488825b0228c92417f43faf6138347",
+      "status": "PASS"
+    },
+    {
+      "path": "CONTROL_GATE.json",
+      "scope": "PR557",
+      "sha256": "868e686bcd021e0642ab7b7b85138703d18f8e514b999dd41cf13a7168eba17e",
+      "status": "PASS"
+    },
+    {
+      "path": "CONTROL_RECONCILIATION.csv",
+      "scope": "PR557",
+      "sha256": "ba93632b1bd26e6fb2bfd5509fb48ad5ba976e13d166b602aca445b3b57caf53",
+      "status": "PASS"
+    },
+    {
+      "path": "DEVELOPMENT_NOTES_RU.md",
+      "scope": "PR557",
+      "sha256": "5411c5941d155c49a67bd96229b5d31473f7efeaa0c6749040db44ce89bd0021",
+      "status": "PASS"
+    },
+    {
+      "path": "EXECUTION_CORRECTION.json",
+      "scope": "PR557",
+      "sha256": "9a5b1baea298b8caa7782cd447d0734b5dca8e5b31ccffb50bc25405307f8906",
+      "status": "PASS"
+    },
+    {
+      "path": "EXPOSURE.csv",
+      "scope": "PR557",
+      "sha256": "843a0d1fd9cae3f5ead6ad2f9f8be2f42959b6a566ecb5a2573e1eb9c631bf55",
+      "status": "PASS"
+    },
+    {
+      "path": "FINAL_REVIEW.json",
+      "scope": "PR557",
+      "sha256": "6fcbc43ebed195246a1aff2b7e57da8d0bfb2f4145175cc98b371fffd694090b",
+      "status": "PASS"
+    },
+    {
+      "path": "H1_MARKS.csv.gz",
+      "scope": "PR557",
+      "sha256": "7b944ce3d7c95944d9ae08295fa4e1b2031faa358df95e12868288ab17e7e2ef",
+      "status": "PASS"
+    },
+    {
+      "path": "H1_MONTHLY.csv",
+      "scope": "PR557",
+      "sha256": "cb529bb2247a158200443e329c5a1b581229e998e7192d4f9ae6913db2ef1f2a",
+      "status": "PASS"
+    },
+    {
+      "path": "H1_SIGNALS.csv.gz",
+      "scope": "PR557",
+      "sha256": "fd91562bea559809973f01c41d6fe95a5466548dfc5a7c84ef21108c1ed6c6f4",
+      "status": "PASS"
+    },
+    {
+      "path": "H1_SUMMARY.csv",
+      "scope": "PR557",
+      "sha256": "b64d3c227e4efe2bff22b18b5c20ba41af6690dbfd55c79dfc579ae74b070113",
+      "status": "PASS"
+    },
+    {
+      "path": "H1_TRACE.csv.gz",
+      "scope": "PR557",
+      "sha256": "ed685ed7147f531426f52d75247c55b4bd169ca33329d94a03561954269148d4",
+      "status": "PASS"
+    },
+    {
+      "path": "H1_TRADES.csv",
+      "scope": "PR557",
+      "sha256": "1f22c46528275e164dd94bbe7331d853d18a9ce3febfbc41750df60973847c2b",
+      "status": "PASS"
+    },
+    {
+      "path": "INITIAL_CONTROL_GATE.json",
+      "scope": "PR557",
+      "sha256": "90450395cd5518c013cab8c9e22ad34964736469c40c7b66536488d5df5092e4",
+      "status": "PASS"
+    },
+    {
+      "path": "M15_MARKS.csv.gz",
+      "scope": "PR557",
+      "sha256": "3faea929daa1cde093ecb66e46b7ef8ac4ea1b2879cd604f976308936cabfb47",
+      "status": "PASS"
+    },
+    {
+      "path": "M15_MONTHLY.csv",
+      "scope": "PR557",
+      "sha256": "b9c7f434caa57896fbf1ee381f3321cf98688f3842d004b883b0cb04e726894a",
+      "status": "PASS"
+    },
+    {
+      "path": "M15_SIGNALS.csv.gz",
+      "scope": "PR557",
+      "sha256": "eb4f64a5b8acbff9a64fa62fb84d2ccb95bb49f50ae36ee2ed4819347cdeb9c6",
+      "status": "PASS"
+    },
+    {
+      "path": "M15_SUMMARY.csv",
+      "scope": "PR557",
+      "sha256": "41028785ed1931dbcc19bc8ae9a35b1406a816640c4f65358369ac6e99511a35",
+      "status": "PASS"
+    },
+    {
+      "path": "M15_TRACE.csv.gz",
+      "scope": "PR557",
+      "sha256": "1adaad61f364b09f3ec768942934734a0769328bedf7d4bfde888a3666fbdda2",
+      "status": "PASS"
+    },
+    {
+      "path": "M15_TRADES.csv",
+      "scope": "PR557",
+      "sha256": "80f5a7b1223f4728b68df0ef4a2fe4a5ead908c5b755c13cd516d135276993a3",
+      "status": "PASS"
+    },
+    {
+      "path": "MONTH_SIGN_TRANSITIONS.csv",
+      "scope": "PR557",
+      "sha256": "d5a8680f7d2562ffaecb36f6206a4e831323260cd8f3c771924c43ca807f228c",
+      "status": "PASS"
+    },
+    {
+      "path": "OPEN_BOUNDARIES.csv",
+      "scope": "PR557",
+      "sha256": "441f651da9cbf8906aef6abe04d5289992095140a0e127482384b2c622cf2b75",
+      "status": "PASS"
+    },
+    {
+      "path": "PARTIAL_EXECUTION_FEASIBILITY.csv",
+      "scope": "PR557",
+      "sha256": "0b6a18454143b2951d95b12a8c828c0bf5890b27ca46b9508d7ef5dfb651b528",
+      "status": "PASS"
+    },
+    {
+      "path": "PROTOCOL_RU.md",
+      "scope": "PR557",
+      "sha256": "2fe0bac4c49c9bb8480f804a13f35d4d2170ec87f8c3bb6e3914c0861d3c8981",
+      "status": "PASS"
+    },
+    {
+      "path": "PROTOCOL_V1_RU.md",
+      "scope": "PR557",
+      "sha256": "9ec06b4da908a8fb80441b8e6fff2a328f026eb56e7356973b8916ccd29f3e05",
+      "status": "PASS"
+    },
+    {
+      "path": "README.md",
+      "scope": "PR557",
+      "sha256": "9d6e564d780bdfc76ce90e310e9d09dbf790d4ddcdfb0c442d5b10e10f98f092",
+      "status": "PASS"
+    },
+    {
+      "path": "REPEATABILITY.json",
+      "scope": "PR557",
+      "sha256": "c040458472132efa8d43d815cd2f715fcbcfd3b1e239808098667c2e89b12c33",
+      "status": "PASS"
+    },
+    {
+      "path": "REPORT_RU.md",
+      "scope": "PR557",
+      "sha256": "ef2cb7fba4cb3b4767231b28a4750bd50e159d28e6577c777d4b8cadf5922d4f",
+      "status": "PASS"
+    },
+    {
+      "path": "SOURCE_MANIFEST.json",
+      "scope": "PR557",
+      "sha256": "6f9f59726784c20ba0bda6a4590afc6bdf31f39d593d175ae9c4c88002c8dac6",
+      "status": "PASS"
+    },
+    {
+      "path": "SYNTHETIC_TESTS.json",
+      "scope": "PR557",
+      "sha256": "e4aeaa79ae760dceab3c29d4930fc411cc5ff77ebcbdc65225efcaa6967e9ae7",
+      "status": "PASS"
+    },
+    {
+      "path": "WINNER_GIVEBACK.csv",
+      "scope": "PR557",
+      "sha256": "ff7780898979b0f305cacb8b7ae38672bb96450e5e2e5d70dc167da40d301a37",
+      "status": "PASS"
+    },
+    {
+      "path": "analyze.py",
+      "scope": "PR557",
+      "sha256": "5e1bc3255fbd8079301ee190a815c79d201f5dc60996f1e5825732d760a6721a",
+      "status": "PASS"
+    },
+    {
+      "path": "common.py",
+      "scope": "PR557",
+      "sha256": "878260548db77f436f129f83e3639cd18f318868b08bf5e9c994895359ab7e21",
+      "status": "PASS"
+    },
+    {
+      "path": "engines.py",
+      "scope": "PR557",
+      "sha256": "4067065bcf1436d3007eecd8721697cef60f46414d0d99a4260b2c23f1ae7fc1",
+      "status": "PASS"
+    },
+    {
+      "path": "reconcile.py",
+      "scope": "PR557",
+      "sha256": "c8af2111d57ce93cd0bdc14e914a8d1009ecdac36e28565428e1660f6aca2e43",
+      "status": "PASS"
+    },
+    {
+      "path": "repeat.py",
+      "scope": "PR557",
+      "sha256": "004f9fe8cd13add37c450679d7757760756fbd089611fa98870fd0b2381ea221",
+      "status": "PASS"
+    },
+    {
+      "path": "report.py",
+      "scope": "PR557",
+      "sha256": "e708c61a3eb79e5c9989f0dea514e7012944005412a0a492a3b9bd5519cbf327",
+      "status": "PASS"
+    },
+    {
+      "path": "requirements.txt",
+      "scope": "PR557",
+      "sha256": "50bd36afe0a4a4950f51db01fddfedc5d16814a1664c8a21a02e7c247b481bda",
+      "status": "PASS"
+    },
+    {
+      "path": "run.py",
+      "scope": "PR557",
+      "sha256": "0b194be4faf8d9760fb35eb77399ed51b27161a0f3db7de39e11fc06a9157c2c",
+      "status": "PASS"
+    },
+    {
+      "path": "sources.py",
+      "scope": "PR557",
+      "sha256": "b6ff9867d6cc6bf8de3e678d687a83ac98ab6ec6015eb9bb2270364ce3c85e56",
+      "status": "PASS"
+    },
+    {
+      "path": "test_synthetic.py",
+      "scope": "PR557",
+      "sha256": "383a6235135535c841c6f7b60f485ce46e4e7e3831b862fe20b4d1f4226ca585",
+      "status": "PASS"
+    },
+    {
+      "path": "verify.py",
+      "scope": "PR557",
+      "sha256": "6652f9a6fdcfb0fd9fbc17f96c7cf414017283297771cbe5c1bb4958eb018719",
+      "status": "PASS"
+    },
+    {
+      "path": "IntradayLab/SELECTED_T3_M15_SESSION_T1_R15.md",
+      "scope": "FROZEN_MAIN_SOURCE",
+      "sha256": "0d634bb41bad04f3897859f4e86af954010ff2d976f4665ab8004d3b63d3b3bb",
+      "status": "PASS"
+    },
+    {
+      "path": "IntradayLab/t3_m15_t1_entry_retest_v1/README.md",
+      "scope": "FROZEN_MAIN_SOURCE",
+      "sha256": "eb3ae7a6701b3b3f0ea3869637d11c0d076828e61a36744c4070c90340d687c6",
+      "status": "PASS"
+    },
+    {
+      "path": "IntradayLab/t3_m15_t1_entry_retest_v1/SPEC.json",
+      "scope": "FROZEN_MAIN_SOURCE",
+      "sha256": "477cbb4da585b3f024c9663908070cb85451d1dba3b538861c46a4680ec64d93",
+      "status": "PASS"
+    },
+    {
+      "path": "IntradayLab/t3_m15_t1_entry_retest_v1/independent_stats.py",
+      "scope": "FROZEN_MAIN_SOURCE",
+      "sha256": "40f48d8088dbd97d58cc33b10c33310816c777852e887e8ee0af544059790656",
+      "status": "PASS"
+    },
+    {
+      "path": "IntradayLab/t3_m15_t1_entry_retest_v1/initial_git_context.json",
+      "scope": "FROZEN_MAIN_SOURCE",
+      "sha256": "f566d58bf18d30fb086466a32598dd63e828fd8ad0d5c09ac5006ef76391160b",
+      "status": "PASS"
+    },
+    {
+      "path": "IntradayLab/t3_m15_t1_entry_retest_v1/io_utils.py",
+      "scope": "FROZEN_MAIN_SOURCE",
+      "sha256": "4057c96f8c09e89ff68e181ac70d243362b19d2a64baa03d800c767b897c9b9f",
+      "status": "PASS"
+    },
+    {
+      "path": "IntradayLab/t3_m15_t1_entry_retest_v1/metrics.py",
+      "scope": "FROZEN_MAIN_SOURCE",
+      "sha256": "2dc959a930f18116a25e843fc66ace7831d7d74f42d2ae76ab606a255b62c219",
+      "status": "PASS"
+    },
+    {
+      "path": "IntradayLab/t3_m15_t1_entry_retest_v1/primary.py",
+      "scope": "FROZEN_MAIN_SOURCE",
+      "sha256": "df4054477f87947ff93e962a70590c20006c487d0c4ba70a58c425f07b6e14f8",
+      "status": "PASS"
+    },
+    {
+      "path": "IntradayLab/t3_m15_t1_entry_retest_v1/published.py",
+      "scope": "FROZEN_MAIN_SOURCE",
+      "sha256": "7cc1c101cda598edc880a3b01c888e30cea8c977e792fc912f698be80dd56c66",
+      "status": "PASS"
+    },
+    {
+      "path": "IntradayLab/t3_m15_t1_entry_retest_v1/repeat.py",
+      "scope": "FROZEN_MAIN_SOURCE",
+      "sha256": "7c0d814ccc4c650bf92ef7891acbc5de28a7c30b6b26bea9480a7ef1a74e9976",
+      "status": "PASS"
+    },
+    {
+      "path": "IntradayLab/t3_m15_t1_entry_retest_v1/report.py",
+      "scope": "FROZEN_MAIN_SOURCE",
+      "sha256": "b06afb90f7168261785a9f1cb275b79c2a05674a156c1d6472f35b21682973d3",
+      "status": "PASS"
+    },
+    {
+      "path": "IntradayLab/t3_m15_t1_entry_retest_v1/requirements.txt",
+      "scope": "FROZEN_MAIN_SOURCE",
+      "sha256": "50bd36afe0a4a4950f51db01fddfedc5d16814a1664c8a21a02e7c247b481bda",
+      "status": "PASS"
+    },
+    {
+      "path": "IntradayLab/t3_m15_t1_entry_retest_v1/results/monthly_comparison.csv",
+      "scope": "FROZEN_MAIN_SOURCE",
+      "sha256": "1fc7e294f06f0806e794e1640b996edec8fc6904496cffc2af246e66757f128c",
+      "status": "PASS"
+    },
+    {
+      "path": "IntradayLab/t3_m15_t1_entry_retest_v1/results/next_open_signals.csv.gz",
+      "scope": "FROZEN_MAIN_SOURCE",
+      "sha256": "bc8c8419e39a738c9503cf9b0d4942914f04c1e656221627552594da3b9b6640",
+      "status": "PASS"
+    },
+    {
+      "path": "IntradayLab/t3_m15_t1_entry_retest_v1/results/next_open_stops.csv.gz",
+      "scope": "FROZEN_MAIN_SOURCE",
+      "sha256": "76d7c6de625429fadfd3760aaefc6cbc39a0899a2dbea4d1a82140f64cc917be",
+      "status": "PASS"
+    },
+    {
+      "path": "IntradayLab/t3_m15_t1_entry_retest_v1/results/next_open_trades.csv",
+      "scope": "FROZEN_MAIN_SOURCE",
+      "sha256": "77d5e16077ade70b821e42eec9011d4931545100fa2a7d383ed9391dfce77b4f",
+      "status": "PASS"
+    },
+    {
+      "path": "IntradayLab/t3_m15_t1_entry_retest_v1/results/yearly_comparison.csv",
+      "scope": "FROZEN_MAIN_SOURCE",
+      "sha256": "22e6be0937484688334472b945dfbb4764469edc3d07eaf0aa86ce052d3d3c24",
+      "status": "PASS"
+    },
+    {
+      "path": "IntradayLab/t3_m15_t1_entry_retest_v1/run.py",
+      "scope": "FROZEN_MAIN_SOURCE",
+      "sha256": "c636f28ea27964432fbd5d2020e1082bb60d17ec1841d56afc946e48498751bd",
+      "status": "PASS"
+    },
+    {
+      "path": "IntradayLab/t3_m15_t1_entry_retest_v1/source.py",
+      "scope": "FROZEN_MAIN_SOURCE",
+      "sha256": "29e6b56bce2283ca321b9331bade810d858201a7d6c45cf74ebd6eb6892c0136",
+      "status": "PASS"
+    },
+    {
+      "path": "IntradayLab/t3_m15_t1_entry_retest_v1/test_causal.py",
+      "scope": "FROZEN_MAIN_SOURCE",
+      "sha256": "f65000d3020af8ad115d8cd347719a392d9311c6cf983ca22d01eac8d0b18dd0",
+      "status": "PASS"
+    },
+    {
+      "path": "IntradayLab/t3_m15_t1_entry_retest_v1/verify.py",
+      "scope": "FROZEN_MAIN_SOURCE",
+      "sha256": "4911256e7b164694e93b321600c7e6e6409b1ff93c512a7028c1e37eeacf5930",
+      "status": "PASS"
+    },
+    {
+      "path": "TradingSystemLab/core/data_loader.py",
+      "scope": "FROZEN_MAIN_SOURCE",
+      "sha256": "b6babd985fb3cf45b939a00aafe173bc7ce4ca7b02ab834dd06aec33559d305d",
+      "status": "PASS"
+    },
+    {
+      "path": "TradingSystemLab/core/indicators.py",
+      "scope": "FROZEN_MAIN_SOURCE",
+      "sha256": "06345d89e212c72e97f0aec97268dc43208e057c1f7123374e62a9be8dd24f47",
+      "status": "PASS"
+    },
+    {
+      "path": "TradingSystemLab/results/perpetual_v3/robustness/T3/H1/manifest.json",
+      "scope": "FROZEN_MAIN_SOURCE",
+      "sha256": "a4c88308571470b91eeec987038c314ffedf76355c99a09fda76a18e12be93ea",
+      "status": "PASS"
+    },
+    {
+      "path": "TradingSystemLab/results/post_v3_analysis/stage5_structural_validation/canonical_lifecycle_registry.csv",
+      "scope": "FROZEN_MAIN_SOURCE",
+      "sha256": "f2d66ba2a9a16170adc39cb0ef1cdd94b7b13ee46f9c172a5730727b1c5379f6",
+      "status": "PASS"
+    },
+    {
+      "path": "TradingSystemLab/results/post_v3_analysis/stage5_structural_validation/stage5_trail1_execution.py",
+      "scope": "FROZEN_MAIN_SOURCE",
+      "sha256": "d1d8ac2eeea9095becd6f74295e4a540d02ee0494237af5f16f6d66a487f221b",
+      "status": "PASS"
+    },
+    {
+      "path": "TradingSystemLab/results/post_v3_analysis/stage5_structural_validation/trail1/manifest_trail1.json",
+      "scope": "FROZEN_MAIN_SOURCE",
+      "sha256": "ae29ceba3c52509336ea3c097863aa92ca3e404c15415e3192b49646d29862dd",
+      "status": "PASS"
+    },
+    {
+      "path": "TradingSystemLab/results/post_v3_analysis/stage6_7_n4_full_four_case_test/four_case_registry.csv",
+      "scope": "FROZEN_MAIN_SOURCE",
+      "sha256": "e1f5edbff005ce17fcaa73c71837db1b3906bdd3d92d1f249788e80c725c34a2",
+      "status": "PASS"
+    },
+    {
+      "path": "TradingSystemLab/results/post_v3_analysis/stage6_7_n4_full_four_case_test/independent_audit_result.json",
+      "scope": "FROZEN_MAIN_SOURCE",
+      "sha256": "706e7198ef39788bc3a3d33474583411d76d4d14480fad67357557feea33a684",
+      "status": "PASS"
+    },
+    {
+      "path": "TradingSystemLab/results/post_v3_analysis/stage6_fixed_basket_reassessment/basket_monthly_metrics.csv",
+      "scope": "FROZEN_MAIN_SOURCE",
+      "sha256": "e724851fc17ce3f6f71778129ea5cfa4e810d47a0992f00c1974761dde982cb4",
+      "status": "PASS"
+    },
+    {
+      "path": "TradingSystemLab/results/post_v3_analysis/stage6_fixed_basket_reassessment/basket_yearly_metrics.csv",
+      "scope": "FROZEN_MAIN_SOURCE",
+      "sha256": "bebc4ec6d3dd49173f409c47a4835c937cf95a70a6372c912f249ee80e402fe8",
+      "status": "PASS"
+    },
+    {
+      "path": "TradingSystemLab/results/post_v3_analysis/stage6_fixed_basket_reassessment/trail1_authoritative_trades.csv",
+      "scope": "FROZEN_MAIN_SOURCE",
+      "sha256": "0f9034edf228a687da67e9f3e35fad01f2339be162c558e6d802c3cd77eea8ad",
+      "status": "PASS"
+    },
+    {
+      "path": "TradingSystemLab/results/post_v3_analysis/stage6_unified_candidate_comparison/portfolio_trade_scaling_registry.csv",
+      "scope": "FROZEN_MAIN_SOURCE",
+      "sha256": "8f0493f5dd4edf087881622005efde0531c6146903a38c362e72dbc508071b1e",
+      "status": "PASS"
+    },
+    {
+      "path": "TradingSystemLab/results/post_v3_analysis/stage7_production_specification_freeze/execution_semantics.md",
+      "scope": "FROZEN_MAIN_SOURCE",
+      "sha256": "468e259ca8fd7c4e78546f0eec8d13e275d0bce74ea3a0f00547fb47fbeb25bf",
+      "status": "PASS"
+    },
+    {
+      "path": "TradingSystemLab/results/post_v3_analysis/stage7_production_specification_freeze/production_specification.json",
+      "scope": "FROZEN_MAIN_SOURCE",
+      "sha256": "c719bb3e7b9a7e707077fc499867613010068d623d6879c247f480f7658aff7c",
+      "status": "PASS"
+    },
+    {
+      "path": "TradingSystemLab/results/post_v3_analysis/stage7_production_specification_freeze/risk_and_sizing_contract.md",
+      "scope": "FROZEN_MAIN_SOURCE",
+      "sha256": "fb5079e22e7aaa11f28c2cce9c0ea0a905bf8256db9fa66d4698d531deed38ee",
+      "status": "PASS"
+    },
+    {
+      "path": "TradingSystemLab/results/post_v3_analysis/stage7_production_specification_freeze/source_provenance.json",
+      "scope": "FROZEN_MAIN_SOURCE",
+      "sha256": "4d6e3d7d221e019ea00faa3d523affd39d0b45df3f6898c41e2e8c7ed4c3d494",
+      "status": "PASS"
+    },
+    {
+      "path": "TradingSystemLab/stage8_robot/production_instrument_registry.csv",
+      "scope": "FROZEN_MAIN_SOURCE",
+      "sha256": "90d64e16dfeb292b4b339ac3eb196074e133bf52a962cc6715c488a32d16e013",
+      "status": "PASS"
+    },
+    {
+      "path": "TradingSystemLab/stage8_robot/strategy_core.py",
+      "scope": "FROZEN_MAIN_SOURCE",
+      "sha256": "ba3cc134f85049e974b6608f144d090da83eb150548efd693ba27a4c54fe9d51",
+      "status": "PASS"
+    },
+    {
+      "path": "TradingSystemLab/stage8_robot/trail1_state.py",
+      "scope": "FROZEN_MAIN_SOURCE",
+      "sha256": "047d13618b3c729a0f2385fe46269b513761689469c17bdd66bc07ac09bb866b",
+      "status": "PASS"
+    },
+    {
+      "path": "TradingSystemLab/strategies/trend/T3_MTF_Trend.py",
+      "scope": "FROZEN_MAIN_SOURCE",
+      "sha256": "840dd3b2cda43fa00259445cd0a22ace6d82e677f4c793028ccc8126f9ad9a8c",
+      "status": "PASS"
+    },
+    {
+      "path": "FREEZE.json",
+      "scope": "PR518",
+      "sha256": "4be9a047497753e72aedc584389998619eceee373bcde2965e986a1abb9fb4eb",
+      "status": "PASS"
+    },
+    {
+      "path": "FULL_RUN_LOG.txt",
+      "scope": "PR518",
+      "sha256": "81db7ee4fbc43bbbb26eae038401a3dc408823ad88e4b0c2f3f4c1d14fbdd304",
+      "status": "PASS"
+    },
+    {
+      "path": "README.md",
+      "scope": "PR518",
+      "sha256": "eb3ae7a6701b3b3f0ea3869637d11c0d076828e61a36744c4070c90340d687c6",
+      "status": "PASS"
+    },
+    {
+      "path": "SPEC.json",
+      "scope": "PR518",
+      "sha256": "477cbb4da585b3f024c9663908070cb85451d1dba3b538861c46a4680ec64d93",
+      "status": "PASS"
+    },
+    {
+      "path": "independent_stats.py",
+      "scope": "PR518",
+      "sha256": "40f48d8088dbd97d58cc33b10c33310816c777852e887e8ee0af544059790656",
+      "status": "PASS"
+    },
+    {
+      "path": "initial_git_context.json",
+      "scope": "PR518",
+      "sha256": "f566d58bf18d30fb086466a32598dd63e828fd8ad0d5c09ac5006ef76391160b",
+      "status": "PASS"
+    },
+    {
+      "path": "io_utils.py",
+      "scope": "PR518",
+      "sha256": "4057c96f8c09e89ff68e181ac70d243362b19d2a64baa03d800c767b897c9b9f",
+      "status": "PASS"
+    },
+    {
+      "path": "metrics.py",
+      "scope": "PR518",
+      "sha256": "2dc959a930f18116a25e843fc66ace7831d7d74f42d2ae76ab606a255b62c219",
+      "status": "PASS"
+    },
+    {
+      "path": "primary.py",
+      "scope": "PR518",
+      "sha256": "df4054477f87947ff93e962a70590c20006c487d0c4ba70a58c425f07b6e14f8",
+      "status": "PASS"
+    },
+    {
+      "path": "publication_check.json",
+      "scope": "PR518",
+      "sha256": "15b8fb0c74eed39355dc44c5bdd3dfc00da06bd9e58bdc49e1d859628a6a9518",
+      "status": "PASS"
+    },
+    {
+      "path": "published.py",
+      "scope": "PR518",
+      "sha256": "7cc1c101cda598edc880a3b01c888e30cea8c977e792fc912f698be80dd56c66",
+      "status": "PASS"
+    },
+    {
+      "path": "repeat.py",
+      "scope": "PR518",
+      "sha256": "7c0d814ccc4c650bf92ef7891acbc5de28a7c30b6b26bea9480a7ef1a74e9976",
+      "status": "PASS"
+    },
+    {
+      "path": "repeatability.json",
+      "scope": "PR518",
+      "sha256": "3475818ab33351ec0e417b0e0843cf7dc139e02e486fb4c85f3ec5884ea27da9",
+      "status": "PASS"
+    },
+    {
+      "path": "report.py",
+      "scope": "PR518",
+      "sha256": "b06afb90f7168261785a9f1cb275b79c2a05674a156c1d6472f35b21682973d3",
+      "status": "PASS"
+    },
+    {
+      "path": "requirements.txt",
+      "scope": "PR518",
+      "sha256": "50bd36afe0a4a4950f51db01fddfedc5d16814a1664c8a21a02e7c247b481bda",
+      "status": "PASS"
+    },
+    {
+      "path": "results/REPORT_RU.md",
+      "scope": "PR518",
+      "sha256": "1de99f052e8164aec776f8f1a795ba6cd9a0f0fb4ae923b74724eb13b5b323dc",
+      "status": "PASS"
+    },
+    {
+      "path": "results/audit_result.json",
+      "scope": "PR518",
+      "sha256": "a24bf585a8527e9f83717323f4dc86dd19197abef6da8cfeaf7ec51c7dbbc8ee",
+      "status": "PASS"
+    },
+    {
+      "path": "results/comparison_summary.csv",
+      "scope": "PR518",
+      "sha256": "a1d8b9240a455d5523711759db888a0f24de53b517fd0f6c929109f426529131",
+      "status": "PASS"
+    },
+    {
+      "path": "results/difference_summary.json",
+      "scope": "PR518",
+      "sha256": "066978ea181c757d297aa8efb6fdeb9a64f932846e94dd21c8b7a3ef9a22537c",
+      "status": "PASS"
+    },
+    {
+      "path": "results/entry_reason_counts.csv",
+      "scope": "PR518",
+      "sha256": "65177294d9968bb00f56fbdac1bb12b96e63ec45372870fe98e6eaee0c384a61",
+      "status": "PASS"
+    },
+    {
+      "path": "results/features/CNYRUBF.csv.gz",
+      "scope": "PR518",
+      "sha256": "e112e3d2b0dd66674357f3fdb5a747724ff920fdca14805fd1bd4d5a0ccfa905",
+      "status": "PASS"
+    },
+    {
+      "path": "results/features/GLDRUBF.csv.gz",
+      "scope": "PR518",
+      "sha256": "8bbb7674213390b3a4c6b7eea0aee5b692d97c2e5e9e2fde997354c83681be0d",
+      "status": "PASS"
+    },
+    {
+      "path": "results/features/IMOEXF.csv.gz",
+      "scope": "PR518",
+      "sha256": "5230cb731b166923287bb013f740a3b8b71d61469fe5fe1f22510dfc3dfefd76",
+      "status": "PASS"
+    },
+    {
+      "path": "results/features/USDRUBF.csv.gz",
+      "scope": "PR518",
+      "sha256": "2d881203892f3247a76bdc3e4da6d52eb28051ae497fb603a14373a3fdd4d130",
+      "status": "PASS"
+    },
+    {
+      "path": "results/independent_run_completed.json",
+      "scope": "PR518",
+      "sha256": "b00d22d4e0b6a72bda32017b01e51cdd410bdc14f9224cf530111558c0b80b6b",
+      "status": "PASS"
+    },
+    {
+      "path": "results/independent_statistics.json",
+      "scope": "PR518",
+      "sha256": "fd2e98f2ce7d63db656668f64e30b461921158fccd0f94993caa02a594990f08",
+      "status": "PASS"
+    },
+    {
+      "path": "results/independent_verification.json",
+      "scope": "PR518",
+      "sha256": "18f0e57551b1df28a8f407fcb45cf1cfcf6c865b8a37c0e550baecc66b897d56",
+      "status": "PASS"
+    },
+    {
+      "path": "results/instrument_direction_comparison.csv",
+      "scope": "PR518",
+      "sha256": "0f412b91f29ab7a9f14c33cd29c6c901dfd5eb4c82700e3ea362563e060dccb8",
+      "status": "PASS"
+    },
+    {
+      "path": "results/monthly_comparison.csv",
+      "scope": "PR518",
+      "sha256": "1fc7e294f06f0806e794e1640b996edec8fc6904496cffc2af246e66757f128c",
+      "status": "PASS"
+    },
+    {
+      "path": "results/monthly_sign_comparison.csv",
+      "scope": "PR518",
+      "sha256": "729b8e1dfbea6570a4e498c00ca3f6f2545437acce58ddfd107f7f2e96ed5957",
+      "status": "PASS"
+    },
+    {
+      "path": "results/next_open_OPEN.csv",
+      "scope": "PR518",
+      "sha256": "7c3f99d7035c100fee105023bf18727aa2ba59bb8988d0e5021d58faf325ada9",
+      "status": "PASS"
+    },
+    {
+      "path": "results/next_open_occupancy.csv",
+      "scope": "PR518",
+      "sha256": "ad7cfc988f7f9e994af439fb2b59c1a42cc53815f92d7dd4b32ed4d0cb346a55",
+      "status": "PASS"
+    },
+    {
+      "path": "results/next_open_signals.csv.gz",
+      "scope": "PR518",
+      "sha256": "bc8c8419e39a738c9503cf9b0d4942914f04c1e656221627552594da3b9b6640",
+      "status": "PASS"
+    },
+    {
+      "path": "results/next_open_snapshots.csv",
+      "scope": "PR518",
+      "sha256": "d570f8defdd2b0c302f14db3002b8694a2754c78447960b8d38f55ced6d3a112",
+      "status": "PASS"
+    },
+    {
+      "path": "results/next_open_stops.csv.gz",
+      "scope": "PR518",
+      "sha256": "76d7c6de625429fadfd3760aaefc6cbc39a0899a2dbea4d1a82140f64cc917be",
+      "status": "PASS"
+    },
+    {
+      "path": "results/next_open_trades.csv",
+      "scope": "PR518",
+      "sha256": "77d5e16077ade70b821e42eec9011d4931545100fa2a7d383ed9391dfce77b4f",
+      "status": "PASS"
+    },
+    {
+      "path": "results/profit_concentration.csv",
+      "scope": "PR518",
+      "sha256": "b4a3e6099255ca549f431713c4b6e38879a0e632f59d2727f75c7ea4d0ae14de",
+      "status": "PASS"
+    },
+    {
+      "path": "results/published_differences.csv",
+      "scope": "PR518",
+      "sha256": "c0c6f3d960ffd073b84ddf0fca8387a69bdc427ded14837a1d6619c8889dd8c6",
+      "status": "PASS"
+    },
+    {
+      "path": "results/published_reconciliation.json",
+      "scope": "PR518",
+      "sha256": "679a1f5f3a69419c265e6a2565b4633c798c43af646f5e1830ee3a6f81ac65b2",
+      "status": "PASS"
+    },
+    {
+      "path": "results/signal_close_OPEN.csv",
+      "scope": "PR518",
+      "sha256": "7c3f99d7035c100fee105023bf18727aa2ba59bb8988d0e5021d58faf325ada9",
+      "status": "PASS"
+    },
+    {
+      "path": "results/signal_close_occupancy.csv",
+      "scope": "PR518",
+      "sha256": "4de9f35d2a0c598889d384e74d5d0cb219a6ff427f9361ca0211f8a87c375666",
+      "status": "PASS"
+    },
+    {
+      "path": "results/signal_close_signals.csv.gz",
+      "scope": "PR518",
+      "sha256": "cda0a649911b6cc3d629ad2bbc4e522dd8c8b769ad7b95f1a4eb1400b19a266b",
+      "status": "PASS"
+    },
+    {
+      "path": "results/signal_close_snapshots.csv",
+      "scope": "PR518",
+      "sha256": "6175248c141a6dfe2b6ff5ddf813f307ca7ffd9ae45f7288aacabf77cf7314a5",
+      "status": "PASS"
+    },
+    {
+      "path": "results/signal_close_stops.csv.gz",
+      "scope": "PR518",
+      "sha256": "464d676d5b235189ac8b150d08072a6e7491b624cc71868e5e239679238ed968",
+      "status": "PASS"
+    },
+    {
+      "path": "results/signal_close_trades.csv",
+      "scope": "PR518",
+      "sha256": "c71b88ea860558c385cc5d9c05388cafbfa7c197fd639ad90787eda8f63d5a2f",
+      "status": "PASS"
+    },
+    {
+      "path": "results/signal_differences.csv.gz",
+      "scope": "PR518",
+      "sha256": "0f5982d6aec3136f3a07d104123059af690bb26c162318a43c5157b2963523a0",
+      "status": "PASS"
+    },
+    {
+      "path": "results/source_gaps.csv",
+      "scope": "PR518",
+      "sha256": "a443a546b61a65bdd56421e2ccd43bccf43953ad3745366ec22b4968171dec2b",
+      "status": "PASS"
+    },
+    {
+      "path": "results/source_manifest.json",
+      "scope": "PR518",
+      "sha256": "b3cb2ccea9c46b35ec71664318c8d99c0eabf09dfb48b3b36ee50f1b3be363ec",
+      "status": "PASS"
+    },
+    {
+      "path": "results/source_monthly_coverage.csv",
+      "scope": "PR518",
+      "sha256": "9597d5df8ad51c9bb9ed8ab5eac1f16e4282dab17485ea5af0d789994ba01cd0",
+      "status": "PASS"
+    },
+    {
+      "path": "results/test_results.txt",
+      "scope": "PR518",
+      "sha256": "a7178010b7ea30a6d77e71bd67375f36fafcdde56aca27a93c11ac4d4ff123ce",
+      "status": "PASS"
+    },
+    {
+      "path": "results/trade_differences.csv",
+      "scope": "PR518",
+      "sha256": "1ce40a30d10025d3846af4a059167dad49116149b78a1389d12a6e8cc5404e67",
+      "status": "PASS"
+    },
+    {
+      "path": "results/yearly_comparison.csv",
+      "scope": "PR518",
+      "sha256": "22e6be0937484688334472b945dfbb4764469edc3d07eaf0aa86ce052d3d3c24",
+      "status": "PASS"
+    },
+    {
+      "path": "run.py",
+      "scope": "PR518",
+      "sha256": "c636f28ea27964432fbd5d2020e1082bb60d17ec1841d56afc946e48498751bd",
+      "status": "PASS"
+    },
+    {
+      "path": "source.py",
+      "scope": "PR518",
+      "sha256": "29e6b56bce2283ca321b9331bade810d858201a7d6c45cf74ebd6eb6892c0136",
+      "status": "PASS"
+    },
+    {
+      "path": "test_causal.py",
+      "scope": "PR518",
+      "sha256": "f65000d3020af8ad115d8cd347719a392d9311c6cf983ca22d01eac8d0b18dd0",
+      "status": "PASS"
+    },
+    {
+      "path": "verify.py",
+      "scope": "PR518",
+      "sha256": "4911256e7b164694e93b321600c7e6e6409b1ff93c512a7028c1e37eeacf5930",
+      "status": "PASS"
+    },
+    {
+      "commit": "50f1fd2178c18b7ab3bd969be82ad01f47a34745",
+      "first_open": "2022-04-26 10:00:00",
+      "instrument": "USDRUBF",
+      "last_close": "2026-09-16 00:00:00",
+      "last_open": "2026-09-15 23:00:00",
+      "path": "forever/USDRUBF/USDRUBF_H1.csv",
+      "rows": 17116,
+      "scope": "DATA_BLOB",
+      "sha256": "f0ca366d816a6213742271242e87c53d1e23f5a5fc4655df0123217df418a226",
+      "status": "PASS",
+      "system": "H1"
+    },
+    {
+      "commit": "50f1fd2178c18b7ab3bd969be82ad01f47a34745",
+      "first_open": "2022-04-26 10:00:00",
+      "instrument": "CNYRUBF",
+      "last_close": "2026-09-16 00:00:00",
+      "last_open": "2026-09-15 23:00:00",
+      "path": "forever/CNYRUBF/CNYRUBF_H1.csv",
+      "rows": 17116,
+      "scope": "DATA_BLOB",
+      "sha256": "a3815b88a11aa5878b8bd104140f002859349c2c8d7f6ff0476a0d4c4d9a612e",
+      "status": "PASS",
+      "system": "H1"
+    },
+    {
+      "commit": "50f1fd2178c18b7ab3bd969be82ad01f47a34745",
+      "first_open": "2023-07-11 10:00:00",
+      "instrument": "GLDRUBF",
+      "last_close": "2026-09-16 00:00:00",
+      "last_open": "2026-09-15 23:00:00",
+      "path": "forever/GLDRUBF/GLDRUBF_H1.csv",
+      "rows": 13685,
+      "scope": "DATA_BLOB",
+      "sha256": "12a626ba6cc47fce2f392d4a6ce3bdb8a3c1aad074306a73ab480fcfbb83b87e",
+      "status": "PASS",
+      "system": "H1"
+    },
+    {
+      "commit": "50f1fd2178c18b7ab3bd969be82ad01f47a34745",
+      "first_open": "2023-11-14 10:00:00",
+      "instrument": "IMOEXF",
+      "last_close": "2026-09-16 00:00:00",
+      "last_open": "2026-09-15 23:00:00",
+      "path": "forever/IMOEXF/IMOEXF_H1.csv",
+      "rows": 12251,
+      "scope": "DATA_BLOB",
+      "sha256": "119878c12f602924296ab27b5b9f3cf51fa54f1a9370793892edbea58003e110",
+      "status": "PASS",
+      "system": "H1"
+    },
+    {
+      "commit": "f8486b446cf3d5f9f3cba6dfec32bdef8fd184c8",
+      "first_open": "2023-01-03 09:00:00",
+      "instrument": "USDRUBF",
+      "last_close": "2026-08-30 19:00:00",
+      "last_open": "2026-08-30 18:45:00",
+      "path": "forever/USDRUBF/USDRUBF_M15.csv",
+      "rows": 55808,
+      "scope": "DATA_BLOB",
+      "sha256": "fef80630080a4e2a5e968d620b663f51acd1b7ab9d5d326a42c68cf2b80c67b8",
+      "status": "PASS",
+      "system": "M15"
+    },
+    {
+      "commit": "f8486b446cf3d5f9f3cba6dfec32bdef8fd184c8",
+      "first_open": "2023-01-03 09:00:00",
+      "instrument": "CNYRUBF",
+      "last_close": "2026-08-30 19:00:00",
+      "last_open": "2026-08-30 18:45:00",
+      "path": "forever/CNYRUBF/CNYRUBF_M15.csv",
+      "rows": 55573,
+      "scope": "DATA_BLOB",
+      "sha256": "259298733d1528c0d917b100118896009519a9f08bdad33d4b373d9ce86f99b4",
+      "status": "PASS",
+      "system": "M15"
+    },
+    {
+      "commit": "f8486b446cf3d5f9f3cba6dfec32bdef8fd184c8",
+      "first_open": "2023-07-11 10:00:00",
+      "instrument": "GLDRUBF",
+      "last_close": "2026-09-16 00:00:00",
+      "last_open": "2026-09-15 23:45:00",
+      "path": "forever/GLDRUBF/GLDRUBF_M15.csv",
+      "rows": 52025,
+      "scope": "DATA_BLOB",
+      "sha256": "7381d672485b5687ca2c4d92aa5960c24bb132f527589bae3c622b2dfa20a83d",
+      "status": "PASS",
+      "system": "M15"
+    },
+    {
+      "commit": "f8486b446cf3d5f9f3cba6dfec32bdef8fd184c8",
+      "first_open": "2023-11-14 10:00:00",
+      "instrument": "IMOEXF",
+      "last_close": "2026-09-16 00:00:00",
+      "last_open": "2026-09-15 23:45:00",
+      "path": "forever/IMOEXF/IMOEXF_M15.csv",
+      "rows": 46215,
+      "scope": "DATA_BLOB",
+      "sha256": "a1b9fa6102a955103d61b28e81533ed19de68117e30fd84ceb53e8e617559773",
+      "status": "PASS",
+      "system": "M15"
+    }
+  ],
+  "data": [
+    {
+      "commit": "50f1fd2178c18b7ab3bd969be82ad01f47a34745",
+      "first_open": "2022-04-26 10:00:00",
+      "instrument": "USDRUBF",
+      "last_close": "2026-09-16 00:00:00",
+      "last_open": "2026-09-15 23:00:00",
+      "path": "forever/USDRUBF/USDRUBF_H1.csv",
+      "rows": 17116,
+      "sha256": "f0ca366d816a6213742271242e87c53d1e23f5a5fc4655df0123217df418a226",
+      "system": "H1"
+    },
+    {
+      "commit": "50f1fd2178c18b7ab3bd969be82ad01f47a34745",
+      "first_open": "2022-04-26 10:00:00",
+      "instrument": "CNYRUBF",
+      "last_close": "2026-09-16 00:00:00",
+      "last_open": "2026-09-15 23:00:00",
+      "path": "forever/CNYRUBF/CNYRUBF_H1.csv",
+      "rows": 17116,
+      "sha256": "a3815b88a11aa5878b8bd104140f002859349c2c8d7f6ff0476a0d4c4d9a612e",
+      "system": "H1"
+    },
+    {
+      "commit": "50f1fd2178c18b7ab3bd969be82ad01f47a34745",
+      "first_open": "2023-07-11 10:00:00",
+      "instrument": "GLDRUBF",
+      "last_close": "2026-09-16 00:00:00",
+      "last_open": "2026-09-15 23:00:00",
+      "path": "forever/GLDRUBF/GLDRUBF_H1.csv",
+      "rows": 13685,
+      "sha256": "12a626ba6cc47fce2f392d4a6ce3bdb8a3c1aad074306a73ab480fcfbb83b87e",
+      "system": "H1"
+    },
+    {
+      "commit": "50f1fd2178c18b7ab3bd969be82ad01f47a34745",
+      "first_open": "2023-11-14 10:00:00",
+      "instrument": "IMOEXF",
+      "last_close": "2026-09-16 00:00:00",
+      "last_open": "2026-09-15 23:00:00",
+      "path": "forever/IMOEXF/IMOEXF_H1.csv",
+      "rows": 12251,
+      "sha256": "119878c12f602924296ab27b5b9f3cf51fa54f1a9370793892edbea58003e110",
+      "system": "H1"
+    },
+    {
+      "commit": "f8486b446cf3d5f9f3cba6dfec32bdef8fd184c8",
+      "first_open": "2023-01-03 09:00:00",
+      "instrument": "USDRUBF",
+      "last_close": "2026-08-30 19:00:00",
+      "last_open": "2026-08-30 18:45:00",
+      "path": "forever/USDRUBF/USDRUBF_M15.csv",
+      "rows": 55808,
+      "sha256": "fef80630080a4e2a5e968d620b663f51acd1b7ab9d5d326a42c68cf2b80c67b8",
+      "system": "M15"
+    },
+    {
+      "commit": "f8486b446cf3d5f9f3cba6dfec32bdef8fd184c8",
+      "first_open": "2023-01-03 09:00:00",
+      "instrument": "CNYRUBF",
+      "last_close": "2026-08-30 19:00:00",
+      "last_open": "2026-08-30 18:45:00",
+      "path": "forever/CNYRUBF/CNYRUBF_M15.csv",
+      "rows": 55573,
+      "sha256": "259298733d1528c0d917b100118896009519a9f08bdad33d4b373d9ce86f99b4",
+      "system": "M15"
+    },
+    {
+      "commit": "f8486b446cf3d5f9f3cba6dfec32bdef8fd184c8",
+      "first_open": "2023-07-11 10:00:00",
+      "instrument": "GLDRUBF",
+      "last_close": "2026-09-16 00:00:00",
+      "last_open": "2026-09-15 23:45:00",
+      "path": "forever/GLDRUBF/GLDRUBF_M15.csv",
+      "rows": 52025,
+      "sha256": "7381d672485b5687ca2c4d92aa5960c24bb132f527589bae3c622b2dfa20a83d",
+      "system": "M15"
+    },
+    {
+      "commit": "f8486b446cf3d5f9f3cba6dfec32bdef8fd184c8",
+      "first_open": "2023-11-14 10:00:00",
+      "instrument": "IMOEXF",
+      "last_close": "2026-09-16 00:00:00",
+      "last_open": "2026-09-15 23:45:00",
+      "path": "forever/IMOEXF/IMOEXF_M15.csv",
+      "rows": 46215,
+      "sha256": "a1b9fa6102a955103d61b28e81533ed19de68117e30fd84ceb53e8e617559773",
+      "system": "M15"
+    }
+  ],
+  "forensic_HL": "Authorized per-trade source-derived High/Low observations retained, not raw OHLCV file copies",
+  "full_period_use": "CONTROL reconciliation only; no discovery tables or candidate comparisons",
+  "independence": "Separate scalar algorithm; same author, no external human signoff",
+  "main_at_start": "38489db7e69336548a583f968f13aab49c20913b",
+  "main_verified": "c3695b1304aef1acdd889264b3451184f7332bf7",
+  "pr518_head": "d85cf85083d6fea047a1a960c9ead441f7b4a6ed",
+  "pr557_head": "5836971e7ff8e472d8128c675c4f837b40a036ef",
+  "pr560_head": "90a0a552c05f9ae280f4f2350fd013ea507ea00f",
+  "protocol_commit": "e00cf40dc7b45d590e914a5d0f66316eca507769",
+  "runtime": {
+    "numpy": "2.3.5",
+    "pandas": "2.2.3",
+    "python": "3.12.14"
+  },
+  "source_data_copied": false,
+  "source_files_copied": false,
+  "status": "PASS"
+}
