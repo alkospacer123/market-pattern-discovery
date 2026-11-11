@@ -35,3 +35,7 @@ Shallow-only с общим банком — *отдельная альтерна
 ## R043 — H1/H4 Ledge и Multi-Session Staircase, 11.11.2026
 
 [Отчёт R043](TRL_R_2026_043_STS_MTF_Staircase_Research.md), [исходные правила](experiments/r043/FROZEN_PROTOCOL.md), независимый audit 321 cash trades PASS. MTF Ledge BASE 313 сделок PF R1,628; TP6+protect 316 PF R1,500; 2025 TP6 PF R1,214. Staircase BASE 22 сделки PF R2,826; убыточные 2024/2026, после пяти лучших −8,22R. Три собственных счёта 45k, GO Oct, TP6: V20 +381608 ₽ / PF ₽1,845 / DD11775 ₽; замена Inside на MTF +382499 ₽ / PF1,762 / DD14651 ₽. Остальные замены хуже по совокупности. Статичные GO/C1, closed DD не MTM, **НЕ TRUE OOS**. **Решение** `NO_REPLACEMENT / LIVE_UNCHANGED`, Staircase только архив будущего prospective.
+
+## R045 — V20 против Shallow-only, money/MTM/GO risk, 11.11.2026
+
+[Исследование](TRL_R_2026_045_V20_vs_Shallow_MTM_Research.md) · 60 сценариев, 20 historical exact parity PASS, полная серия M15-close equity, 3 банка, 2 GO, BASE и TP6. Капитал 135k, GO Oct, TP6: B=V20 60/30/45 +422224 ₽, PF1,914, closedDD12941 ₽, M15DD18667 ₽, 42/45 месяцев; C=Shallow-only риск 0,667% +404160 ₽, PF1,995, M15DD16563 ₽, 39/45. GO Nov: B +283607 ₽ / M15DD15818 ₽; C риск 0,5% +285066 ₽ / M15DD11416 ₽. GO reserve peak ~98–100% всего банка, статичные прокси, реальные FINAM расходы, variation margin, стоповые гэпы, true intrabar MTM и TRUE OOS отсутствуют. Нельзя выбрать B только по 42 месяцам или C только по +666k ₽ при 1,5% риске. **HOLD_FORWARD / KEEP_V20_LIVE / SHALLOW_ONLY_LOW_RISK_CANDIDATE**. 
