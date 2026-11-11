@@ -5,7 +5,7 @@
 
 ## 1. Что зафиксировано до теста
 
-Протокол: [`FROZEN_PROTOCOL.md`](FROZEN_PROTOCOL.md), SHA256 `da6327e30ea8e8f6c69f02294177ac95938b1a7c743814eebb33d77cd96c021c`. Движок и сигналы без модификации исходной логики R047.  
+Протокол: [`FROZEN_PROTOCOL.md`](experiments/r048/FROZEN_PROTOCOL.md), SHA256 `da6327e30ea8e8f6c69f02294177ac95938b1a7c743814eebb33d77cd96c021c`. Движок и сигналы без модификации исходной логики R047.  
 Источники: R047 + исторические SHA-контролируемые N4 M15 OHLCV из R039 и реплей R038/R045. Интервал январь 2023 — сентябрь 2026 (2026 — неполный год). Предыдущие исследования использовали всю историю, поэтому `OOS_COMPROMISED`.
 
 Проверяем только четыре заранее названных варианта одного R047 EARLY, без поиска оптимальных порогов:
@@ -131,4 +131,4 @@ Kurth et al., 2 июля 2026, [Is Trend Still Your Friend?](https://arxiv.org/a
 
 - `run_r048.py`, `audit_r048.py`, `diagnostics_r048.py`, `FROZEN_PROTOCOL.md`
 - `results/module_cash.csv`, `results/portfolio.csv`, `results/year_symbol.csv`, `results/cost_outlier_stress.csv`, `results/missed_event_coverage.csv`, `results/overlap.csv`, `results/paired_monthly_portfolio.csv`, `results/INDEPENDENT_AUDIT.json`
-- [Excel R048](TRL_R_2026_048_Early_Trend_Quality.xlsx) с деталями, прилагаемый к исследованию.
+- Excel R048 — приложен к исследованию в ChatGPT; в GitHub не дублируется. с деталями, прилагаемый к исследованию.
