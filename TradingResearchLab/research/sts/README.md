@@ -47,3 +47,9 @@
 ## R045 — денежный риск и M15 equity (11.11.2026)
 
 [Отчёт R045](TRL_R_2026_045_V20_vs_Shallow_MTM_Research.md) · [замороженный протокол](experiments/r045/FROZEN_PROTOCOL.md) · [общий Journal](../../journal/2026-11-11-sts-r045-v20-shallow-mtm.md). 60 historical offline сценариев, 20 точных денежных parity PASS. Три модели: A V20 45/45/45, B V20 60/30/45, C Shallow-only с единым капиталом (C не STS). Для 135k ГО Oct TP6: B +422224 ₽ / M15DD18667 ₽; C при риске 0,667% +404160 ₽ / M15DD16563 ₽. При GO Nov C 0,5% +285066 ₽ / M15DD11416 ₽ против B +283607 ₽ / M15DD15818 ₽. GO занимает почти весь банк, комиссия FINAM и истинная внутрисвечная MTM не проверены. **HOLD_FORWARD / KEEP_V20_LIVE**, Shallow-only low-risk оставить исследовательским кандидатом; объединение счетов STS НЕ одобрено.
+
+## R046 — Inside и сигнальные пробелы ноября 2026
+
+[Подробный R046](TRL_R_2026_046_Inside_and_Missed_Trends_Research.md) · [замороженные правила Drive](experiments/r046/FROZEN_PROTOCOL.md) · [Journal](../../journal/2026-11-11-sts-r046-inside-missed-trends.md). Из пользовательских M15 CSV за 9–10 ноября frozen Classic/OBV/Inside не дали raw сигналов по USD/CNY/IMOEX (по GLD frozen Shallow 3 и OBV 2); CSV обрываются 11.11 в 08:30, скрин 17:55 вне данных. Исследовательский Drive Continuation находит ноябрьские breakouts без коррекции, но исторически GO Oct TP6 PF1,506, 2026 YTD убыточен, при замене Inside портфельная DD примерно удваивается — `REJECT_CORE`.
+
+Отдельно Shallow90k TP6+Inside45k TP6: +485202 ₽ / M15DD21827 ₽; с Inside BASE +510709 ₽ / M15DD22907 ₽, Oct GO, против V20 60/30/45 TP6 +422224 ₽ / M15DD18667 ₽. Inside положителен в 3/6 отрицательных месяцев Shallow90, не является постоянной защитой. **Двухсчётный Shallow+Inside — CANDIDATE_FOR_FORWARD, но LIVE V20 пока неизменна; V20 не объявлена оптимальной моделью.**
