@@ -1,0 +1,31 @@
+{
+  "cases": [
+    "test_commission_once",
+    "test_fractional_half",
+    "test_h1_entry_extremes_unavailable",
+    "test_h1_residual_blocks_reentry",
+    "test_h1_trail1_deferred",
+    "test_initial_risk_immutable",
+    "test_long_adverse_gap",
+    "test_long_partial_then_final",
+    "test_long_rounding",
+    "test_long_stop_first",
+    "test_m15_execution_bar_stop_first",
+    "test_m15_execution_bar_tp",
+    "test_m15_gap_cancels_pending",
+    "test_month_year_carry",
+    "test_one_contract",
+    "test_short_adverse_gap",
+    "test_short_partial_then_final",
+    "test_short_rounding",
+    "test_short_stop_first",
+    "test_short_tp_favorable_gap_observed_open",
+    "test_three_contracts",
+    "test_tp_favorable_gap_observed_open",
+    "test_tp_once"
+  ],
+  "errors": 0,
+  "failures": 0,
+  "status": "PASS",
+  "tests": 23
+}

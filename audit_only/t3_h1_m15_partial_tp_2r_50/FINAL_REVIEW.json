@@ -1,0 +1,43 @@
+{
+  "H1": "INCONCLUSIVE",
+  "M15": "INCONCLUSIVE",
+  "base_main": "38489db7e69336548a583f968f13aab49c20913b",
+  "corrected_code_commit": "1f2c7e450e36c91c77123d94d05138a2f14dc62b",
+  "execution_correction_reconciliation": {
+    "H1": {
+      "all_PNL_differences_explained_by_corrected_fill": true,
+      "capital_metrics_unknown_not_zero": true,
+      "favorable_gap_TP_fill_price_corrections": 10,
+      "immutable_entry_stop_risk_quantity_final_exit_fields_equal_to_preliminary": true
+    },
+    "M15": {
+      "all_PNL_differences_explained_by_corrected_fill": true,
+      "capital_metrics_unknown_not_zero": true,
+      "favorable_gap_TP_fill_price_corrections": 5,
+      "immutable_entry_stop_risk_quantity_final_exit_fields_equal_to_preliminary": true
+    }
+  },
+  "full_repeats_verified_again": true,
+  "monetary_model": "CASH_MODEL_NOT_VALIDATED",
+  "price_correction": "Prior results superseded; target 2R / fraction 50% / criteria unchanged; final TP fills independently checked inside observed range and grid",
+  "protected_source_trees": {
+    "ControlCenter": {
+      "file_count": 122,
+      "git_tree_listing_sha256": "290750cda057467b3ecdc4fbd0edb2ec5aa409436a09b7a7041be1d3e8793998",
+      "unchanged": true
+    },
+    "IntradayLab": {
+      "file_count": 14213,
+      "git_tree_listing_sha256": "00d647dbc8b4c561262cde14415ebc6752150c3b124a7e7a39f9b9b215c2e10f",
+      "unchanged": true
+    },
+    "TradingSystemLab": {
+      "file_count": 3059,
+      "git_tree_listing_sha256": "0b943b6f3d69fb28bdfd5d4b13dd064a8688aedb6b089d0abe1a83a7d3c59c6b",
+      "unchanged": true
+    }
+  },
+  "required_output_files": 23,
+  "scope": "Only added files under audit_only/t3_h1_m15_partial_tp_2r_50/",
+  "status": "INTERNAL_FINAL_REVIEW_PASS_EXTERNAL_AUDIT_PENDING"
+}

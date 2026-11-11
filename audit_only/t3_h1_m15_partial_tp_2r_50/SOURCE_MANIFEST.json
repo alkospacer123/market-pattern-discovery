@@ -1,0 +1,1150 @@
+{
+  "cash_missing": [
+    "dated historical GO/margin series and changes",
+    "dated historical tick value/spec authority",
+    "starting equity and cashflows for each separate replay/account",
+    "verified historical fees, slippage and perpetual funding/settlement costs"
+  ],
+  "cash_status": "CASH_MODEL_NOT_VALIDATED",
+  "data": [
+    {
+      "commit": "50f1fd2178c18b7ab3bd969be82ad01f47a34745",
+      "first_open": "2022-04-26 10:00:00",
+      "instrument": "USDRUBF",
+      "last_close": "2026-09-16 00:00:00",
+      "last_open": "2026-09-15 23:00:00",
+      "path": "forever/USDRUBF/USDRUBF_H1.csv",
+      "rows": 17116,
+      "sha256": "f0ca366d816a6213742271242e87c53d1e23f5a5fc4655df0123217df418a226",
+      "system": "H1"
+    },
+    {
+      "commit": "50f1fd2178c18b7ab3bd969be82ad01f47a34745",
+      "first_open": "2022-04-26 10:00:00",
+      "instrument": "CNYRUBF",
+      "last_close": "2026-09-16 00:00:00",
+      "last_open": "2026-09-15 23:00:00",
+      "path": "forever/CNYRUBF/CNYRUBF_H1.csv",
+      "rows": 17116,
+      "sha256": "a3815b88a11aa5878b8bd104140f002859349c2c8d7f6ff0476a0d4c4d9a612e",
+      "system": "H1"
+    },
+    {
+      "commit": "50f1fd2178c18b7ab3bd969be82ad01f47a34745",
+      "first_open": "2023-07-11 10:00:00",
+      "instrument": "GLDRUBF",
+      "last_close": "2026-09-16 00:00:00",
+      "last_open": "2026-09-15 23:00:00",
+      "path": "forever/GLDRUBF/GLDRUBF_H1.csv",
+      "rows": 13685,
+      "sha256": "12a626ba6cc47fce2f392d4a6ce3bdb8a3c1aad074306a73ab480fcfbb83b87e",
+      "system": "H1"
+    },
+    {
+      "commit": "50f1fd2178c18b7ab3bd969be82ad01f47a34745",
+      "first_open": "2023-11-14 10:00:00",
+      "instrument": "IMOEXF",
+      "last_close": "2026-09-16 00:00:00",
+      "last_open": "2026-09-15 23:00:00",
+      "path": "forever/IMOEXF/IMOEXF_H1.csv",
+      "rows": 12251,
+      "sha256": "119878c12f602924296ab27b5b9f3cf51fa54f1a9370793892edbea58003e110",
+      "system": "H1"
+    },
+    {
+      "commit": "f8486b446cf3d5f9f3cba6dfec32bdef8fd184c8",
+      "first_open": "2023-01-03 09:00:00",
+      "instrument": "USDRUBF",
+      "last_close": "2026-08-30 19:00:00",
+      "last_open": "2026-08-30 18:45:00",
+      "path": "forever/USDRUBF/USDRUBF_M15.csv",
+      "rows": 55808,
+      "sha256": "fef80630080a4e2a5e968d620b663f51acd1b7ab9d5d326a42c68cf2b80c67b8",
+      "system": "M15"
+    },
+    {
+      "commit": "f8486b446cf3d5f9f3cba6dfec32bdef8fd184c8",
+      "first_open": "2023-01-03 09:00:00",
+      "instrument": "CNYRUBF",
+      "last_close": "2026-08-30 19:00:00",
+      "last_open": "2026-08-30 18:45:00",
+      "path": "forever/CNYRUBF/CNYRUBF_M15.csv",
+      "rows": 55573,
+      "sha256": "259298733d1528c0d917b100118896009519a9f08bdad33d4b373d9ce86f99b4",
+      "system": "M15"
+    },
+    {
+      "commit": "f8486b446cf3d5f9f3cba6dfec32bdef8fd184c8",
+      "first_open": "2023-07-11 10:00:00",
+      "instrument": "GLDRUBF",
+      "last_close": "2026-09-16 00:00:00",
+      "last_open": "2026-09-15 23:45:00",
+      "path": "forever/GLDRUBF/GLDRUBF_M15.csv",
+      "rows": 52025,
+      "sha256": "7381d672485b5687ca2c4d92aa5960c24bb132f527589bae3c622b2dfa20a83d",
+      "system": "M15"
+    },
+    {
+      "commit": "f8486b446cf3d5f9f3cba6dfec32bdef8fd184c8",
+      "first_open": "2023-11-14 10:00:00",
+      "instrument": "IMOEXF",
+      "last_close": "2026-09-16 00:00:00",
+      "last_open": "2026-09-15 23:45:00",
+      "path": "forever/IMOEXF/IMOEXF_M15.csv",
+      "rows": 46215,
+      "sha256": "a1b9fa6102a955103d61b28e81533ed19de68117e30fd84ceb53e8e617559773",
+      "system": "M15"
+    }
+  ],
+  "execution_correction": "Preliminary target-price gap credits superseded; final TP fills use observed Open for favorable gaps",
+  "execution_correction_evidence_sha256": "9a5b1baea298b8caa7782cd447d0734b5dca8e5b31ccffb50bc25405307f8906",
+  "execution_correction_protocol_commit": "9cf853b536eaf2c069b2301c5476d9980d35ed9e",
+  "experiment_code_sha256": {
+    "analyze.py": "5e1bc3255fbd8079301ee190a815c79d201f5dc60996f1e5825732d760a6721a",
+    "common.py": "878260548db77f436f129f83e3639cd18f318868b08bf5e9c994895359ab7e21",
+    "engines.py": "4067065bcf1436d3007eecd8721697cef60f46414d0d99a4260b2c23f1ae7fc1",
+    "reconcile.py": "c8af2111d57ce93cd0bdc14e914a8d1009ecdac36e28565428e1660f6aca2e43",
+    "repeat.py": "004f9fe8cd13add37c450679d7757760756fbd089611fa98870fd0b2381ea221",
+    "report.py": "e708c61a3eb79e5c9989f0dea514e7012944005412a0a492a3b9bd5519cbf327",
+    "run.py": "0b194be4faf8d9760fb35eb77399ed51b27161a0f3db7de39e11fc06a9157c2c",
+    "sources.py": "b6ff9867d6cc6bf8de3e678d687a83ac98ab6ec6015eb9bb2270364ce3c85e56",
+    "test_synthetic.py": "383a6235135535c841c6f7b60f485ce46e4e7e3831b862fe20b4d1f4226ca585",
+    "verify.py": "6652f9a6fdcfb0fd9fbc17f96c7cf414017283297771cbe5c1bb4958eb018719"
+  },
+  "grid_source": "Authenticated static production registry snapshot; historical invariance not attested",
+  "h1_identity": {
+    "accepted_evidence": {
+      "CANONICAL_R15_REFERENCE": {
+        "cagr_2024_plus_pct": 109.127844528,
+        "max_drawdown_pct": -16.3447661141,
+        "positive_complete_quarters": "9/10",
+        "positive_months": "21/33"
+      },
+      "TRAIL1_R15": {
+        "cagr_2024_plus_pct": 122.444495514,
+        "max_drawdown_pct": -19.9598387654,
+        "positive_complete_quarters": "10/10",
+        "positive_months": "23/33",
+        "return_2024_pct": 165.280419816,
+        "return_2025_pct": 74.3831505316,
+        "return_2026_ytd_pct": 88.3106185615,
+        "time_weighted_average_open_risk_pct": 1.02405093074
+      },
+      "window": "2024-01-01 through 2026-09-15 authenticated endpoint"
+    },
+    "basket": {
+      "dynamic_selection": false,
+      "id": "N4_01",
+      "instruments": [
+        "USDRUBF",
+        "CNYRUBF",
+        "GLDRUBF",
+        "IMOEXF"
+      ],
+      "maximum_simultaneous_instruments": 4
+    },
+    "canonical_active_payload_sha256": "46db784378797c7fb04636892350aff21006d71a31f2ced9d4b974eda2dc36b8",
+    "contract_mapping": "BROKER_ADAPTER_BINDING_REQUIRED_STAGE8",
+    "cost_evidence_contract": {
+      "live_fees": "BROKER_ADAPTER_BINDING_REQUIRED_STAGE8",
+      "name": "C1",
+      "normalized_research_tick": 0.001,
+      "round_trip_ticks": 2,
+      "ticks_per_side": 1
+    },
+    "decision_authority": "explicit human selection after accepted Stage 6 final four-case comparison",
+    "equity": {
+      "basis": "realized equity only; open/unrealized PnL excluded",
+      "realized_pnl": "applied on EXIT before later same-timestamp ENTRY sizing",
+      "starting_equity": "required runtime input"
+    },
+    "event_order": [
+      "timestamp_ascending",
+      "EXIT_before_ENTRY",
+      "deterministic_trade_instrument_order_identity_ascending"
+    ],
+    "identity": "TRAIL1__N4_01__FULL__R15",
+    "position_model": {
+      "one_active_position_per_instrument": true,
+      "pyramiding": false,
+      "repeated_entry_while_open": false,
+      "reversal": "no atomic reversal; exit only by active stop, then independently evaluate a new signal"
+    },
+    "production_specification_id": "PROD_STAGE7_46DB784378797C7FB04636892350AFF21006D71A31F2CED9D4B974EDA2DC36B8",
+    "research_generation": "v3_perpetual",
+    "risk": {
+      "equal_split": false,
+      "load": "FULL",
+      "maximum_nominal_simultaneous_initial_risk": 0.06,
+      "mode": "R15",
+      "risk_cash": "current_equity * 0.015",
+      "risk_cash_frozen_at_entry": true,
+      "risk_fraction_per_new_instrument_position": 0.015
+    },
+    "schedule": {
+      "entry_time_filter": null,
+      "session_10_21": false
+    },
+    "schema_version": 1,
+    "stage8_started": false,
+    "status": "ACTIVE_PRODUCTION_SPECIFICATION",
+    "strategy": {
+      "candidate": "T3_H1_candidate_v3",
+      "configuration_id": "T3-H1-4e73cdb77246",
+      "name": "T3",
+      "parameter_sha256": "4e73cdb77246cb07b5953160b9fc0ab36bfd4bd6d9a7f7faaae7e6e392ee340a",
+      "parameters": {
+        "adx_period": 14,
+        "adx_threshold": 20.0,
+        "atr_average_period": 20,
+        "atr_period": 14,
+        "breakout_period": 20,
+        "ema_period": 100,
+        "slope_lookback": 5,
+        "stop_atr": 2.5,
+        "trail_atr": 3.0
+      },
+      "source_sha256": "840dd3b2cda43fa00259445cd0a22ace6d82e677f4c793028ccc8126f9ad9a8c",
+      "timeframe": "H1"
+    },
+    "variant": {
+      "activation": "first later event; never trigger event/bar",
+      "authoritative_ledger_sha256": "b773811cb39df3c2585bf3aa278195ccb6e1777dcc664b714b2c74a2bc3badde",
+      "forbidden_overlays": [
+        "BE1",
+        "LOCK1_AFTER_2R",
+        "SESSION_10_21",
+        "ONE_BAR",
+        "EXIT_ON_OPPOSITE_REGIME",
+        "STRUCTURAL_STACK"
+      ],
+      "initial_risk_frozen": true,
+      "name": "TRAIL1",
+      "source_sha256": "d1d8ac2eeea9095becd6f74295e4a540d02ee0494237af5f16f6d66a487f221b",
+      "tighten_only": true,
+      "trigger_r": 1.0
+    }
+  },
+  "implementation_commit": "1f2c7e450e36c91c77123d94d05138a2f14dc62b",
+  "m15_spec": {
+    "costs": "GROSS_ONLY; user prohibits FINAM cost modelling",
+    "data": "f8486b446cf3d5f9f3cba6dfec32bdef8fd184c8",
+    "end_exclusive": "2026-10-14T00:00:00+03:00",
+    "event_order": "Resolve pending using only adjacency and Open; check old Stop (adverse Open fill, else intrabar touch at Stop); survived candle trail; evaluate completed Close signal; one position per symbol; same-Close reentry allowed after exit",
+    "exit_timestamp": "Frozen historical EXIT candle CLOSE timestamp, including Open-gap exits. Metrics sort exit_time/instrument/trade_id; years/months by that timestamp",
+    "h1": "Groups of four M15 in each CLOSE-date ordinal sequence; publish only count=4 and last-first=45min; discard incomplete/gapped blocks without repacking. Recursive indicators cross dates and years.",
+    "independence": "New dataframe primary and separately written stdlib streaming verifier; no frozen executable imports; one author, no external human audit",
+    "indicators": "adjust=False EWM: EMA75 min75, slope5, Wilder ATR14 min14, ADX14 min14; H1 ATR/rolling20 ATR mean>1 and ADX>20; LONG H1 Close>EMA and slope>0, SHORT reverse; M15 Donchian20 strictly prior candles, strict Close breakout",
+    "initial_stop": "entry-side*2*signal ATR14; immutable risk=abs(entry-initial_stop)",
+    "main": "d6946056332ce71658a6ca933cefa0740a7570a2",
+    "models": [
+      "T1_SIGNAL_CLOSE_TRAIL_3p5",
+      "T1_NEXT_OPEN_TRAIL_3p5"
+    ],
+    "next_open": "CAUSAL_NEXT_OPEN; immediately adjacent next M15 Open timestamp=signal Close; absent adjacency cancel; initial Stop live on execution candle",
+    "pr514": "4ae4761837937279eee34bc834c7ec75f066ec81",
+    "pr517": "fbe5e54686e5eba4cae2db5c6f47898dba6605b7",
+    "repeats": "First full independent run and two fresh full deterministic reruns; every generated CSV/JSON/gzip/report byte compared",
+    "selection": "Fixed user choice, no parameter search; retrospective replication, no new OOS or LIVE claim",
+    "session": "Completed signal Close [10:00,18:00) Europe/Moscow",
+    "signal_close": "IDEALIZED_SIGNAL_CLOSE; enter at completed signal Close; never stop-test or trail on signal extremes",
+    "start_inclusive": "2023-01-01T00:00:00+03:00",
+    "stop": "One Draft PR; no merge, auto-merge or LIVE",
+    "study": "T3_M15_SESSION_T1_ENTRY_RETEST_V1",
+    "symbols": [
+      "USDRUBF",
+      "CNYRUBF",
+      "GLDRUBF",
+      "IMOEXF"
+    ],
+    "tolerance": 1e-08,
+    "trailing": "Immediate after each survived post-entry completed candle; favorable accumulated extreme minus side*3.5*current ATR; tighten only; effective next observed candle; no +1R delay"
+  },
+  "main_at_start": "38489db7e69336548a583f968f13aab49c20913b",
+  "models": [
+    "FRACTIONAL_REFERENCE",
+    "EXECUTABLE_INTEGER"
+  ],
+  "pr518": {
+    "head": "d85cf85083d6fea047a1a960c9ead441f7b4a6ed",
+    "merge": "a77fc3ce79db693041c06192f6525f6847017de7",
+    "number": 518
+  },
+  "pr540": {
+    "head": "8b2c23fdf2960a201b086c4ad69d07ac1bfd8257",
+    "number": 540,
+    "parsed_literals": {
+      "ENTRY_MODEL": "NEXT_OPEN",
+      "EXECUTION_STATUS": "NOT_LIVE_AUTHORIZED",
+      "INSTRUMENTS": [
+        "USDRUBF",
+        "CNYRUBF",
+        "GLDRUBF",
+        "IMOEXF"
+      ],
+      "MAX_OPEN_INSTRUMENTS": 4,
+      "RESEARCH_BUILD_ID": "T1_NEXT_OPEN_TRAIL_3p5",
+      "ROBOT_ID": "T3_M15_T1_TRAIL35_N4_R15",
+      "TIMEFRAME_MINUTES": 15
+    },
+    "spec_sha256": "f2e87ec88fce5200b0f103a3b87945a9b10d58210022338511192e796cdc2e08"
+  },
+  "protocol_commit": "4b61ca35ab8e6903bc6d330a2569e1f523c8fafe",
+  "protocol_sha256": "2fe0bac4c49c9bb8480f804a13f35d4d2170ec87f8c3bb6e3914c0861d3c8981",
+  "replay_coverage": [
+    {
+      "first_completed": "2023-01-03T10:00:00+03:00",
+      "fold_id": "",
+      "instrument": "CNYRUBF",
+      "last_completed": "2024-12-31T00:00:00+03:00",
+      "lifecycle": "baseline",
+      "months": [
+        "2023-01",
+        "2023-02",
+        "2023-03",
+        "2023-04",
+        "2023-05",
+        "2023-06",
+        "2023-07",
+        "2023-08",
+        "2023-09",
+        "2023-10",
+        "2023-11",
+        "2023-12",
+        "2024-01",
+        "2024-02",
+        "2024-03",
+        "2024-04",
+        "2024-05",
+        "2024-06",
+        "2024-07",
+        "2024-08",
+        "2024-09",
+        "2024-10",
+        "2024-11",
+        "2024-12"
+      ],
+      "observed_bars": 7816,
+      "system": "H1"
+    },
+    {
+      "first_completed": "2023-07-11T11:00:00+03:00",
+      "fold_id": "",
+      "instrument": "GLDRUBF",
+      "last_completed": "2024-12-31T00:00:00+03:00",
+      "lifecycle": "baseline",
+      "months": [
+        "2023-07",
+        "2023-08",
+        "2023-09",
+        "2023-10",
+        "2023-11",
+        "2023-12",
+        "2024-01",
+        "2024-02",
+        "2024-03",
+        "2024-04",
+        "2024-05",
+        "2024-06",
+        "2024-07",
+        "2024-08",
+        "2024-09",
+        "2024-10",
+        "2024-11",
+        "2024-12"
+      ],
+      "observed_bars": 5851,
+      "system": "H1"
+    },
+    {
+      "first_completed": "2023-11-14T11:00:00+03:00",
+      "fold_id": "",
+      "instrument": "IMOEXF",
+      "last_completed": "2024-12-31T00:00:00+03:00",
+      "lifecycle": "baseline",
+      "months": [
+        "2023-11",
+        "2023-12",
+        "2024-01",
+        "2024-02",
+        "2024-03",
+        "2024-04",
+        "2024-05",
+        "2024-06",
+        "2024-07",
+        "2024-08",
+        "2024-09",
+        "2024-10",
+        "2024-11",
+        "2024-12"
+      ],
+      "observed_bars": 4398,
+      "system": "H1"
+    },
+    {
+      "first_completed": "2023-01-03T10:00:00+03:00",
+      "fold_id": "",
+      "instrument": "USDRUBF",
+      "last_completed": "2024-12-31T00:00:00+03:00",
+      "lifecycle": "baseline",
+      "months": [
+        "2023-01",
+        "2023-02",
+        "2023-03",
+        "2023-04",
+        "2023-05",
+        "2023-06",
+        "2023-07",
+        "2023-08",
+        "2023-09",
+        "2023-10",
+        "2023-11",
+        "2023-12",
+        "2024-01",
+        "2024-02",
+        "2024-03",
+        "2024-04",
+        "2024-05",
+        "2024-06",
+        "2024-07",
+        "2024-08",
+        "2024-09",
+        "2024-10",
+        "2024-11",
+        "2024-12"
+      ],
+      "observed_bars": 7813,
+      "system": "H1"
+    },
+    {
+      "first_completed": "2025-01-03T10:00:00+03:00",
+      "fold_id": "",
+      "instrument": "CNYRUBF",
+      "last_completed": "2026-09-16T00:00:00+03:00",
+      "lifecycle": "historical_true_oos",
+      "months": [
+        "2025-01",
+        "2025-02",
+        "2025-03",
+        "2025-04",
+        "2025-05",
+        "2025-06",
+        "2025-07",
+        "2025-08",
+        "2025-09",
+        "2025-10",
+        "2025-11",
+        "2025-12",
+        "2026-01",
+        "2026-02",
+        "2026-03",
+        "2026-04",
+        "2026-05",
+        "2026-06",
+        "2026-07",
+        "2026-08",
+        "2026-09"
+      ],
+      "observed_bars": 7093,
+      "system": "H1"
+    },
+    {
+      "first_completed": "2025-01-03T10:00:00+03:00",
+      "fold_id": "",
+      "instrument": "GLDRUBF",
+      "last_completed": "2026-09-16T00:00:00+03:00",
+      "lifecycle": "historical_true_oos",
+      "months": [
+        "2025-01",
+        "2025-02",
+        "2025-03",
+        "2025-04",
+        "2025-05",
+        "2025-06",
+        "2025-07",
+        "2025-08",
+        "2025-09",
+        "2025-10",
+        "2025-11",
+        "2025-12",
+        "2026-01",
+        "2026-02",
+        "2026-03",
+        "2026-04",
+        "2026-05",
+        "2026-06",
+        "2026-07",
+        "2026-08",
+        "2026-09"
+      ],
+      "observed_bars": 7834,
+      "system": "H1"
+    },
+    {
+      "first_completed": "2025-01-03T10:00:00+03:00",
+      "fold_id": "",
+      "instrument": "IMOEXF",
+      "last_completed": "2026-09-16T00:00:00+03:00",
+      "lifecycle": "historical_true_oos",
+      "months": [
+        "2025-01",
+        "2025-02",
+        "2025-03",
+        "2025-04",
+        "2025-05",
+        "2025-06",
+        "2025-07",
+        "2025-08",
+        "2025-09",
+        "2025-10",
+        "2025-11",
+        "2025-12",
+        "2026-01",
+        "2026-02",
+        "2026-03",
+        "2026-04",
+        "2026-05",
+        "2026-06",
+        "2026-07",
+        "2026-08",
+        "2026-09"
+      ],
+      "observed_bars": 7853,
+      "system": "H1"
+    },
+    {
+      "first_completed": "2025-01-03T10:00:00+03:00",
+      "fold_id": "",
+      "instrument": "USDRUBF",
+      "last_completed": "2026-09-16T00:00:00+03:00",
+      "lifecycle": "historical_true_oos",
+      "months": [
+        "2025-01",
+        "2025-02",
+        "2025-03",
+        "2025-04",
+        "2025-05",
+        "2025-06",
+        "2025-07",
+        "2025-08",
+        "2025-09",
+        "2025-10",
+        "2025-11",
+        "2025-12",
+        "2026-01",
+        "2026-02",
+        "2026-03",
+        "2026-04",
+        "2026-05",
+        "2026-06",
+        "2026-07",
+        "2026-08",
+        "2026-09"
+      ],
+      "observed_bars": 7058,
+      "system": "H1"
+    },
+    {
+      "first_completed": "2024-01-03T09:00:00+03:00",
+      "fold_id": "WF01",
+      "instrument": "CNYRUBF",
+      "last_completed": "2024-03-30T00:00:00+03:00",
+      "lifecycle": "walk_forward",
+      "months": [
+        "2024-01",
+        "2024-02",
+        "2024-03"
+      ],
+      "observed_bars": 974,
+      "system": "H1"
+    },
+    {
+      "first_completed": "2024-01-03T09:00:00+03:00",
+      "fold_id": "WF01",
+      "instrument": "GLDRUBF",
+      "last_completed": "2024-03-30T00:00:00+03:00",
+      "lifecycle": "walk_forward",
+      "months": [
+        "2024-01",
+        "2024-02",
+        "2024-03"
+      ],
+      "observed_bars": 964,
+      "system": "H1"
+    },
+    {
+      "first_completed": "2024-01-03T09:00:00+03:00",
+      "fold_id": "WF01",
+      "instrument": "IMOEXF",
+      "last_completed": "2024-03-30T00:00:00+03:00",
+      "lifecycle": "walk_forward",
+      "months": [
+        "2024-01",
+        "2024-02",
+        "2024-03"
+      ],
+      "observed_bars": 946,
+      "system": "H1"
+    },
+    {
+      "first_completed": "2024-01-03T09:00:00+03:00",
+      "fold_id": "WF01",
+      "instrument": "USDRUBF",
+      "last_completed": "2024-03-30T00:00:00+03:00",
+      "lifecycle": "walk_forward",
+      "months": [
+        "2024-01",
+        "2024-02",
+        "2024-03"
+      ],
+      "observed_bars": 971,
+      "system": "H1"
+    },
+    {
+      "first_completed": "2024-04-01T09:00:00+03:00",
+      "fold_id": "WF02",
+      "instrument": "CNYRUBF",
+      "last_completed": "2024-06-29T00:00:00+03:00",
+      "lifecycle": "walk_forward",
+      "months": [
+        "2024-04",
+        "2024-05",
+        "2024-06"
+      ],
+      "observed_bars": 988,
+      "system": "H1"
+    },
+    {
+      "first_completed": "2024-04-01T09:00:00+03:00",
+      "fold_id": "WF02",
+      "instrument": "GLDRUBF",
+      "last_completed": "2024-06-29T00:00:00+03:00",
+      "lifecycle": "walk_forward",
+      "months": [
+        "2024-04",
+        "2024-05",
+        "2024-06"
+      ],
+      "observed_bars": 992,
+      "system": "H1"
+    },
+    {
+      "first_completed": "2024-04-01T09:00:00+03:00",
+      "fold_id": "WF02",
+      "instrument": "IMOEXF",
+      "last_completed": "2024-06-29T00:00:00+03:00",
+      "lifecycle": "walk_forward",
+      "months": [
+        "2024-04",
+        "2024-05",
+        "2024-06"
+      ],
+      "observed_bars": 961,
+      "system": "H1"
+    },
+    {
+      "first_completed": "2024-04-01T09:00:00+03:00",
+      "fold_id": "WF02",
+      "instrument": "USDRUBF",
+      "last_completed": "2024-06-29T00:00:00+03:00",
+      "lifecycle": "walk_forward",
+      "months": [
+        "2024-04",
+        "2024-05",
+        "2024-06"
+      ],
+      "observed_bars": 993,
+      "system": "H1"
+    },
+    {
+      "first_completed": "2024-07-01T10:00:00+03:00",
+      "fold_id": "WF03",
+      "instrument": "CNYRUBF",
+      "last_completed": "2024-09-30T23:00:00+03:00",
+      "lifecycle": "walk_forward",
+      "months": [
+        "2024-07",
+        "2024-08",
+        "2024-09"
+      ],
+      "observed_bars": 982,
+      "system": "H1"
+    },
+    {
+      "first_completed": "2024-07-01T10:00:00+03:00",
+      "fold_id": "WF03",
+      "instrument": "GLDRUBF",
+      "last_completed": "2024-09-30T23:00:00+03:00",
+      "lifecycle": "walk_forward",
+      "months": [
+        "2024-07",
+        "2024-08",
+        "2024-09"
+      ],
+      "observed_bars": 982,
+      "system": "H1"
+    },
+    {
+      "first_completed": "2024-07-01T10:00:00+03:00",
+      "fold_id": "WF03",
+      "instrument": "IMOEXF",
+      "last_completed": "2024-09-30T23:00:00+03:00",
+      "lifecycle": "walk_forward",
+      "months": [
+        "2024-07",
+        "2024-08",
+        "2024-09"
+      ],
+      "observed_bars": 981,
+      "system": "H1"
+    },
+    {
+      "first_completed": "2024-07-01T10:00:00+03:00",
+      "fold_id": "WF03",
+      "instrument": "USDRUBF",
+      "last_completed": "2024-09-30T23:00:00+03:00",
+      "lifecycle": "walk_forward",
+      "months": [
+        "2024-07",
+        "2024-08",
+        "2024-09"
+      ],
+      "observed_bars": 972,
+      "system": "H1"
+    },
+    {
+      "first_completed": "2024-10-01T00:00:00+03:00",
+      "fold_id": "WF04",
+      "instrument": "CNYRUBF",
+      "last_completed": "2024-12-31T00:00:00+03:00",
+      "lifecycle": "walk_forward",
+      "months": [
+        "2024-10",
+        "2024-11",
+        "2024-12"
+      ],
+      "observed_bars": 989,
+      "system": "H1"
+    },
+    {
+      "first_completed": "2024-10-01T00:00:00+03:00",
+      "fold_id": "WF04",
+      "instrument": "GLDRUBF",
+      "last_completed": "2024-12-31T00:00:00+03:00",
+      "lifecycle": "walk_forward",
+      "months": [
+        "2024-10",
+        "2024-11",
+        "2024-12"
+      ],
+      "observed_bars": 991,
+      "system": "H1"
+    },
+    {
+      "first_completed": "2024-10-01T00:00:00+03:00",
+      "fold_id": "WF04",
+      "instrument": "IMOEXF",
+      "last_completed": "2024-12-31T00:00:00+03:00",
+      "lifecycle": "walk_forward",
+      "months": [
+        "2024-10",
+        "2024-11",
+        "2024-12"
+      ],
+      "observed_bars": 990,
+      "system": "H1"
+    },
+    {
+      "first_completed": "2024-10-01T00:00:00+03:00",
+      "fold_id": "WF04",
+      "instrument": "USDRUBF",
+      "last_completed": "2024-12-31T00:00:00+03:00",
+      "lifecycle": "walk_forward",
+      "months": [
+        "2024-10",
+        "2024-11",
+        "2024-12"
+      ],
+      "observed_bars": 984,
+      "system": "H1"
+    },
+    {
+      "first_completed": "2023-01-03T09:15:00+03:00",
+      "fold_id": "",
+      "instrument": "USDRUBF",
+      "last_completed": "2026-08-30T19:00:00+03:00",
+      "lifecycle": "history_2023_2026",
+      "months": [
+        "2023-01",
+        "2023-02",
+        "2023-03",
+        "2023-04",
+        "2023-05",
+        "2023-06",
+        "2023-07",
+        "2023-08",
+        "2023-09",
+        "2023-10",
+        "2023-11",
+        "2023-12",
+        "2024-01",
+        "2024-02",
+        "2024-03",
+        "2024-04",
+        "2024-05",
+        "2024-06",
+        "2024-07",
+        "2024-08",
+        "2024-09",
+        "2024-10",
+        "2024-11",
+        "2024-12",
+        "2025-01",
+        "2025-02",
+        "2025-03",
+        "2025-04",
+        "2025-05",
+        "2025-06",
+        "2025-07",
+        "2025-08",
+        "2025-09",
+        "2025-10",
+        "2025-11",
+        "2025-12",
+        "2026-01",
+        "2026-02",
+        "2026-03",
+        "2026-04",
+        "2026-05",
+        "2026-06",
+        "2026-07",
+        "2026-08"
+      ],
+      "observed_bars": 55808,
+      "system": "M15"
+    },
+    {
+      "first_completed": "2023-01-03T09:15:00+03:00",
+      "fold_id": "",
+      "instrument": "CNYRUBF",
+      "last_completed": "2026-08-30T19:00:00+03:00",
+      "lifecycle": "history_2023_2026",
+      "months": [
+        "2023-01",
+        "2023-02",
+        "2023-03",
+        "2023-04",
+        "2023-05",
+        "2023-06",
+        "2023-07",
+        "2023-08",
+        "2023-09",
+        "2023-10",
+        "2023-11",
+        "2023-12",
+        "2024-01",
+        "2024-02",
+        "2024-03",
+        "2024-04",
+        "2024-05",
+        "2024-06",
+        "2024-07",
+        "2024-08",
+        "2024-09",
+        "2024-10",
+        "2024-11",
+        "2024-12",
+        "2025-01",
+        "2025-02",
+        "2025-03",
+        "2025-04",
+        "2025-05",
+        "2025-06",
+        "2025-07",
+        "2025-08",
+        "2025-09",
+        "2025-10",
+        "2025-11",
+        "2025-12",
+        "2026-01",
+        "2026-02",
+        "2026-03",
+        "2026-04",
+        "2026-05",
+        "2026-06",
+        "2026-07",
+        "2026-08"
+      ],
+      "observed_bars": 55573,
+      "system": "M15"
+    },
+    {
+      "first_completed": "2023-07-11T10:15:00+03:00",
+      "fold_id": "",
+      "instrument": "GLDRUBF",
+      "last_completed": "2026-09-16T00:00:00+03:00",
+      "lifecycle": "history_2023_2026",
+      "months": [
+        "2023-07",
+        "2023-08",
+        "2023-09",
+        "2023-10",
+        "2023-11",
+        "2023-12",
+        "2024-01",
+        "2024-02",
+        "2024-03",
+        "2024-04",
+        "2024-05",
+        "2024-06",
+        "2024-07",
+        "2024-08",
+        "2024-09",
+        "2024-10",
+        "2024-11",
+        "2024-12",
+        "2025-01",
+        "2025-02",
+        "2025-03",
+        "2025-04",
+        "2025-05",
+        "2025-06",
+        "2025-07",
+        "2025-08",
+        "2025-09",
+        "2025-10",
+        "2025-11",
+        "2025-12",
+        "2026-01",
+        "2026-02",
+        "2026-03",
+        "2026-04",
+        "2026-05",
+        "2026-06",
+        "2026-07",
+        "2026-08",
+        "2026-09"
+      ],
+      "observed_bars": 52025,
+      "system": "M15"
+    },
+    {
+      "first_completed": "2023-11-14T10:15:00+03:00",
+      "fold_id": "",
+      "instrument": "IMOEXF",
+      "last_completed": "2026-09-16T00:00:00+03:00",
+      "lifecycle": "history_2023_2026",
+      "months": [
+        "2023-11",
+        "2023-12",
+        "2024-01",
+        "2024-02",
+        "2024-03",
+        "2024-04",
+        "2024-05",
+        "2024-06",
+        "2024-07",
+        "2024-08",
+        "2024-09",
+        "2024-10",
+        "2024-11",
+        "2024-12",
+        "2025-01",
+        "2025-02",
+        "2025-03",
+        "2025-04",
+        "2025-05",
+        "2025-06",
+        "2025-07",
+        "2025-08",
+        "2025-09",
+        "2025-10",
+        "2025-11",
+        "2025-12",
+        "2026-01",
+        "2026-02",
+        "2026-03",
+        "2026-04",
+        "2026-05",
+        "2026-06",
+        "2026-07",
+        "2026-08",
+        "2026-09"
+      ],
+      "observed_bars": 46215,
+      "system": "M15"
+    }
+  ],
+  "runtime": {
+    "numpy": "2.3.5",
+    "pandas": "2.2.3",
+    "python": "3.12.14"
+  },
+  "source_files": {
+    "IntradayLab/SELECTED_T3_M15_SESSION_T1_R15.md": {
+      "base_blob": "b8ae61280fe399eba4219fb95f07247636c261ed",
+      "sha256": "0d634bb41bad04f3897859f4e86af954010ff2d976f4665ab8004d3b63d3b3bb"
+    },
+    "IntradayLab/t3_m15_t1_entry_retest_v1/README.md": {
+      "base_blob": "7be21f4c7df19eec4f9a6724e25035c6d6e72956",
+      "sha256": "eb3ae7a6701b3b3f0ea3869637d11c0d076828e61a36744c4070c90340d687c6"
+    },
+    "IntradayLab/t3_m15_t1_entry_retest_v1/SPEC.json": {
+      "base_blob": "31685337eb255b407e33127a6a1a06fef1d50572",
+      "sha256": "477cbb4da585b3f024c9663908070cb85451d1dba3b538861c46a4680ec64d93"
+    },
+    "IntradayLab/t3_m15_t1_entry_retest_v1/independent_stats.py": {
+      "base_blob": "839fbfb95783123a501a75173340ce5a8bcc730a",
+      "sha256": "40f48d8088dbd97d58cc33b10c33310816c777852e887e8ee0af544059790656"
+    },
+    "IntradayLab/t3_m15_t1_entry_retest_v1/initial_git_context.json": {
+      "base_blob": "4af4e7f74d53191d2e2d372d76818291a8299e5b",
+      "sha256": "f566d58bf18d30fb086466a32598dd63e828fd8ad0d5c09ac5006ef76391160b"
+    },
+    "IntradayLab/t3_m15_t1_entry_retest_v1/io_utils.py": {
+      "base_blob": "a03c992f1b9832c1628653f414a6030e5324fc7b",
+      "sha256": "4057c96f8c09e89ff68e181ac70d243362b19d2a64baa03d800c767b897c9b9f"
+    },
+    "IntradayLab/t3_m15_t1_entry_retest_v1/metrics.py": {
+      "base_blob": "47ddb9c58293236e503da63a4280b6bbdb8fe0b7",
+      "sha256": "2dc959a930f18116a25e843fc66ace7831d7d74f42d2ae76ab606a255b62c219"
+    },
+    "IntradayLab/t3_m15_t1_entry_retest_v1/primary.py": {
+      "base_blob": "82c5d9a36425014338356542ec8017614844ad94",
+      "sha256": "df4054477f87947ff93e962a70590c20006c487d0c4ba70a58c425f07b6e14f8"
+    },
+    "IntradayLab/t3_m15_t1_entry_retest_v1/published.py": {
+      "base_blob": "628c35653e922ec3b8d459874f7c5e55842c35c3",
+      "sha256": "7cc1c101cda598edc880a3b01c888e30cea8c977e792fc912f698be80dd56c66"
+    },
+    "IntradayLab/t3_m15_t1_entry_retest_v1/repeat.py": {
+      "base_blob": "6675589aa1103a675cadc81d173ebe16c6f3c84c",
+      "sha256": "7c0d814ccc4c650bf92ef7891acbc5de28a7c30b6b26bea9480a7ef1a74e9976"
+    },
+    "IntradayLab/t3_m15_t1_entry_retest_v1/report.py": {
+      "base_blob": "ae852d6616e40176e1177b114f27cd0e2f7f5f0b",
+      "sha256": "b06afb90f7168261785a9f1cb275b79c2a05674a156c1d6472f35b21682973d3"
+    },
+    "IntradayLab/t3_m15_t1_entry_retest_v1/requirements.txt": {
+      "base_blob": "344ae0f5639d208561a203e74e06a1345263299e",
+      "sha256": "50bd36afe0a4a4950f51db01fddfedc5d16814a1664c8a21a02e7c247b481bda"
+    },
+    "IntradayLab/t3_m15_t1_entry_retest_v1/results/monthly_comparison.csv": {
+      "base_blob": "f166a48d28e4c1c29c163f63608ae49d5b175c99",
+      "sha256": "1fc7e294f06f0806e794e1640b996edec8fc6904496cffc2af246e66757f128c"
+    },
+    "IntradayLab/t3_m15_t1_entry_retest_v1/results/next_open_signals.csv.gz": {
+      "base_blob": "bbae244055408c24617cd657955f096dad3823f7",
+      "sha256": "bc8c8419e39a738c9503cf9b0d4942914f04c1e656221627552594da3b9b6640"
+    },
+    "IntradayLab/t3_m15_t1_entry_retest_v1/results/next_open_stops.csv.gz": {
+      "base_blob": "ef0cfbaeeeddc20506a7003d5725ef2fb3ed68f9",
+      "sha256": "76d7c6de625429fadfd3760aaefc6cbc39a0899a2dbea4d1a82140f64cc917be"
+    },
+    "IntradayLab/t3_m15_t1_entry_retest_v1/results/next_open_trades.csv": {
+      "base_blob": "292aa8960aae5ed517cab69ba1b7c2f2de24b4e6",
+      "sha256": "77d5e16077ade70b821e42eec9011d4931545100fa2a7d383ed9391dfce77b4f"
+    },
+    "IntradayLab/t3_m15_t1_entry_retest_v1/results/yearly_comparison.csv": {
+      "base_blob": "27e8bfba288161d83a03332f22020ce30fba6b4c",
+      "sha256": "22e6be0937484688334472b945dfbb4764469edc3d07eaf0aa86ce052d3d3c24"
+    },
+    "IntradayLab/t3_m15_t1_entry_retest_v1/run.py": {
+      "base_blob": "671cfc3a1f30506b34ab782a52af858391c498e0",
+      "sha256": "c636f28ea27964432fbd5d2020e1082bb60d17ec1841d56afc946e48498751bd"
+    },
+    "IntradayLab/t3_m15_t1_entry_retest_v1/source.py": {
+      "base_blob": "694e173a85f8b5ea84e4d3d138e3f268083ce29e",
+      "sha256": "29e6b56bce2283ca321b9331bade810d858201a7d6c45cf74ebd6eb6892c0136"
+    },
+    "IntradayLab/t3_m15_t1_entry_retest_v1/test_causal.py": {
+      "base_blob": "d93b44b7b900e092275700f37cd78d88aa290a2f",
+      "sha256": "f65000d3020af8ad115d8cd347719a392d9311c6cf983ca22d01eac8d0b18dd0"
+    },
+    "IntradayLab/t3_m15_t1_entry_retest_v1/verify.py": {
+      "base_blob": "4b7dd8622e87738daa2197dc0721e3862cde6ff1",
+      "sha256": "4911256e7b164694e93b321600c7e6e6409b1ff93c512a7028c1e37eeacf5930"
+    },
+    "TradingSystemLab/core/data_loader.py": {
+      "base_blob": "974960d5803a3fc63406d80a310ee5e078304f09",
+      "sha256": "b6babd985fb3cf45b939a00aafe173bc7ce4ca7b02ab834dd06aec33559d305d"
+    },
+    "TradingSystemLab/core/indicators.py": {
+      "base_blob": "f390855c0514d3e6ca4600e73ecf146f90083f26",
+      "sha256": "06345d89e212c72e97f0aec97268dc43208e057c1f7123374e62a9be8dd24f47"
+    },
+    "TradingSystemLab/results/perpetual_v3/robustness/T3/H1/manifest.json": {
+      "base_blob": "59c0a33396effee57f380b06fbe35128867927fd",
+      "sha256": "a4c88308571470b91eeec987038c314ffedf76355c99a09fda76a18e12be93ea"
+    },
+    "TradingSystemLab/results/post_v3_analysis/stage5_structural_validation/canonical_lifecycle_registry.csv": {
+      "base_blob": "70537d1d6f86dcb08a11619fbc2f5afadcb868ab",
+      "sha256": "f2d66ba2a9a16170adc39cb0ef1cdd94b7b13ee46f9c172a5730727b1c5379f6"
+    },
+    "TradingSystemLab/results/post_v3_analysis/stage5_structural_validation/stage5_trail1_execution.py": {
+      "base_blob": "ed6d482886cd9d285eea234ef7a2e667f86f9786",
+      "sha256": "d1d8ac2eeea9095becd6f74295e4a540d02ee0494237af5f16f6d66a487f221b"
+    },
+    "TradingSystemLab/results/post_v3_analysis/stage5_structural_validation/trail1/manifest_trail1.json": {
+      "base_blob": "6542ca0c387bf168c65069ec0ded5cd3f28213c2",
+      "sha256": "ae29ceba3c52509336ea3c097863aa92ca3e404c15415e3192b49646d29862dd"
+    },
+    "TradingSystemLab/results/post_v3_analysis/stage6_7_n4_full_four_case_test/four_case_registry.csv": {
+      "base_blob": "c8073ede2273f333d0c51aa7b4bcd5e0ef9effd3",
+      "sha256": "e1f5edbff005ce17fcaa73c71837db1b3906bdd3d92d1f249788e80c725c34a2"
+    },
+    "TradingSystemLab/results/post_v3_analysis/stage6_7_n4_full_four_case_test/independent_audit_result.json": {
+      "base_blob": "64ea11f9607ca7e919640f6f651cf8df27c6cfe4",
+      "sha256": "706e7198ef39788bc3a3d33474583411d76d4d14480fad67357557feea33a684"
+    },
+    "TradingSystemLab/results/post_v3_analysis/stage6_fixed_basket_reassessment/basket_monthly_metrics.csv": {
+      "base_blob": "a3152f07e041c51b4ea241b557a1cc0f1874f796",
+      "sha256": "e724851fc17ce3f6f71778129ea5cfa4e810d47a0992f00c1974761dde982cb4"
+    },
+    "TradingSystemLab/results/post_v3_analysis/stage6_fixed_basket_reassessment/basket_yearly_metrics.csv": {
+      "base_blob": "01a0eda3e57306b50111a037a10a2abc160dcad8",
+      "sha256": "bebc4ec6d3dd49173f409c47a4835c937cf95a70a6372c912f249ee80e402fe8"
+    },
+    "TradingSystemLab/results/post_v3_analysis/stage6_fixed_basket_reassessment/trail1_authoritative_trades.csv": {
+      "base_blob": "d61494605d285c47758ee6c1970c6e6d181c7504",
+      "sha256": "0f9034edf228a687da67e9f3e35fad01f2339be162c558e6d802c3cd77eea8ad"
+    },
+    "TradingSystemLab/results/post_v3_analysis/stage6_unified_candidate_comparison/portfolio_trade_scaling_registry.csv": {
+      "base_blob": "d7a230fdbc8a8a4a08e7ce52a94cafe6b0c6306e",
+      "sha256": "8f0493f5dd4edf087881622005efde0531c6146903a38c362e72dbc508071b1e"
+    },
+    "TradingSystemLab/results/post_v3_analysis/stage7_production_specification_freeze/execution_semantics.md": {
+      "base_blob": "a9af58d6a4b38ea2e7fdd72e347a6a885e870bb9",
+      "sha256": "468e259ca8fd7c4e78546f0eec8d13e275d0bce74ea3a0f00547fb47fbeb25bf"
+    },
+    "TradingSystemLab/results/post_v3_analysis/stage7_production_specification_freeze/production_specification.json": {
+      "base_blob": "2cd26db7fe7f27c4b7e2cff9a7d32b0883714558",
+      "sha256": "c719bb3e7b9a7e707077fc499867613010068d623d6879c247f480f7658aff7c"
+    },
+    "TradingSystemLab/results/post_v3_analysis/stage7_production_specification_freeze/risk_and_sizing_contract.md": {
+      "base_blob": "c84124401fb2e72c0ead0db0d27e336f726e5106",
+      "sha256": "fb5079e22e7aaa11f28c2cce9c0ea0a905bf8256db9fa66d4698d531deed38ee"
+    },
+    "TradingSystemLab/results/post_v3_analysis/stage7_production_specification_freeze/source_provenance.json": {
+      "base_blob": "870d94c8f77ef285c14466c0c121bed26878236e",
+      "sha256": "4d6e3d7d221e019ea00faa3d523affd39d0b45df3f6898c41e2e8c7ed4c3d494"
+    },
+    "TradingSystemLab/stage8_robot/production_instrument_registry.csv": {
+      "base_blob": "122fd8e6d17fefc1d060e8b36184f328e9404dbf",
+      "sha256": "90d64e16dfeb292b4b339ac3eb196074e133bf52a962cc6715c488a32d16e013"
+    },
+    "TradingSystemLab/stage8_robot/strategy_core.py": {
+      "base_blob": "3462a1e0232cf8ba3a973d22c4f691d23edb7201",
+      "sha256": "ba3cc134f85049e974b6608f144d090da83eb150548efd693ba27a4c54fe9d51"
+    },
+    "TradingSystemLab/stage8_robot/trail1_state.py": {
+      "base_blob": "e7d4974330b28a73581b25b28fbfe9a065be561d",
+      "sha256": "047d13618b3c729a0f2385fe46269b513761689469c17bdd66bc07ac09bb866b"
+    },
+    "TradingSystemLab/strategies/trend/T3_MTF_Trend.py": {
+      "base_blob": "6f1bcb02a3bcc0e9001742a3d827efd1eb31bd65",
+      "sha256": "840dd3b2cda43fa00259445cd0a22ace6d82e677f4c793028ccc8126f9ad9a8c"
+    }
+  },
+  "status": "SOURCE_IDENTITY_PASS"
+}

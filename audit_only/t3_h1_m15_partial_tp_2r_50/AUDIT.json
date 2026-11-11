@@ -1,0 +1,49 @@
+{
+  "arithmetic": {
+    "checks": 7592,
+    "max_absolute_error": 5.684341886080802e-14,
+    "method": "Fresh CSV/gzip reads; Decimal leg arithmetic; stdlib portfolio MTM/DD, calendar signs, PF/expectancy/win-loss and top5/top10 summary recomputation",
+    "status": "PASS"
+  },
+  "control": {
+    "calendar": "Frozen H1 reports UTC, frozen M15 MSK; primary new calendar tables MSK",
+    "checks": 1645,
+    "fields_checked": 202418,
+    "first_errors": [],
+    "h1_closed": 418,
+    "m15_closed": 1114,
+    "mismatches": 0,
+    "precision": "H1 per-trade equality at original 12 significant figures; M15 1e-8 absolute; aggregate 1e-8",
+    "status": "PASS"
+  },
+  "data_checks_after": {
+    "/workspace/market-pattern-data": "f8486b446cf3d5f9f3cba6dfec32bdef8fd184c8",
+    "/workspace/work/t3-h1-data": "50f1fd2178c18b7ab3bd969be82ad01f47a34745"
+  },
+  "executable_integer": "CASH_MODEL_NOT_VALIDATED",
+  "external_audit": "PENDING",
+  "h1_verdict": "INCONCLUSIVE",
+  "live_API_calls": 0,
+  "m15_verdict": "INCONCLUSIVE",
+  "mechanical": {
+    "ambiguous_stop_tp_observations": 321,
+    "capital": "CASH_MODEL_NOT_VALIDATED",
+    "chronology": "PASS old stop before target, entry candle rules and no retroactive exits",
+    "costs": "PASS normalized H1 C1 only; M15 GROSS_ONLY; no money Net claimed",
+    "external_human_audit": "PENDING",
+    "fields_checked": 4602098,
+    "fractional_partial_events": 486,
+    "independence": "Separate scalar position replay, no import of new engines/accounting; authenticated frozen features shared",
+    "independent_scalar_positions": 3072,
+    "inherited_off_grid_initial_stops": 3072,
+    "off_grid_status": "Frozen research initial/trailing stops, unchanged; cash execution not validated",
+    "price_grid_new_TP": "PASS",
+    "status": "PASS",
+    "volumes": "PASS .5+.5=1; no overclose; residual reserves instrument"
+  },
+  "parameter_search": false,
+  "raw_source_copied": false,
+  "source_identity": "PASS",
+  "status": "FRACTIONAL_AUDIT_PASS_CASH_NOT_VALIDATED",
+  "synthetic_tests": 23
+}
