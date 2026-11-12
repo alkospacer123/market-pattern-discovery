@@ -83,3 +83,7 @@
 ### R051 — месячный разрез, распределение капитала и исключение GLD
 
 [Исследовательский отчёт R051](TRL_R_2026_051_Monthly_Portfolio_Allocation_GLD.md) · [Journal](../../journal/2026-11-11-sts-r051-monthly-portfolio-gld.md). Отдельная книга в TRL: 45 месяцев × 3 робота × N4 по двум выходам, двум статичным GO, с GLD и без; 148 повторных денежных сценариев, 20 exact parity PASS. Sh+Inside 60/40 N4 Oct TP6 = +461857 ₽ PF2.007 M15DD20035 ₽ (40/45 месяцев), Shallow-only low-risk 0.667% = +404160 PF1.995 DD16563 ₽. N3 без GLD не гарантирует снижения DD. `FORWARD_CANDIDATE / LIVE_UNCHANGED`.
+
+### R052 — V20 independence, limit execution and Shallow versions (12.11.2026)
+
+[R052 report](TRL_R_2026_052_V20_Independence_Limits_Shallow_Variants.md) · [frozen protocol](experiments/r052/FROZEN_PROTOCOL.md) · [Journal](../../journal/2026-11-12-sts-r052-independence-limit-shallow.md). Signal types differ, but all share EMA trend and FINAM/execution dependencies. Daily cash PnL corr Shallow–Inside 0.098, Shallow–OBV 0.344. Shallow window/depth four variants: FAST2 851 PF1.814; LONG5 542 PF1.829; DEEP3 894 PF1.850; TIGHT3 486 PF1.848 vs Classic 736 PF1.961 (45k Oct GO TP6). No new core approved. Limit NEXT_OPEN passive one-tick OHLC price touch 89.1% entry bar N4, versus 71.5% on next up-to-four M15 bars; touch is **not execution**, and cannot prove GLD fill. Need actual L2/prints/broker fills. Isolated replay 19 CSV PASS. TP6 future LIVE choice belongs to separate project; no LIVE changes here.
