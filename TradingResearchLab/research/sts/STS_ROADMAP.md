@@ -64,3 +64,7 @@
 ### R051 — сравнение 1/2/3 счётов и доли GLD, 11.11.2026
 
 [Отчёт R051](TRL_R_2026_051_V20_Monthly_Allocation_GLD_Research.md): Shallow+Inside **60/40** становится первичным кандидатом для будущего независимого сравнения с Shallow-only умеренного риска и V20; Shallow+Inside 70/30 — чувствительность по риску; Shallow+OBV 50/50–80/20 изучены, но по равномерности месяцев слабее Inside. Исключение GLD N3 повторено причинно, и на исторических допущениях N4 был денежно выгоднее, но действительный стакан и проскальзывание неизвестны. Следующая проверка — не выбор «оптимальной» доли на старой истории, а новые данные, реальные комиссии/история GO и READONLY результаты исполнения. LIVE неизменен.
+
+### R052 — execution and variants of frozen Shallow (12.11.2026)
+
+[R052](TRL_R_2026_052_V20_Independence_Limits_Shallow_Variants.md). Keep Shallow variants FAST2 and DEEP3 only as predeclared prospective hypotheses. Their historical PF/correlation and portfolio DD do not support a second independent Shallow core. Prioritise real order-book snapshots (best bid/ask, 5–10 depth levels, trade prints, per-order partial fills, latency, SLTP protection) for proposed capped marketable LIMIT IOC, passive and split execution comparison at 500k and 1m bank. GLD needs visible-depth-based size cap and skip-if-not-fillable. TRL only research/read-only; all LIVE deployment separately.
