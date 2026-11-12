@@ -16,7 +16,7 @@ from TradingSystemLab.stage8_robot.finam_api import (
 )
 from V20_TradingSystem_M15.v20_runtime.finam_live import (
     AUTH_SCHEMA, SYMBOLS, _safe_auth, _ownership, run_cycle, run, V20FinamBlocked,
-    V20FinamSnapshotReadRetry, _night_protected_sleep_seconds, _verify_sealed_protection,
+    V20FinamSnapshotReadRetry, V20M15SignalReadRetry, _night_protected_sleep_seconds, _verify_sealed_protection,
 )
 
 
@@ -1088,6 +1088,116 @@ class LiveAdmissionTests(unittest.TestCase):
             self.assertEqual(rows[0]["m15_rejected_bar"], details)
             self.assertNotIn(account, json.dumps(rows))
             self.assertNotIn("synthetic", json.dumps(rows))
+
+    def test_20261112_1500_m15_errors_retry_only_when_broker_flat(self):
+        # Exact 12 Nov incident: OBV MemoryError, Inside pandas ParserError,
+        # Shallow H1 registry OSError. All fail in disposable CSV / M15
+        # signal preparation, before any durable intent or FINAM order POST.
+        from pandas.errors import ParserError
+        from TradingSystemLab.stage8_robot.production_runtime import ProductionRuntimeError
+        from unittest.mock import Mock
+        with TemporaryDirectory() as tmp:
+            journal = self.fake_journal(Path(tmp))
+            flat = SimpleNamespace(positions={}, orders=())
+            reader = SimpleNamespace(snapshot=lambda **kw: flat)
+            sender = SimpleNamespace(
+                journal=journal, reader=reader, auth_path=Path(tmp)/"auth.json",
+                source="0" * 40, auth=self.valid_auth(journal, "0" * 40),
+                submit_entry_once=Mock())
+            at = datetime(2026, 11, 12, 12, 0, 10, tzinfo=timezone.utc)
+            for problem, label in (
+                (MemoryError(), "M15_READONLY_MEMORY"),
+                (ParserError("broken temporary CSV"), "M15_READONLY_PARSER"),
+                (ProductionRuntimeError("PRODUCTION_REGISTRY_UNREADABLE"),
+                 "M15_READONLY_REGISTRY"),
+            ):
+                with ExitStack() as stack:
+                    stack.enter_context(patch(
+                        "V20_TradingSystem_M15.v20_runtime.finam_live._safe_auth"))
+                    stack.enter_context(patch(
+                        "V20_TradingSystem_M15.v20_runtime.finam_live._follow_existing",
+                        return_value="BROKER_RECONCILED_PROTECTION_PASS"))
+                    stack.enter_context(patch(
+                        "V20_TradingSystem_M15.v20_runtime.finam_live.load_kill_switch",
+                        return_value=({"state": "ARMED"}, None)))
+                    proposer = stack.enter_context(patch(
+                        "V20_TradingSystem_M15.v20_runtime.finam_live.propose_finam_m15_next_open",
+                        side_effect=problem))
+                    with self.assertRaisesRegex(V20M15SignalReadRetry, label):
+                        run_cycle(sender, at)
+                    proposer.assert_called_once()
+                sender.submit_entry_once.assert_not_called()
+                self.assertEqual(journal.store.values, {})
+            # A different registry error is NOT an environmental retry.
+            with ExitStack() as stack:
+                stack.enter_context(patch(
+                    "V20_TradingSystem_M15.v20_runtime.finam_live._safe_auth"))
+                stack.enter_context(patch(
+                    "V20_TradingSystem_M15.v20_runtime.finam_live._follow_existing",
+                    return_value="BROKER_RECONCILED_PROTECTION_PASS"))
+                stack.enter_context(patch(
+                    "V20_TradingSystem_M15.v20_runtime.finam_live.load_kill_switch",
+                    return_value=({"state": "ARMED"}, None)))
+                stack.enter_context(patch(
+                    "V20_TradingSystem_M15.v20_runtime.finam_live.propose_finam_m15_next_open",
+                    side_effect=ProductionRuntimeError("PRODUCTION_REGISTRY_AUTHORITY_INVALID")))
+                with self.assertRaisesRegex(ProductionRuntimeError,
+                                            "PRODUCTION_REGISTRY_AUTHORITY_INVALID"):
+                    run_cycle(sender, at)
+            # Never retry resource/CSV failures with an open broker position.
+            reader.snapshot = lambda **kw: SimpleNamespace(
+                positions={"FUTIMOEXF": 1}, orders=())
+            with ExitStack() as stack:
+                stack.enter_context(patch(
+                    "V20_TradingSystem_M15.v20_runtime.finam_live._safe_auth"))
+                stack.enter_context(patch(
+                    "V20_TradingSystem_M15.v20_runtime.finam_live._follow_existing",
+                    return_value="BROKER_RECONCILED_PROTECTION_PASS"))
+                stack.enter_context(patch(
+                    "V20_TradingSystem_M15.v20_runtime.finam_live.load_kill_switch",
+                    return_value=({"state": "ARMED"}, None)))
+                stack.enter_context(patch(
+                    "V20_TradingSystem_M15.v20_runtime.finam_live.propose_finam_m15_next_open",
+                    side_effect=MemoryError()))
+                with self.assertRaises(MemoryError):
+                    run_cycle(sender, at)
+            sender.submit_entry_once.assert_not_called()
+
+    def test_20261112_m15_read_only_failures_halt_after_three(self):
+        class EndAfterThird(BaseException):
+            pass
+        with TemporaryDirectory() as tmp:
+            root = Path(tmp) / "V20Lab"
+            instance = root / "robots" / "obv"
+            (instance / "logs").mkdir(parents=True)
+            journal = self.fake_journal(instance)
+            account = "m15-test-account"
+            env = {"V20_FINAM_ACCOUNT": account,
+                   "V20_FINAM_TOKEN": "synthetic-token",
+                   "V20_FINAM_ACCOUNT_SHA256": hashlib.sha256(account.encode()).hexdigest()}
+            with ExitStack() as stack:
+                stack.enter_context(patch.dict("os.environ", env))
+                stack.enter_context(patch("V20_TradingSystem_M15.v20_runtime.finam_live.V20LiveJournal",
+                                          return_value=nullcontext(journal)))
+                stack.enter_context(patch("V20_TradingSystem_M15.v20_runtime.finam_live.V20FinamReadAdapter",
+                                          return_value=SimpleNamespace(authenticate=lambda: None)))
+                stack.enter_context(patch("V20_TradingSystem_M15.v20_runtime.finam_live.V20LiveTransport"))
+                stack.enter_context(patch(
+                    "V20_TradingSystem_M15.v20_runtime.finam_live.run_cycle",
+                    side_effect=[V20M15SignalReadRetry("M15_READONLY_MEMORY")] * 3))
+                halt = stack.enter_context(patch(
+                    "V20_TradingSystem_M15.v20_runtime.finam_live.emergency_halt"))
+                stack.enter_context(patch(
+                    "V20_TradingSystem_M15.v20_runtime.finam_live.time.sleep",
+                    side_effect=[None, None, EndAfterThird()]))
+                with self.assertRaises(EndAfterThird):
+                    run(root=root, robot="v20-obv", source="0" * 40)
+                halt.assert_called_once_with(instance)
+            rows = [json.loads(line) for line in
+                    (instance / "logs" / "live-m15.jsonl").read_text(encoding="utf-8").splitlines()]
+            self.assertEqual([r["state"] for r in rows], [
+                "FAULT_M15_READONLY_MEMORY", "FAULT_M15_READONLY_MEMORY",
+                "HALT_M15_READONLY_FAILURE_PERSISTENT"])
 
     def test_20261110_finam_get_401_retries_only_read_not_trade(self):
         from TradingSystemLab.stage8_robot.finam_api import FinamAPI
