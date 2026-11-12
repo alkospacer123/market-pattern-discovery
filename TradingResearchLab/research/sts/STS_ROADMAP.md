@@ -68,3 +68,7 @@
 ### R052 — execution and variants of frozen Shallow (12.11.2026)
 
 [R052](TRL_R_2026_052_V20_Independence_Limits_Shallow_Variants.md). Keep Shallow variants FAST2 and DEEP3 only as predeclared prospective hypotheses. Their historical PF/correlation and portfolio DD do not support a second independent Shallow core. Prioritise real order-book snapshots (best bid/ask, 5–10 depth levels, trade prints, per-order partial fills, latency, SLTP protection) for proposed capped marketable LIMIT IOC, passive and split execution comparison at 500k and 1m bank. GLD needs visible-depth-based size cap and skip-if-not-fillable. TRL only research/read-only; all LIVE deployment separately.
+
+### R053 — отдельные Classic/Fast/Deep и развитие исполнения
+
+[Результаты](TRL_R_2026_053_Three_Shallow_and_Limits_Research.md). Тройка при одинаковом стартовом капитале показывает больше ₽, но одновременно коррелированную просадку; по R031 расширяет охват на 102/405 пропущенных Classic движений, непересекающиеся позиции Fast/Deep не показали самостоятельной денежной выгоды. Следующий тест без ретюнинга параметров: запрет повторной однонаправленной позиции по одному символу в других рукавах и новый prospective период (если будет достаточно сигналов). Для лимитного входа готовить только через профильный LIVE-проект сбор реального bid/ask/L2, actual fills, partial qty и остановленных входов, без переключения реальных заявок через TRL. Разграничить выбранный дизайн IOC и подтверждённую выгодность, которая пока отсутствует.
