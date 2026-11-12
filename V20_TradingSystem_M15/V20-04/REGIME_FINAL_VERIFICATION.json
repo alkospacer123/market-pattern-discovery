@@ -1,0 +1,21 @@
+{
+  "status": "PASS_FOR_CALCULATION_ONLY",
+  "runtime_unittest": {
+    "passed": 156,
+    "failed": 0,
+    "skipped": 0,
+    "local_not_ci": true
+  },
+  "new_tests": 9,
+  "monthly_rows_checked": 6615,
+  "filtered_monthly_rows_independently_recomputed": 15120,
+  "signal_assignments_causal_timing_checked": 40275,
+  "unchanged_source_sha": "PASS",
+  "full_quote_reaudit": "NOT_REPEATED_UNCHANGED_ARTIFACT_SHA",
+  "protected_runtime_and_roadmap_unchanged": "PASS",
+  "regime_evidence_historical_states_unchanged_after_arithmetic_fix": true,
+  "recommendation": "RAW20_CONFIRM5_RELATIVE_ONLY",
+  "unconditional_current_regime_reliability": "FAIL",
+  "card_replacement": "SKIP",
+  "finam_windows_live": "SKIP_NOT_RUN"
+}

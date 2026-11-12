@@ -1,0 +1,91 @@
+{
+  "schema": "v20.final_monthly_artifact_manifest.v1",
+  "input_pr_head": "93561e7a57f0623a1180810f57beb46977359c97",
+  "main": "6f352acfac7ebdfabba73e143c4dfea3a6e48507",
+  "artifacts": {
+    "V20_TradingSystem_M15/V20-04/README_RU.md": {
+      "bytes": 27727,
+      "sha256": "22b44c11d2c3948bb4bbfb3e90fc96ea4e918982d0fc5c090dd64a21d314acc2"
+    },
+    "V20_TradingSystem_M15/V20-04/REGIME_ADDITIONAL_STATE_CHANGES.csv": {
+      "bytes": 4166,
+      "sha256": "80d033a2a522d340bc5c4fd05d8fae75912de061ef24882f4ca82ec93603c7f0"
+    },
+    "V20_TradingSystem_M15/V20-04/REGIME_ALERT_EPISODES.csv": {
+      "bytes": 5714614,
+      "sha256": "6171311e01f33c837b66eec0a7a0c444be8f040c7b20645b63e90e483c62e140"
+    },
+    "V20_TradingSystem_M15/V20-04/REGIME_FILTERED_RAW_BY_STATUS.csv": {
+      "bytes": 83925,
+      "sha256": "08d5a488c58ca00d3f169effd595872c5e7dfcc856875f735fb2e129838ad45b"
+    },
+    "V20_TradingSystem_M15/V20-04/REGIME_FILTERED_RAW_MONTHLY.csv": {
+      "bytes": 1894587,
+      "sha256": "1d905864f9311d41ee3e99e316ab95270b43434dcf03c71cc483d390f080384f"
+    },
+    "V20_TradingSystem_M15/V20-04/REGIME_FINAL_BLOCK_DETECTIONS.csv": {
+      "bytes": 53856,
+      "sha256": "3453b67a8a3f627be3c2d2452f5a0a6bfadad0d71b79d391488928a97c2532fb"
+    },
+    "V20_TradingSystem_M15/V20-04/REGIME_FINAL_COMPARISON.json": {
+      "bytes": 549459,
+      "sha256": "1371a65507f9678f06fee6205dd49e16269d348817ffaea1699bbce2fb95aa9e"
+    },
+    "V20_TradingSystem_M15/V20-04/REGIME_FINAL_COMPARISON_PROTOCOL_RU.md": {
+      "bytes": 10026,
+      "sha256": "35bf67a3e867c5dcc1ddd395fb59929bb97bbd7e54afc234e03e2a6860414cf5"
+    },
+    "V20_TradingSystem_M15/V20-04/REGIME_FINAL_COMPARISON_RU.md": {
+      "bytes": 45530,
+      "sha256": "fe2e008ce36da197f986443c177d146df39d67fd9539071d917e338117cdff57"
+    },
+    "V20_TradingSystem_M15/V20-04/REGIME_FINAL_DETECTIONS.csv": {
+      "bytes": 11471,
+      "sha256": "3d8b51d301f3efd6e4bea7ea25523001b30e2b2635844b3d434ff1874b085722"
+    },
+    "V20_TradingSystem_M15/V20-04/REGIME_FINAL_VERIFICATION.json": {
+      "bytes": 716,
+      "sha256": "d0c39d01bf7a0ba772e840e1f1210fa12f29522560e14092f3c5805831c4f7df"
+    },
+    "V20_TradingSystem_M15/V20-04/REGIME_METHOD_COMPARISON.csv": {
+      "bytes": 101526,
+      "sha256": "24f51468da17405f7421560339d669d51135d789ef51b412a6b39e69b5789120"
+    },
+    "V20_TradingSystem_M15/V20-04/REGIME_MONTHLY_COMPARISON.csv": {
+      "bytes": 1760682,
+      "sha256": "5b3b24561f2a0ac4aaaaff86293b66d01e9b460e380ee4b7e08dd94735e595e7"
+    },
+    "V20_TradingSystem_M15/V20-04/REGIME_SERIOUS_DELAYS.csv": {
+      "bytes": 880,
+      "sha256": "6fde669bde6abad6d9819ec6353b382e3debd06cef19e67367efed9d4caa1ca7"
+    },
+    "V20_TradingSystem_M15/V20-04/REGIME_SERIOUS_FALSE_ALERTS.csv": {
+      "bytes": 36560,
+      "sha256": "1ba950f4c4551ebfa1231f11bb3c22ed5f9750e64650ee2183b1a0cbdcedac22"
+    },
+    "V20_TradingSystem_M15/V20-04/REGIME_SIGNAL_ASSIGNMENTS.csv.gz": {
+      "bytes": 402710,
+      "sha256": "976e53accaf6c0f95d7ce1c88499528f67f5b79ef247a17c02c4aa2f2de845b2"
+    },
+    "V20_TradingSystem_M15/docs/TASK_TRACKER.csv": {
+      "bytes": 3155,
+      "sha256": "d2ebf06f67b565695d4e42f4488af274b4222e6f3d33605ac9a789a59eb7f85e"
+    },
+    "V20_TradingSystem_M15/v20_runtime/regime_evidence.py": {
+      "bytes": 6522,
+      "sha256": "8796e4ad74bfbc8b7663ab0a60417d81e1a02d3c3a43b1eccc0cfe6e3aa656fb"
+    },
+    "V20_TradingSystem_M15/v20_runtime/regime_monthly_comparison.py": {
+      "bytes": 28318,
+      "sha256": "ce428a132953d80bbffad7b46b83679e89eff0b96ff07e88d900517a8329ca2f"
+    },
+    "V20_TradingSystem_M15/v20_runtime/tests/test_regime_evidence.py": {
+      "bytes": 3733,
+      "sha256": "d27a3bf26ff5547eb90113dc1478caa289e5f6da9a1a7f851d518005f5fe3a36"
+    },
+    "V20_TradingSystem_M15/v20_runtime/tests/test_regime_monthly_comparison.py": {
+      "bytes": 5257,
+      "sha256": "36350b5b3aaab3dc27c79aa85d03eb271cadcd52af6f78c392f90b00de7547f0"
+    }
+  }
+}

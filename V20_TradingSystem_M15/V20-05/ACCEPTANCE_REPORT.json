@@ -1,0 +1,944 @@
+{
+  "schema": "v20.offline_acceptance.v1",
+  "generated_utc": "2026-10-23T17:00:57.332374+00:00",
+  "main_sha": "6f352acfac7ebdfabba73e143c4dfea3a6e48507",
+  "input_pr_head": "d8eaef215efdd05cc8ace7e664d51b791e2da976",
+  "branch": "codex/v20-04-all-three-offline-foundation-20261021",
+  "pr": 567,
+  "draft": true,
+  "mode": "OFFLINE_EXACT_FAKE_ONLY",
+  "platform": "Linux-6.18.55-x86_64-with-glibc2.41",
+  "python": "3.12.14 (main, Aug 25 2026, 14:00:49) [Clang 22.1.3 ]",
+  "overall": "PARTIAL_WINDOWS_BLOCKED",
+  "stages": {
+    "V20-05.1": "PASS_OFFLINE",
+    "V20-05.2": "PASS_OFFLINE",
+    "V20-05.3": "PASS_OFFLINE",
+    "V20-05.4": "PASS_OFFLINE",
+    "V20-05.5": "BLOCKED_NOT_RUN"
+  },
+  "tests": {
+    "run": 64,
+    "passed": 64,
+    "failed": 0,
+    "errors": 0,
+    "skipped": 0,
+    "successful_ids": [
+      "V20_TradingSystem_M15.v20_runtime.tests.test_h1_execution.H1ExecutionTests.test_account_risk_reservation_is_durable_with_order_intent",
+      "V20_TradingSystem_M15.v20_runtime.tests.test_h1_execution.H1ExecutionTests.test_ack_then_crash_is_reconciled_by_persisted_client_id",
+      "V20_TradingSystem_M15.v20_runtime.tests.test_h1_execution.H1ExecutionTests.test_actual_slipped_fill_money_risk_and_protection",
+      "V20_TradingSystem_M15.v20_runtime.tests.test_h1_execution.H1ExecutionTests.test_broker_wire_mismatch_cannot_be_adopted",
+      "V20_TradingSystem_M15.v20_runtime.tests.test_h1_execution.H1ExecutionTests.test_changed_partial_vwap_keeps_stop_blocks_entries_and_allows_exit",
+      "V20_TradingSystem_M15.v20_runtime.tests.test_h1_execution.H1ExecutionTests.test_current_account_equity_r6_blocks_new_entries_keeps_stops",
+      "V20_TradingSystem_M15.v20_runtime.tests.test_h1_execution.H1ExecutionTests.test_entry_ack_is_not_fill_and_duplicate_is_not_resent",
+      "V20_TradingSystem_M15.v20_runtime.tests.test_h1_execution.H1ExecutionTests.test_exact_fake_only_and_live_off",
+      "V20_TradingSystem_M15.v20_runtime.tests.test_h1_execution.H1ExecutionTests.test_filled_status_without_fill_authority_cannot_open_position",
+      "V20_TradingSystem_M15.v20_runtime.tests.test_h1_execution.H1ExecutionTests.test_fresh_broker_snapshot_does_not_double_subtract_go",
+      "V20_TradingSystem_M15.v20_runtime.tests.test_h1_execution.H1ExecutionTests.test_frozen_exit_retains_stop_until_verified_flat_then_cancels",
+      "V20_TradingSystem_M15.v20_runtime.tests.test_h1_execution.H1ExecutionTests.test_go_and_cost_reserve_fit_cash_and_paid_fee_is_not_reserved_twice",
+      "V20_TradingSystem_M15.v20_runtime.tests.test_h1_execution.H1ExecutionTests.test_incomplete_history_and_conflicting_fill_fail_closed",
+      "V20_TradingSystem_M15.v20_runtime.tests.test_h1_execution.H1ExecutionTests.test_insufficient_money_capacity_blocks_before_post",
+      "V20_TradingSystem_M15.v20_runtime.tests.test_h1_execution.H1ExecutionTests.test_legacy_unaccounted_position_cannot_share_money_budget",
+      "V20_TradingSystem_M15.v20_runtime.tests.test_h1_execution.H1ExecutionTests.test_missing_or_wrong_money_authority_blocks_before_post",
+      "V20_TradingSystem_M15.v20_runtime.tests.test_h1_execution.H1ExecutionTests.test_money_reserve_and_intent_rollback_together",
+      "V20_TradingSystem_M15.v20_runtime.tests.test_h1_execution.H1ExecutionTests.test_partial_fill_installs_one_100_percent_stop_and_full_fill_reuses_it",
+      "V20_TradingSystem_M15.v20_runtime.tests.test_h1_execution.H1ExecutionTests.test_pending_unfilled_entry_blocks_same_symbol_next_session",
+      "V20_TradingSystem_M15.v20_runtime.tests.test_h1_execution.H1ExecutionTests.test_persistent_session_caps_and_wrong_account",
+      "V20_TradingSystem_M15.v20_runtime.tests.test_h1_execution.H1ExecutionTests.test_pre_post_crash_restores_intent_without_resubmission",
+      "V20_TradingSystem_M15.v20_runtime.tests.test_h1_execution.H1ExecutionTests.test_reduced_money_quantity_is_idempotent_after_restart",
+      "V20_TradingSystem_M15.v20_runtime.tests.test_h1_execution.H1ExecutionTests.test_reject_wrong_grid_or_changed_frozen_stop_before_post",
+      "V20_TradingSystem_M15.v20_runtime.tests.test_h1_execution.H1ExecutionTests.test_rejected_entry_is_terminal_without_retry",
+      "V20_TradingSystem_M15.v20_runtime.tests.test_h1_execution.H1ExecutionTests.test_rejected_protection_blocks_and_is_not_retransmitted",
+      "V20_TradingSystem_M15.v20_runtime.tests.test_h1_execution.H1ExecutionTests.test_restart_restores_fills_position_stop_and_idempotency",
+      "V20_TradingSystem_M15.v20_runtime.tests.test_h1_execution.H1ExecutionTests.test_slipped_fill_protected_but_further_entries_require_04_4",
+      "V20_TradingSystem_M15.v20_runtime.tests.test_h1_execution.H1ExecutionTests.test_stale_financial_snapshot_blocks_before_post",
+      "V20_TradingSystem_M15.v20_runtime.tests.test_h1_execution.H1ExecutionTests.test_stop_ack_lost_does_not_duplicate_protection",
+      "V20_TradingSystem_M15.v20_runtime.tests.test_h1_execution.H1ExecutionTests.test_stop_execution_closes_position_without_reverse",
+      "V20_TradingSystem_M15.v20_runtime.tests.test_h1_execution.H1ExecutionTests.test_stop_timeout_without_ack_blocks_no_blind_retry",
+      "V20_TradingSystem_M15.v20_runtime.tests.test_h1_execution.H1ExecutionTests.test_strict_money_required_and_sticky_across_legacy_constructor",
+      "V20_TradingSystem_M15.v20_runtime.tests.test_h1_execution.H1ExecutionTests.test_three_robots_use_independent_identity_state_and_side",
+      "V20_TradingSystem_M15.v20_runtime.tests.test_h1_execution.H1ExecutionTests.test_timeout_after_entry_accept_is_reconciled_without_retry",
+      "V20_TradingSystem_M15.v20_runtime.tests.test_h1_execution.H1ExecutionTests.test_uncertain_missing_entry_stays_blocked_after_restart",
+      "V20_TradingSystem_M15.v20_runtime.tests.test_h1_execution.H1ExecutionTests.test_unknown_broker_position_cannot_be_adopted",
+      "V20_TradingSystem_M15.v20_runtime.tests.test_h1_execution.H1ExecutionTests.test_unknown_fee_keeps_protection_and_does_not_disable_safe_exit",
+      "V20_TradingSystem_M15.v20_runtime.tests.test_h1_execution.H1ExecutionTests.test_unknown_order_and_duplicate_client_id_fail_closed",
+      "V20_TradingSystem_M15.v20_runtime.tests.test_m15_runner.M15LoopTests.test_broker_book_history_cursors_and_budget_survive_restart",
+      "V20_TradingSystem_M15.v20_runtime.tests.test_m15_runner.M15LoopTests.test_cli_requires_explicit_offline_and_has_no_live_switch",
+      "V20_TradingSystem_M15.v20_runtime.tests.test_m15_runner.M15LoopTests.test_crash_after_durable_fill_recovers_protection_without_entry_retry",
+      "V20_TradingSystem_M15.v20_runtime.tests.test_m15_runner.M15LoopTests.test_full_n4_deterministic_order_caps_and_duplicate_batch",
+      "V20_TradingSystem_M15.v20_runtime.tests.test_m15_runner.M15LoopTests.test_missing_broker_book_or_financial_evidence_is_never_recreated",
+      "V20_TradingSystem_M15.v20_runtime.tests.test_m15_runner.M15LoopTests.test_missing_financials_blocks_new_entries_but_autonomous_time_exit_survives",
+      "V20_TradingSystem_M15.v20_runtime.tests.test_m15_runner.M15LoopTests.test_no_capacity_refuses_entry_without_dropping_protection",
+      "V20_TradingSystem_M15.v20_runtime.tests.test_m15_runner.M15LoopTests.test_no_delayed_next_open_or_current_candle_fields",
+      "V20_TradingSystem_M15.v20_runtime.tests.test_m15_runner.M15LoopTests.test_no_network_and_no_live_or_unbound_config_path",
+      "V20_TradingSystem_M15.v20_runtime.tests.test_m15_runner.M15LoopTests.test_observed_intraday_gap_marks_open_path_censored_keeps_stop",
+      "V20_TradingSystem_M15.v20_runtime.tests.test_m15_runner.M15LoopTests.test_revision_and_out_of_order_event_never_rewrite_history",
+      "V20_TradingSystem_M15.v20_runtime.tests.test_m15_runner.M15LoopTests.test_stop_on_entry_bar_is_observed_only_when_bar_finishes",
+      "V20_TradingSystem_M15.v20_runtime.tests.test_m15_runner.M15LoopTests.test_third_observed_session_survives_restart_and_calendar_holes",
+      "V20_TradingSystem_M15.v20_runtime.tests.test_m15_runner.M15LoopTests.test_three_accounts_same_symbol_independent_and_instance_lock",
+      "V20_TradingSystem_M15.v20_runtime.tests.test_m15_runner.M15LoopTests.test_unfinished_future_bar_and_foreign_symbol_rejected_before_signal",
+      "V20_TradingSystem_M15.v20_runtime.tests.test_system_acceptance.SystemAcceptanceTests.test_h1_kill_switch_is_namespaced_blocks_entries_only_and_survives_restart",
+      "V20_TradingSystem_M15.v20_runtime.tests.test_system_acceptance.SystemAcceptanceTests.test_missing_stop_confirmation_does_not_disable_verified_position_exit",
+      "V20_TradingSystem_M15.v20_runtime.tests.test_system_acceptance.SystemAcceptanceTests.test_offline_diagnostic_cli_and_halt_never_contact_network",
+      "V20_TradingSystem_M15.v20_runtime.tests.test_system_acceptance.SystemAcceptanceTests.test_os_kill_at_six_durable_boundaries_no_duplicate_post",
+      "V20_TradingSystem_M15.v20_runtime.tests.test_system_acceptance.SystemAcceptanceTests.test_readonly_card_failure_cannot_change_orders_or_signals",
+      "V20_TradingSystem_M15.v20_runtime.tests.test_system_acceptance.SystemAcceptanceTests.test_three_concurrent_accounts_one_killed_others_exit_independently",
+      "V20_TradingSystem_M15.v20_runtime.tests.test_system_acceptance.SystemAcceptanceTests.test_unconfirmed_stop_restart_blocks_entries_but_keeps_frozen_time_exit",
+      "V20_TradingSystem_M15.v20_runtime.tests.test_market_suitability.SuitabilityCardTests.test_three_readonly_robot_cards_never_filter",
+      "V20_TradingSystem_M15.v20_runtime.tests.test_market_suitability.SuitabilityCardTests.test_future_session_and_premature_bar_blocked",
+      "V20_TradingSystem_M15.v20_runtime.tests.test_market_suitability.SuitabilityCardTests.test_last20_rolls_and_older_session_disappears",
+      "V20_TradingSystem_M15.v20_runtime.tests.test_market_suitability.SuitabilityCardTests.test_bidirectional_metric_changes_not_verdicts"
+    ],
+    "failures": []
+  },
+  "processes": {
+    "diagnostic_cli": [
+      {
+        "account_hash": "a2db0f032c0b81fe08ee2ff4560e1e95598ad93455a2326e769006252e2b785b",
+        "diagnostic": "LOCAL_SNAPSHOT_NOT_LIVENESS_PROOF",
+        "halt": null,
+        "kill_switch": "ARMED",
+        "last_clock": null,
+        "last_refusal": null,
+        "live_enabled": false,
+        "mode": "OFFLINE_FAKE_ONLY",
+        "observed_at": null,
+        "pid": 51270,
+        "reason": "RECOVERED",
+        "robot_id": "v20-inside",
+        "symbols": [
+          "CNYRUBF",
+          "GLDRUBF",
+          "IMOEXF",
+          "USDRUBF"
+        ]
+      },
+      {
+        "account_hash": "a2db0f032c0b81fe08ee2ff4560e1e95598ad93455a2326e769006252e2b785b",
+        "diagnostic": "LOCAL_SNAPSHOT_NOT_LIVENESS_PROOF",
+        "halt": null,
+        "kill_switch": "HALTED",
+        "last_clock": null,
+        "last_refusal": null,
+        "live_enabled": false,
+        "mode": "OFFLINE_FAKE_ONLY",
+        "observed_at": null,
+        "pid": 51270,
+        "reason": "RECOVERED",
+        "robot_id": "v20-inside",
+        "symbols": [
+          "CNYRUBF",
+          "GLDRUBF",
+          "IMOEXF",
+          "USDRUBF"
+        ]
+      },
+      {
+        "account_hash": "a2db0f032c0b81fe08ee2ff4560e1e95598ad93455a2326e769006252e2b785b",
+        "diagnostic": "LOCAL_SNAPSHOT_NOT_LIVENESS_PROOF",
+        "halt": null,
+        "kill_switch": "HALTED",
+        "last_clock": null,
+        "last_refusal": null,
+        "live_enabled": false,
+        "mode": "OFFLINE_FAKE_ONLY",
+        "observed_at": null,
+        "pid": 51270,
+        "reason": "RECOVERED",
+        "robot_id": "v20-inside",
+        "symbols": [
+          "CNYRUBF",
+          "GLDRUBF",
+          "IMOEXF",
+          "USDRUBF"
+        ]
+      }
+    ],
+    "os_kill": [
+      {
+        "phase": "signal",
+        "killed": {
+          "phase": "signal",
+          "pid": 51288,
+          "robot": "v20-shallow",
+          "account": "OFFLINE-v20-shallow",
+          "post_count": 0,
+          "positions": [],
+          "halt": null,
+          "intents": 0,
+          "fills": 0,
+          "reservations": {}
+        },
+        "restarted": {
+          "phase": "recovered",
+          "pid": 51292,
+          "robot": "v20-shallow",
+          "account": "OFFLINE-v20-shallow",
+          "post_count": 0,
+          "positions": [],
+          "halt": null,
+          "intents": 0,
+          "fills": 0,
+          "reservations": {}
+        },
+        "posts_after_restart": 0,
+        "exit_code": -9
+      },
+      {
+        "phase": "intent",
+        "killed": {
+          "phase": "intent",
+          "pid": 51296,
+          "robot": "v20-shallow",
+          "account": "OFFLINE-v20-shallow",
+          "post_count": 0,
+          "positions": [],
+          "halt": null,
+          "intents": 1,
+          "fills": 0,
+          "reservations": {
+            "v20:v20-shallow:9bff8da6b93e9282:597265e0c7c9a6eaf5": {
+              "account_id": "OFFLINE-v20-shallow",
+              "atr14": "3.5",
+              "cost_per_contract": "2",
+              "direction": "LONG",
+              "entry_key": "v20:v20-shallow:9bff8da6b93e9282:597265e0c7c9a6eaf5",
+              "initial_margin": "10000",
+              "initial_stop": "3.000",
+              "planned_entry": "10",
+              "price_step": "0.001",
+              "quantity": 1,
+              "realized_equity": "500000",
+              "reserved_cost": "2",
+              "reserved_margin": "10000",
+              "reserved_risk": "7002",
+              "symbol": "CNYRUBF",
+              "tick_value": "1"
+            }
+          }
+        },
+        "restarted": {
+          "phase": "blocked",
+          "pid": 51300,
+          "error": "UNCERTAIN_POST_NO_RETRANSMIT"
+        },
+        "posts_after_restart": 0,
+        "exit_code": -9
+      },
+      {
+        "phase": "post",
+        "killed": {
+          "phase": "post",
+          "pid": 51304,
+          "robot": "v20-shallow",
+          "account": "OFFLINE-v20-shallow",
+          "post_count": 1,
+          "positions": [],
+          "halt": null,
+          "intents": 1,
+          "fills": 0,
+          "reservations": {
+            "v20:v20-shallow:9bff8da6b93e9282:597265e0c7c9a6eaf5": {
+              "account_id": "OFFLINE-v20-shallow",
+              "atr14": "3.5",
+              "cost_per_contract": "2",
+              "direction": "LONG",
+              "entry_key": "v20:v20-shallow:9bff8da6b93e9282:597265e0c7c9a6eaf5",
+              "initial_margin": "10000",
+              "initial_stop": "3.000",
+              "planned_entry": "10",
+              "price_step": "0.001",
+              "quantity": 1,
+              "realized_equity": "500000",
+              "reserved_cost": "2",
+              "reserved_margin": "10000",
+              "reserved_risk": "7002",
+              "symbol": "CNYRUBF",
+              "tick_value": "1"
+            }
+          }
+        },
+        "restarted": {
+          "phase": "recovered",
+          "pid": 51308,
+          "robot": "v20-shallow",
+          "account": "OFFLINE-v20-shallow",
+          "post_count": 1,
+          "positions": [],
+          "halt": null,
+          "intents": 1,
+          "fills": 0,
+          "reservations": {
+            "v20:v20-shallow:9bff8da6b93e9282:597265e0c7c9a6eaf5": {
+              "account_id": "OFFLINE-v20-shallow",
+              "atr14": "3.5",
+              "cost_per_contract": "2",
+              "direction": "LONG",
+              "entry_key": "v20:v20-shallow:9bff8da6b93e9282:597265e0c7c9a6eaf5",
+              "initial_margin": "10000",
+              "initial_stop": "3.000",
+              "planned_entry": "10",
+              "price_step": "0.001",
+              "quantity": 1,
+              "realized_equity": "500000",
+              "reserved_cost": "2",
+              "reserved_margin": "10000",
+              "reserved_risk": "7002",
+              "symbol": "CNYRUBF",
+              "tick_value": "1"
+            }
+          }
+        },
+        "posts_after_restart": 1,
+        "exit_code": -9
+      },
+      {
+        "phase": "ack",
+        "killed": {
+          "phase": "ack",
+          "pid": 51312,
+          "robot": "v20-shallow",
+          "account": "OFFLINE-v20-shallow",
+          "post_count": 1,
+          "positions": [],
+          "halt": null,
+          "intents": 1,
+          "fills": 0,
+          "reservations": {
+            "v20:v20-shallow:9bff8da6b93e9282:597265e0c7c9a6eaf5": {
+              "account_id": "OFFLINE-v20-shallow",
+              "atr14": "3.5",
+              "cost_per_contract": "2",
+              "direction": "LONG",
+              "entry_key": "v20:v20-shallow:9bff8da6b93e9282:597265e0c7c9a6eaf5",
+              "initial_margin": "10000",
+              "initial_stop": "3.000",
+              "planned_entry": "10",
+              "price_step": "0.001",
+              "quantity": 1,
+              "realized_equity": "500000",
+              "reserved_cost": "2",
+              "reserved_margin": "10000",
+              "reserved_risk": "7002",
+              "symbol": "CNYRUBF",
+              "tick_value": "1"
+            }
+          }
+        },
+        "restarted": {
+          "phase": "recovered",
+          "pid": 51316,
+          "robot": "v20-shallow",
+          "account": "OFFLINE-v20-shallow",
+          "post_count": 1,
+          "positions": [],
+          "halt": null,
+          "intents": 1,
+          "fills": 0,
+          "reservations": {
+            "v20:v20-shallow:9bff8da6b93e9282:597265e0c7c9a6eaf5": {
+              "account_id": "OFFLINE-v20-shallow",
+              "atr14": "3.5",
+              "cost_per_contract": "2",
+              "direction": "LONG",
+              "entry_key": "v20:v20-shallow:9bff8da6b93e9282:597265e0c7c9a6eaf5",
+              "initial_margin": "10000",
+              "initial_stop": "3.000",
+              "planned_entry": "10",
+              "price_step": "0.001",
+              "quantity": 1,
+              "realized_equity": "500000",
+              "reserved_cost": "2",
+              "reserved_margin": "10000",
+              "reserved_risk": "7002",
+              "symbol": "CNYRUBF",
+              "tick_value": "1"
+            }
+          }
+        },
+        "posts_after_restart": 1,
+        "exit_code": -9
+      },
+      {
+        "phase": "fill",
+        "killed": {
+          "phase": "fill",
+          "pid": 51320,
+          "robot": "v20-shallow",
+          "account": "OFFLINE-v20-shallow",
+          "post_count": 1,
+          "positions": [
+            {
+              "symbol": "CNYRUBF@RTSX",
+              "quantity": {
+                "value": "1"
+              }
+            }
+          ],
+          "halt": null,
+          "intents": 1,
+          "fills": 0,
+          "reservations": {
+            "v20:v20-shallow:9bff8da6b93e9282:597265e0c7c9a6eaf5": {
+              "account_id": "OFFLINE-v20-shallow",
+              "atr14": "3.5",
+              "cost_per_contract": "2",
+              "direction": "LONG",
+              "entry_key": "v20:v20-shallow:9bff8da6b93e9282:597265e0c7c9a6eaf5",
+              "initial_margin": "10000",
+              "initial_stop": "3.000",
+              "planned_entry": "10",
+              "price_step": "0.001",
+              "quantity": 1,
+              "realized_equity": "500000",
+              "reserved_cost": "2",
+              "reserved_margin": "10000",
+              "reserved_risk": "7002",
+              "symbol": "CNYRUBF",
+              "tick_value": "1"
+            }
+          }
+        },
+        "restarted": {
+          "phase": "recovered",
+          "pid": 51324,
+          "robot": "v20-shallow",
+          "account": "OFFLINE-v20-shallow",
+          "post_count": 2,
+          "positions": [
+            {
+              "symbol": "CNYRUBF@RTSX",
+              "quantity": {
+                "value": "1"
+              }
+            }
+          ],
+          "halt": null,
+          "intents": 2,
+          "fills": 1,
+          "reservations": {
+            "v20:v20-shallow:9bff8da6b93e9282:597265e0c7c9a6eaf5": {
+              "account_id": "OFFLINE-v20-shallow",
+              "atr14": "3.5",
+              "cost_per_contract": "2",
+              "direction": "LONG",
+              "entry_key": "v20:v20-shallow:9bff8da6b93e9282:597265e0c7c9a6eaf5",
+              "initial_margin": "10000",
+              "initial_stop": "3.000",
+              "planned_entry": "10",
+              "price_step": "0.001",
+              "quantity": 1,
+              "realized_equity": "500000",
+              "reserved_cost": "1",
+              "reserved_margin": "10000",
+              "reserved_risk": "7002",
+              "symbol": "CNYRUBF",
+              "tick_value": "1"
+            }
+          }
+        },
+        "posts_after_restart": 2,
+        "exit_code": -9
+      },
+      {
+        "phase": "stop",
+        "killed": {
+          "phase": "stop",
+          "pid": 51328,
+          "robot": "v20-shallow",
+          "account": "OFFLINE-v20-shallow",
+          "post_count": 2,
+          "positions": [
+            {
+              "symbol": "CNYRUBF@RTSX",
+              "quantity": {
+                "value": "1"
+              }
+            }
+          ],
+          "halt": null,
+          "intents": 2,
+          "fills": 1,
+          "reservations": {
+            "v20:v20-shallow:9bff8da6b93e9282:597265e0c7c9a6eaf5": {
+              "account_id": "OFFLINE-v20-shallow",
+              "atr14": "3.5",
+              "cost_per_contract": "2",
+              "direction": "LONG",
+              "entry_key": "v20:v20-shallow:9bff8da6b93e9282:597265e0c7c9a6eaf5",
+              "initial_margin": "10000",
+              "initial_stop": "3.000",
+              "planned_entry": "10",
+              "price_step": "0.001",
+              "quantity": 1,
+              "realized_equity": "500000",
+              "reserved_cost": "2",
+              "reserved_margin": "10000",
+              "reserved_risk": "7002",
+              "symbol": "CNYRUBF",
+              "tick_value": "1"
+            }
+          }
+        },
+        "restarted": {
+          "phase": "recovered",
+          "pid": 51332,
+          "robot": "v20-shallow",
+          "account": "OFFLINE-v20-shallow",
+          "post_count": 2,
+          "positions": [
+            {
+              "symbol": "CNYRUBF@RTSX",
+              "quantity": {
+                "value": "1"
+              }
+            }
+          ],
+          "halt": null,
+          "intents": 2,
+          "fills": 1,
+          "reservations": {
+            "v20:v20-shallow:9bff8da6b93e9282:597265e0c7c9a6eaf5": {
+              "account_id": "OFFLINE-v20-shallow",
+              "atr14": "3.5",
+              "cost_per_contract": "2",
+              "direction": "LONG",
+              "entry_key": "v20:v20-shallow:9bff8da6b93e9282:597265e0c7c9a6eaf5",
+              "initial_margin": "10000",
+              "initial_stop": "3.000",
+              "planned_entry": "10",
+              "price_step": "0.001",
+              "quantity": 1,
+              "realized_equity": "500000",
+              "reserved_cost": "1",
+              "reserved_margin": "10000",
+              "reserved_risk": "7002",
+              "symbol": "CNYRUBF",
+              "tick_value": "1"
+            }
+          }
+        },
+        "posts_after_restart": 2,
+        "exit_code": -9
+      }
+    ],
+    "three_process_isolation": {
+      "initial": {
+        "v20-shallow": {
+          "phase": "protected",
+          "pid": 51336,
+          "robot": "v20-shallow",
+          "account": "OFFLINE-v20-shallow",
+          "post_count": 2,
+          "positions": [
+            {
+              "symbol": "CNYRUBF@RTSX",
+              "quantity": {
+                "value": "1"
+              }
+            }
+          ],
+          "halt": null,
+          "intents": 2,
+          "fills": 1,
+          "reservations": {
+            "v20:v20-shallow:9bff8da6b93e9282:597265e0c7c9a6eaf5": {
+              "account_id": "OFFLINE-v20-shallow",
+              "atr14": "3.5",
+              "cost_per_contract": "2",
+              "direction": "LONG",
+              "entry_key": "v20:v20-shallow:9bff8da6b93e9282:597265e0c7c9a6eaf5",
+              "initial_margin": "10000",
+              "initial_stop": "3.000",
+              "planned_entry": "10",
+              "price_step": "0.001",
+              "quantity": 1,
+              "realized_equity": "500000",
+              "reserved_cost": "1",
+              "reserved_margin": "10000",
+              "reserved_risk": "7002",
+              "symbol": "CNYRUBF",
+              "tick_value": "1"
+            }
+          }
+        },
+        "v20-obv": {
+          "phase": "protected",
+          "pid": 51337,
+          "robot": "v20-obv",
+          "account": "OFFLINE-v20-obv",
+          "post_count": 2,
+          "positions": [
+            {
+              "symbol": "CNYRUBF@RTSX",
+              "quantity": {
+                "value": "1"
+              }
+            }
+          ],
+          "halt": null,
+          "intents": 2,
+          "fills": 1,
+          "reservations": {
+            "v20:v20-obv:54dfed6744a57522:597265e0c7c9a6eaf5": {
+              "account_id": "OFFLINE-v20-obv",
+              "atr14": "3.5",
+              "cost_per_contract": "2",
+              "direction": "LONG",
+              "entry_key": "v20:v20-obv:54dfed6744a57522:597265e0c7c9a6eaf5",
+              "initial_margin": "10000",
+              "initial_stop": "3.000",
+              "planned_entry": "10",
+              "price_step": "0.001",
+              "quantity": 1,
+              "realized_equity": "500000",
+              "reserved_cost": "1",
+              "reserved_margin": "10000",
+              "reserved_risk": "7002",
+              "symbol": "CNYRUBF",
+              "tick_value": "1"
+            }
+          }
+        },
+        "v20-inside": {
+          "phase": "protected",
+          "pid": 51338,
+          "robot": "v20-inside",
+          "account": "OFFLINE-v20-inside",
+          "post_count": 2,
+          "positions": [
+            {
+              "symbol": "CNYRUBF@RTSX",
+              "quantity": {
+                "value": "1"
+              }
+            }
+          ],
+          "halt": null,
+          "intents": 2,
+          "fills": 1,
+          "reservations": {
+            "v20:v20-inside:a2db0f032c0b81fe:597265e0c7c9a6eaf5": {
+              "account_id": "OFFLINE-v20-inside",
+              "atr14": "3.5",
+              "cost_per_contract": "2",
+              "direction": "LONG",
+              "entry_key": "v20:v20-inside:a2db0f032c0b81fe:597265e0c7c9a6eaf5",
+              "initial_margin": "10000",
+              "initial_stop": "3.000",
+              "planned_entry": "10",
+              "price_step": "0.001",
+              "quantity": 1,
+              "realized_equity": "500000",
+              "reserved_cost": "1",
+              "reserved_margin": "10000",
+              "reserved_risk": "7002",
+              "symbol": "CNYRUBF",
+              "tick_value": "1"
+            }
+          }
+        }
+      },
+      "duplicate": {
+        "phase": "blocked",
+        "pid": 51348,
+        "error": "SECOND_ROBOT_INSTANCE_BLOCKED"
+      },
+      "shallow_restart": {
+        "phase": "recovered",
+        "pid": 51352,
+        "robot": "v20-shallow",
+        "account": "OFFLINE-v20-shallow",
+        "post_count": 2,
+        "positions": [
+          {
+            "symbol": "CNYRUBF@RTSX",
+            "quantity": {
+              "value": "1"
+            }
+          }
+        ],
+        "halt": null,
+        "intents": 2,
+        "fills": 1,
+        "reservations": {
+          "v20:v20-shallow:9bff8da6b93e9282:597265e0c7c9a6eaf5": {
+            "account_id": "OFFLINE-v20-shallow",
+            "atr14": "3.5",
+            "cost_per_contract": "2",
+            "direction": "LONG",
+            "entry_key": "v20:v20-shallow:9bff8da6b93e9282:597265e0c7c9a6eaf5",
+            "initial_margin": "10000",
+            "initial_stop": "3.000",
+            "planned_entry": "10",
+            "price_step": "0.001",
+            "quantity": 1,
+            "realized_equity": "500000",
+            "reserved_cost": "1",
+            "reserved_margin": "10000",
+            "reserved_risk": "7002",
+            "symbol": "CNYRUBF",
+            "tick_value": "1"
+          }
+        }
+      },
+      "final": {
+        "v20-shallow": {
+          "phase": "event",
+          "pid": 51352,
+          "robot": "v20-shallow",
+          "account": "OFFLINE-v20-shallow",
+          "post_count": 3,
+          "positions": [
+            {
+              "symbol": "CNYRUBF@RTSX",
+              "quantity": {
+                "value": "0"
+              }
+            }
+          ],
+          "halt": null,
+          "intents": 3,
+          "fills": 2,
+          "reservations": {},
+          "result": {
+            "mode": "OFFLINE_FAKE_ONLY",
+            "robot_id": "v20-shallow",
+            "account_hash": "9bff8da6b93e9282c0c572be7632a6f42d4dcbfd15e83fda6bdbe5e2a10ea4f0",
+            "pid": 51352,
+            "observed_at": "2024-01-11T09:00:00",
+            "last_clock": "2024-01-11T09:00:00",
+            "reason": "BOUNDARY_PROCESSED",
+            "halt": null,
+            "last_refusal": null,
+            "symbols": [
+              "CNYRUBF",
+              "GLDRUBF",
+              "IMOEXF",
+              "USDRUBF"
+            ],
+            "live_enabled": false,
+            "kill_switch": "ARMED",
+            "positions": {}
+          }
+        },
+        "v20-obv": {
+          "phase": "event",
+          "pid": 51337,
+          "robot": "v20-obv",
+          "account": "OFFLINE-v20-obv",
+          "post_count": 3,
+          "positions": [
+            {
+              "symbol": "CNYRUBF@RTSX",
+              "quantity": {
+                "value": "0"
+              }
+            }
+          ],
+          "halt": null,
+          "intents": 3,
+          "fills": 2,
+          "reservations": {},
+          "result": {
+            "mode": "OFFLINE_FAKE_ONLY",
+            "robot_id": "v20-obv",
+            "account_hash": "54dfed6744a575229ae47966c1364945ef976635ee065d1a977b445c4b740acd",
+            "pid": 51337,
+            "observed_at": "2024-01-11T09:00:00",
+            "last_clock": "2024-01-11T09:00:00",
+            "reason": "BOUNDARY_PROCESSED",
+            "halt": null,
+            "last_refusal": null,
+            "symbols": [
+              "CNYRUBF",
+              "GLDRUBF",
+              "IMOEXF",
+              "USDRUBF"
+            ],
+            "live_enabled": false,
+            "kill_switch": "ARMED",
+            "positions": {}
+          }
+        },
+        "v20-inside": {
+          "phase": "event",
+          "pid": 51338,
+          "robot": "v20-inside",
+          "account": "OFFLINE-v20-inside",
+          "post_count": 3,
+          "positions": [
+            {
+              "symbol": "CNYRUBF@RTSX",
+              "quantity": {
+                "value": "0"
+              }
+            }
+          ],
+          "halt": null,
+          "intents": 3,
+          "fills": 2,
+          "reservations": {},
+          "result": {
+            "mode": "OFFLINE_FAKE_ONLY",
+            "robot_id": "v20-inside",
+            "account_hash": "a2db0f032c0b81fe08ee2ff4560e1e95598ad93455a2326e769006252e2b785b",
+            "pid": 51338,
+            "observed_at": "2024-01-11T09:00:00",
+            "last_clock": "2024-01-11T09:00:00",
+            "reason": "BOUNDARY_PROCESSED",
+            "halt": null,
+            "last_refusal": null,
+            "symbols": [
+              "CNYRUBF",
+              "GLDRUBF",
+              "IMOEXF",
+              "USDRUBF"
+            ],
+            "live_enabled": false,
+            "kill_switch": "ARMED",
+            "positions": {}
+          }
+        }
+      }
+    }
+  },
+  "reused": {
+    "receipt": "V20_TradingSystem_M15/V20-04/OFFLINE_FRAMEWORK_ACCEPTANCE.json",
+    "receipt_sha256": "0451b6c29f88cd322f9fba71851f142756fa2884cd2665a635296d8b5a7ae7de",
+    "base_commit": "d8eaef215efdd05cc8ace7e664d51b791e2da976",
+    "tests": 99,
+    "source_mismatches": [],
+    "frozen_parity": "18 CNY/GLD/IMOEX signals + prior 6 USD; original proof reused",
+    "three_real_frozen_process_signals": [
+      {
+        "robot_id": "v20-shallow",
+        "strategy": "SHALLOW_PULLBACK",
+        "signal_bar_open": "2024-01-09 12:30:00",
+        "known_at": "2024-01-09 12:45:00",
+        "side": -1
+      },
+      {
+        "robot_id": "v20-obv",
+        "strategy": "OBV_PRESSURE",
+        "signal_bar_open": "2024-01-09 13:15:00",
+        "known_at": "2024-01-09 13:30:00",
+        "side": -1
+      },
+      {
+        "robot_id": "v20-inside",
+        "strategy": "INSIDE_DAY_RELEASE",
+        "signal_bar_open": "2024-01-18 12:00:00",
+        "known_at": "2024-01-18 12:15:00",
+        "side": 1
+      }
+    ],
+    "rerun_changed_modules": [
+      "h1_execution",
+      "m15_runner"
+    ],
+    "no_heavy_replay": true
+  },
+  "source_integrity": {
+    "status": "PASS",
+    "sha256": {
+      "TradingSystemLab/stage8_robot/broker.py": "e38e9f65dc9ce4ed86b385c54c93a19ab2839adafecb54512db9fa1a60838e5a",
+      "TradingSystemLab/stage8_robot/live_execution.py": "c79bf24624cffa5477fee3560368b152163a1c4cf95fd1052e4388c53ff55c14",
+      "TradingSystemLab/stage8_robot/production_broker_state.py": "28de15eb1a7895a8da9d678e14dea81d7eebb0ca492c2d66726b85cb7a01521c",
+      "TradingSystemLab/stage8_robot/production_runtime.py": "8c5b24586c48eac851097edbe191422de85fff886a0f8d77fde8383cb733d504",
+      "TradingSystemLab/stage8_robot/state.py": "afec9bc5b54ce0ef9fd3be2835a6a3506c79d43826a194932a6d8fca9d979a50",
+      "TradingSystemLab/stage8_robot/operations.py": "1ae2e848aa3301cbd924f7165bd61a8888a586e86a792fac807b7fd6ff5cd734",
+      "TradingSystemLab/stage8_robot/reconciliation.py": "b59de4946611dc54a80b14e40f357a99bfea90ffef7b41b978cc350b39d63aec",
+      "TradingSystemLab/stage8_robot/protective_stop_contract.py": "2725e97cafcbce101e13170bc9d4010f382282bf3eadf05d5ab7ecc5a71dca05",
+      "TradingSystemLab/stage8_robot/execution_grid.py": "4a9f92108acc6872be5bea7f4a41dd03ca7166495a6a6a98dbc4345bbfb2ec72",
+      "TradingSystemLab/stage8_robot/risk.py": "322080b499bdb2cd5c27757648aa7e45933ee75523ff61c5ac8d573c9663d1e5",
+      "TradingSystemLab/stage8_robot/margin.py": "05c1c44eb199dccb126d533bdd1f4389ff78ce53d920f2b6bec967155964339e",
+      "TradingSystemLab/stage8_robot/production_instrument_registry.csv": "90d64e16dfeb292b4b339ac3eb196074e133bf52a962cc6715c488a32d16e013",
+      "IntradayLab/core/execution.py": "4b721495fb1e9ff08069b534f09a662b80c2c7cc667b82a5835942bbf45e675c",
+      "IntradayLab/core/models.py": "693cdb3c8ba8658bb3872cced37aa5d000cbb8b5f0116676991b13e869bb2cba",
+      "IntradayLab/core/m15_bars.py": "46bba5ed6a46b65666de3f5f243beaaf161e29d852575b9b2e8a2950c2b0d334",
+      "V20_TradingSystem_M15/V20-03/offline/stress_v20_03.py": "0800f41fed4f6ad3749a0eb9987970a8d954c1682c18cd2c8eecdab7b50c91d0",
+      "V20_TradingSystem_M15/research_original_v20/base.py": "b7b9df00f8d7fb0a88c5cba103034e5a2335c108ae283258e5d8ebd5476aa59d",
+      "V20_TradingSystem_M15/research_original_v20/run.py": "223545374f98d8c87cf2c09b3a7302b05b07020dc8bf34b5984ebaa3d74389fe",
+      "V20_TradingSystem_M15/research_original_v20/legacy_v4/study_v4.py": "0f49432e207235f631807a82536f521751ad5559cc374fc6c42f8ca4f289bd08",
+      "V20_TradingSystem_M15/research_original_v20/legacy_v4/dependencies/study.py": "68a4169a80870cfd10537aa896ea0b3bcd8b3baf9803240d7d7a48b78ba485ff",
+      "V20_TradingSystem_M15/V20-03/comparison/QUOTE_PATH_DIAGNOSTICS.csv": "1f936dca02b9c99ed1df6ca30ef52c4c33128c9d06743175b6f5d6f59dee9c0f",
+      "TradingSystemLab/stage8_robot/trading_safety_gate.py": "64c781579e630836cfde7a0b772df1e2707caf35decafb9acdc75d7d2e3df6e4"
+    }
+  },
+  "code_sha256": {
+    "V20_TradingSystem_M15/v20_runtime/account_risk.py": "50eb4b295602a200d7fb4993a7d577b1bf8c5bcde4eddfdec66388448883e24c",
+    "V20_TradingSystem_M15/v20_runtime/frozen_adapter.py": "b96fe99aeb1a448f057935c71fb0e0a0a9808479527a3130aaee330e16b2dec7",
+    "V20_TradingSystem_M15/v20_runtime/h1_execution.py": "21e0caaa07fb20ff9d8401c61b0ef92a75b13fe208916525afbd4769214e10f5",
+    "V20_TradingSystem_M15/v20_runtime/h1_state_journal.py": "f7e0c5f12b058e511ab9ae1846b3c937dfe995b0d691850e327851bf84c3cadf",
+    "V20_TradingSystem_M15/v20_runtime/m15_runner.py": "cc879ee0d6be67dae1227aab68c9e4e5471f5b0147987db3d8ea287db8286922",
+    "V20_TradingSystem_M15/v20_runtime/market_suitability.py": "f4bd0ce7c0b489792fe63154354e462ab984a141a866056d4364be3f9614a157",
+    "V20_TradingSystem_M15/v20_runtime/offline_acceptance.py": "238fdea463b5a0c573eb4eac5cd3b18520ebb44e60571f09416e0c7160b9a5c6",
+    "V20_TradingSystem_M15/v20_runtime/offline_planner.py": "c630bc548613a296cae618d12d6c99588c85f2ee9ceee1824a9924aa4f858710",
+    "V20_TradingSystem_M15/v20_runtime/robots.json": "27e16a30303b473883918e0a9882727f91bd05d1f368354d6580e505a0b2c976"
+  },
+  "test_sha256": {
+    "V20_TradingSystem_M15/v20_runtime/tests/acceptance_child.py": "cfa948bf9a15f5cc0f756897c0f5db261b41dde74ed104b2b0cced9495e9d584",
+    "V20_TradingSystem_M15/v20_runtime/tests/test_h1_execution.py": "5bb11653e5fa6f601b2e873caa99fbb6b8e1bb4f1244a677f363d16af9ed159a",
+    "V20_TradingSystem_M15/v20_runtime/tests/test_m15_runner.py": "883a82d4ecb5c48678812c8d576c2a3e3b0e27c01c2b9ea71c673bf0c977aad6",
+    "V20_TradingSystem_M15/v20_runtime/tests/test_market_suitability.py": "5aea44ae7117afaf9b1788396ef58c23184492251a638a771cc1f152efe1d135",
+    "V20_TradingSystem_M15/v20_runtime/tests/test_system_acceptance.py": "08453201b58ecf8ccd2849b8594a1b953d1030cfef067bf1736f0074c4cea0ef"
+  },
+  "fixed_defects": [
+    {
+      "id": "V20_EXIT_WITH_UNCONFIRMED_STOP",
+      "reproduced": true,
+      "before": "FAIL: protection error also prohibited verified-position exit",
+      "after": "PASS: halt entries, no stop retry, preserve verified-quantity exit"
+    }
+  ],
+  "windows": {
+    "status": "NOT_RUN_BLOCKED",
+    "native": false,
+    "reason": "No Windows executor/VPN/private TCP grants or configured capability",
+    "script": "V20_TradingSystem_M15/V20-05/Invoke-OfflineAcceptance.ps1"
+  },
+  "limitations": [
+    "Synthetic process signal and adverse/fault fixtures are plumbing acceptance, not historical PnL.",
+    "Protection rejected/missing is an explicitly injected fault: halt entries; never claim that position protected.",
+    "Unknown ENTRY/EXIT POST or conflicting broker/SQLite position remains blocked; no fabricated safe quantity.",
+    "Crash after decision claim can skip one NEXT_OPEN; no delayed replay entry.",
+    "Partial-fill VWAP stop replacement is unverified: keep installed 100% stop and halt entries.",
+    "Fake account GO/cash are synthetic. Real FINAM transport, freshness and bounded history remain unverified.",
+    "H1 kill-switch file format reused only inside V20 instance; ARMED authorizes fake fixtures only.",
+    "No FINAM auth/orders, Windows Tasks, Intel deployment or Merge performed."
+  ],
+  "not_run": [
+    "Native Windows (unless --windows)",
+    "FINAM physical accounts/transport",
+    "1589-trade replay and historical market research (reused unchanged evidence)"
+  ],
+  "next": "Complete native Windows 05.5; then V20-06.1 account binding READONLY with owner-provided accounts",
+  "reproduce": "python -m V20_TradingSystem_M15.v20_runtime.offline_acceptance --offline --scratch-base <external-directory> --report <report.json>",
+  "changed_files": [
+    "V20_TradingSystem_M15/V20-04/README_RU.md",
+    "V20_TradingSystem_M15/V20-05/ACCEPTANCE_REPORT.json",
+    "V20_TradingSystem_M15/V20-05/Invoke-OfflineAcceptance.ps1",
+    "V20_TradingSystem_M15/V20-05/REPORT_RU.md",
+    "V20_TradingSystem_M15/docs/ROADMAP_DETAILED_RU.md",
+    "V20_TradingSystem_M15/docs/ROADMAP_RU.md",
+    "V20_TradingSystem_M15/docs/TASK_TRACKER.csv",
+    "V20_TradingSystem_M15/v20_runtime/h1_execution.py",
+    "V20_TradingSystem_M15/v20_runtime/m15_runner.py",
+    "V20_TradingSystem_M15/v20_runtime/offline_acceptance.py",
+    "V20_TradingSystem_M15/v20_runtime/tests/acceptance_child.py",
+    "V20_TradingSystem_M15/v20_runtime/tests/test_h1_execution.py",
+    "V20_TradingSystem_M15/v20_runtime/tests/test_system_acceptance.py"
+  ],
+  "additional_checks": {
+    "linux_rejects_windows_claim": {
+      "status": "PASS",
+      "exit_code": 2,
+      "report_created": false,
+      "reason": "WINDOWS_NOT_AVAILABLE"
+    },
+    "git_diff_check": "PASS",
+    "h1_intraday_diff_vs_main": [],
+    "frozen_diff_vs_input_head": []
+  }
+}
