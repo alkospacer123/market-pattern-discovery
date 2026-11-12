@@ -14,6 +14,7 @@ import sqlite3
 from types import SimpleNamespace
 from datetime import datetime, timedelta, timezone
 from decimal import Decimal
+from pandas.errors import ParserError
 import hashlib
 import json
 import logging
@@ -29,7 +30,7 @@ from TradingSystemLab.stage8_robot.account_cleanliness import TERMINAL_ORDER_STA
 from TradingSystemLab.stage8_robot.production_broker_state import unique_order_by_client_id, _validate_production_sltp
 from TradingSystemLab.stage8_robot.execution_grid import project_stop
 from TradingSystemLab.stage8_robot.finam_api import FinamAPI, FinamError, FinamNotFound, FinamServerError, FinamTimeout, FinamRateLimit
-from TradingSystemLab.stage8_robot.production_runtime import _load_registry
+from TradingSystemLab.stage8_robot.production_runtime import _load_registry, ProductionRuntimeError
 from TradingSystemLab.stage8_robot.trading_safety_gate import load_kill_switch, emergency_halt, write_kill_switch
 
 from .account_risk import RiskReservation, RiskBlocked
@@ -90,6 +91,10 @@ def _night_flat_snapshot_fault(exc, *, journal, reader, now):
     if not match or match.group(1) in {"401", "403"} or match.group(2) not in expected:
         return None
     return match.group(1)
+
+
+class V20M15SignalReadRetry(V20FinamSnapshotReadRetry):
+    """Transient read-only frozen M15 input/CSV failure; no order is sent."""
 
 
 class V20FinamAPI(FinamAPI):
@@ -698,6 +703,28 @@ def run_cycle(sender: V20LiveTransport, now: datetime) -> str:
                 # protective SLTP and frozen exits stay strictly fail-closed.
                 return "M15_TIMESTAMP_UNTRUSTED_NO_ENTRY"
             raise
+        except (MemoryError, ParserError, ProductionRuntimeError) as exc:
+            # 2026-11-12 15:00 MSK: three bots failed in the READ-ONLY
+            # signal path (MemoryError, pandas ParserError, and a temporary
+            # registry OSError). Only a broker-FLAT, durably settled journal
+            # may retry. Open exposure/stop management is never covered.
+            if (snapshot.positions or any(o.active for o in snapshot.orders)
+                    or journal.store.get("execution_halt")
+                    or any(row["payload"].get("kind") == "ENTRY"
+                           and not journal.store.get("flat_cleanup:" + row["idempotency_key"])
+                           for row in journal.store.all_intents())):
+                raise
+            if isinstance(exc, ProductionRuntimeError):
+                if str(exc) != "PRODUCTION_REGISTRY_UNREADABLE":
+                    raise
+                label = "REGISTRY"
+            elif isinstance(exc, ParserError):
+                label = "PARSER"
+            else:
+                label = "MEMORY"
+            # Re-read registry / recreate disposable CSV on next safe cycle;
+            # never mark this signal decided, synthesize a bar, or place POST.
+            raise V20M15SignalReadRetry("M15_READONLY_" + label) from exc
         except ValueError as exc:
             if str(exc) == "INSUFFICIENT_RISK_OR_MARGIN_CAPACITY":
                 journal.store.put("live_decision:" + symbol, boundary_id)
@@ -822,6 +849,7 @@ def run(*, root: Path, robot: str, source: str, once: bool = False,
         if output.is_symlink():
             raise V20FinamBlocked("V20_LIVE_LOG_FILE_LINK")
         read_401_failures = 0
+        m15_read_failures = 0
         while True:
             now = datetime.now(timezone.utc)
             try:
@@ -834,6 +862,12 @@ def run(*, root: Path, robot: str, source: str, once: bool = False,
                         # Persistent auth failure is NOT a network transient.
                         # Keep fail-closed and require manual recovery.
                         exc = V20FinamBlocked("FINAM_READ_AUTH_HTTP_401_PERSISTENT")
+                if isinstance(exc, V20M15SignalReadRetry):
+                    m15_read_failures += 1
+                    if m15_read_failures >= 3:
+                        # Persistent host/resource or frozen-input failure:
+                        # strictly HALT rather than suppressing indefinitely.
+                        exc = V20FinamBlocked("M15_READONLY_FAILURE_PERSISTENT")
                 # Reuse H1 ProductionService.run(): a failed FINAM cycle
                 # records a fault and retries after 3s, never exits its Task.
                 # Preserve V20's stronger existing fail-closed switch for
@@ -885,6 +919,7 @@ def run(*, root: Path, robot: str, source: str, once: bool = False,
                            if slow_night_get_retry else FAST_RECONCILIATION_SECONDS)
                 continue
             read_401_failures = 0
+            m15_read_failures = 0
             event = {"utc": now.isoformat(), "robot": robot, "state": state}
             if getattr(reader, "_closed_night_flat_no_get", False):
                 event["broker_cycle"] = "MOEX_CLOSED_FLAT_NO_FINAM_GET"
