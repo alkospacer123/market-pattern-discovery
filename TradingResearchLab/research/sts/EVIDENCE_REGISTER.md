@@ -69,3 +69,7 @@ Frozen protocol SHA256 `da6327e30ea8e8f6c69f02294177ac95938b1a7c743814eebb33d77c
 ### R051 (11.11.2026) — 45 месяцев × роботы × инструменты, GLD
 
 [Отчёт R051](TRL_R_2026_051_Monthly_Portfolio_Allocation_GLD.md): 4320 строк подробного N4/N3 monthly robot×symbol для BASE/TP6 GO Oct/Nov, 6660 строк портфелей, 148 replay сценариев, 20/20 parity PASS. При Oct GO/TP6: V20 60/30/45 +422224 PF1.914 M15DD18667; Sh+Inside 60/40 +461857 PF2.007 M15DD20035; 70/30 +496776 PF1.968 DD23939; Shallow-only 0.667% +404160 PF1.995 DD16563; 1.5% +666387 PF1.991 DD33484. Без GLD Sh+Inside60/40 +372736 DD22404. Статичное ГО и 2023–2026 OOS_COMPROMISED; не утверждать какой-либо исторический максимум как optimum.
+
+### R052 (12.11.2026)
+
+[Study](TRL_R_2026_052_V20_Independence_Limits_Shallow_Variants.md): 1449 baseline money deals, 45k Classic TP6 +208507 ₽ PF1.961; FAST2 +204191 PF1.814, LONG5 +139376 PF1.829, DEEP3 +225490 PF1.850, TIGHT3 +134604 PF1.848. Daily PnL corrs Classic/OBV 0.344, Classic/Inside 0.098; variants Classic/DEEP3 0.843, Classic/FAST2 0.667. Portfolio Classic+DEEP3+Inside +480503 PF1.896 closed DD19408 vs V20 +381608 PF1.845 closed DD11775. Passive one-tick price touch entry bar 89.1% N4, in later four M15 continuous bars before exit 71.5% N4; NOT fills, no L2/order time/queue data. Frozen protocol SHA256 aebf7b16394aada378ce7fba30ee45b4ceb8ab3e7aee1eac4630750e8ff0b385. Isolated offline reproduction 19 CSV identical. `NO_NEW_CORE / LIMIT_DATA_REQUIRED / LIVE_UNCHANGED`.
