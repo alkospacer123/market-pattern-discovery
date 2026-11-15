@@ -367,7 +367,7 @@ jobs:
             if ($LASTEXITCODE -ne 0) { throw ('V20_H1_LIFECYCLE_PARITY_FAIL '+$case) }
           }
           Write-Output 'V20_H1_LIFECYCLE_FOUR_EXISTING_REGRESSIONS=PASS'
-          python -m unittest -v V20_TradingSystem_M15.v20_runtime.tests.test_ext2_r060
-          if ($LASTEXITCODE -ne 0) { throw 'V20_R070_EXT2_OFFLINE_PARITY_FAIL' }
-          Write-Output 'V20_R070_EXT2_OFFLINE_CONTRACT=PASS'
+          python -m unittest -v V20_TradingSystem_M15.v20_runtime.tests.test_ext2_r060 V20_TradingSystem_M15.v20_runtime.tests.test_tp6_protect3
+          if ($LASTEXITCODE -ne 0) { throw 'V20_R070_OFFLINE_CONTRACT_FAIL' }
+          Write-Output 'V20_R070_EXT2_TP6_PROTECT3_OFFLINE_CONTRACT=PASS'
           exit 0
