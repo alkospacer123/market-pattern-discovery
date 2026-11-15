@@ -49,7 +49,7 @@ class TP6Protect3OfflineTests(unittest.TestCase):
 
     def test_full_position_broker_linked_tp_fields(self):
         self.assertEqual(sltp_tp6_fields(self.levels()), {
-            "tp_price": {"value": "112.0"},
+            "tp_price": {"value": "112"},
             "tp_qty_measure": "SLTP_QTY_MEASURE_PERCENT",
             "quantity_tp": {"value": "100"},
         })
