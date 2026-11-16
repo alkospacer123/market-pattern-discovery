@@ -1,0 +1,28 @@
+diff --git a/V20_TradingSystem_M15/v20_runtime/finam_execution.py b/V20_TradingSystem_M15/v20_runtime/finam_execution.py
+--- a/V20_TradingSystem_M15/v20_runtime/finam_execution.py
++++ b/V20_TradingSystem_M15/v20_runtime/finam_execution.py
+@@ -1078,7 +1078,24 @@
+         )
+         wire = percent_position_stop_payload(action)
+         wire.pop("schema_id", None)
+         wire["client_order_id"] = compact_client_order_id(stop_key)
++        # R070 cutover candidate: keep the SAME H1 stop intent and one-shot
++        # transport; add TP6 only when all entry fills are broker proven.
++        # Partial fills MUST use the original 100%-position SL immediately.
++        from .r070_linked_sltp import choose_r070_initial_protection
++        choice = choose_r070_initial_protection(
++            action=action, history=history, entry_orders=current.orders,
++            entry_broker_order_id=entry["broker_order_id"],
++            observed_position=position, tick=step,
++        )
++        if choice.status == "SINGLE_LINKED_SL_TP6_DRAFT_ONLY":
++            original = {name: value for name, value in choice.wire.items()
++                        if name not in ("tp_price", "tp_qty_measure", "quantity_tp")}
++            if original != wire:
++                raise V20FinamBlocked("R070_TP6_H1_BASE_WIRE_MISMATCH")
++            wire = choice.wire
++        elif choice.status != "ORIGINAL_V20_SL_REQUIRED_PARTIAL_FILL":
++            raise V20FinamBlocked("R070_TP6_STOP_WRITE_NOT_AUTHORIZED")
+         if len(stop_key) > 128:
+             raise V20FinamBlocked("STOP_KEY_COMMENT_TOO_LONG")
+         # Only the H1 documented 100%-of-position stop is accepted.
