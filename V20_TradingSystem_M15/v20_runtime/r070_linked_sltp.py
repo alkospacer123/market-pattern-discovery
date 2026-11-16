@@ -78,6 +78,14 @@ def verify_r070_linked_sltp(
     if len(matching) != 1:
         raise TP6Protect3Unsafe("R070_SLTP_ONE_ACTIVE_LINKED_ORDER_REQUIRED")
     order = matching[0]
+    # A second LIVE regular order may be a triggered SL/TP child or an
+    # unsettled close. Its presence cannot be interpreted as one fully
+    # protected linked position, even when one WATCHING SLTP also exists.
+    active_symbol_orders = [
+        o for o in orders if o.active and o.symbol == wire.get("symbol")
+    ]
+    if len(active_symbol_orders) != 1 or active_symbol_orders[0] != order:
+        raise TP6Protect3Unsafe("R070_SLTP_ACTIVE_CHILD_OR_OTHER_ORDER_UNVERIFIED")
     if (order.order_id != expected_broker_order_id
             or order.symbol != wire.get("symbol")
             or order.side != wire.get("side")
