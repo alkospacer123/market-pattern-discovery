@@ -46,6 +46,43 @@ def load_r060_pinned_csv(path: str | Path, *, symbol: str) -> pd.DataFrame:
     return _strict_m15(frame)
 
 
+def load_finam_terminal_csv(path: str | Path, *, expected_sha256: str) -> pd.DataFrame:
+    """Read pinned FINAM terminal <DATE>/<TIME> M15 CSV as Moscow-local time.
+
+    OFFLINE input only. The terminal's timestamps ALREADY match R060 MSK;
+    do not localize/shift them. The caller must pin the exact source bytes,
+    not just trust an arbitrary local file or a user-supplied 'complete' label.
+    """
+    import io
+    if not isinstance(expected_sha256, str) or len(expected_sha256) != 64:
+        raise EXT2HistoryBlocked("EXT2_FINAM_SOURCE_SHA_REQUIRED")
+    source = Path(path)
+    if not source.is_file() or source.is_symlink():
+        raise EXT2HistoryBlocked("EXT2_FINAM_SOURCE_MISSING")
+    raw = source.read_bytes()
+    if sha256(raw).hexdigest() != expected_sha256.lower():
+        raise EXT2HistoryBlocked("EXT2_FINAM_SOURCE_SHA_MISMATCH")
+    try:
+        frame = pd.read_csv(io.BytesIO(raw), sep=";", dtype=str,
+                            encoding="utf-8-sig")
+        columns = ["<DATE>", "<TIME>", "<OPEN>", "<HIGH>",
+                   "<LOW>", "<CLOSE>", "<VOL>"]
+        if list(frame.columns) != columns or frame.empty:
+            raise ValueError("M15_EXPORT_SCHEMA")
+        d = pd.DataFrame()
+        d["Datetime"] = pd.to_datetime(
+            frame["<DATE>"] + frame["<TIME>"].str.zfill(6),
+            format="%Y%m%d%H%M%S", errors="raise")
+        for col, raw_name in [
+            ("Open", "<OPEN>"), ("High", "<HIGH>"), ("Low", "<LOW>"),
+            ("Close", "<CLOSE>"), ("Volume", "<VOL>")
+        ]:
+            d[col] = pd.to_numeric(frame[raw_name], errors="raise")
+        return _strict_m15(d)
+    except (ValueError, TypeError, ArithmeticError, UnicodeError) as exc:
+        raise EXT2HistoryBlocked("EXT2_FINAM_SOURCE_INVALID") from exc
+
+
 def _strict_m15(bars: pd.DataFrame) -> pd.DataFrame:
     if not isinstance(bars, pd.DataFrame) or bars.empty or any(
             col not in bars for col in REQUIRED):
