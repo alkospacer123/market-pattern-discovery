@@ -1,0 +1,19 @@
+diff --git a/V20_TradingSystem_M15/v20_runtime/finam_live.py b/V20_TradingSystem_M15/v20_runtime/finam_live.py
+--- a/V20_TradingSystem_M15/v20_runtime/finam_live.py
++++ b/V20_TradingSystem_M15/v20_runtime/finam_live.py
+@@ -730,7 +730,15 @@
+                 journal.store.put("live_decision:" + symbol, boundary_id)
+                 continue
+             raise
++        # R070 staged admission: only the frozen draft may be screened;
++        # the original H1 risk/GO and entry one-shot POST remain unchanged.
++        if draft is not None:
++            from .r070_candidate_entry import admit_r070_frozen_draft_pre_intent
++            draft = admit_r070_frozen_draft_pre_intent(
++                sender=sender, journal=journal, reader=reader,
++                symbol=symbol, frozen_draft=draft,
++                from_utc=now-timedelta(days=20), now=now)
+         if draft is None:
+             journal.store.put("live_decision:" + symbol, boundary_id)
+             continue
+         signal, candidate, authority, broker = draft
