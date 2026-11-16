@@ -193,6 +193,40 @@ class R070CandidateCheckpointState:
         )
         return history, new_row
 
+    def provide_ext2_history(
+        self, *, robot: str, symbol: str, signal_open_msk: datetime,
+    ) -> tuple[pd.DataFrame, str]:
+        """Candidate source for the existing R070 pre-intent gate, NOT LIVE.
+
+        Read the exact H1 SQLite pointer and pinned ZIP already proven by
+        an external R060/terminal source and current FINAM overlap. An old
+        checkpoint is never treated as a new signal's M15 observation.
+        The independent second FINAM M15 witness in r070_candidate_entry
+        remains mandatory before even an OFFLINE candidate may be admitted.
+        """
+        if robot != self.identity["robot_id"]:
+            raise EXT2HistoryBlocked("R070_CANDIDATE_PROVIDER_ROBOT_MISMATCH")
+        if (not isinstance(signal_open_msk, datetime)
+                or signal_open_msk.tzinfo is not None
+                or signal_open_msk.second or signal_open_msk.microsecond
+                or signal_open_msk.minute % 15):
+            raise EXT2HistoryBlocked("R070_CANDIDATE_PROVIDER_SIGNAL_INVALID")
+        row = self._get(symbol)
+        if row is None:
+            raise EXT2HistoryBlocked("R070_CANDIDATE_PROVIDER_NOT_BOOTSTRAPPED")
+        if row["last_open_msk"] != signal_open_msk.isoformat():
+            raise EXT2HistoryBlocked("R070_CANDIDATE_PROVIDER_STALE_OR_FUTURE")
+        frame, digest = load_r070_m15_checkpoint(
+            path=self.archive_dir / row["filename"],
+            symbol=symbol,
+            expected_checkpoint_sha256=row["checkpoint_sha256"],
+            minimum_last_m15_open_msk=signal_open_msk,
+        )
+        if (digest != row["history_sha256"]
+                or frame.Datetime.iloc[-1].to_pydatetime() != signal_open_msk):
+            raise EXT2HistoryBlocked("R070_CANDIDATE_PROVIDER_POINTER_MISMATCH")
+        return frame, digest
+
     def verified_cursor(self, symbol: str) -> dict | None:
         """Non-trading operator status from the candidate-only H1 SQLite."""
         row = self._get(symbol)
