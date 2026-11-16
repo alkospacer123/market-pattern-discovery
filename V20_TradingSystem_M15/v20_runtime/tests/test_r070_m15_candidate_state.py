@@ -111,7 +111,7 @@ class R070CandidateSQLiteTests(TestCase):
                     self._fresh(root)
                 with self._fresh(root, "v20-obv") as other:
                     self.assertIsNone(other.verified_cursor("GLDRUBF"))
-            with self.assertRaisesRegex(RuntimeError, "STATE_ENVIRONMENT_ACCOUNT_MISMATCH"):
+            with self.assertRaisesRegex(EXT2HistoryBlocked, "R070_CANDIDATE_ACCOUNT_OR_ROBOT_MISMATCH"):
                 self._fresh(root, account="synthetic-different-account")
 
     def test_missing_live_history_and_broken_calendar_never_advance(self):
