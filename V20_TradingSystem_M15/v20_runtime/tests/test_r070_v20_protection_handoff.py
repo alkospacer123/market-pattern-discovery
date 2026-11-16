@@ -157,7 +157,8 @@ class R070V20HandoffTests(TestCase):
                  "kind": "STOP", "entry_key": d.entry_key,
                  "wire": wire,
                  "account_sha256": d.reader.account_hash,
-                 "observed_position_quantity": 2,
+                 "observed_position_quantity": (
+                     2 if direction == "LONG" else -2),
              }}
             if key == d.entry_key + ":stop" else
             {"status": "RECONCILED",
