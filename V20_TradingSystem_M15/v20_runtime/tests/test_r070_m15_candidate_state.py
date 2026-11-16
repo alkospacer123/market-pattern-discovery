@@ -139,6 +139,45 @@ class R070CandidateSQLiteTests(TestCase):
                         independently_verified_open_days=days[:1])
                 self.assertEqual(state.verified_cursor("CNYRUBF"), first)
 
+    def test_exact_signal_provider_uses_pinned_zip_and_blocks_stale(self):
+        with TemporaryDirectory() as tmp:
+            root, full, _ = self._fixture(tmp)
+            stamp = full.Datetime.iloc[-1].to_pydatetime()
+            with self._fresh(root) as state:
+                pointer = state.bootstrap(
+                    symbol="CNYRUBF", verified_history=full,
+                    expected_history_sha256=m15_history_sha256(full))
+                provided, digest = state.provide_ext2_history(
+                    robot="v20-shallow", symbol="CNYRUBF",
+                    signal_open_msk=stamp)
+                self.assertTrue(provided.Datetime.equals(full.Datetime))
+                self.assertEqual(digest, pointer["history_sha256"])
+                for kwargs, code in [
+                    ({"robot": "v20-obv", "symbol": "CNYRUBF",
+                      "signal_open_msk": stamp},
+                     "R070_CANDIDATE_PROVIDER_ROBOT_MISMATCH"),
+                    ({"robot": "v20-shallow", "symbol": "USDRUBF",
+                      "signal_open_msk": stamp},
+                     "R070_CANDIDATE_PROVIDER_NOT_BOOTSTRAPPED"),
+                    ({"robot": "v20-shallow", "symbol": "CNYRUBF",
+                      "signal_open_msk": stamp + timedelta(minutes=15)},
+                     "R070_CANDIDATE_PROVIDER_STALE_OR_FUTURE"),
+                    ({"robot": "v20-shallow", "symbol": "CNYRUBF",
+                      "signal_open_msk": stamp - timedelta(minutes=15)},
+                     "R070_CANDIDATE_PROVIDER_STALE_OR_FUTURE"),
+                ]:
+                    with self.subTest(kwargs=kwargs), self.assertRaisesRegex(
+                            EXT2HistoryBlocked, code):
+                        state.provide_ext2_history(**kwargs)
+                original = (state.archive_dir / pointer["filename"]).read_bytes()
+                (state.archive_dir / pointer["filename"]).write_bytes(original + b"TAMPER")
+                with self.assertRaisesRegex(
+                        EXT2HistoryBlocked, "R070_CHECKPOINT_SHA_MISMATCH"):
+                    state.provide_ext2_history(
+                        robot="v20-shallow", symbol="CNYRUBF",
+                        signal_open_msk=stamp)
+            self.assertFalse((root / "robots").exists())
+
     def test_never_access_live_robots_tree(self):
         with TemporaryDirectory() as tmp:
             root, _, old = self._fixture(tmp)
