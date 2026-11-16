@@ -8,6 +8,7 @@ from unittest.mock import patch
 from types import SimpleNamespace
 from datetime import timezone
 from V20_TradingSystem_M15.v20_runtime.finam_execution import V20FinamReadAdapter, V20FinamBlocked
+from V20_TradingSystem_M15.v20_runtime.ext2_history_bridge import m15_history_sha256
 
 from V20_TradingSystem_M15.v20_runtime.offline_planner import FrozenSignal, ProposedEntry
 from V20_TradingSystem_M15.v20_runtime.r070_candidate_entry import (
@@ -176,6 +177,63 @@ class R070EntryCandidateTests(TestCase):
                     now=now, cost_per_contract=Decimal("0"),
                     verified_full_history=full,
                     durable_audit=lambda **kw: self.fail("UNTRUSTED_AUDIT"))
+
+
+    def test_staged_signal_refresh_uses_only_second_get_window(self):
+        signal, full, recent, draft = fixtures()
+        reader = V20FinamReadAdapter.__new__(V20FinamReadAdapter)
+        reader.robot_id = "v20-shallow"
+        now = (signal.signal_bar_open + timedelta(minutes=15)).replace(tzinfo=timezone.utc)
+        boundary = SimpleNamespace(
+            symbol="GLDRUBF", at_msk=draft[1].entry_bar_open,
+            witnessed_open=draft[1].reference_entry, completed=recent)
+        refreshed = []
+        def refresh(**kwargs):
+            refreshed.append(kwargs)
+            return full, m15_history_sha256(full)
+        with patch(
+            "V20_TradingSystem_M15.v20_runtime.finam_execution.propose_finam_m15_next_open",
+            return_value=draft), patch(
+            "V20_TradingSystem_M15.v20_runtime.finam_execution.read_finam_m15_boundary",
+            return_value=boundary):
+            result = propose_r070_readonly_candidate(
+                reader, symbol="GLDRUBF", from_utc=now-timedelta(days=3),
+                now=now, cost_per_contract=Decimal("0"),
+                verified_full_history=None,
+                verified_history_refresh=refresh,
+                durable_audit=lambda **kw: True)
+        self.assertIsNone(result)
+        self.assertEqual(len(refreshed), 1)
+        self.assertIs(refreshed[0]["finam_recent"], recent)
+        self.assertEqual(refreshed[0]["signal_open_msk"], signal.signal_bar_open)
+
+    def test_unverifiable_refresh_or_double_source_never_authorizes(self):
+        signal, full, recent, draft = fixtures(contra=True)
+        reader = V20FinamReadAdapter.__new__(V20FinamReadAdapter)
+        reader.robot_id = "v20-shallow"
+        now = (signal.signal_bar_open + timedelta(minutes=15)).replace(tzinfo=timezone.utc)
+        boundary = SimpleNamespace(
+            symbol="GLDRUBF", at_msk=draft[1].entry_bar_open,
+            witnessed_open=draft[1].reference_entry, completed=recent)
+        with patch(
+            "V20_TradingSystem_M15.v20_runtime.finam_execution.propose_finam_m15_next_open",
+            return_value=draft), patch(
+            "V20_TradingSystem_M15.v20_runtime.finam_execution.read_finam_m15_boundary",
+            return_value=boundary):
+            with self.assertRaisesRegex(V20FinamBlocked, "R070_EXT2_REFRESH_SHA_UNVERIFIED"):
+                propose_r070_readonly_candidate(
+                    reader, symbol="GLDRUBF", from_utc=now-timedelta(days=3),
+                    now=now, cost_per_contract=Decimal("0"),
+                    verified_full_history=None,
+                    verified_history_refresh=lambda **kwargs: (full, "0"*64),
+                    durable_audit=lambda **kw: self.fail("AUDIT_AFTER_BAD_REFRESH"))
+            with self.assertRaisesRegex(V20FinamBlocked, "R070_EXT2_HISTORY_SOURCE_AMBIGUOUS"):
+                propose_r070_readonly_candidate(
+                    reader, symbol="GLDRUBF", from_utc=now-timedelta(days=3),
+                    now=now, cost_per_contract=Decimal("0"),
+                    verified_full_history=full,
+                    verified_history_refresh=lambda **kwargs: (full, m15_history_sha256(full)),
+                    durable_audit=lambda **kw: self.fail("AUDIT_AFTER_DOUBLE_SOURCE"))
 
     def test_no_signal_preserves_frozen_null_and_no_audit(self):
         self.assertIsNone(stage_r070_after_frozen_proposal(
