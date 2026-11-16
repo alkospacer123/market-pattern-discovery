@@ -314,3 +314,132 @@ def choose_r070_initial_protection(
         entry_broker_order_id=entry_broker_order_id,
         observed_position=observed_position, tick=tick)
     return R070InitialProtectionChoice("SINGLE_LINKED_SL_TP6_DRAFT_ONLY", levels, wire)
+
+
+def stage_r070_protection_from_v20(
+    *, journal, reader, snapshot, entry_key: str, now,
+) -> R070InitialProtectionChoice:
+    """READONLY candidate handoff from existing V20 ledger/fills to TP6 choice.
+
+    Reuse V20's actual submission identity, H1 order-linked /trades parser,
+    immutable risk reservation, and exact project_stop(2*ATR).
+    This does NOT alter the installed worker or dispatch a broker write.
+    A previously sent stop is never amended/replaced by this function.
+    """
+    from datetime import datetime
+    from TradingSystemLab.stage8_robot.execution_grid import project_stop
+    from TradingSystemLab.stage8_robot.production_runtime import _load_registry
+    from .account_risk import RiskReservation
+    from .finam_execution import (
+        LiveAccountSnapshot, V20FinamReadAdapter, V20TradeJournal,
+    )
+
+    if (not isinstance(journal, V20TradeJournal)
+            or not isinstance(reader, V20FinamReadAdapter)
+            or not isinstance(snapshot, LiveAccountSnapshot)
+            or not isinstance(entry_key, str) or not entry_key.startswith(
+                "v20:" + reader.robot_id + ":" + reader.account_hash[:16] + ":")
+            or journal.robot_id != reader.robot_id
+            or journal.account_hash != reader.account_hash
+            or snapshot.robot_id != reader.robot_id
+            or snapshot.account_hash != reader.account_hash):
+        raise TP6Protect3Unsafe("R070_V20_ACCOUNT_OR_ENTRY_SCOPE_INVALID")
+    reader._fresh(snapshot, now)
+    entry = journal.store.intent(entry_key)
+    if (not isinstance(entry, dict) or entry.get("status") not in
+            {"ACK", "PARTIAL_FILL", "FILL", "RECONCILED"}
+            or not isinstance(entry.get("broker_order_id"), str)
+            or not entry["broker_order_id"]):
+        raise TP6Protect3Unsafe("R070_V20_ENTRY_BROKER_ACK_UNVERIFIED")
+    payload = entry.get("payload")
+    if not isinstance(payload, dict):
+        raise TP6Protect3Unsafe("R070_V20_ENTRY_PAYLOAD_INVALID")
+    symbol, direction = payload.get("symbol"), payload.get("direction")
+    registry = _load_registry()
+    if (symbol not in registry or direction not in {"LONG", "SHORT"}
+            or payload.get("finam_symbol") != registry[symbol]["finam_symbol"]
+            or type(payload.get("quantity")) is not int
+            or payload["quantity"] < 1):
+        raise TP6Protect3Unsafe("R070_V20_ENTRY_SCOPE_INVALID")
+    tick = Decimal(registry[symbol]["price_step"])
+    finam_symbol = registry[symbol]["finam_symbol"]
+    qty = snapshot.positions.get(finam_symbol)
+    if (type(qty) is not int or qty == 0
+            or (qty > 0) != (direction == "LONG")
+            or abs(qty) > payload["quantity"]):
+        raise TP6Protect3Unsafe("R070_V20_POSITION_BROKER_UNVERIFIED")
+    reservation = RiskReservation.restore(
+        journal.store.get("risk_reservations", {}).get(entry_key))
+    if (reservation.entry_key != entry_key
+            or reservation.account_id != reader.account_id
+            or reservation.symbol != symbol or reservation.direction != direction
+            or reservation.quantity != payload["quantity"]
+            or reservation.price_step != tick
+            or Decimal(str(payload.get("atr14"))) != reservation.atr14):
+        raise TP6Protect3Unsafe("R070_V20_RISK_RESERVATION_MISMATCH")
+
+    # Protection-first rule. A previously sent stop (including an UNCERTAIN
+    # POST) never authorizes a second broker order merely to add TP6.
+    stop_intent = journal.store.intent(entry_key + ":stop")
+    prior = journal.store.get("protected_fill:" + entry_key)
+    if stop_intent is not None or prior is not None:
+        if (not isinstance(stop_intent, dict)
+                or stop_intent.get("status") not in {"ACK", "RECONCILED"}
+                or not isinstance(prior, dict)
+                or prior.get("account_sha256") != reader.account_hash
+                or prior.get("broker_order_id") != entry["broker_order_id"]
+                or prior.get("broker_stop_id") != stop_intent.get("broker_order_id")
+                or prior.get("broker_stop_percent") != "100"):
+            raise TP6Protect3Unsafe("R070_V20_EXISTING_STOP_UNCERTAIN_NO_RETRY")
+        confirmed = reader.inspect_protective_stop(
+            snapshot, entry_key=entry_key, symbol=symbol,
+            direction=direction, stop_price=Decimal(prior["installed_stop"]),
+            now=now)
+        if confirmed.order_id != prior["broker_stop_id"]:
+            raise TP6Protect3Unsafe("R070_V20_EXISTING_STOP_ID_MISMATCH")
+        return R070InitialProtectionChoice(
+            "KEEP_VERIFIED_ORIGINAL_STOP_NO_TP6_REPLACEMENT")
+
+    if any(o.active and o.kind == "SLTP" and o.symbol == finam_symbol
+           for o in snapshot.orders):
+        raise TP6Protect3Unsafe("R070_V20_UNKNOWN_ACTIVE_STOP_NO_RETRY")
+    submitted = journal.store.get("entry_submission:" + entry_key)
+    if (not isinstance(submitted, dict)
+            or submitted.get("account_sha256") != reader.account_hash
+            or not isinstance(submitted.get("submitted_at"), str)):
+        raise TP6Protect3Unsafe("R070_V20_SUBMISSION_PROOF_MISSING")
+    try:
+        submitted_at = datetime.fromisoformat(submitted["submitted_at"])
+        if submitted_at.tzinfo is None:
+            raise ValueError("naive submission timestamp")
+    except ValueError as exc:
+        raise TP6Protect3Unsafe("R070_V20_SUBMISSION_TIME_INVALID") from exc
+    history = reader.inspect_entry_fills(
+        snapshot, entry_key=entry_key, symbol=symbol,
+        direction=direction, requested_quantity=reservation.quantity,
+        submitted_at=submitted_at, now=now)
+    if (not isinstance(history, dict)
+            or history.get("matched_quantity") != abs(qty)
+            or not history.get("matched_unique_fills")):
+        raise TP6Protect3Unsafe("R070_V20_FILL_HISTORY_UNVERIFIED")
+    try:
+        facts = history["matched_unique_fills"]
+        exact = sum(
+            (int(f["quantity"]) * Fraction(f["price"]) for f in facts),
+            Fraction(0)) / abs(qty)
+        side = 1 if direction == "LONG" else -1
+        original_stop = project_stop(
+            direction, exact - side * 2 * Fraction(reservation.atr14), tick)
+        # Use the exact V20 entry and stop keys; NEVER generate a second ID.
+        action = RuntimeAction(
+            "PROTECTIVE_STOP_INSTALL", entry_key + ":stop",
+            symbol, finam_symbol, direction, abs(qty), entry_key,
+            None, Decimal(str(payload["reference_entry"])),
+            original_stop, qty, price_step=tick)
+    except (KeyError, ValueError, TypeError, ZeroDivisionError,
+            InvalidOperation, OverflowError) as exc:
+        raise TP6Protect3Unsafe("R070_V20_STOP_PROJECTION_UNVERIFIED") from exc
+    return choose_r070_initial_protection(
+        action=action, history=history, entry_orders=snapshot.orders,
+        entry_broker_order_id=entry["broker_order_id"],
+        observed_position=qty, tick=tick)
