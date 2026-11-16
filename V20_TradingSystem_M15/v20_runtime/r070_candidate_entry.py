@@ -114,7 +114,7 @@ def stage_r070_after_frozen_proposal(
 def propose_r070_readonly_candidate(
     reader, *, symbol: str, from_utc: datetime, now: datetime,
     cost_per_contract: Decimal, verified_full_history: pd.DataFrame | None,
-    durable_audit, broker_ownership=None,
+    durable_audit, broker_ownership=None, verified_history_refresh=None,
 ) -> tuple | None:
     """Use frozen FINAM proposer without modifying the SHA-pinned LIVE worker.
 
@@ -146,6 +146,27 @@ def propose_r070_readonly_candidate(
             or observed.completed.empty
             or observed.completed.Datetime.iloc[-1] != pd.Timestamp(signal.signal_bar_open)):
         raise V20FinamBlocked("R070_SECOND_M15_WITNESS_DIVERGED")
+    # Optional rolling source. The caller owns the pinned starting history,
+    # digest and independently proved exchange calendar. The refresher only
+    # consumes the second observed GET M15; no extra broker history request.
+    # Never mix supplied full history with a refresh callback.
+    if verified_history_refresh is not None:
+        from .ext2_history_bridge import m15_history_sha256
+        if verified_full_history is not None or not callable(verified_history_refresh):
+            raise V20FinamBlocked("R070_EXT2_HISTORY_SOURCE_AMBIGUOUS")
+        try:
+            verified_full_history, new_sha = verified_history_refresh(
+                finam_recent=observed.completed,
+                signal_open_msk=signal.signal_bar_open,
+                observed_at_msk=observed.at_msk,
+            )
+            if (not isinstance(verified_full_history, pd.DataFrame)
+                    or m15_history_sha256(verified_full_history) != new_sha):
+                raise V20FinamBlocked("R070_EXT2_REFRESH_SHA_UNVERIFIED")
+        except V20FinamBlocked:
+            raise
+        except Exception as exc:
+            raise V20FinamBlocked("R070_EXT2_REFRESH_NOT_VERIFIED") from exc
     return stage_r070_after_frozen_proposal(
         robot=reader.robot_id, symbol=symbol, frozen_draft=frozen,
         finam_completed=observed.completed,
