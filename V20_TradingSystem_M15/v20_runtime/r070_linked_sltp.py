@@ -448,3 +448,150 @@ def stage_r070_protection_from_v20(
         action=action, history=history, entry_orders=snapshot.orders,
         entry_broker_order_id=entry["broker_order_id"],
         observed_position=qty, tick=tick)
+
+
+def verify_r070_tp6_after_restart(
+    *, journal, reader, snapshot, entry_key: str, now,
+) -> BrokerOrderView:
+    """READONLY proof of R070 linked TP6 using *existing* V20/H1 durable data.
+
+    Rebuild the expected TP6 wire from strict H1 SQLite persisted fills, the
+    original 2xATR executable stop and the original :stop intent. Compare the
+    actual current FINAM order and quantity. No extra history /trades GET,
+    durable write, stop replacement, duplicate order, or LIVE hook.
+
+    This is a candidate verifier, NOT authorization to modify FINAM orders.
+    """
+    from fractions import Fraction
+    from TradingSystemLab.stage8_robot.execution_grid import project_stop
+    from TradingSystemLab.stage8_robot.production_runtime import _load_registry
+    from .account_risk import RiskReservation
+    from .finam_execution import (
+        LiveAccountSnapshot, V20FinamReadAdapter, V20TradeJournal,
+    )
+
+    if (not isinstance(journal, V20TradeJournal)
+            or not isinstance(reader, V20FinamReadAdapter)
+            or not isinstance(snapshot, LiveAccountSnapshot)
+            or not isinstance(entry_key, str)
+            or not entry_key.startswith(
+                "v20:" + reader.robot_id + ":" + reader.account_hash[:16] + ":")
+            or journal.robot_id != reader.robot_id
+            or journal.account_hash != reader.account_hash
+            or snapshot.robot_id != reader.robot_id
+            or snapshot.account_hash != reader.account_hash):
+        raise TP6Protect3Unsafe("R070_RESTART_ACCOUNT_OR_ENTRY_INVALID")
+    reader._fresh(snapshot, now)
+    entry = journal.store.intent(entry_key)
+    stop_intent = journal.store.intent(entry_key + ":stop")
+    proof = journal.store.get("protected_fill:" + entry_key)
+    if (not isinstance(entry, dict) or entry.get("status") != "RECONCILED"
+            or not isinstance(entry.get("broker_order_id"), str)
+            or not entry["broker_order_id"]
+            or not isinstance(stop_intent, dict)
+            or stop_intent.get("status") not in {"ACK", "RECONCILED"}
+            or not isinstance(stop_intent.get("broker_order_id"), str)
+            or not stop_intent["broker_order_id"]
+            or not isinstance(proof, dict)
+            or proof.get("account_sha256") != reader.account_hash
+            or proof.get("broker_order_id") != entry["broker_order_id"]
+            or proof.get("broker_stop_id") != stop_intent["broker_order_id"]
+            or proof.get("broker_stop_percent") != "100"
+            or not isinstance(proof.get("risk_assessment"), dict)
+            or proof["risk_assessment"].get("status") != "PASS"
+            or proof["risk_assessment"].get("stop_conforms") is not True):
+        raise TP6Protect3Unsafe("R070_RESTART_DURABLE_SEALED_PROOF_INVALID")
+    payload = entry.get("payload")
+    wire_stored = stop_intent.get("payload")
+    if (not isinstance(payload, dict)
+            or not isinstance(wire_stored, dict)
+            or wire_stored.get("kind") != "STOP"
+            or wire_stored.get("entry_key") != entry_key
+            or wire_stored.get("account_sha256") != reader.account_hash
+            or not isinstance(wire_stored.get("wire"), dict)):
+        raise TP6Protect3Unsafe("R070_RESTART_STOP_WIRE_MISSING")
+    symbol, direction = payload.get("symbol"), payload.get("direction")
+    registry = _load_registry()
+    if (symbol not in registry or direction not in {"LONG", "SHORT"}
+            or payload.get("finam_symbol") != registry[symbol]["finam_symbol"]
+            or not isinstance(payload.get("quantity"), int)
+            or type(payload["quantity"]) is not int or payload["quantity"] <= 0):
+        raise TP6Protect3Unsafe("R070_RESTART_INSTRUMENT_INVALID")
+    tick = Decimal(registry[symbol]["price_step"])
+    finam_symbol = registry[symbol]["finam_symbol"]
+    qty = snapshot.positions.get(finam_symbol)
+    expected_qty = payload["quantity"]
+    if (type(qty) is not int
+            or qty != (expected_qty if direction == "LONG" else -expected_qty)
+            or proof.get("filled_quantity") != expected_qty
+            or wire_stored.get("observed_position_quantity") != qty):
+        raise TP6Protect3Unsafe("R070_RESTART_POSITION_NOT_FULL")
+    reservation = RiskReservation.restore(
+        journal.store.get("risk_reservations", {}).get(entry_key))
+    if (reservation.entry_key != entry_key
+            or reservation.account_id != reader.account_id
+            or reservation.quantity != expected_qty
+            or reservation.symbol != symbol or reservation.direction != direction
+            or reservation.price_step != tick
+            or reservation.atr14 != Decimal(str(payload.get("atr14")))):
+        raise TP6Protect3Unsafe("R070_RESTART_RISK_RESERVATION_INVALID")
+
+    fills = journal.store.fills_for_order(entry["broker_order_id"])
+    if not isinstance(fills, list) or not fills:
+        raise TP6Protect3Unsafe("R070_RESTART_DURABLE_FILLS_MISSING")
+    identities = set()
+    total = 0
+    money = Fraction(0)
+    try:
+        for f in fills:
+            if (not isinstance(f, dict) or f.get("trade_id") != entry_key
+                    or f.get("entry_key") != entry_key
+                    or f.get("account_sha256") != reader.account_hash
+                    or f.get("broker_order_id") != entry["broker_order_id"]
+                    or not isinstance(f.get("broker_trade_id_sha256"), str)
+                    or len(f["broker_trade_id_sha256"]) != 64
+                    or f.get("fill_id") != (
+                        "finam:" + reader.account_hash + ":" +
+                        f["broker_trade_id_sha256"])
+                    or f["fill_id"] in identities
+                    or type(f.get("quantity")) not in {int, str}):
+                raise TP6Protect3Unsafe("R070_RESTART_DURABLE_FILL_IDENTITY_INVALID")
+            identities.add(f["fill_id"])
+            q = int(f["quantity"])
+            if q <= 0 or str(q) != str(f["quantity"]):
+                raise TP6Protect3Unsafe("R070_RESTART_FILL_QUANTITY_INVALID")
+            price = Fraction(f["price"])
+            if price <= 0:
+                raise TP6Protect3Unsafe("R070_RESTART_FILL_PRICE_INVALID")
+            total += q
+            money += q * price
+        if total != expected_qty or money / total != Fraction(proof["average_exact"]):
+            raise TP6Protect3Unsafe("R070_RESTART_FILL_VWAP_OR_QUANTITY_CHANGED")
+        stop = Decimal(str(proof["installed_stop"]))
+        side = 1 if direction == "LONG" else -1
+        if stop != project_stop(
+            direction, money / total - side * 2 * Fraction(reservation.atr14),
+            tick):
+            raise TP6Protect3Unsafe("R070_RESTART_STOP_NOT_FROZEN_2ATR")
+        # Durable fill prices stored as decimals; calculate TP without
+        # rounding an exact fractional average twice.
+        levels = levels_from_finam_fills(
+            direction=direction,
+            fills=[(int(f["quantity"]), f["price"]) for f in fills],
+            initial_stop=stop, tick=tick)
+        action = RuntimeAction(
+            "PROTECTIVE_STOP_INSTALL", entry_key + ":stop", symbol,
+            finam_symbol, direction, expected_qty, entry_key, None,
+            Decimal(str(payload["reference_entry"])), stop, qty,
+            price_step=tick)
+        expected_wire = prepare_r070_linked_sltp_draft(
+            action=action, levels=levels)
+    except (TypeError, KeyError, ValueError, InvalidOperation,
+            OverflowError, ZeroDivisionError) as exc:
+        raise TP6Protect3Unsafe("R070_RESTART_DURABLE_MATH_INVALID") from exc
+    if wire_stored["wire"] != expected_wire:
+        raise TP6Protect3Unsafe("R070_RESTART_STOP_INTENT_NOT_LINKED_TP6")
+    return verify_r070_linked_sltp(
+        observed_position=qty, orders=snapshot.orders,
+        levels=levels, wire=expected_wire,
+        expected_broker_order_id=stop_intent["broker_order_id"])
