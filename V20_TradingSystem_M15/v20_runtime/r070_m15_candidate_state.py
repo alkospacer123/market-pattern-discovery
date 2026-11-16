@@ -10,6 +10,9 @@ from __future__ import annotations
 
 from datetime import date, datetime
 import hashlib
+import json
+import sqlite3
+from contextlib import closing
 from pathlib import Path
 import uuid
 
@@ -58,6 +61,25 @@ class R070CandidateCheckpointState:
             state_path = state_dir / "r070-m15-candidate.sqlite3"
             if state_path.is_symlink():
                 raise EXT2HistoryBlocked("R070_CANDIDATE_STATE_SYMLINK")
+            # H1 StateStore.__init__ may raise on identity mismatch *after*
+            # opening SQLite. Probe readonly first and CLOSE the handle on
+            # Windows before rejecting a different account/robot.
+            if state_path.exists():
+                if not state_path.is_file():
+                    raise EXT2HistoryBlocked("R070_CANDIDATE_DB_INVALID")
+                try:
+                    with closing(sqlite3.connect(
+                            state_path.as_uri() + "?mode=ro", uri=True)) as db:
+                        if db.execute("PRAGMA integrity_check").fetchone() != ("ok",):
+                            raise EXT2HistoryBlocked("R070_CANDIDATE_DB_INTEGRITY_INVALID")
+                        stored = db.execute(
+                            "SELECT value FROM state WHERE key='database_identity'"
+                        ).fetchone()
+                        if stored is None or json.loads(stored[0]) != self.identity:
+                            raise EXT2HistoryBlocked(
+                                "R070_CANDIDATE_ACCOUNT_OR_ROBOT_MISMATCH")
+                except (sqlite3.DatabaseError, ValueError, TypeError) as exc:
+                    raise EXT2HistoryBlocked("R070_CANDIDATE_DB_SCHEMA_INVALID") from exc
             self.store = StateStore(state_path, self.identity)
         except BaseException:
             self.lock.release()
