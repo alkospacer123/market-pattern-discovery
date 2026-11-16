@@ -6,6 +6,9 @@ replace an active SLTP, submit orders, touch SQLite or enable LIVE.
 from __future__ import annotations
 
 from decimal import Decimal, InvalidOperation
+from fractions import Fraction
+from hashlib import sha256
+import json
 
 from TradingSystemLab.stage8_robot.broker import compact_client_order_id
 from TradingSystemLab.stage8_robot.production_broker_state import (
@@ -15,7 +18,7 @@ from TradingSystemLab.stage8_robot.production_runtime import RuntimeAction
 from TradingSystemLab.stage8_robot.protective_stop_contract import (
     percent_position_stop_payload, ProtectiveStopContractError,
 )
-from .tp6_protect3 import TP6Levels, TP6Protect3Unsafe, sltp_tp6_fields
+from .tp6_protect3 import TP6Levels, TP6Protect3Unsafe, sltp_tp6_fields, levels_from_finam_fills
 
 
 def prepare_r070_linked_sltp_draft(
@@ -100,3 +103,83 @@ def verify_r070_linked_sltp(
             ProductionBrokerStateError) as exc:
         raise TP6Protect3Unsafe("R070_SLTP_BROKER_PRICE_FIELDS_UNVERIFIED") from exc
     return order
+
+
+def prepare_r070_tp6_from_h1_full_fills(
+    *, action: RuntimeAction, history: dict,
+    entry_orders: tuple[BrokerOrderView, ...], entry_broker_order_id: str,
+    observed_position: int, tick: Decimal,
+) -> tuple[TP6Levels, dict]:
+    """OFFLINE-only H1 GET /trades -> exact VWAP -> single linked SL/TP draft.
+
+    Reuses H1's order-linked inspect_entry_fills() result, never a planned
+    NEXT_OPEN, an order ACK alone or arbitrary fills. The historical H1
+    parser labels this evidence DIAGNOSTIC_ONLY, so the returned fields are
+    NOT permitted to be handed to the current live submit_protection_once().
+    No broker calls, runtime state, cancel or order endpoint exist here.
+    """
+    if (not isinstance(action, RuntimeAction) or
+            action.kind != "PROTECTIVE_STOP_INSTALL"
+            or not isinstance(action.trade_id, str) or not action.trade_id
+            or not isinstance(entry_broker_order_id, str) or not entry_broker_order_id
+            or not isinstance(entry_orders, tuple)
+            or any(not isinstance(o, BrokerOrderView) for o in entry_orders)
+            or type(observed_position) is not int
+            or observed_position != (action.quantity if action.direction == "LONG"
+                                    else -action.quantity)):
+        raise TP6Protect3Unsafe("R070_FILL_ORDER_OR_POSITION_UNVERIFIED")
+    expected_entry_client = compact_client_order_id(action.trade_id)
+    entry = [o for o in entry_orders
+             if o.order_id == entry_broker_order_id
+             or o.client_order_id == expected_entry_client]
+    if (len(entry) != 1
+            or entry[0].order_id != entry_broker_order_id
+            or entry[0].client_order_id != expected_entry_client
+            or entry[0].kind != "REGULAR"
+            or entry[0].symbol != action.finam_symbol
+            or entry[0].side != ("SIDE_BUY" if action.direction == "LONG" else "SIDE_SELL")
+            or any(o.active and o.symbol == action.finam_symbol
+                   for o in entry_orders)):
+        raise TP6Protect3Unsafe("R070_ENTRY_BROKER_IDENTITY_OR_ACTIVE_ORDER_INVALID")
+    try:
+        qty = Decimal(str(entry[0].request["quantity"]["value"]))
+        if qty != action.quantity:
+            raise TP6Protect3Unsafe("R070_ENTRY_REQUEST_QUANTITY_MISMATCH")
+        if (not isinstance(history, dict)
+                or history.get("authority_scope") !=
+                "READONLY_DIAGNOSTIC_ONLY_NO_RUNTIME_HANDOFF"
+                or history.get("quantity_observation") != "FULL_REQUEST_MATCHED"
+                or type(history.get("matched_quantity")) is not int
+                or history["matched_quantity"] != action.quantity):
+            raise TP6Protect3Unsafe("R070_H1_FILL_AUTHORITY_NOT_FULL")
+        facts = history["matched_unique_fills"]
+        if not isinstance(facts, list) or not facts:
+            raise TP6Protect3Unsafe("R070_H1_FILLS_MISSING")
+        if (any(not isinstance(f, dict)
+                or not isinstance(f.get("trade_id_sha256"), str)
+                or len(f["trade_id_sha256"]) != 64
+                or type(f.get("quantity")) is not int
+                or f["quantity"] <= 0
+                or not isinstance(f.get("price"), str)
+                for f in facts)
+                or len({f["trade_id_sha256"] for f in facts}) != len(facts)):
+            raise TP6Protect3Unsafe("R070_H1_FILL_SET_INVALID")
+        digest = sha256(json.dumps(facts, sort_keys=True, separators=(",", ":")).encode()).hexdigest()
+        if history.get("fill_set_sha256") != digest:
+            raise TP6Protect3Unsafe("R070_H1_FILL_SET_HASH_INVALID")
+        notional = sum((Fraction(f["price"]) * f["quantity"] for f in facts), Fraction(0))
+        matched_qty = sum(f["quantity"] for f in facts)
+        weighted = history.get("weighted_price_exact")
+        if (matched_qty != action.quantity
+                or not isinstance(weighted, dict)
+                or notional / matched_qty !=
+                Fraction(int(weighted["numerator"]), int(weighted["denominator"]))):
+            raise TP6Protect3Unsafe("R070_H1_FILL_VWAP_INCONSISTENT")
+        levels = levels_from_finam_fills(
+            direction=action.direction,
+            fills=[(f["quantity"], f["price"]) for f in facts],
+            initial_stop=action.stop_price, tick=tick)
+        return levels, prepare_r070_linked_sltp_draft(action=action, levels=levels)
+    except (KeyError, ValueError, TypeError, ZeroDivisionError,
+            InvalidOperation, OverflowError) as exc:
+        raise TP6Protect3Unsafe("R070_H1_FILL_PROOF_INVALID") from exc
