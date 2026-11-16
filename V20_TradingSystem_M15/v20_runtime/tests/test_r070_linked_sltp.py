@@ -74,6 +74,20 @@ class R070LinkedSltpTests(unittest.TestCase):
                     observed_position=2, orders=orders, levels=levels,
                     wire=wire, expected_broker_order_id="order-123")
 
+
+    def test_active_regular_child_blocks_linked_stop_proof(self):
+        levels, _, wire, order = self.fixture()
+        child = BrokerOrderView(
+            "trigger-child", "NEW", True, "REGULAR",
+            wire["symbol"], "child-id", "triggered",
+            wire["side"], {"quantity": {"value": "2"}})
+        with self.assertRaisesRegex(
+                TP6Protect3Unsafe,
+                "R070_SLTP_ACTIVE_CHILD_OR_OTHER_ORDER_UNVERIFIED"):
+            verify_r070_linked_sltp(
+                observed_position=2, orders=(order, child),
+                levels=levels, wire=wire, expected_broker_order_id="order-123")
+
     def test_tp_missing_or_wrong_price_or_fraction_rejected(self):
         levels, _, wire, order = self.fixture()
         for change in (
