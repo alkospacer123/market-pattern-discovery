@@ -140,13 +140,21 @@ def stitch_verified_m15(*, seed: pd.DataFrame, finam_recent: pd.DataFrame,
         for col in REQUIRED[1:]:
             if Decimal(str(old.loc[ts, col])) != Decimal(str(new.loc[ts, col])):
                 raise EXT2HistoryBlocked("EXT2_SEED_FINAM_OHLCV_DISAGREEMENT")
-    # Old prefix up to first recent candle, then exact recent FINAM facts.
-    stitched = pd.concat([old.loc[old.index < new.index[0]], new]).reset_index()
+    # R060's pinned historical M15 is immutable even if a newer terminal
+    # source omits some older no-trade bars. Never replace the seed in the
+    # overlapping period or silently add new bars to that frozen history.
+    old_last = old.index[-1]
+    if len(new.index.difference(old.index)[new.index.difference(old.index) <= old_last]):
+        raise EXT2HistoryBlocked("EXT2_SEED_FINAM_UNEXPECTED_HISTORICAL_BAR")
+    additions = new.loc[new.index > old_last]
+    if additions.empty:
+        raise EXT2HistoryBlocked("EXT2_FINAM_NO_NEW_COMPLETED_M15")
+    stitched = pd.concat([old, additions]).reset_index()
     if stitched.Datetime.iloc[-1] != pd.Timestamp(signal_open_msk):
         raise EXT2HistoryBlocked("EXT2_SIGNAL_BAR_MISSING")
     _require_complete_previous_day(stitched, signal_open_msk)
     _require_continuous_trading_sessions(
-        stitched, from_msk=new.index[0].to_pydatetime(),
+        stitched, from_msk=additions.index[0].to_pydatetime(),
         signal_open_msk=signal_open_msk,
         verified_open_days=verified_open_days,
     )
