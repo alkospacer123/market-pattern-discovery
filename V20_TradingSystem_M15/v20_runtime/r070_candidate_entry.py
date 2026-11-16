@@ -109,3 +109,46 @@ def stage_r070_after_frozen_proposal(
     if ok is not True:
         raise ValueError("R070_EXT2_AUDIT_NOT_PROVEN")
     return frozen_draft if decision.permit else None
+
+
+def propose_r070_readonly_candidate(
+    reader, *, symbol: str, from_utc: datetime, now: datetime,
+    cost_per_contract: Decimal, verified_full_history: pd.DataFrame | None,
+    durable_audit, broker_ownership=None,
+) -> tuple | None:
+    """Use frozen FINAM proposer without modifying the SHA-pinned LIVE worker.
+
+    A second GET of M15 is made ONLY IF a frozen signal exists: the pinned
+    proposer does not return its M15 bars. Both observations must agree on
+    the M15 boundary and NEXT_OPEN reference before EXT2 can permit a
+    candidate. No SQLite, order, cancellation or SLTP method is called.
+    This is NOT an approved LIVE execution entrypoint.
+    """
+    from .finam_execution import (
+        V20FinamReadAdapter, V20FinamBlocked,
+        propose_finam_m15_next_open, read_finam_m15_boundary,
+    )
+    if not isinstance(reader, V20FinamReadAdapter):
+        raise V20FinamBlocked("R070_READER_SCOPE_INVALID")
+    frozen = propose_finam_m15_next_open(
+        reader, symbol=symbol, from_utc=from_utc, now=now,
+        cost_per_contract=cost_per_contract, broker_ownership=broker_ownership,
+    )
+    if frozen is None:
+        return None
+    signal, candidate, _, _ = frozen
+    observed = read_finam_m15_boundary(
+        reader, symbol=symbol, from_utc=from_utc, now=now,
+    )
+    if (observed.symbol != symbol
+            or observed.at_msk != candidate.entry_bar_open
+            or observed.witnessed_open != candidate.reference_entry
+            or observed.completed.empty
+            or observed.completed.Datetime.iloc[-1] != pd.Timestamp(signal.signal_bar_open)):
+        raise V20FinamBlocked("R070_SECOND_M15_WITNESS_DIVERGED")
+    return stage_r070_after_frozen_proposal(
+        robot=reader.robot_id, symbol=symbol, frozen_draft=frozen,
+        finam_completed=observed.completed,
+        verified_full_history=verified_full_history,
+        durable_audit=durable_audit,
+    )
