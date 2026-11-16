@@ -153,8 +153,18 @@ def stitch_verified_m15(*, seed: pd.DataFrame, finam_recent: pd.DataFrame,
     if stitched.Datetime.iloc[-1] != pd.Timestamp(signal_open_msk):
         raise EXT2HistoryBlocked("EXT2_SIGNAL_BAR_MISSING")
     _require_complete_previous_day(stitched, signal_open_msk)
+    # Start calendar validation IMMEDIATELY after the pinned seed,
+    # not at the first new candle: that would silently skip a whole
+    # missing trading session after the seed. A finished historical main
+    # session remains frozen and is not retroactively checked for 32 bars.
+    last_seed = old_last.to_pydatetime()
+    if (last_seed.hour, last_seed.minute) >= (17, 45):
+        check_from = datetime.combine(
+            last_seed.date() + timedelta(days=1), datetime.min.time())
+    else:
+        check_from = last_seed
     _require_continuous_trading_sessions(
-        stitched, from_msk=additions.index[0].to_pydatetime(),
+        stitched, from_msk=check_from,
         signal_open_msk=signal_open_msk,
         verified_open_days=verified_open_days,
     )
