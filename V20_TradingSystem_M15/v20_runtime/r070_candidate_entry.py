@@ -15,7 +15,7 @@ from .ext2_r060 import (
     APPLIES_TO, SYMBOLS, FULL_N4, EXT2Decision, ext2_signal_gate,
 )
 from .frozen_adapter import validate_completed_history
-from .offline_planner import FrozenSignal
+from .offline_planner import FrozenSignal, ProposedEntry, STEP
 
 
 def evaluate_r070_candidate_ext2(
@@ -64,3 +64,48 @@ def evaluate_r070_candidate_ext2(
             signal_open_msk=signal_open, completed_bars=full)
     except (ValueError, TypeError, ArithmeticError, InvalidOperation, KeyError):
         return EXT2Decision(True, False, "EXT2_CANDIDATE_INPUT_UNVERIFIED")
+
+
+def stage_r070_after_frozen_proposal(
+    *, robot: str, symbol: str, frozen_draft: tuple | None,
+    finam_completed: pd.DataFrame,
+    verified_full_history: pd.DataFrame | None,
+    durable_audit,
+) -> tuple | None:
+    """OFFLINE-only R070 gate at existing V20 pre-intent boundary.
+
+    Existing propose_finam_m15_next_open() has already computed the frozen
+    signal and an unpersisted draft, including its provisional H1 risk/GO.
+    The returned draft MUST pass this gate and produce durable audit evidence
+    BEFORE any journal.prepare_entry() / submit_entry_once() may be called.
+    This wrapper itself cannot submit orders or alter production SQLite.
+    """
+    if frozen_draft is None:
+        return None
+    if (not isinstance(frozen_draft, tuple) or len(frozen_draft) != 4
+            or not isinstance(frozen_draft[0], FrozenSignal)
+            or not isinstance(frozen_draft[1], ProposedEntry)):
+        raise ValueError("R070_FROZEN_DRAFT_UNVERIFIED")
+    signal, candidate, _authority, _snapshot = frozen_draft
+    if (candidate.symbol != symbol
+            or signal.symbol != symbol
+            or candidate.strategy != signal.strategy
+            or candidate.direction != ("LONG" if signal.side == 1 else "SHORT")
+            or candidate.entry_bar_open != signal.signal_bar_open + STEP):
+        raise ValueError("R070_FROZEN_DRAFT_SCOPE_MISMATCH")
+    if not callable(durable_audit):
+        raise ValueError("R070_EXT2_DURABLE_AUDIT_REQUIRED")
+    decision = evaluate_r070_candidate_ext2(
+        robot=robot, symbol=symbol, frozen_signal=signal,
+        finam_completed=finam_completed,
+        verified_full_history=verified_full_history,
+    )
+    try:
+        ok = durable_audit(
+            robot=robot, symbol=symbol, signal_open_msk=signal.signal_bar_open,
+            entry_open_msk=candidate.entry_bar_open, decision=decision)
+    except Exception as exc:
+        raise ValueError("R070_EXT2_AUDIT_NOT_PROVEN") from exc
+    if ok is not True:
+        raise ValueError("R070_EXT2_AUDIT_NOT_PROVEN")
+    return frozen_draft if decision.permit else None
