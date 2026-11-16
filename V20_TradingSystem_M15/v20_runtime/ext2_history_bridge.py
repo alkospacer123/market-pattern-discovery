@@ -8,7 +8,7 @@ non-final signal bars or incomplete prior sessions block new entries.
 """
 from __future__ import annotations
 
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, date
 from decimal import Decimal
 from hashlib import sha256
 from pathlib import Path
@@ -75,7 +75,8 @@ def _strict_m15(bars: pd.DataFrame) -> pd.DataFrame:
 
 
 def stitch_verified_m15(*, seed: pd.DataFrame, finam_recent: pd.DataFrame,
-                        signal_open_msk: datetime, observed_at_msk: datetime
+                        signal_open_msk: datetime, observed_at_msk: datetime,
+                        verified_open_days: tuple[date, ...] | None = None,
                         ) -> pd.DataFrame:
     """Join only exact overlapping completed M15, no gaps between sources.
 
@@ -107,6 +108,11 @@ def stitch_verified_m15(*, seed: pd.DataFrame, finam_recent: pd.DataFrame,
     if stitched.Datetime.iloc[-1] != pd.Timestamp(signal_open_msk):
         raise EXT2HistoryBlocked("EXT2_SIGNAL_BAR_MISSING")
     _require_complete_previous_day(stitched, signal_open_msk)
+    _require_continuous_trading_sessions(
+        stitched, from_msk=new.index[0].to_pydatetime(),
+        signal_open_msk=signal_open_msk,
+        verified_open_days=verified_open_days,
+    )
     try:
         feats = r060_features(stitched)
     except (EXT2DataInvalid, ValueError, TypeError, ArithmeticError) as exc:
@@ -145,3 +151,46 @@ def _require_complete_previous_day(bars: pd.DataFrame, signal_open: datetime) ->
             and first.hour == 10 and first.minute == 0
             and (last.hour * 60 + last.minute) >= 1035):
         raise EXT2HistoryBlocked("EXT2_PREVIOUS_D_SESSION_INCOMPLETE")
+
+def _require_continuous_trading_sessions(
+    bars: pd.DataFrame, *, from_msk: datetime, signal_open_msk: datetime,
+    verified_open_days: tuple[date, ...] | None,
+) -> None:
+    """Validate ALL recent normal-session M15 against an independently proved calendar.
+
+    R060 daily calculation is unchanged, but a short/incomplete LIVE history
+    must fail closed. No inferred weekdays: exchange holidays and special
+    sessions require broker/MOEX calendar authority supplied by the caller.
+    A nonstandard shortened session remains blocked until separately proved.
+    This function never retrieves or trusts a calendar by itself.
+    """
+    if (not isinstance(verified_open_days, tuple)
+            or not verified_open_days
+            or any(type(day) is not date for day in verified_open_days)
+            or tuple(sorted(set(verified_open_days))) != verified_open_days):
+        raise EXT2HistoryBlocked("EXT2_VERIFIED_SESSION_CALENDAR_REQUIRED")
+    begin = from_msk.date()
+    final = signal_open_msk.date()
+    relevant = tuple(day for day in verified_open_days if begin <= day <= final)
+    if not relevant or relevant[-1] != final:
+        raise EXT2HistoryBlocked("EXT2_SIGNAL_SESSION_NOT_PROVEN")
+    minutes = bars.Datetime.dt.hour * 60 + bars.Datetime.dt.minute
+    regular = bars.loc[minutes.between(600, 1065), "Datetime"]
+    day_to_bars = {d: pd.DatetimeIndex(x) for d, x in
+                   regular.groupby(regular.dt.date, sort=True)}
+    unexpected = set(day_to_bars).intersection(
+        {begin + timedelta(days=i) for i in range((final - begin).days + 1)}
+    ) - set(relevant)
+    if unexpected:
+        raise EXT2HistoryBlocked("EXT2_M15_ON_UNPROVEN_SESSION")
+    for day in relevant:
+        end = (pd.Timestamp(signal_open_msk) if day == final else
+               pd.Timestamp(datetime.combine(day, datetime.min.time())) +
+               timedelta(hours=17, minutes=45))
+        start = pd.Timestamp(datetime.combine(day, datetime.min.time())) + timedelta(hours=10)
+        if end < start or end > start + timedelta(hours=7, minutes=45):
+            raise EXT2HistoryBlocked("EXT2_SIGNAL_OUTSIDE_SESSION")
+        expected = pd.date_range(start, end, freq="15min")
+        present = day_to_bars.get(day, pd.DatetimeIndex([]))
+        if not present.equals(expected):
+            raise EXT2HistoryBlocked("EXT2_RECENT_SESSION_M15_MISSING")
