@@ -5,6 +5,7 @@ replace an active SLTP, submit orders, touch SQLite or enable LIVE.
 """
 from __future__ import annotations
 
+from dataclasses import dataclass
 from decimal import Decimal, InvalidOperation
 from fractions import Fraction
 from hashlib import sha256
@@ -191,3 +192,125 @@ def prepare_r070_tp6_from_h1_full_fills(
     except (KeyError, ValueError, TypeError, ZeroDivisionError,
             InvalidOperation, OverflowError) as exc:
         raise TP6Protect3Unsafe("R070_H1_FILL_PROOF_INVALID") from exc
+
+
+@dataclass(frozen=True)
+class R070InitialProtectionChoice:
+    """Candidate decision only; never represents permission for an API POST."""
+    status: str
+    levels: TP6Levels | None = None
+    wire: dict | None = None
+
+
+def choose_r070_initial_protection(
+    *, action: RuntimeAction, history: dict,
+    entry_orders: tuple[BrokerOrderView, ...], entry_broker_order_id: str,
+    observed_position: int, tick: Decimal,
+    existing_broker_stop_id: str | None = None,
+    existing_proved_stop_price: Decimal | None = None,
+) -> R070InitialProtectionChoice:
+    """OFFLINE admission of linked TP6 versus mandatory original protection.
+
+    One V20 market entry can fill in parts. In that case the original
+    immediate 100%-of-position SL is mandatory and takes precedence over
+    waiting for TP6. If a verified SLTP already protects a position, NEVER
+    submit another 100% SLTP; TP6 addition would require a broker-proven safe
+    amendment, currently blocked by FINAM clarification.
+
+    No FINAM API, SQLite, callbacks or write-side operations in this function.
+    The return value may be used for diagnostics/candidate tests only.
+    """
+    if (not isinstance(action, RuntimeAction)
+            or action.kind != "PROTECTIVE_STOP_INSTALL"
+            or not isinstance(action.trade_id, str) or not action.trade_id
+            or type(action.quantity) is not int or action.quantity <= 0
+            or not isinstance(entry_broker_order_id, str) or not entry_broker_order_id
+            or not isinstance(entry_orders, tuple)
+            or any(not isinstance(o, BrokerOrderView) for o in entry_orders)
+            or type(observed_position) is not int
+            or observed_position != (action.quantity if action.direction == "LONG"
+                                    else -action.quantity)):
+        raise TP6Protect3Unsafe("R070_INITIAL_PROTECTION_POSITION_INVALID")
+    entry = [o for o in entry_orders if o.order_id == entry_broker_order_id
+             or o.client_order_id == compact_client_order_id(action.trade_id)]
+    if (len(entry) != 1
+            or entry[0].order_id != entry_broker_order_id
+            or entry[0].client_order_id != compact_client_order_id(action.trade_id)
+            or entry[0].kind != "REGULAR"
+            or entry[0].symbol != action.finam_symbol
+            or entry[0].side != ("SIDE_BUY" if action.direction == "LONG" else "SIDE_SELL")):
+        raise TP6Protect3Unsafe("R070_INITIAL_PROTECTION_ENTRY_IDENTITY_INVALID")
+    try:
+        requested = Decimal(str(entry[0].request["quantity"]["value"]))
+        if (requested <= 0 or requested != requested.to_integral_value()
+                or requested < action.quantity
+                or not isinstance(history, dict)
+                or history.get("authority_scope") != "READONLY_DIAGNOSTIC_ONLY_NO_RUNTIME_HANDOFF"
+                or type(history.get("matched_quantity")) is not int
+                or history["matched_quantity"] != action.quantity
+                or history.get("quantity_observation") != (
+                    "FULL_REQUEST_MATCHED" if requested == action.quantity
+                    else "PARTIAL_REQUEST_MATCHED")):
+            raise TP6Protect3Unsafe("R070_INITIAL_PROTECTION_FILLS_UNVERIFIED")
+        facts = history["matched_unique_fills"]
+        if (not isinstance(facts, list) or not facts
+                or any(not isinstance(f, dict)
+                       or type(f.get("quantity")) is not int or f["quantity"] <= 0
+                       or not isinstance(f.get("price"), str)
+                       or not isinstance(f.get("trade_id_sha256"), str)
+                       or len(f["trade_id_sha256"]) != 64 for f in facts)
+                or sum(f["quantity"] for f in facts) != action.quantity
+                or len(set(f["trade_id_sha256"] for f in facts)) != len(facts)
+                or sha256(json.dumps(facts, sort_keys=True, separators=(",", ":")).encode()
+                          ).hexdigest() != history.get("fill_set_sha256")):
+            raise TP6Protect3Unsafe("R070_INITIAL_PROTECTION_FILL_SET_UNVERIFIED")
+        # Match H1's exact VWAP numerator/denominator even for partial fills.
+        n = sum((Fraction(f["price"]) * f["quantity"] for f in facts), Fraction(0))
+        exact = Fraction(int(history["weighted_price_exact"]["numerator"]),
+                         int(history["weighted_price_exact"]["denominator"]))
+        if n / action.quantity != exact:
+            raise TP6Protect3Unsafe("R070_INITIAL_PROTECTION_VWAP_UNVERIFIED")
+    except (TypeError, ValueError, KeyError, ZeroDivisionError,
+            InvalidOperation, OverflowError) as exc:
+        raise TP6Protect3Unsafe("R070_INITIAL_PROTECTION_FILL_PROOF_INVALID") from exc
+
+    stops = [o for o in entry_orders
+             if o.active and o.kind == "SLTP" and o.symbol == action.finam_symbol]
+    if existing_broker_stop_id is not None:
+        if (not isinstance(existing_broker_stop_id, str)
+                or not existing_broker_stop_id
+                or existing_proved_stop_price is None
+                or len(stops) != 1
+                or stops[0].order_id != existing_broker_stop_id):
+            raise TP6Protect3Unsafe("R070_EXISTING_STOP_ID_UNVERIFIED")
+        stop = stops[0]
+        try:
+            _validate_production_sltp(stop)
+            price = Decimal(str(stop.request["sl_price"]["value"]))
+            original = Decimal(str(existing_proved_stop_price))
+            if (price != original or not price.is_finite()
+                    or stop.side != ("SIDE_SELL" if action.direction == "LONG" else "SIDE_BUY")):
+                raise TP6Protect3Unsafe("R070_EXISTING_STOP_PRICE_OR_SIDE_UNVERIFIED")
+        except (KeyError, TypeError, ValueError, InvalidOperation,
+                ProductionBrokerStateError) as exc:
+            raise TP6Protect3Unsafe("R070_EXISTING_STOP_PROOF_INVALID") from exc
+        if any(o.active and o.symbol == action.finam_symbol
+               and o.order_id not in {entry_broker_order_id, existing_broker_stop_id}
+               for o in entry_orders):
+            raise TP6Protect3Unsafe("R070_EXISTING_STOP_CONFLICTING_ORDER")
+        return R070InitialProtectionChoice(
+            "KEEP_VERIFIED_ORIGINAL_STOP_NO_TP6_REPLACEMENT")
+    if existing_proved_stop_price is not None or stops:
+        raise TP6Protect3Unsafe("R070_UNKNOWN_ACTIVE_STOP_NO_SECOND_SLTP")
+    if any(o.active and o.symbol == action.finam_symbol
+           and o.order_id != entry_broker_order_id for o in entry_orders):
+        raise TP6Protect3Unsafe("R070_OTHER_ACTIVE_ORDER_UNVERIFIED")
+    if requested > action.quantity:
+        # The actual V20 LIVE handler already installs the 100% initial stop
+        # on first partial fill. Do not wait, invent a TP, or create an order.
+        return R070InitialProtectionChoice("ORIGINAL_V20_SL_REQUIRED_PARTIAL_FILL")
+    levels, wire = prepare_r070_tp6_from_h1_full_fills(
+        action=action, history=history, entry_orders=entry_orders,
+        entry_broker_order_id=entry_broker_order_id,
+        observed_position=observed_position, tick=tick)
+    return R070InitialProtectionChoice("SINGLE_LINKED_SL_TP6_DRAFT_ONLY", levels, wire)
