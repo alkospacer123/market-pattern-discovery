@@ -1464,6 +1464,9 @@ def propose_finam_m15_next_open(
     reader: V20FinamReadAdapter, *, symbol: str, from_utc: datetime,
     now: datetime, cost_per_contract: Decimal, technical_acceptance: bool = False,
     broker_ownership=None,
+    r070_ext2_candidate: bool = False,
+    r070_ext2_verified_history: pd.DataFrame | None = None,
+    r070_ext2_audit=None,
 ) -> tuple[FrozenSignal, ProposedEntry, AccountAuthority, LiveAccountSnapshot] | None:
     """08.1: one common NO-POST path FINAM M15 -> frozen V20 -> reused H1 risk.
 
@@ -1509,6 +1512,31 @@ def propose_finam_m15_next_open(
             or signal.symbol != symbol
             or signal.signal_bar_open + STEP != boundary.at_msk):
         raise V20FinamBlocked("NEXT_OPEN_FROZEN_SIGNAL_MISMATCH")
+    # R070 staged-only pretrade hook. DISABLED by default, so all existing
+    # frozen LIVE and 08.2 trial callers remain byte-for-byte behavioral
+    # equivalents. No broker snapshot, risk reserve, SQLite entry intent or
+    # FINAM trading POST occurs before this gate. A future R070 caller must
+    # provide SHA/calendar-checked full M15 history AND a durable audit
+    # callback; a missing/faulty source strictly blocks the new entry.
+    if r070_ext2_candidate:
+        if technical_acceptance or not callable(r070_ext2_audit):
+            raise V20FinamBlocked("R070_EXT2_STAGING_AUDIT_REQUIRED")
+        from .r070_candidate_entry import evaluate_r070_candidate_ext2
+        decision = evaluate_r070_candidate_ext2(
+            robot=reader.robot_id, symbol=symbol,
+            frozen_signal=signal, finam_completed=boundary.completed,
+            verified_full_history=r070_ext2_verified_history,
+        )
+        try:
+            audited = r070_ext2_audit(
+                robot=reader.robot_id, symbol=symbol, signal=signal,
+                boundary_msk=boundary.at_msk, decision=decision)
+        except Exception as exc:
+            raise V20FinamBlocked("R070_EXT2_STAGING_AUDIT_UNVERIFIED") from exc
+        if audited is not True:
+            raise V20FinamBlocked("R070_EXT2_STAGING_AUDIT_UNVERIFIED")
+        if not decision.permit:
+            return None
     snapshot = reader.snapshot(now=now)
     if not snapshot.clean:
         if not callable(broker_ownership) or technical_acceptance:
