@@ -129,9 +129,9 @@ class ReadonlyM15BridgeTests(unittest.TestCase):
         with TemporaryDirectory() as tmp:
             p = Path(tmp) / "CNYRUBF.csv"
             p.write_text(
-                "<DATE>;<TIME>;<OPEN>;<HIGH>;<LOW>;<CLOSE>;<VOL>\\n"
-                "20260831;100000;12.895;12.897;12.891;12.895;1852\\n"
-                "20260831;101500;12.896;12.898;12.892;12.895;1315\\n",
+                "<DATE>;<TIME>;<OPEN>;<HIGH>;<LOW>;<CLOSE>;<VOL>\n"
+                "20260831;100000;12.895;12.897;12.891;12.895;1852\n"
+                "20260831;101500;12.896;12.898;12.892;12.895;1315\n",
                 encoding="utf-8"
             )
             digest = sha256(p.read_bytes()).hexdigest()
@@ -143,7 +143,7 @@ class ReadonlyM15BridgeTests(unittest.TestCase):
                 load_finam_terminal_csv(p, expected_sha256="0" * 64)
             with self.assertRaisesRegex(EXT2HistoryBlocked, "EXT2_FINAM_SOURCE_SHA_REQUIRED"):
                 load_finam_terminal_csv(p, expected_sha256="")
-            p.write_text("<DATE>;<TIME>\\n20260831;100000\\n", encoding="utf-8")
+            p.write_text("<DATE>;<TIME>\n20260831;100000\n", encoding="utf-8")
             digest2 = sha256(p.read_bytes()).hexdigest()
             with self.assertRaisesRegex(EXT2HistoryBlocked, "EXT2_FINAM_SOURCE_INVALID"):
                 load_finam_terminal_csv(p, expected_sha256=digest2)
