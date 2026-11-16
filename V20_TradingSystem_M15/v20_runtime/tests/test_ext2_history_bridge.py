@@ -35,7 +35,8 @@ class ReadonlyM15BridgeTests(unittest.TestCase):
         result = stitch_verified_m15(
             seed=old, finam_recent=new,
             signal_open_msk=full.Datetime.iloc[-1],
-            observed_at_msk=full.Datetime.iloc[-1]+timedelta(minutes=15))
+            observed_at_msk=full.Datetime.iloc[-1]+timedelta(minutes=15),
+            verified_open_days=tuple(d.date() for d in full.Datetime.iloc[17*32::32]))
         self.assertEqual(len(result), len(full))
         self.assertTrue(result.Datetime.equals(full.Datetime))
         self.assertEqual(result.Close.iloc[-1], full.Close.iloc[-1])
@@ -86,6 +87,42 @@ class ReadonlyM15BridgeTests(unittest.TestCase):
                 seed=old, finam_recent=new,
                 signal_open_msk=broken.Datetime.iloc[-1],
                 observed_at_msk=broken.Datetime.iloc[-1]+timedelta(minutes=15))
+
+
+    def test_explicit_calendar_and_missing_recent_m15_fail_closed(self):
+        full = make_bars()
+        old = full.iloc[:18*32]
+        new = full.iloc[17*32:]
+        kwargs = dict(seed=old, finam_recent=new,
+                      signal_open_msk=full.Datetime.iloc[-1],
+                      observed_at_msk=full.Datetime.iloc[-1]+timedelta(minutes=15))
+        with self.assertRaisesRegex(EXT2HistoryBlocked,
+                                    "EXT2_VERIFIED_SESSION_CALENDAR_REQUIRED"):
+            stitch_verified_m15(**kwargs)
+        days = tuple(x.date() for x in full.Datetime.iloc[17*32::32])
+        damaged = new.drop(new.index[-7])
+        with self.assertRaisesRegex(EXT2HistoryBlocked,
+                                    "EXT2_RECENT_SESSION_M15_MISSING"):
+            stitch_verified_m15(**{**kwargs, "finam_recent": damaged},
+                                verified_open_days=days)
+        with self.assertRaisesRegex(EXT2HistoryBlocked,
+                                    "EXT2_SIGNAL_SESSION_NOT_PROVEN"):
+            stitch_verified_m15(**kwargs, verified_open_days=days[:1])
+
+    def test_whole_missing_session_cannot_be_inferred_holiday(self):
+        full = make_bars()
+        seed = full.iloc[:17*32]
+        new = full.iloc[16*32:]
+        absent = full.Datetime.iloc[17*32].normalize()
+        new = new.loc[~new.Datetime.dt.normalize().eq(absent)]
+        days = tuple(x.date() for x in full.Datetime.iloc[16*32::32])
+        with self.assertRaisesRegex(EXT2HistoryBlocked,
+                                    "EXT2_RECENT_SESSION_M15_MISSING"):
+            stitch_verified_m15(
+                seed=seed, finam_recent=new,
+                signal_open_msk=full.Datetime.iloc[-1],
+                observed_at_msk=full.Datetime.iloc[-1]+timedelta(minutes=15),
+                verified_open_days=days)
 
     def test_seed_sha_and_symbol_are_mandatory(self):
         with TemporaryDirectory() as tmp:
