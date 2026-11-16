@@ -17,6 +17,7 @@ from V20_TradingSystem_M15.v20_runtime.tp6_protect3 import (
 from V20_TradingSystem_M15.v20_runtime.r070_linked_sltp import (
     prepare_r070_linked_sltp_draft, verify_r070_linked_sltp,
     prepare_r070_tp6_from_h1_full_fills,
+    choose_r070_initial_protection,
 )
 
 
@@ -182,6 +183,90 @@ class R070LinkedSltpTests(unittest.TestCase):
                 "R070_ENTRY_BROKER_IDENTITY_OR_ACTIVE_ORDER_INVALID"):
             prepare_r070_tp6_from_h1_full_fills(
                 **{**args, "entry_orders": (*args["entry_orders"], other)})
+
+
+    def candidate_choice_fixture(self, *, partial=False, protected=False):
+        _, wire, args = self.h1_full_fill_fixture()
+        if partial:
+            original = args["history"]["matched_unique_fills"][0]
+            facts = [original]
+            digest = sha256(json.dumps(facts, sort_keys=True, separators=(",", ":")).encode()).hexdigest()
+            hist = {
+                **args["history"], "matched_unique_fills": facts,
+                "matched_quantity": 1,
+                "quantity_observation": "PARTIAL_REQUEST_MATCHED",
+                "fill_set_sha256": digest,
+            }
+            order = replace(args["entry_orders"][0], status="PARTIALLY_FILLED", active=True)
+            action = replace(args["action"], quantity=1, expected_position_quantity=1)
+            args = {**args, "action": action, "history": hist,
+                    "observed_position": 1, "entry_orders": (order,)}
+        if protected:
+            _, _, old_wire, stop = self.fixture()
+            args = {**args, "entry_orders": (*args["entry_orders"], stop),
+                    "existing_broker_stop_id": stop.order_id,
+                    "existing_proved_stop_price": Decimal(old_wire["sl_price"]["value"])}
+        return args
+
+    def test_full_fill_before_stop_prepares_exactly_one_linked_sl_tp6(self):
+        args = self.candidate_choice_fixture()
+        choice = choose_r070_initial_protection(**args)
+        self.assertEqual(choice.status, "SINGLE_LINKED_SL_TP6_DRAFT_ONLY")
+        self.assertIsNotNone(choice.levels)
+        self.assertEqual(choice.wire["quantity_sl"], {"value": "100"})
+        self.assertEqual(choice.wire["quantity_tp"], {"value": "100"})
+        self.assertEqual(choice.wire["tp_price"]["value"], str(choice.levels.take_profit))
+
+    def test_partial_fill_never_waits_for_tp_and_requests_original_stop(self):
+        args = self.candidate_choice_fixture(partial=True)
+        choice = choose_r070_initial_protection(**args)
+        self.assertEqual(choice.status, "ORIGINAL_V20_SL_REQUIRED_PARTIAL_FILL")
+        self.assertIsNone(choice.wire)
+        self.assertIsNone(choice.levels)
+
+    def test_partial_growth_or_full_after_old_stop_keeps_verified_stop(self):
+        for partial in (True, False):
+            args = self.candidate_choice_fixture(partial=partial, protected=True)
+            choice = choose_r070_initial_protection(**args)
+            self.assertEqual(choice.status,
+                             "KEEP_VERIFIED_ORIGINAL_STOP_NO_TP6_REPLACEMENT")
+            self.assertIsNone(choice.wire)
+            self.assertIsNone(choice.levels)
+
+    def test_unverified_active_stop_must_not_make_second_sltp(self):
+        args = self.candidate_choice_fixture(protected=True)
+        with self.assertRaisesRegex(
+                TP6Protect3Unsafe, "R070_UNKNOWN_ACTIVE_STOP_NO_SECOND_SLTP"):
+            choose_r070_initial_protection(**{
+                **args, "existing_broker_stop_id": None,
+                "existing_proved_stop_price": None})
+        with self.assertRaisesRegex(
+                TP6Protect3Unsafe, "R070_EXISTING_STOP_ID_UNVERIFIED"):
+            choose_r070_initial_protection(**{
+                **args, "existing_broker_stop_id": "different-stop"})
+        with self.assertRaisesRegex(
+                TP6Protect3Unsafe, "R070_EXISTING_STOP_PRICE_OR_SIDE_UNVERIFIED"):
+            choose_r070_initial_protection(**{
+                **args, "existing_proved_stop_price": Decimal("97")})
+        extra = BrokerOrderView("second-stop", "WATCHING", True, "SLTP",
+                                args["action"].finam_symbol, "", "new",
+                                "SIDE_SELL", args["entry_orders"][1].request)
+        with self.assertRaises(TP6Protect3Unsafe):
+            choose_r070_initial_protection(**{
+                **args, "entry_orders": (*args["entry_orders"], extra)})
+
+    def test_no_partial_stop_decision_when_fill_set_or_quantity_uncertain(self):
+        args = self.candidate_choice_fixture(partial=True)
+        cases = [
+            {"history": {**args["history"], "matched_quantity": 0}},
+            {"history": {**args["history"], "fill_set_sha256": "0"*64}},
+            {"history": {**args["history"], "weighted_price_exact":
+                         {"numerator": "101", "denominator": "1"}}},
+            {"observed_position": 2},
+        ]
+        for change in cases:
+            with self.subTest(change=change), self.assertRaises(TP6Protect3Unsafe):
+                choose_r070_initial_protection(**{**args, **change})
 
     def test_partial_fill_quantity_or_action_drift_is_rejected(self):
         levels, action, wire, order = self.fixture()
