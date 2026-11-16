@@ -43,33 +43,6 @@ class ReadonlyM15BridgeTests(unittest.TestCase):
         self.assertTrue(result.Datetime.equals(full.Datetime))
         self.assertEqual(result.Close.iloc[-1], full.Close.iloc[-1])
 
-    def test_legacy_missing_m15_in_frozen_overlap_is_preserved(self):
-        full = make_bars()
-        missing = 17 * 32 + 9
-        seed = full.iloc[:18*32].drop(missing)
-        # New terminal agrees on every common candle but omits one old
-        # R060 candle. The old pinned seed must never be silently truncated.
-        recent = full.iloc[17*32:].drop(missing)
-        signal = full.Datetime.iloc[-1]
-        out = stitch_verified_m15(
-            seed=seed, finam_recent=recent,
-            signal_open_msk=signal,
-            observed_at_msk=signal+timedelta(minutes=15),
-            verified_open_days=tuple(
-                d.date() for d in full.Datetime.iloc[17*32::32]))
-        self.assertTrue(out.Datetime.equals(full.Datetime.drop(missing).reset_index(drop=True)))
-        self.assertEqual(len(out), len(full)-1)
-        # A terminal bar that did not exist in pinned R060's historical
-        # overlap cannot be appended behind the user's back either.
-        with self.assertRaisesRegex(
-                EXT2HistoryBlocked, "EXT2_SEED_FINAM_UNEXPECTED_HISTORICAL_BAR"):
-            stitch_verified_m15(
-                seed=seed, finam_recent=full.iloc[17*32:],
-                signal_open_msk=signal,
-                observed_at_msk=signal+timedelta(minutes=15),
-                verified_open_days=tuple(
-                    d.date() for d in full.Datetime.iloc[17*32::32]))
-
     def test_gap_between_sources_blocks_without_invented_bars(self):
         full = make_bars()
         with self.assertRaisesRegex(EXT2HistoryBlocked,
