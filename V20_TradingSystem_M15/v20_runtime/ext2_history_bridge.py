@@ -233,19 +233,18 @@ def _require_continuous_trading_sessions(
             raise EXT2HistoryBlocked("EXT2_RECENT_SESSION_M15_MISSING")
 
 
-def m15_history_sha256(bars: pd.DataFrame) -> str:
-    """Reproducible integrity fingerprint of normalized, completed M15.
-
-    This SHA proves the caller did not change its previously checked prefix.
-    It is NOT proof of FINAM origin: the initial source must separately pass
-    R060/terminal byte pins and its independent session calendar.
-    """
+def canonical_m15_csv_bytes(bars: pd.DataFrame) -> bytes:
+    """Stable, lossless numeric CSV for candidate history checkpoints."""
     normalized = _strict_m15(bars)
-    raw = normalized.to_csv(
+    return normalized.to_csv(
         index=False, date_format="%Y-%m-%dT%H:%M:%S",
-        float_format="%.15g", lineterminator="\n",
+        float_format="%.17g", lineterminator="\n",
     ).encode("utf-8")
-    return sha256(raw).hexdigest()
+
+
+def m15_history_sha256(bars: pd.DataFrame) -> str:
+    """Detect altered M15 OHLCV; source authenticity is proved separately."""
+    return sha256(canonical_m15_csv_bytes(bars)).hexdigest()
 
 
 def advance_verified_m15(
