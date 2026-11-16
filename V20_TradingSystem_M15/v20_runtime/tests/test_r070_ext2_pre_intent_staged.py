@@ -66,7 +66,7 @@ class R070Ext2PreIntentWindowsTests(TestCase):
              patch(path+"finam_live.propose_finam_m15_next_open",
                    side_effect=lambda *args, **kw:
                        case.draft if kw["symbol"]==case.symbol else None) as proposal, \
-             patch(path+"r070_candidate_entry.read_finam_m15_boundary",
+             patch(path+"finam_execution.read_finam_m15_boundary",
                    return_value=case.boundary) as m15:
             result=run_cycle(
                 case.sender,
