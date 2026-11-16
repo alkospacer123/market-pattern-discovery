@@ -231,3 +231,53 @@ def _require_continuous_trading_sessions(
         present = day_to_bars.get(day, pd.DatetimeIndex([]))
         if not present.equals(expected):
             raise EXT2HistoryBlocked("EXT2_RECENT_SESSION_M15_MISSING")
+
+
+def m15_history_sha256(bars: pd.DataFrame) -> str:
+    """Reproducible integrity fingerprint of normalized, completed M15.
+
+    This SHA proves the caller did not change its previously checked prefix.
+    It is NOT proof of FINAM origin: the initial source must separately pass
+    R060/terminal byte pins and its independent session calendar.
+    """
+    normalized = _strict_m15(bars)
+    raw = normalized.to_csv(
+        index=False, date_format="%Y-%m-%dT%H:%M:%S",
+        float_format="%.15g", lineterminator="\n",
+    ).encode("utf-8")
+    return sha256(raw).hexdigest()
+
+
+def advance_verified_m15(
+    *, verified_prefix: pd.DataFrame, prefix_sha256: str,
+    finam_recent: pd.DataFrame, signal_open_msk: datetime,
+    observed_at_msk: datetime, verified_open_days: tuple[date, ...],
+) -> tuple[pd.DataFrame, str]:
+    """Advance a previously checked source using ONLY overlapping FINAM GET M15.
+
+    Keep the entire historical DATR warmup; request only a short recent M15
+    window from FINAM on updates. Missing overlap, changed history, missing
+    calendar, unclosed candles or a repeated/out-of-order signal all block.
+    No writes or API calls. The caller persists the returned *new* digest
+    together with the new frame only after the pair is independently checked.
+    """
+    if (not isinstance(prefix_sha256, str)
+            or len(prefix_sha256) != 64
+            or m15_history_sha256(verified_prefix) != prefix_sha256.lower()):
+        raise EXT2HistoryBlocked("EXT2_VERIFIED_PREFIX_SHA_MISMATCH")
+    before = _strict_m15(verified_prefix)
+    if (not isinstance(signal_open_msk, datetime)
+            or signal_open_msk.tzinfo is not None
+            or signal_open_msk <= before.Datetime.iloc[-1].to_pydatetime()):
+        raise EXT2HistoryBlocked("EXT2_PREFIX_NOT_ADVANCING")
+    stitched = stitch_verified_m15(
+        seed=before, finam_recent=finam_recent,
+        signal_open_msk=signal_open_msk,
+        observed_at_msk=observed_at_msk,
+        verified_open_days=verified_open_days,
+    )
+    if (len(stitched) <= len(before)
+            or not stitched.iloc[:len(before)][list(REQUIRED)].reset_index(drop=True).equals(
+                before[list(REQUIRED)].reset_index(drop=True))):
+        raise EXT2HistoryBlocked("EXT2_VERIFIED_PREFIX_CHANGED")
+    return stitched, m15_history_sha256(stitched)
