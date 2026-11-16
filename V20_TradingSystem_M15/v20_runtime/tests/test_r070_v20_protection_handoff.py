@@ -174,6 +174,19 @@ class R070V20HandoffTests(TestCase):
             d.reader.inspect_protective_stop.assert_called_once()
             d.reader.inspect_entry_fills.assert_not_called()
 
+    def test_existing_stop_with_competing_broker_child_cannot_be_certified(self):
+        d = self.fixture(protected=True)
+        child = BrokerOrderView(
+            "triggered-child", "NEW", True, "REGULAR", "USDRUBF@FUT",
+            "child-id", "triggered", "SIDE_SELL",
+            {"quantity": {"value": "2"}})
+        d.snapshot = replace(d.snapshot, orders=(*d.snapshot.orders, child))
+        with self.assertRaisesRegex(
+                TP6Protect3Unsafe, "R070_V20_EXISTING_STOP_OTHER_ACTIVE_ORDER"):
+            self.choose(d)
+        d.reader.inspect_entry_fills.assert_not_called()
+        d.store.put.assert_not_called()
+
     def test_uncertain_stop_intent_unknown_active_stop_and_bad_account_block(self):
         d = self.fixture()
         d.store.intent = Mock(side_effect=lambda target: {
