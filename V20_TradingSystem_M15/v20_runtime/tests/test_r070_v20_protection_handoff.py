@@ -17,7 +17,7 @@ from V20_TradingSystem_M15.v20_runtime.finam_execution import (
     LiveAccountSnapshot, V20FinamReadAdapter, V20TradeJournal,
 )
 from V20_TradingSystem_M15.v20_runtime.r070_linked_sltp import (
-    stage_r070_protection_from_v20,
+    stage_r070_protection_from_v20, verify_r070_tp6_after_restart,
 )
 from V20_TradingSystem_M15.v20_runtime.tp6_protect3 import TP6Protect3Unsafe
 
@@ -140,6 +140,116 @@ class R070V20HandoffTests(TestCase):
             return stage_r070_protection_from_v20(
                 journal=data.journal, reader=data.reader, snapshot=data.snapshot,
                 entry_key=data.entry_key, now=data.now)
+
+    def prepared_restart(self, *, direction="LONG"):
+        d = self.fixture(direction=direction)
+        choice = self.choose(d)
+        wire = choice.wire
+        old_intent = d.store.intent.side_effect
+        old_get = d.store.get.side_effect
+        broker_stop = BrokerOrderView(
+            "finam-sltp-456", "WATCHING", True, "SLTP",
+            "USDRUBF@FUT", wire["client_order_id"], wire["comment"],
+            wire["side"], wire.copy())
+        d.store.intent = Mock(side_effect=lambda key:
+            {"status": "ACK", "broker_order_id": broker_stop.order_id,
+             "payload": {
+                 "kind": "STOP", "entry_key": d.entry_key,
+                 "wire": wire,
+                 "account_sha256": d.reader.account_hash,
+                 "observed_position_quantity": 2,
+             }}
+            if key == d.entry_key + ":stop" else
+            {"status": "RECONCILED",
+             "broker_order_id": d.entry.order_id,
+             "payload": old_intent(d.entry_key)["payload"]}
+            if key == d.entry_key else None)
+        proof = {
+            "account_sha256": d.reader.account_hash,
+            "broker_order_id": d.entry.order_id,
+            "broker_stop_id": broker_stop.order_id,
+            "broker_stop_percent": "100",
+            "filled_quantity": 2,
+            "average_exact": "100",
+            "installed_stop": str(choice.levels.initial_stop),
+            "risk_assessment": {"status": "PASS", "stop_conforms": True},
+        }
+        d.store.get = Mock(side_effect=lambda key, default=None:
+            proof if key == "protected_fill:" + d.entry_key
+            else old_get(key, default))
+        d.store.fills_for_order = Mock(return_value=[
+            {"fill_id": "finam:" + d.reader.account_hash + ":" +
+             f["trade_id_sha256"],
+             "broker_trade_id_sha256": f["trade_id_sha256"],
+             "quantity": str(f["quantity"]), "price": f["price"],
+             "trade_id": d.entry_key, "entry_key": d.entry_key,
+             "broker_order_id": d.entry.order_id,
+             "account_sha256": d.reader.account_hash}
+            for f in d.history["matched_unique_fills"]])
+        d.snapshot = replace(d.snapshot, orders=(d.entry, broker_stop))
+        d.reader.inspect_entry_fills.reset_mock()
+        return d, broker_stop, proof, wire
+
+    def restart(self, d):
+        with patch(
+            "TradingSystemLab.stage8_robot.production_runtime._load_registry",
+            return_value=d.registry):
+            return verify_r070_tp6_after_restart(
+                journal=d.journal, reader=d.reader, snapshot=d.snapshot,
+                entry_key=d.entry_key, now=d.now)
+
+    def test_sealed_tp6_survives_restart_without_trades_get_or_sqlite_write(self):
+        for side in ("LONG", "SHORT"):
+            with self.subTest(side=side):
+                d, order, proof, wire = self.prepared_restart(direction=side)
+                self.assertEqual(self.restart(d), order)
+                d.store.fills_for_order.assert_called_once_with(d.entry.order_id)
+                d.reader.inspect_entry_fills.assert_not_called()
+                d.store.put.assert_not_called()
+
+    def test_restart_rejects_plain_sl_missing_tp_or_wrong_broker_tp(self):
+        d, order, proof, wire = self.prepared_restart()
+        mutated = dict(wire)
+        mutated.pop("quantity_tp")
+        previous = d.store.intent.side_effect
+        d.store.intent = Mock(side_effect=lambda key:
+            {**previous(key), "payload": {
+                **previous(key)["payload"], "wire": mutated}}
+            if key == d.entry_key + ":stop" else previous(key))
+        with self.assertRaisesRegex(
+                TP6Protect3Unsafe, "R070_RESTART_STOP_INTENT_NOT_LINKED_TP6"):
+            self.restart(d)
+        d, order, proof, wire = self.prepared_restart()
+        amended = {**wire, "tp_price": {"value": "111"}}
+        d.snapshot = replace(d.snapshot, orders=(
+            d.entry, replace(order, request=amended)))
+        with self.assertRaises(TP6Protect3Unsafe):
+            self.restart(d)
+        d.store.put.assert_not_called()
+
+    def test_restart_rejects_tampered_fills_partial_and_second_order(self):
+        d, order, proof, wire = self.prepared_restart()
+        modified = d.store.fills_for_order.return_value.copy()
+        modified[0] = {**modified[0], "price": "101"}
+        d.store.fills_for_order.return_value = modified
+        with self.assertRaisesRegex(
+                TP6Protect3Unsafe, "R070_RESTART_FILL_VWAP_OR_QUANTITY_CHANGED"):
+            self.restart(d)
+        d, order, proof, wire = self.prepared_restart()
+        d.snapshot = replace(d.snapshot, positions={"USDRUBF@FUT": 1})
+        with self.assertRaisesRegex(
+                TP6Protect3Unsafe, "R070_RESTART_POSITION_NOT_FULL"):
+            self.restart(d)
+        d, order, proof, wire = self.prepared_restart()
+        child = BrokerOrderView(
+            "trigger-child", "NEW", True, "REGULAR", "USDRUBF@FUT",
+            "child", "executing", "SIDE_SELL", {"quantity": {"value": "2"}})
+        d.snapshot = replace(d.snapshot, orders=(
+            *d.snapshot.orders, child))
+        with self.assertRaisesRegex(
+                TP6Protect3Unsafe, "R070_SLTP_ACTIVE_CHILD_OR_OTHER_ORDER_UNVERIFIED"):
+            self.restart(d)
+        d.store.put.assert_not_called()
 
     def test_full_fill_stages_tp6_from_real_v20_journal_and_finam_proof(self):
         for direction in ("LONG", "SHORT"):
