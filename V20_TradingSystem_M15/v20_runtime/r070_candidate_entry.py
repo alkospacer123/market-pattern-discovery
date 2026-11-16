@@ -173,3 +173,75 @@ def propose_r070_readonly_candidate(
         verified_full_history=verified_full_history,
         durable_audit=durable_audit,
     )
+
+
+def admit_r070_frozen_draft_pre_intent(
+    *, sender, journal, reader, symbol: str, frozen_draft: tuple | None,
+    from_utc: datetime, now: datetime,
+) -> tuple | None:
+    """Candidate ONLY: EXT2 between frozen proposal and H1 durable ENTRY intent.
+
+    Does not fetch trading balances, create an ENTRY intent or send POST.
+    Only Shallow/OBV USD/CNY/GLD are gated; Inside and IMOEXF keep frozen flow.
+    A trusted long-history provider must be attached explicitly for staged
+    tests. No production source is auto-connected, thus this candidate
+    MUST NOT be installed in LIVE without a separately accepted source.
+    """
+    from .ext2_history_bridge import m15_history_sha256
+    from .finam_execution import V20FinamBlocked, read_finam_m15_boundary
+    if frozen_draft is None:
+        return None
+    if (symbol not in FULL_N4
+            or reader.robot_id not in {"v20-shallow", "v20-obv", "v20-inside"}
+            or journal.robot_id != reader.robot_id):
+        raise V20FinamBlocked("R070_EXT2_ACCOUNT_OR_SYMBOL_INVALID")
+    if reader.robot_id not in APPLIES_TO or symbol not in SYMBOLS:
+        return frozen_draft
+    signal, candidate, _, _ = frozen_draft
+    if (not isinstance(signal, FrozenSignal)
+            or not isinstance(candidate, ProposedEntry)
+            or signal.symbol != symbol or candidate.symbol != symbol):
+        raise V20FinamBlocked("R070_EXT2_DRAFT_UNVERIFIED")
+    key = "r070_ext2_decision:" + symbol + ":" + candidate.entry_bar_open.isoformat()
+
+    def record(decision):
+        journal.store.put(key, {
+            "robot": reader.robot_id, "symbol": symbol,
+            "signal_msk": signal.signal_bar_open.isoformat(),
+            "entry_msk": candidate.entry_bar_open.isoformat(),
+            "permit": decision.permit, "reason": decision.reason,
+        })
+        return True
+
+    provider = getattr(sender, "r070_verified_history_provider", None)
+    if not callable(provider):
+        record(EXT2Decision(True, False, "EXT2_VERIFIED_HISTORY_PROVIDER_MISSING"))
+        return None
+    try:
+        source, source_sha = provider(
+            robot=reader.robot_id, symbol=symbol,
+            signal_open_msk=signal.signal_bar_open)
+        if (not isinstance(source, pd.DataFrame)
+                or not isinstance(source_sha, str)
+                or m15_history_sha256(source) != source_sha):
+            raise V20FinamBlocked("R070_EXT2_HISTORY_SHA_UNVERIFIED")
+    except V20FinamBlocked:
+        raise
+    except Exception as exc:
+        raise V20FinamBlocked("R070_EXT2_HISTORY_UNAVAILABLE") from exc
+    observed = read_finam_m15_boundary(
+        reader, symbol=symbol, from_utc=from_utc, now=now)
+    if (observed.symbol != symbol
+            or observed.at_msk != candidate.entry_bar_open
+            or observed.witnessed_open != candidate.reference_entry
+            or observed.completed.empty
+            or observed.completed.Datetime.iloc[-1] !=
+            pd.Timestamp(signal.signal_bar_open)):
+        raise V20FinamBlocked("R070_EXT2_SECOND_WITNESS_DIVERGED")
+    return stage_r070_after_frozen_proposal(
+        robot=reader.robot_id, symbol=symbol,
+        frozen_draft=frozen_draft,
+        finam_completed=observed.completed,
+        verified_full_history=source,
+        durable_audit=lambda **kw: record(kw["decision"]),
+    )
