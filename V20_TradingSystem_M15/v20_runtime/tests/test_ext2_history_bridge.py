@@ -4,12 +4,13 @@ from __future__ import annotations
 from datetime import datetime, timedelta
 from tempfile import TemporaryDirectory
 from pathlib import Path
+from hashlib import sha256
 from unittest.mock import patch
 import unittest
 import pandas as pd
 
 from V20_TradingSystem_M15.v20_runtime.ext2_history_bridge import (
-    EXT2HistoryBlocked, load_r060_pinned_csv, stitch_verified_m15
+    EXT2HistoryBlocked, load_r060_pinned_csv, load_finam_terminal_csv, stitch_verified_m15
 )
 
 
@@ -123,6 +124,29 @@ class ReadonlyM15BridgeTests(unittest.TestCase):
                 signal_open_msk=full.Datetime.iloc[-1],
                 observed_at_msk=full.Datetime.iloc[-1]+timedelta(minutes=15),
                 verified_open_days=days)
+
+    def test_finam_terminal_msk_sha_and_schema_are_strict(self):
+        with TemporaryDirectory() as tmp:
+            p = Path(tmp) / "CNYRUBF.csv"
+            p.write_text(
+                "<DATE>;<TIME>;<OPEN>;<HIGH>;<LOW>;<CLOSE>;<VOL>\\n"
+                "20260831;100000;12.895;12.897;12.891;12.895;1852\\n"
+                "20260831;101500;12.896;12.898;12.892;12.895;1315\\n",
+                encoding="utf-8"
+            )
+            digest = sha256(p.read_bytes()).hexdigest()
+            d = load_finam_terminal_csv(p, expected_sha256=digest)
+            self.assertEqual(list(d.columns), ["Datetime", "Open", "High", "Low", "Close", "Volume"])
+            self.assertEqual(d.Datetime.iloc[0], datetime(2026, 8, 31, 10, 0))
+            self.assertEqual(d.Datetime.iloc[1], datetime(2026, 8, 31, 10, 15))
+            with self.assertRaisesRegex(EXT2HistoryBlocked, "EXT2_FINAM_SOURCE_SHA_MISMATCH"):
+                load_finam_terminal_csv(p, expected_sha256="0" * 64)
+            with self.assertRaisesRegex(EXT2HistoryBlocked, "EXT2_FINAM_SOURCE_SHA_REQUIRED"):
+                load_finam_terminal_csv(p, expected_sha256="")
+            p.write_text("<DATE>;<TIME>\\n20260831;100000\\n", encoding="utf-8")
+            digest2 = sha256(p.read_bytes()).hexdigest()
+            with self.assertRaisesRegex(EXT2HistoryBlocked, "EXT2_FINAM_SOURCE_INVALID"):
+                load_finam_terminal_csv(p, expected_sha256=digest2)
 
     def test_seed_sha_and_symbol_are_mandatory(self):
         with TemporaryDirectory() as tmp:
