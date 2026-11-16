@@ -10,7 +10,8 @@ import unittest
 import pandas as pd
 
 from V20_TradingSystem_M15.v20_runtime.ext2_history_bridge import (
-    EXT2HistoryBlocked, load_r060_pinned_csv, load_finam_terminal_csv, stitch_verified_m15
+    EXT2HistoryBlocked, load_r060_pinned_csv, load_finam_terminal_csv,
+    stitch_verified_m15, advance_verified_m15, m15_history_sha256
 )
 
 
@@ -147,6 +148,55 @@ class ReadonlyM15BridgeTests(unittest.TestCase):
             digest2 = sha256(p.read_bytes()).hexdigest()
             with self.assertRaisesRegex(EXT2HistoryBlocked, "EXT2_FINAM_SOURCE_INVALID"):
                 load_finam_terminal_csv(p, expected_sha256=digest2)
+
+
+    def test_incremental_history_advances_with_bounded_overlap_only(self):
+        full = make_bars()
+        previous = full.iloc[:18*32].copy()
+        recent = full.iloc[17*32:].copy()
+        previous_hash = m15_history_sha256(previous)
+        days = tuple(x.date() for x in full.Datetime.iloc[17*32::32])
+        signal = full.Datetime.iloc[-1].to_pydatetime()
+        complete_at = signal + timedelta(minutes=15)
+        stitched, new_hash = advance_verified_m15(
+            verified_prefix=previous, prefix_sha256=previous_hash,
+            finam_recent=recent, signal_open_msk=signal,
+            observed_at_msk=complete_at, verified_open_days=days)
+        self.assertTrue(stitched.Datetime.equals(full.Datetime))
+        self.assertEqual(m15_history_sha256(stitched), new_hash)
+        self.assertEqual(m15_history_sha256(previous), previous_hash)
+        with self.assertRaisesRegex(EXT2HistoryBlocked, "EXT2_PREFIX_NOT_ADVANCING"):
+            advance_verified_m15(
+                verified_prefix=stitched, prefix_sha256=new_hash,
+                finam_recent=recent, signal_open_msk=signal,
+                observed_at_msk=complete_at, verified_open_days=days)
+
+    def test_incremental_cache_mismatch_gap_and_disagreeing_overlap_block(self):
+        full = make_bars()
+        previous = full.iloc[:18*32].copy()
+        recent = full.iloc[17*32:].copy()
+        sha = m15_history_sha256(previous)
+        days = tuple(x.date() for x in full.Datetime.iloc[17*32::32])
+        common = dict(verified_prefix=previous, prefix_sha256=sha,
+                      signal_open_msk=full.Datetime.iloc[-1].to_pydatetime(),
+                      observed_at_msk=full.Datetime.iloc[-1].to_pydatetime()+timedelta(minutes=15),
+                      verified_open_days=days)
+        changed = previous.copy()
+        changed.loc[changed.index[-1], "Close"] += .1
+        with self.assertRaisesRegex(EXT2HistoryBlocked, "EXT2_VERIFIED_PREFIX_SHA_MISMATCH"):
+            advance_verified_m15(**{**common, "verified_prefix": changed}, finam_recent=recent)
+        with self.assertRaisesRegex(EXT2HistoryBlocked, "EXT2_SEED_FINAM_OVERLAP_MISSING"):
+            advance_verified_m15(**common, finam_recent=full.iloc[18*32:].copy())
+        disagree = recent.copy()
+        disagree.loc[disagree.index[0], "High"] += .2
+        with self.assertRaisesRegex(EXT2HistoryBlocked, "EXT2_SEED_FINAM_OHLCV_DISAGREEMENT"):
+            advance_verified_m15(**common, finam_recent=disagree)
+        with self.assertRaisesRegex(EXT2HistoryBlocked, "EXT2_RECENT_SESSION_M15_MISSING"):
+            advance_verified_m15(**common, finam_recent=recent.drop(recent.index[-5]))
+        with self.assertRaisesRegex(EXT2HistoryBlocked, "EXT2_SIGNAL_NOT_COMPLETED"):
+            advance_verified_m15(
+                **{**common, "observed_at_msk": common["signal_open_msk"]+timedelta(minutes=14)},
+                finam_recent=recent)
 
     def test_seed_sha_and_symbol_are_mandatory(self):
         with TemporaryDirectory() as tmp:
