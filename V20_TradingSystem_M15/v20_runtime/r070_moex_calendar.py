@@ -111,7 +111,10 @@ def fetch_moex_futures_calendar(
             or date_from > date_till or date_from.year != date_till.year
             or (date_till - date_from).days > 370):
         raise EXT2HistoryBlocked("R070_MOEX_CALENDAR_RANGE_INVALID")
-    opener = build_opener(_NoRedirect)
+    try:
+        opener = build_opener(_NoRedirect)
+    except Exception as exc:
+        raise EXT2HistoryBlocked("R070_MOEX_CALENDAR_READ_UNVERIFIED") from exc
     cursor = date_from
     result = []
     while cursor <= date_till:
