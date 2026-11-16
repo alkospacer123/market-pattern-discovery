@@ -15,6 +15,7 @@ from unittest import TestCase, main
 from unittest.mock import Mock, patch
 
 from V20_TradingSystem_M15.v20_runtime.ext2_history_bridge import m15_history_sha256
+from V20_TradingSystem_M15.v20_runtime.r070_m15_candidate_state import R070CandidateCheckpointState
 from V20_TradingSystem_M15.v20_runtime.finam_execution import V20FinamBlocked
 from V20_TradingSystem_M15.v20_runtime.finam_live import run_cycle, SYMBOLS
 from V20_TradingSystem_M15.v20_runtime.tests.test_finam_live import StubStore
@@ -118,6 +119,49 @@ class R070Ext2PreIntentWindowsTests(TestCase):
             self.cycle(case)
         case.journal.prepare_entry.assert_not_called()
         case.sender.submit_entry_once.assert_not_called()
+
+    def test_existing_h1_checkpoint_provider_feeds_actual_staged_cycle(self):
+        # Synthetic M15 fixture demonstrates the adapter only, NOT a
+        # real-world R060/FINAM archive provenance or LIVE permission.
+        case=self.scenario(contra=True,provider=False)
+        _,full,_,_=fixtures(contra=True)
+        with TemporaryDirectory() as tmp:
+            root=Path(tmp)/"V20Lab"
+            root.mkdir()
+            with R070CandidateCheckpointState(
+                    v20_root=root,robot_id="v20-shallow",
+                    account_id="synthetic-account") as state:
+                state.bootstrap(
+                    symbol="GLDRUBF",verified_history=full,
+                    expected_history_sha256=m15_history_sha256(full))
+                case.sender.r070_verified_history_provider=state.provide_ext2_history
+                outcome,_,m15=self.cycle(case)
+                self.assertEqual(outcome,"ENTRY_ACK_NEEDS_FILL_AND_STOP")
+                case.journal.prepare_entry.assert_called_once()
+                case.sender.submit_entry_once.assert_called_once()
+                self.assertEqual(m15.call_count,1)
+            self.assertFalse((root/"robots").exists())
+
+    def test_old_h1_checkpoint_blocks_real_cycle_before_intent(self):
+        case=self.scenario(contra=True,provider=False)
+        _,full,_,_=fixtures(contra=True)
+        with TemporaryDirectory() as tmp:
+            root=Path(tmp)/"V20Lab"
+            root.mkdir()
+            with R070CandidateCheckpointState(
+                    v20_root=root,robot_id="v20-shallow",
+                    account_id="synthetic-account") as state:
+                stale=full.iloc[:-1].copy()
+                state.bootstrap(
+                    symbol="GLDRUBF",verified_history=stale,
+                    expected_history_sha256=m15_history_sha256(stale))
+                case.sender.r070_verified_history_provider=state.provide_ext2_history
+                with self.assertRaisesRegex(
+                        V20FinamBlocked,"R070_EXT2_HISTORY_UNAVAILABLE"):
+                    self.cycle(case)
+                case.journal.prepare_entry.assert_not_called()
+                case.sender.submit_entry_once.assert_not_called()
+            self.assertFalse((root/"robots").exists())
 
     def test_inside_and_imoex_keep_frozen_flow_without_extra_get(self):
         for robot,symbol in (("v20-inside","GLDRUBF"),
