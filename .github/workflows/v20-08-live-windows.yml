@@ -371,3 +371,30 @@ jobs:
           if ($LASTEXITCODE -ne 0) { throw 'V20_R070_OFFLINE_CONTRACT_FAIL' }
           Write-Output 'V20_R070_EXT2_TP6_PROTECT3_OFFLINE_CONTRACT=PASS'
           exit 0
+      - name: R070 one-shot TP6 patched candidate (ephemeral Windows only)
+        shell: pwsh
+        env:
+          PYTHONDONTWRITEBYTECODE: '1'
+        run: |
+          $ErrorActionPreference='Stop'
+          $target='V20_TradingSystem_M15/v20_runtime/finam_execution.py'
+          $patch='V20_TradingSystem_M15/V20-08/r070-tp6-one-shot-candidate.patch'
+          $pinned='6b600451178b42bd4f8b2037995e7db3a9ad27c8'
+          if ((& git.exe hash-object -- $target).Trim() -ne $pinned) { throw 'R070_PINNED_EXECUTION_CHANGED_BEFORE_TEST' }
+          & git.exe apply --check -- $patch
+          if ($LASTEXITCODE -ne 0) { throw 'R070_ONE_SHOT_PATCH_DOES_NOT_APPLY' }
+          $applied=$false
+          try {
+            & git.exe apply -- $patch
+            if ($LASTEXITCODE -ne 0) { throw 'R070_PATCH_APPLY_FAILED' }
+            $applied=$true
+            python -m unittest -v V20_TradingSystem_M15.v20_runtime.tests.test_r070_tp6_one_shot_staged
+            if ($LASTEXITCODE -ne 0) { throw 'R070_ONE_SHOT_MOCK_CONTRACT_FAILED' }
+          } finally {
+            if ($applied) {
+              & git.exe apply -R -- $patch
+              if ($LASTEXITCODE -ne 0) { throw 'R070_PINNED_EXECUTION_RESTORE_FAILED' }
+            }
+          }
+          if ((& git.exe hash-object -- $target).Trim() -ne $pinned) { throw 'R070_PINNED_EXECUTION_SHA_CHANGED_AFTER_TEST' }
+          Write-Output 'R070_TP6_ONE_SHOT_CANDIDATE=PASS_RESTORED_PINNED_EXECUTION_NO_FINAM'
