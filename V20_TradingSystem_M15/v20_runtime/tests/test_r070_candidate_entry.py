@@ -4,10 +4,15 @@ from __future__ import annotations
 from datetime import timedelta
 from decimal import Decimal
 from unittest import TestCase, main
+from unittest.mock import patch
+from types import SimpleNamespace
+from datetime import timezone
+from V20_TradingSystem_M15.v20_runtime.finam_execution import V20FinamReadAdapter, V20FinamBlocked
 
 from V20_TradingSystem_M15.v20_runtime.offline_planner import FrozenSignal, ProposedEntry
 from V20_TradingSystem_M15.v20_runtime.r070_candidate_entry import (
     evaluate_r070_candidate_ext2, stage_r070_after_frozen_proposal,
+    propose_r070_readonly_candidate,
 )
 from V20_TradingSystem_M15.v20_runtime.tests.test_ext2_r060 import history
 
@@ -110,6 +115,67 @@ class R070EntryCandidateTests(TestCase):
             finam_completed=recent, verified_full_history=None,
             durable_audit=lambda **kwargs: (audited.append(kwargs["decision"].reason) or True)))
         self.assertEqual(audited, ["EXT2_CERTIFIED_HISTORY_MISSING"])
+
+
+    def test_actual_readonly_preparer_end_to_end_gate_without_live_calls(self):
+        signal, full, recent, draft = fixtures()
+        reader = V20FinamReadAdapter.__new__(V20FinamReadAdapter)
+        reader.robot_id = "v20-shallow"
+        now = (signal.signal_bar_open + timedelta(minutes=15)).replace(tzinfo=timezone.utc)
+        boundary = SimpleNamespace(
+            symbol="GLDRUBF", at_msk=draft[1].entry_bar_open,
+            witnessed_open=draft[1].reference_entry, completed=recent)
+        audited = []
+        with patch(
+            "V20_TradingSystem_M15.v20_runtime.finam_execution.propose_finam_m15_next_open",
+            return_value=draft) as frozen, patch(
+            "V20_TradingSystem_M15.v20_runtime.finam_execution.read_finam_m15_boundary",
+            return_value=boundary) as reread:
+            outcome = propose_r070_readonly_candidate(
+                reader, symbol="GLDRUBF", from_utc=now-timedelta(days=3),
+                now=now, cost_per_contract=Decimal("0"),
+                verified_full_history=full,
+                durable_audit=lambda **kw: (audited.append(kw["decision"].reason) or True))
+        self.assertIsNone(outcome)
+        self.assertEqual(audited, ["EXT2_LATE_NO_OPPOSING_M15"])
+        self.assertEqual(frozen.call_count, 1)
+        self.assertEqual(reread.call_count, 1)
+
+    def test_no_frozen_signal_requires_no_second_market_request(self):
+        signal, full, recent, draft = fixtures()
+        reader = V20FinamReadAdapter.__new__(V20FinamReadAdapter)
+        reader.robot_id = "v20-shallow"
+        now = (signal.signal_bar_open + timedelta(minutes=15)).replace(tzinfo=timezone.utc)
+        with patch(
+            "V20_TradingSystem_M15.v20_runtime.finam_execution.propose_finam_m15_next_open",
+            return_value=None), patch(
+            "V20_TradingSystem_M15.v20_runtime.finam_execution.read_finam_m15_boundary",
+            side_effect=AssertionError("SECOND_GET_WITHOUT_SIGNAL")):
+            self.assertIsNone(propose_r070_readonly_candidate(
+                reader, symbol="GLDRUBF", from_utc=now-timedelta(days=3),
+                now=now, cost_per_contract=Decimal("0"),
+                verified_full_history=full,
+                durable_audit=lambda **kw: self.fail("NO_AUDIT_WITHOUT_SIGNAL")))
+
+    def test_different_second_m15_witness_fails_before_ext2(self):
+        signal, full, recent, draft = fixtures()
+        reader = V20FinamReadAdapter.__new__(V20FinamReadAdapter)
+        reader.robot_id = "v20-shallow"
+        now = (signal.signal_bar_open + timedelta(minutes=15)).replace(tzinfo=timezone.utc)
+        boundary = SimpleNamespace(
+            symbol="GLDRUBF", at_msk=draft[1].entry_bar_open,
+            witnessed_open=draft[1].reference_entry + Decimal("0.1"), completed=recent)
+        with patch(
+            "V20_TradingSystem_M15.v20_runtime.finam_execution.propose_finam_m15_next_open",
+            return_value=draft), patch(
+            "V20_TradingSystem_M15.v20_runtime.finam_execution.read_finam_m15_boundary",
+            return_value=boundary):
+            with self.assertRaisesRegex(V20FinamBlocked, "R070_SECOND_M15_WITNESS_DIVERGED"):
+                propose_r070_readonly_candidate(
+                    reader, symbol="GLDRUBF", from_utc=now-timedelta(days=3),
+                    now=now, cost_per_contract=Decimal("0"),
+                    verified_full_history=full,
+                    durable_audit=lambda **kw: self.fail("UNTRUSTED_AUDIT"))
 
     def test_no_signal_preserves_frozen_null_and_no_audit(self):
         self.assertIsNone(stage_r070_after_frozen_proposal(
