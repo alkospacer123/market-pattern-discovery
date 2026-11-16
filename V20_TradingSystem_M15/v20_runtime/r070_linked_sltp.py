@@ -397,6 +397,11 @@ def stage_r070_protection_from_v20(
             now=now)
         if confirmed.order_id != prior["broker_stop_id"]:
             raise TP6Protect3Unsafe("R070_V20_EXISTING_STOP_ID_MISMATCH")
+        if any(o.active and o.symbol == finam_symbol
+               and o.order_id not in {
+                   entry["broker_order_id"], confirmed.order_id}
+               for o in snapshot.orders):
+            raise TP6Protect3Unsafe("R070_V20_EXISTING_STOP_OTHER_ACTIVE_ORDER")
         return R070InitialProtectionChoice(
             "KEEP_VERIFIED_ORIGINAL_STOP_NO_TP6_REPLACEMENT")
 
