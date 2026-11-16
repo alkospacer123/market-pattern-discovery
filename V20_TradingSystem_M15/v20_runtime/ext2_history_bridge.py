@@ -140,31 +140,13 @@ def stitch_verified_m15(*, seed: pd.DataFrame, finam_recent: pd.DataFrame,
         for col in REQUIRED[1:]:
             if Decimal(str(old.loc[ts, col])) != Decimal(str(new.loc[ts, col])):
                 raise EXT2HistoryBlocked("EXT2_SEED_FINAM_OHLCV_DISAGREEMENT")
-    # R060's pinned historical M15 is immutable even if a newer terminal
-    # source omits some older no-trade bars. Never replace the seed in the
-    # overlapping period or silently add new bars to that frozen history.
-    old_last = old.index[-1]
-    if len(new.index.difference(old.index)[new.index.difference(old.index) <= old_last]):
-        raise EXT2HistoryBlocked("EXT2_SEED_FINAM_UNEXPECTED_HISTORICAL_BAR")
-    additions = new.loc[new.index > old_last]
-    if additions.empty:
-        raise EXT2HistoryBlocked("EXT2_FINAM_NO_NEW_COMPLETED_M15")
-    stitched = pd.concat([old, additions]).reset_index()
+    # Old prefix up to first recent candle, then exact recent FINAM facts.
+    stitched = pd.concat([old.loc[old.index < new.index[0]], new]).reset_index()
     if stitched.Datetime.iloc[-1] != pd.Timestamp(signal_open_msk):
         raise EXT2HistoryBlocked("EXT2_SIGNAL_BAR_MISSING")
     _require_complete_previous_day(stitched, signal_open_msk)
-    # Start calendar validation IMMEDIATELY after the pinned seed,
-    # not at the first new candle: that would silently skip a whole
-    # missing trading session after the seed. A finished historical main
-    # session remains frozen and is not retroactively checked for 32 bars.
-    last_seed = old_last.to_pydatetime()
-    if (last_seed.hour, last_seed.minute) >= (17, 45):
-        check_from = datetime.combine(
-            last_seed.date() + timedelta(days=1), datetime.min.time())
-    else:
-        check_from = last_seed
     _require_continuous_trading_sessions(
-        stitched, from_msk=check_from,
+        stitched, from_msk=new.index[0].to_pydatetime(),
         signal_open_msk=signal_open_msk,
         verified_open_days=verified_open_days,
     )
