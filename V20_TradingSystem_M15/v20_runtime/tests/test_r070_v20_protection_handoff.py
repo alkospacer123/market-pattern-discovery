@@ -493,6 +493,86 @@ class R070V20HandoffTests(TestCase):
             verify()
         d.store.put.assert_not_called()
 
+    def test_protect3_readonly_handoff_from_original_seal_to_m15_and_quote(self):
+        import pandas as pd
+        from V20_TradingSystem_M15.v20_runtime.finam_execution import V20M15Boundary
+        from V20_TradingSystem_M15.v20_runtime.r070_linked_sltp import (
+            prepare_r070_protect3_from_v20_readonly,
+        )
+        from datetime import datetime
+        for direction in ("LONG", "SHORT"):
+            with self.subTest(direction=direction):
+                d, old, proof, wire = self.prepared_restart(direction=direction)
+                old_intent = d.store.intent.side_effect
+                d.store.intent = Mock(side_effect=lambda key:
+                    {**old_intent(key), "payload": {
+                        **old_intent(key)["payload"],
+                        "entry_at": "2026-11-16T13:45:00",
+                    }} if key == d.entry_key else old_intent(key))
+                quote_price = "106.0" if direction == "LONG" else "94.0"
+                quote = {"symbol": "USDRUBF@FUT", "quote": {
+                    "symbol": "USDRUBF@FUT",
+                    "timestamp": "2026-11-16T10:59:59Z",
+                    "bid": {"value": quote_price},
+                    "ask": {"value": str(Decimal(quote_price) + Decimal("0.1"))},
+                }}
+                bar = pd.DataFrame([{
+                    "Datetime": datetime(2026, 11, 16, 13, 45),
+                    "Open": Decimal("104"),
+                    "High": Decimal("107") if direction == "LONG" else Decimal("97"),
+                    "Low": Decimal("103") if direction == "LONG" else Decimal("93"),
+                    "Close": Decimal("105"),
+                    "Volume": 21,
+                }])
+                boundary = V20M15Boundary(
+                    "USDRUBF", datetime(2026, 11, 16, 14, 0),
+                    bar, Decimal("105"), d.now)
+                args = dict(
+                    journal=d.journal, reader=d.reader,
+                    snapshot=d.snapshot, entry_key=d.entry_key,
+                    now=d.now, boundary=boundary, quote_response=quote,
+                )
+                def decide(**changes):
+                    with patch(
+                        "TradingSystemLab.stage8_robot.production_runtime._load_registry",
+                        return_value=d.registry):
+                        return prepare_r070_protect3_from_v20_readonly(
+                            **{**args, **changes})
+                review, plan = decide()
+                self.assertEqual(
+                    review.status, "LOCK_1R_DUE_NEXT_M15_BROKER_REPLACE_BLOCKED")
+                self.assertEqual(plan.old_order_id, old.order_id)
+                self.assertEqual(
+                    plan.new_wire["sl_price"]["value"],
+                    "102" if direction == "LONG" else "98")
+                self.assertEqual(plan.new_wire["tp_price"], wire["tp_price"])
+                self.assertEqual(plan.new_wire["quantity_tp"], {"value": "100"})
+                d.store.put.assert_not_called()
+                # No action if M15 high/low did not reach 3R.
+                untriggered = bar.copy()
+                untriggered.loc[0, "High" if direction == "LONG" else "Low"] = (
+                    Decimal("105") if direction == "LONG" else Decimal("95"))
+                rev, no_plan = decide(boundary=V20M15Boundary(
+                    "USDRUBF", boundary.at_msk, untriggered,
+                    boundary.witnessed_open, boundary.observed_at_utc))
+                self.assertEqual(rev.status, "BELOW_3R_NO_CHANGE")
+                self.assertIsNone(no_plan)
+                # Stale quote cannot authorize cancellation.
+                stale = {"symbol": "USDRUBF@FUT", "quote": {
+                    **quote["quote"], "timestamp": "2026-11-16T10:59:30Z"}}
+                with self.assertRaises(TP6Protect3Unsafe):
+                    decide(quote_response=stale)
+                # Pending/uncertain replacement never yields a second plan.
+                previous_get = d.store.get.side_effect
+                d.store.get = Mock(side_effect=lambda key, default=None:
+                    {"state": "NEW_POST_OUTCOME_UNKNOWN"} if key ==
+                    "r070_protect3:" + d.entry_key else previous_get(key, default))
+                with self.assertRaisesRegex(
+                        TP6Protect3Unsafe,
+                        "R070_PROTECT3_HANDOFF_ALREADY_ATTEMPTED_OR_EXIT"):
+                    decide()
+                d.store.put.assert_not_called()
+
     def test_sealed_tp6_survives_restart_without_trades_get_or_sqlite_write(self):
         for side in ("LONG", "SHORT"):
             with self.subTest(side=side):
