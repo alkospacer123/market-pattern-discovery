@@ -55,7 +55,7 @@ function exact([string]$path,[string]$sha) {
     need ((git-hash $path) -ceq $sha) 'R070_PKG_SHA_MISMATCH'
 }
 function get-pin([string]$rel,[string]$sha,[string]$dest) {
-    need (-not (Test-Path -LiteralPath $dest)) 'R070_PKG_PACKAGE_FILE_ALREADY_PRESENT'
+    if(Test-Path -LiteralPath $dest){exact $dest $sha;return}
     $uri='https://api.github.com/repos/alkospacer123/market-pattern-discovery/git/blobs/'+$sha
     $x=Invoke-RestMethod -Uri $uri -Headers @{'user-agent'='v20lab-r070'} -TimeoutSec 30
     need ($x.sha -ceq $sha -and $x.encoding -eq 'base64') 'R070_PKG_BLOB_IDENTITY_FAILED'
@@ -77,8 +77,13 @@ if($mode -eq 'verify') {
     Write-Output 'R070_PKG_NO_FINAM_NO_TASK_MUTATION_NO_ORDER_NO_REARM=YES'
     return
 }
-need (-not (Test-Path -LiteralPath $package)) 'R070_PKG_PREVIOUS_STAGING_EXISTS_NO_OVERWRITE'
-[io.directory]::CreateDirectory($stage)|Out-Null
+if(Test-Path -LiteralPath $package){
+    need (Test-Path -LiteralPath $stage -PathType Container) 'R070_PKG_EXISTING_DIRECTORY_UNTRUSTED'
+    need (-not (Test-Path -LiteralPath ($package+'.zip'))) 'R070_PKG_ALREADY_PREPARED_NO_REPEAT'
+    need (-not (Test-Path -LiteralPath (Join-Path $package 'manifest.json'))) 'R070_PKG_MANIFEST_ALREADY_EXISTS'
+} else {
+    [io.directory]::CreateDirectory($stage)|Out-Null
+}
 $success=$false
 try {
     foreach($pair in $files.GetEnumerator()){
@@ -95,8 +100,8 @@ try {
             need ($LASTEXITCODE -eq 0) ('R070_PKG_PATCH_APPLY_FAILED_'+$name)
         }
     } finally {Pop-Location}
-    $finalLive=git-hash (Join-Path $stage ($base+'finam_live.py').Replace('/','\'))
-    $finalExecution=git-hash (Join-Path $stage ($base+'finam_execution.py').Replace('/','\'))
+    $finalLive=git-hash (Join-Path $stage (($base+'finam_live.py').Replace('/','\')))
+    $finalExecution=git-hash (Join-Path $stage (($base+'finam_execution.py').Replace('/','\')))
     need ($finalLive -ceq $expectedLive -and $finalExecution -ceq $expectedExecution) 'R070_PKG_FINAL_COMBINED_SHA_INVALID'
     $manifest=[ordered]@{
        schema='v20.r070.20261117.full_staged_bundle.v1'
@@ -122,6 +127,7 @@ try {
     [io.file]::WriteAllText($manifestPath,($manifest|ConvertTo-Json -Depth 8),[text.utf8encoding]::new($false))
     $targetZip=$package+'.zip'
     need (-not (Test-Path -LiteralPath $targetZip)) 'R070_PKG_ZIP_EXISTS'
+    Copy-Item -LiteralPath $PSCommandPath -Destination (Join-Path $package 'r070-20261117-prepare-full-package.ps1') -ErrorAction Stop
     Compress-Archive -Path (Join-Path $package '*') -DestinationPath $targetZip -CompressionLevel Optimal
     need (Test-Path -LiteralPath $targetZip -PathType Leaf) 'R070_PKG_ZIP_MISSING'
     $digest=(Get-FileHash -LiteralPath $targetZip -Algorithm SHA256).Hash.ToLowerInvariant()
