@@ -425,3 +425,32 @@ jobs:
           }
           if ((& git.exe hash-object -- $target).Trim() -ne $pinned) { throw 'R070_PINNED_EXECUTION_SHA_CHANGED_AFTER_TEST' }
           Write-Output 'R070_TP6_ONE_SHOT_CANDIDATE=PASS_RESTORED_PINNED_EXECUTION_NO_FINAM'
+
+      - name: R070 Protect3 successor broker-ID readonly candidate (ephemeral)
+        shell: pwsh
+        env:
+          PYTHONDONTWRITEBYTECODE: '1'
+          R070_PROTECT3_PATCH_ACTIVE: '1'
+        run: |
+          $ErrorActionPreference='Stop'
+          $target='V20_TradingSystem_M15/v20_runtime/finam_live.py'
+          $patch='V20_TradingSystem_M15/V20-08/r070-protect3-broker-id-readonly-candidate.patch'
+          $pinned='b80fb9eb135f7cdcb4c78337e2b808c4d7135195'
+          if ((& git.exe hash-object -- $target).Trim() -ne $pinned) { throw 'R070_PROTECT3_LIVE_SHA_CHANGED_BEFORE_TEST' }
+          & git.exe apply --check -- $patch
+          if ($LASTEXITCODE -ne 0) { throw 'R070_PROTECT3_READONLY_PATCH_INVALID' }
+          $applied=$false
+          try {
+            & git.exe apply -- $patch
+            if ($LASTEXITCODE -ne 0) { throw 'R070_PROTECT3_READONLY_PATCH_FAILED' }
+            $applied=$true
+            python -m unittest -v V20_TradingSystem_M15.v20_runtime.tests.test_r070_v20_protection_handoff
+            if ($LASTEXITCODE -ne 0) { throw 'R070_PROTECT3_BROKER_ID_MOCK_FAILED' }
+          } finally {
+            if ($applied) {
+              & git.exe apply -R -- $patch
+              if ($LASTEXITCODE -ne 0) { throw 'R070_PROTECT3_READONLY_PINNED_RESTORE_FAILED' }
+            }
+          }
+          if ((& git.exe hash-object -- $target).Trim() -ne $pinned) { throw 'R070_PROTECT3_LIVE_SHA_CHANGED_AFTER_TEST' }
+          Write-Output 'R070_PROTECT3_SUCCESSOR_BROKER_ID_READONLY=PASS_PINNED_RESTORED'
