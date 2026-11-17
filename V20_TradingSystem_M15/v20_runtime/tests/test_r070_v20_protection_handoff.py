@@ -6,7 +6,8 @@ from datetime import datetime, timezone, timedelta
 from decimal import Decimal
 from hashlib import sha256
 from types import SimpleNamespace
-from unittest import TestCase, main
+from unittest import TestCase, main, skipUnless
+import os
 from unittest.mock import Mock, patch
 import json
 
@@ -277,6 +278,95 @@ class R070V20HandoffTests(TestCase):
                         TP6Protect3Unsafe, "R070_EFFECTIVE_STOP_LEVELS_OR_FILLS_UNVERIFIED"):
                     prove()
                 d.store.put.assert_not_called()
+
+    @skipUnless(os.environ.get("R070_PROTECT3_PATCH_ACTIVE") == "1",
+                "ephemeral broker-ID patch required; LIVE source unchanged")
+    def test_staged_protect3_new_broker_id_is_owned_and_sealed(self):
+        from V20_TradingSystem_M15.v20_runtime.finam_live import (
+            V20LiveJournal, _ownership, _verify_sealed_protection,
+        )
+        from V20_TradingSystem_M15.v20_runtime.finam_execution import V20FinamBlocked
+        from V20_TradingSystem_M15.v20_runtime.tp6_protect3 import (
+            levels_from_finam_fills,
+        )
+        d, old, proof, wire = self.prepared_restart()
+        levels = levels_from_finam_fills(
+            direction="LONG", fills=[(2, "100")],
+            initial_stop=proof["installed_stop"], tick="0.1")
+        new_comment = d.entry_key + ":protect3:1r"
+        new_wire = {
+            **wire, "sl_price": {"value": str(levels.locked_stop_1r)},
+            "comment": new_comment,
+            "client_order_id": compact_client_order_id(new_comment),
+        }
+        record = {
+            "schema": "r070.protect3.cancel_first.candidate.v1",
+            "state": "PROTECTED", "account_sha256": d.reader.account_hash,
+            "robot": d.reader.robot_id, "symbol": "USDRUBF@FUT",
+            "entry_key": d.entry_key, "old_broker_id": old.order_id,
+            "position_quantity": 2,
+            "new_client_order_id": new_wire["client_order_id"],
+            "new_wire": new_wire, "new_broker_id": "successor-sltp-01",
+        }
+        old_get = d.store.get.side_effect
+        d.store.get = Mock(side_effect=lambda key, default=None:
+            record if key == "r070_protect3:" + d.entry_key
+            else old_get(key, default))
+        successor = BrokerOrderView(
+            "successor-sltp-01", "WATCHING", True, "SLTP",
+            "USDRUBF@FUT", new_wire["client_order_id"],
+            new_comment, new_wire["side"], new_wire.copy())
+        cancelled = replace(old, active=False, status="CANCELLED")
+        d.snapshot = replace(
+            d.snapshot, orders=(d.entry, cancelled, successor))
+        original = d.store.intent(d.entry_key)
+        row = {
+            "idempotency_key": d.entry_key,
+            "status": "RECONCILED",
+            "broker_order_id": d.entry.order_id,
+            "payload": {
+                **original["payload"], "mode": "PRETRADE_NOT_AUTHORIZED",
+                "robot_id": d.reader.robot_id,
+                "account_sha256": d.reader.account_hash,
+            },
+        }
+        d.store.all_intents = Mock(return_value=[row])
+        live = V20LiveJournal.__new__(V20LiveJournal)
+        live.store = d.store
+        live.robot_id = d.reader.robot_id
+        live.account_hash = d.reader.account_hash
+
+        def verify():
+            with patch(
+                "V20_TradingSystem_M15.v20_runtime.finam_live._load_registry",
+                return_value=d.registry,
+            ), patch(
+                "TradingSystemLab.stage8_robot.production_runtime._load_registry",
+                return_value=d.registry,
+            ):
+                self.assertEqual(_ownership(
+                    live, d.snapshot, reader=d.reader, now=d.now), [row])
+                _verify_sealed_protection(
+                    live, d.reader, d.snapshot, d.now, row)
+
+        verify()
+        self.assertEqual(d.reader.inspect_protective_stop.call_count, 0)
+        # FINAM can omit a WATCHING SLTP's client_order_id.
+        d.snapshot = replace(
+            d.snapshot, orders=(d.entry, cancelled,
+                                replace(successor, client_order_id="")))
+        verify()
+        d.snapshot = replace(
+            d.snapshot, orders=(d.entry, cancelled, successor))
+        record["state"] = "NEW_POST_OUTCOME_UNKNOWN"
+        with self.assertRaises(V20FinamBlocked):
+            verify()
+        record["state"] = "PROTECTED"
+        d.snapshot = replace(
+            d.snapshot, orders=(d.entry, old, successor))
+        with self.assertRaises(V20FinamBlocked):
+            verify()
+        d.store.put.assert_not_called()
 
     def test_sealed_tp6_survives_restart_without_trades_get_or_sqlite_write(self):
         for side in ("LONG", "SHORT"):
