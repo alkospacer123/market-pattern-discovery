@@ -626,7 +626,7 @@ def review_r070_protect3_m15_boundary(
     """
     from datetime import datetime, timedelta
     from .finam_execution import V20M15Boundary
-    from .tp6_protect3 import review_completed_m15
+    from .tp6_protect3 import ProtectionReview, review_completed_m15
 
     if (not isinstance(levels, TP6Levels)
             or not isinstance(boundary, V20M15Boundary)
