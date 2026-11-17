@@ -751,6 +751,43 @@ class R070V20HandoffTests(TestCase):
                     decide()
                 d.store.put.assert_not_called()
 
+    def test_r070_finam_session_details_timeout_one_bounded_retry(self):
+        from importlib.util import module_from_spec, spec_from_file_location
+        from pathlib import Path
+        source = (Path(__file__).resolve().parents[2] / "V20-08"
+                  / "r070-cny-intel-readonly.py")
+        spec = spec_from_file_location("r070_intel_session_retry_test", source)
+        module = module_from_spec(spec)
+        spec.loader.exec_module(module)
+
+        class SyntheticTimeout(Exception):
+            pass
+
+        api = Mock()
+        api.session_details.side_effect = [
+            SyntheticTimeout("network timeout"), {"readonly": False, "account_ids": ["a"]}]
+        result = module.session_details_bounded_retry(api, SyntheticTimeout)
+        self.assertEqual(result, {"readonly": False, "account_ids": ["a"]})
+        self.assertEqual(api.session_details.call_count, 2)
+        api.create_session.assert_not_called()
+
+        api.session_details.reset_mock()
+        api.session_details.side_effect = SyntheticTimeout("persistent network timeout")
+        with self.assertRaisesRegex(
+                module.Hold, "FINAM_SESSION_DETAILS_TIMEOUT_AFTER_ONE_RETRY"):
+            module.session_details_bounded_retry(api, SyntheticTimeout)
+        self.assertEqual(api.session_details.call_count, 2)
+        api.create_session.assert_not_called()
+
+        # A rejection or malformed broker response is NOT a transient
+        # network timeout and must not get an automatic second call.
+        api.session_details.reset_mock()
+        api.session_details.side_effect = ValueError("non-timeout error")
+        with self.assertRaises(ValueError):
+            module.session_details_bounded_retry(api, SyntheticTimeout)
+        api.session_details.assert_called_once()
+        api.create_session.assert_not_called()
+
     def test_r070_physical_cny_get_only_logic_uses_real_checkpoint_format(self):
         from datetime import date, datetime, timedelta, timezone
         from decimal import Decimal
