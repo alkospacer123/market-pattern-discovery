@@ -760,6 +760,8 @@ def stage_r070_protect3_cancel_first_once(
     from datetime import datetime
     from .finam_execution import V20TradeJournal, V20FinamReadAdapter
 
+    if getattr(journal, "live_runtime", False):
+        raise TP6Protect3Unsafe("R070_PROTECT3_NO_LIVE_WORKER_HOOK")
     if (not isinstance(journal, V20TradeJournal)
             or not isinstance(reader, V20FinamReadAdapter)
             or not isinstance(plan, R070Protect3CancelFirstPlan)
