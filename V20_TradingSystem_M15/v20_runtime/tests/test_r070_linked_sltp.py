@@ -15,6 +15,8 @@ from V20_TradingSystem_M15.v20_runtime.tp6_protect3 import (
     TP6Protect3Unsafe, levels_from_finam_fills,
 )
 from V20_TradingSystem_M15.v20_runtime.r070_linked_sltp import (
+    plan_r070_protect3_cancel_first, verify_r070_protect3_cancelled_before_post,
+    verify_r070_protect3_new_sltp,
     prepare_r070_linked_sltp_draft, verify_r070_linked_sltp,
     prepare_r070_tp6_from_h1_full_fills,
     choose_r070_initial_protection,
@@ -40,6 +42,73 @@ class R070LinkedSltpTests(unittest.TestCase):
             wire["side"], wire.copy(),
         )
         return levels, action, wire, order
+
+    def test_protect3_cancel_first_candidate_long_and_short_no_post(self):
+        from datetime import datetime
+        from V20_TradingSystem_M15.v20_runtime.tp6_protect3 import ProtectionReview
+        for side in ("LONG", "SHORT"):
+            with self.subTest(side=side):
+                levels, _, wire, old = self.fixture(side)
+                qty = 2 if side == "LONG" else -2
+                review = ProtectionReview(
+                    "LOCK_1R_DUE_NEXT_M15_BROKER_REPLACE_BLOCKED",
+                    datetime(2026, 11, 17, 10, 15), levels.locked_stop_1r)
+                plan = plan_r070_protect3_cancel_first(
+                    levels=levels, review=review, observed_position=qty,
+                    orders=(old,), old_wire=wire, old_order_id=old.order_id,
+                    m15_boundary_msk=datetime(2026, 11, 17, 10, 15),
+                    broker_last_price="106" if side == "LONG" else "94")
+                self.assertEqual(wire["sl_price"]["value"], str(levels.initial_stop))
+                self.assertEqual(plan.new_wire["sl_price"]["value"], str(levels.locked_stop_1r))
+                self.assertEqual(plan.new_wire["tp_price"], wire["tp_price"])
+                self.assertEqual(plan.new_wire["quantity_sl"], {"value": "100"})
+                self.assertEqual(plan.new_wire["quantity_tp"], {"value": "100"})
+                self.assertNotEqual(plan.new_wire["client_order_id"], wire["client_order_id"])
+                with self.assertRaisesRegex(
+                        TP6Protect3Unsafe, "CANCEL_NOT_BROKER_PROVEN"):
+                    verify_r070_protect3_cancelled_before_post(
+                        plan=plan, observed_position=qty, orders=(old,))
+                gone = replace(old, active=False, status="CANCELLED")
+                verify_r070_protect3_cancelled_before_post(
+                    plan=plan, observed_position=qty, orders=(gone,))
+                new = BrokerOrderView(
+                    "new-order-456", "WATCHING", True, "SLTP", plan.symbol,
+                    plan.new_wire["client_order_id"], plan.new_wire["comment"],
+                    plan.new_wire["side"], plan.new_wire.copy())
+                self.assertEqual(verify_r070_protect3_new_sltp(
+                    plan=plan, observed_position=qty,
+                    orders=(gone, new), new_order_id="new-order-456"), new)
+                for bad_orders in (
+                    (old, new),
+                    (gone,),
+                    (gone, replace(new, request={**new.request, "tp_price": {"value": "200"}})),
+                ):
+                    with self.assertRaises(TP6Protect3Unsafe):
+                        verify_r070_protect3_new_sltp(
+                            plan=plan, observed_position=qty,
+                            orders=bad_orders, new_order_id="new-order-456")
+
+    def test_protect3_preflight_rejects_stale_price_or_ambiguous_stop(self):
+        from datetime import datetime
+        from V20_TradingSystem_M15.v20_runtime.tp6_protect3 import ProtectionReview
+        levels, _, wire, old = self.fixture()
+        review = ProtectionReview(
+            "LOCK_1R_DUE_NEXT_M15_BROKER_REPLACE_BLOCKED",
+            datetime(2026, 11, 17, 10, 15), levels.locked_stop_1r)
+        base = dict(
+            levels=levels, review=review, observed_position=2,
+            orders=(old,), old_wire=wire, old_order_id=old.order_id,
+            m15_boundary_msk=datetime(2026, 11, 17, 10, 15),
+            broker_last_price="106")
+        for change in (
+            {"broker_last_price": "102"},
+            {"observed_position": 1},
+            {"old_order_id": "unknown"},
+            {"orders": (old, replace(old, order_id="duplicate"))},
+            {"m15_boundary_msk": datetime(2026, 11, 17, 10, 30)},
+        ):
+            with self.subTest(change=change), self.assertRaises(TP6Protect3Unsafe):
+                plan_r070_protect3_cancel_first(**{**base, **change})
 
     def test_single_linked_sltp_has_two_100pct_parts_and_6r(self):
         for direction in ("LONG", "SHORT"):
