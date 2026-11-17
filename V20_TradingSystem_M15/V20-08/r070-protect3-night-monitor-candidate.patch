@@ -1,0 +1,37 @@
+diff --git a/V20_TradingSystem_M15/v20_runtime/finam_live.py b/V20_TradingSystem_M15/v20_runtime/finam_live.py
+--- a/V20_TradingSystem_M15/v20_runtime/finam_live.py
++++ b/V20_TradingSystem_M15/v20_runtime/finam_live.py
+@@ -535,7 +535,19 @@
+             continue
+         symbol = row["payload"]["finam_symbol"]
+-        stop = journal.store.intent(key + ":stop")
+-        proof = journal.store.get("protected_fill:" + key)
+-        if (not snapshot.positions.get(symbol, 0)
++        stop = journal.store.intent(key + ":stop")
++        proof = journal.store.get("protected_fill:" + key)
++        replacement = journal.store.get("r070_protect3:" + key)
++        effective_id = proof.get("broker_stop_id") if isinstance(proof, dict) else None
++        if replacement is not None:
++            # _follow_existing() has already proved the new stop on this
++            # SAME broker snapshot. Keep closed-night slow polling rather
++            # than reverting to high-frequency FINAM GET after Protect3.
++            if (not isinstance(replacement, dict)
++                    or replacement.get("state") != "PROTECTED"
++                    or not isinstance(replacement.get("new_broker_id"), str)
++                    or not replacement["new_broker_id"]):
++                return False
++            effective_id = replacement["new_broker_id"]
++        if (not snapshot.positions.get(symbol, 0)
+                 or row["status"] != "RECONCILED"
+                 or journal.store.intent(key + ":frozen-exit") is not None
+@@ -546,7 +558,7 @@
+                 or proof.get("broker_stop_percent") != "100"
+                 or not any(o.active and o.kind == "SLTP" and o.symbol == symbol
+-                           and o.order_id == proof.get("broker_stop_id")
+-                           for o in snapshot.orders)):
+-            return False
++                           and o.order_id == effective_id
++                           for o in snapshot.orders)):
++            return False
+     return True
+ 
