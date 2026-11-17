@@ -18,6 +18,7 @@ from V20_TradingSystem_M15.v20_runtime.finam_execution import (
 )
 from V20_TradingSystem_M15.v20_runtime.r070_linked_sltp import (
     stage_r070_protection_from_v20, verify_r070_tp6_after_restart,
+    verify_r070_protect3_effective_stop,
 )
 from V20_TradingSystem_M15.v20_runtime.tp6_protect3 import TP6Protect3Unsafe
 
@@ -198,6 +199,84 @@ class R070V20HandoffTests(TestCase):
             return verify_r070_tp6_after_restart(
                 journal=d.journal, reader=d.reader, snapshot=d.snapshot,
                 entry_key=d.entry_key, now=d.now)
+
+    def test_protect3_effective_stop_resealed_after_reboot_readonly(self):
+        from V20_TradingSystem_M15.v20_runtime.tp6_protect3 import (
+            levels_from_finam_fills,
+        )
+        for direction in ("LONG", "SHORT"):
+            with self.subTest(direction=direction):
+                d, old, proof, wire = self.prepared_restart(direction=direction)
+                levels = levels_from_finam_fills(
+                    direction=direction, fills=[(2, "100")],
+                    initial_stop=proof["installed_stop"], tick="0.1")
+                updated = {
+                    **wire, "sl_price": {"value": str(levels.locked_stop_1r)},
+                    "comment": d.entry_key + ":protect3:1r",
+                    "client_order_id": compact_client_order_id(
+                        d.entry_key + ":protect3:1r"),
+                }
+                rec = {
+                    "schema": "r070.protect3.cancel_first.candidate.v1",
+                    "state": "PROTECTED", "account_sha256": d.reader.account_hash,
+                    "robot": d.reader.robot_id, "symbol": "USDRUBF@FUT",
+                    "entry_key": d.entry_key, "old_broker_id": old.order_id,
+                    "position_quantity": 2 if direction == "LONG" else -2,
+                    "new_client_order_id": updated["client_order_id"],
+                    "new_wire": updated, "new_broker_id": "new-sltp-789",
+                }
+                old_get = d.store.get.side_effect
+                d.store.get = Mock(
+                    side_effect=lambda key, default=None:
+                    rec if key == "r070_protect3:" + d.entry_key
+                    else old_get(key, default))
+                successor = BrokerOrderView(
+                    "new-sltp-789", "WATCHING", True, "SLTP",
+                    "USDRUBF@FUT", updated["client_order_id"],
+                    updated["comment"], updated["side"], updated.copy())
+                cancelled = replace(old, status="CANCELLED", active=False)
+                d.snapshot = replace(d.snapshot, orders=(d.entry, cancelled, successor))
+                def prove():
+                    with patch(
+                        "TradingSystemLab.stage8_robot.production_runtime._load_registry",
+                        return_value=d.registry):
+                        return verify_r070_protect3_effective_stop(
+                            journal=d.journal, reader=d.reader, snapshot=d.snapshot,
+                            entry_key=d.entry_key, now=d.now)
+                self.assertEqual(prove(), successor)
+                d.store.put.assert_not_called()
+                d.reader.inspect_entry_fills.assert_not_called()
+
+                # An old stop still live => two close orders, NEVER protected.
+                d.snapshot = replace(d.snapshot, orders=(d.entry, old, successor))
+                with self.assertRaises(TP6Protect3Unsafe):
+                    prove()
+                d.snapshot = replace(d.snapshot, orders=(d.entry, cancelled, successor))
+
+                # Unknown POST, changed stop, position, wrong broker ID =>
+                # no claims of broker protection or new orders.
+                for state in ("CANCEL_ACK_UNVERIFIED", "NEW_POST_OUTCOME_UNKNOWN"):
+                    rec["state"] = state
+                    with self.assertRaisesRegex(
+                            TP6Protect3Unsafe, "R070_EFFECTIVE_STOP_DURABLE_PROOF_INVALID"):
+                        prove()
+                rec["state"] = "PROTECTED"
+                rec["new_broker_id"] = "foreign-id"
+                with self.assertRaises(TP6Protect3Unsafe):
+                    prove()
+                rec["new_broker_id"] = "new-sltp-789"
+                d.snapshot = replace(
+                    d.snapshot, positions={"USDRUBF@FUT": 1})
+                with self.assertRaisesRegex(
+                        TP6Protect3Unsafe, "R070_EFFECTIVE_STOP_POSITION_CHANGED"):
+                    prove()
+                d.snapshot = replace(
+                    d.snapshot, positions={"USDRUBF@FUT": rec["position_quantity"]})
+                rec["new_wire"] = {**updated, "tp_price": {"value": "200"}}
+                with self.assertRaisesRegex(
+                        TP6Protect3Unsafe, "R070_EFFECTIVE_STOP_LEVELS_OR_FILLS_UNVERIFIED"):
+                    prove()
+                d.store.put.assert_not_called()
 
     def test_sealed_tp6_survives_restart_without_trades_get_or_sqlite_write(self):
         for side in ("LONG", "SHORT"):
