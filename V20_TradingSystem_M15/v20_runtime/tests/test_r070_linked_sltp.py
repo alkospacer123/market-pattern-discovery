@@ -43,6 +43,68 @@ class R070LinkedSltpTests(unittest.TestCase):
         )
         return levels, action, wire, order
 
+    def test_protect3_finamboundary_closed_m15_trigger_no_forming_bar(self):
+        from datetime import datetime, timezone
+        from decimal import Decimal
+        import pandas as pd
+        from V20_TradingSystem_M15.v20_runtime.finam_execution import V20M15Boundary
+        from V20_TradingSystem_M15.v20_runtime.r070_linked_sltp import (
+            review_r070_protect3_m15_boundary,
+        )
+        for direction in ("LONG", "SHORT"):
+            with self.subTest(direction=direction):
+                levels, _, _, _ = self.fixture(direction)
+                open_msk = datetime(2026, 11, 17, 10, 15)
+                at = datetime(2026, 11, 17, 10, 30)
+                high, low = ((Decimal("106.5"), Decimal("103"))
+                             if direction == "LONG" else
+                             (Decimal("97"), Decimal("93.5")))
+                completed = pd.DataFrame([{
+                    "Datetime": open_msk, "Open": Decimal("104"),
+                    "High": high, "Low": low, "Close": Decimal("105"),
+                    "Volume": 25,
+                }])
+                boundary = V20M15Boundary(
+                    "USDRUBF", at, completed, Decimal("105"),
+                    datetime(2026, 11, 17, 7, 30, tzinfo=timezone.utc))
+                k = dict(
+                    levels=levels, boundary=boundary,
+                    entry_open_msk=open_msk, broker_stop_proved=True,
+                    currently_proved_stop=levels.initial_stop,
+                )
+                review = review_r070_protect3_m15_boundary(**k)
+                self.assertEqual(
+                    review.status,
+                    "LOCK_1R_DUE_NEXT_M15_BROKER_REPLACE_BLOCKED")
+                self.assertEqual(review.proposed_stop, levels.locked_stop_1r)
+                self.assertEqual(review.eligible_m15_open_msk, at)
+                self.assertEqual(
+                    review_r070_protect3_m15_boundary(
+                        **{**k, "broker_stop_proved": False}).status,
+                    "BROKER_STOP_UNVERIFIED_NO_CHANGE")
+                self.assertEqual(
+                    review_r070_protect3_m15_boundary(
+                        **{**k, "entry_open_msk": at}).status,
+                    "BEFORE_ENTRY_NO_CHANGE")
+                # Last observed row is a forming candle, not closed: fail.
+                forming = completed.copy()
+                forming.loc[0, "Datetime"] = at
+                with self.assertRaisesRegex(
+                        TP6Protect3Unsafe, "COMPLETED_M15_NOT_ADJACENT"):
+                    review_r070_protect3_m15_boundary(
+                        **{**k, "boundary": V20M15Boundary(
+                            "USDRUBF", at, forming, Decimal("105"),
+                            boundary.observed_at_utc)})
+                # Could have exited via old SL or TP: broker reconcile first.
+                exited = completed.copy()
+                exited.loc[0, "High" if direction == "LONG" else "Low"] = (
+                    Decimal("113") if direction == "LONG" else Decimal("87"))
+                status = review_r070_protect3_m15_boundary(
+                    **{**k, "boundary": V20M15Boundary(
+                        "USDRUBF", at, exited, Decimal("105"),
+                        boundary.observed_at_utc)}).status
+                self.assertEqual(status, "M15_COULD_HAVE_EXITED_RECONCILE_BROKER")
+
     def test_protect3_cancel_first_candidate_long_and_short_no_post(self):
         from datetime import datetime
         from V20_TradingSystem_M15.v20_runtime.tp6_protect3 import ProtectionReview
