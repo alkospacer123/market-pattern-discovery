@@ -613,6 +613,56 @@ class R070Protect3CancelFirstPlan:
     tp_6r: Decimal
 
 
+def review_r070_protect3_m15_boundary(
+    *, levels: TP6Levels, boundary, entry_open_msk, broker_stop_proved: bool,
+    currently_proved_stop,
+):
+    """Read-only R070 +3R witness from FINAM's existing CLOSED M15 boundary.
+
+    A broker-verified stop AND the completed candle are prerequisites.
+    Never use a forming M15 High/Low or a historical candle before entry.
+    The witnessed next-bar Open is NOT a fresh executable quote and cannot
+    alone authorize cancellation of a real SLTP. Returns a pure review only.
+    """
+    from datetime import datetime, timedelta
+    from .finam_execution import V20M15Boundary
+    from .tp6_protect3 import review_completed_m15
+
+    if (not isinstance(levels, TP6Levels)
+            or not isinstance(boundary, V20M15Boundary)
+            or not isinstance(entry_open_msk, datetime)
+            or entry_open_msk.tzinfo is not None
+            or not isinstance(boundary.at_msk, datetime)
+            or boundary.at_msk.tzinfo is not None
+            or boundary.at_msk.second != 0
+            or boundary.at_msk.microsecond != 0
+            or boundary.at_msk.minute % 15
+            or not isinstance(broker_stop_proved, bool)
+            or boundary.observed_at_utc.tzinfo is None):
+        raise TP6Protect3Unsafe("R070_PROTECT3_M15_BOUNDARY_SCOPE_INVALID")
+    if boundary.completed is None or boundary.completed.empty:
+        raise TP6Protect3Unsafe("R070_PROTECT3_COMPLETED_M15_MISSING")
+    last = boundary.completed.iloc[-1]
+    bar_open = last["Datetime"]
+    if (not isinstance(bar_open, datetime)
+            or bar_open.tzinfo is not None
+            or bar_open + timedelta(minutes=15) != boundary.at_msk):
+        raise TP6Protect3Unsafe("R070_PROTECT3_COMPLETED_M15_NOT_ADJACENT")
+    if (bar_open < entry_open_msk
+            or entry_open_msk > boundary.at_msk):
+        return ProtectionReview("BEFORE_ENTRY_NO_CHANGE", None, None)
+    # OHLC from completed, already validated FINAM bars only. This does
+    # not introduce an alternative timeframe/signal and cannot send orders.
+    return review_completed_m15(
+        levels=levels, m15_open_msk=bar_open,
+        observed_utc=boundary.observed_at_utc,
+        high=last["High"], low=last["Low"],
+        active_stop=currently_proved_stop,
+        broker_stop_proved=broker_stop_proved,
+        completed_bar_proved=True,
+    )
+
+
 def plan_r070_protect3_cancel_first(
     *, levels: TP6Levels, review, observed_position: int,
     orders: tuple[BrokerOrderView, ...], old_wire: dict,
