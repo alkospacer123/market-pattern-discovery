@@ -493,6 +493,46 @@ class R070V20HandoffTests(TestCase):
             verify()
         d.store.put.assert_not_called()
 
+    def test_protect3_lastquote_uses_only_existing_finam_readonly_transport(self):
+        from datetime import datetime, timezone
+        from V20_TradingSystem_M15.v20_runtime.r070_linked_sltp import (
+            read_r070_protect3_quote_from_finam,
+        )
+        d = self.fixture()
+        d.reader._require_bound = Mock()
+        stamp = datetime.now(timezone.utc).replace(microsecond=0).isoformat()
+        result = {"symbol": "USDRUBF@FUT", "quote": {
+            "symbol": "USDRUBF@FUT", "timestamp": stamp,
+            "bid": {"value": "106.0"}, "ask": {"value": "106.1"},
+        }}
+        d.reader.api = SimpleNamespace(
+            _request=Mock(return_value=SimpleNamespace(body=result)),
+        )
+        with patch(
+            "TradingSystemLab.stage8_robot.production_runtime._load_registry",
+            return_value=d.registry):
+            self.assertEqual(read_r070_protect3_quote_from_finam(
+                reader=d.reader, symbol="USDRUBF", direction="LONG"),
+                Decimal("106.0"))
+            d.reader.api._request.assert_called_once_with(
+                "GET", "/v1/instruments/USDRUBF@FUT/quotes/latest")
+            d.reader.api._request.reset_mock()
+            self.assertEqual(read_r070_protect3_quote_from_finam(
+                reader=d.reader, symbol="USDRUBF", direction="SHORT"),
+                Decimal("106.1"))
+            d.reader.api._request.assert_called_once_with(
+                "GET", "/v1/instruments/USDRUBF@FUT/quotes/latest")
+            d.reader.api._request.reset_mock()
+            with self.assertRaises(TP6Protect3Unsafe):
+                read_r070_protect3_quote_from_finam(
+                    reader=d.reader, symbol="NOT_N4", direction="LONG")
+            d.reader.api._request.assert_not_called()
+            result["quote"]["timestamp"] = "2026-01-01T00:00:00Z"
+            with self.assertRaises(TP6Protect3Unsafe):
+                read_r070_protect3_quote_from_finam(
+                    reader=d.reader, symbol="USDRUBF", direction="LONG")
+        d.store.put.assert_not_called()
+
     def test_protect3_readonly_handoff_from_original_seal_to_m15_and_quote(self):
         import pandas as pd
         from V20_TradingSystem_M15.v20_runtime.finam_execution import V20M15Boundary
