@@ -426,17 +426,19 @@ jobs:
           if ((& git.exe hash-object -- $target).Trim() -ne $pinned) { throw 'R070_PINNED_EXECUTION_SHA_CHANGED_AFTER_TEST' }
           Write-Output 'R070_TP6_ONE_SHOT_CANDIDATE=PASS_RESTORED_PINNED_EXECUTION_NO_FINAM'
 
-      - name: R070 Protect3 successor ID and broker-flat cleanup (ephemeral)
+      - name: R070 Protect3 full staged LIVE hook, ownership and flat cleanup (ephemeral)
         shell: pwsh
         env:
           PYTHONDONTWRITEBYTECODE: '1'
           R070_PROTECT3_PATCH_ACTIVE: '1'
           R070_PROTECT3_FLAT_PATCH_ACTIVE: '1'
+          R070_PROTECT3_LIVE_HOOK_PATCH_ACTIVE: '1'
         run: |
           $ErrorActionPreference='Stop'
           $live='V20_TradingSystem_M15/v20_runtime/finam_live.py'
           $execution='V20_TradingSystem_M15/v20_runtime/finam_execution.py'
           $livePatch='V20_TradingSystem_M15/V20-08/r070-protect3-broker-id-readonly-candidate.patch'
+          $hookPatch='V20_TradingSystem_M15/V20-08/r070-protect3-live-trigger-candidate.patch'
           $executionPatch='V20_TradingSystem_M15/V20-08/r070-protect3-flat-cleanup-candidate.patch'
           $liveSha='b80fb9eb135f7cdcb4c78337e2b808c4d7135195'
           $execSha='6b600451178b42bd4f8b2037995e7db3a9ad27c8'
@@ -446,12 +448,18 @@ jobs:
           if ($LASTEXITCODE -ne 0) { throw 'R070_PROTECT3_LIVE_PATCH_INVALID' }
           & git.exe apply --check -- $executionPatch
           if ($LASTEXITCODE -ne 0) { throw 'R070_PROTECT3_EXEC_PATCH_INVALID' }
+          & git.exe apply --check -- $hookPatch
+          if ($LASTEXITCODE -ne 0) { throw 'R070_PROTECT3_HOOK_PATCH_INVALID' }
           $liveApplied=$false
+          $hookApplied=$false
           $execApplied=$false
           try {
             & git.exe apply -- $livePatch
             if ($LASTEXITCODE -ne 0) { throw 'R070_PROTECT3_LIVE_PATCH_FAILED' }
             $liveApplied=$true
+            & git.exe apply -- $hookPatch
+            if ($LASTEXITCODE -ne 0) { throw 'R070_PROTECT3_HOOK_PATCH_FAILED' }
+            $hookApplied=$true
             & git.exe apply -- $executionPatch
             if ($LASTEXITCODE -ne 0) { throw 'R070_PROTECT3_EXEC_PATCH_FAILED' }
             $execApplied=$true
@@ -462,6 +470,10 @@ jobs:
               & git.exe apply -R -- $executionPatch
               if ($LASTEXITCODE -ne 0) { throw 'R070_PROTECT3_EXEC_RESTORE_FAILED' }
             }
+            if ($hookApplied) {
+              & git.exe apply -R -- $hookPatch
+              if ($LASTEXITCODE -ne 0) { throw 'R070_PROTECT3_HOOK_RESTORE_FAILED' }
+            }
             if ($liveApplied) {
               & git.exe apply -R -- $livePatch
               if ($LASTEXITCODE -ne 0) { throw 'R070_PROTECT3_LIVE_RESTORE_FAILED' }
@@ -469,4 +481,4 @@ jobs:
           }
           if ((& git.exe hash-object -- $live).Trim() -ne $liveSha) { throw 'R070_PROTECT3_PINNED_LIVE_SHA_AFTER' }
           if ((& git.exe hash-object -- $execution).Trim() -ne $execSha) { throw 'R070_PROTECT3_PINNED_EXEC_SHA_AFTER' }
-          Write-Output 'R070_PROTECT3_SUCCESSOR_AND_FLAT_CLEANUP=PASS_PINNED_BOTH_RESTORED'
+          Write-Output 'R070_PROTECT3_FULL_STAGED_HOOK=PASS_PINNED_BOTH_RESTORED'
