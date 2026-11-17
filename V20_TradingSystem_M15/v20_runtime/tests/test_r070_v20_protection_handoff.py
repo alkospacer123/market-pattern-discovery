@@ -751,6 +751,56 @@ class R070V20HandoffTests(TestCase):
                     decide()
                 d.store.put.assert_not_called()
 
+    def test_r070_physical_cny_get_only_logic_uses_real_checkpoint_format(self):
+        from datetime import date, datetime, timedelta, timezone
+        from decimal import Decimal
+        from importlib.util import module_from_spec, spec_from_file_location
+        from pathlib import Path
+        import pandas as pd
+
+        source = (Path(__file__).resolve().parents[2] / "V20-08"
+                  / "r070-cny-intel-readonly.py")
+        spec = spec_from_file_location("r070_intel_cny_readonly_test", source)
+        self.assertIsNotNone(spec)
+        module = module_from_spec(spec)
+        spec.loader.exec_module(module)
+        self.assertTrue(module.price_equals(
+            "12.313000000000001", "12.313", Decimal("0.001")))
+        self.assertFalse(module.price_equals(
+            "12.313", "12.314", Decimal("0.001")))
+
+        existing = pd.date_range("2026-11-15 10:00", periods=32, freq="15min")
+        yesterday = pd.date_range("2026-11-16 10:00", periods=32, freq="15min")
+        today = pd.date_range("2026-11-17 10:00", periods=18, freq="15min")
+        def rows(times):
+            return pd.DataFrame([{
+                "Datetime": stamp, "Open": 12.313,
+                "High": 12.314, "Low": 12.312,
+                "Close": 12.313, "Volume": 100,
+            } for stamp in times])
+        checkpoint = rows(existing)
+        broker = pd.concat(
+            [rows(existing), rows(yesterday), rows(today)],
+            ignore_index=True)
+        observed = datetime(2026, 11, 17, 14, 46, tzinfo=timezone(timedelta(hours=3)))
+        result = module.compare(
+            checkpoint, broker, observed, Decimal("0.001"))
+        self.assertEqual(result["status"], "PASS_CNYRUBF_FRESH_M15_READONLY_NO_LIVE")
+        self.assertEqual(result["overlap_verified"], 32)
+        self.assertEqual(result["last_completed_open_msk"], "2026-11-17T14:15:00")
+
+        # Missing a single completed FINAM session bar is HOLD, not
+        # a fabricated OHLCV candle or false approval.
+        removed = broker[broker["Datetime"] != pd.Timestamp("2026-11-16 13:30")]
+        with self.assertRaisesRegex(
+                module.Hold, "FINAM_SESSION_M15_MISSING_20261116"):
+            module.compare(checkpoint, removed, observed, Decimal("0.001"))
+        altered = broker.copy()
+        altered.loc[altered["Datetime"] == pd.Timestamp("2026-11-15 11:00"), "Close"] = 12.314
+        with self.assertRaisesRegex(
+                module.Hold, "FINAM_HISTORICAL_OHLCV_DISAGREEMENT"):
+            module.compare(checkpoint, altered, observed, Decimal("0.001"))
+
     def test_sealed_tp6_survives_restart_without_trades_get_or_sqlite_write(self):
         for side in ("LONG", "SHORT"):
             with self.subTest(side=side):
