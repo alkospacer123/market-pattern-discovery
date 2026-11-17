@@ -1,0 +1,47 @@
+diff --git a/V20_TradingSystem_M15/v20_runtime/finam_execution.py b/V20_TradingSystem_M15/v20_runtime/finam_execution.py
+--- a/V20_TradingSystem_M15/v20_runtime/finam_execution.py
++++ b/V20_TradingSystem_M15/v20_runtime/finam_execution.py
+@@ -1243,16 +1243,33 @@
+                 "account_sha256": self.journal.account_hash,
+             })
+             return "BROKER_FLAT_NO_ACTIVE_STOP"
+-        stop_key = key + ":stop"
+-        # FINAM sometimes omits client_order_id for a WATCHING SLTP.
+-        # Use the existing broker-ID + full-comment ownership proof; never
+-        # cancel a different or insufficiently identified stop.
+-        if (len(active) != 1 or active[0].order_id != proof.get("broker_stop_id")
+-                or active[0].comment != stop_key
+-                or not (active[0].client_order_id == compact_client_order_id(stop_key)
+-                        or (active[0].client_order_id == ""
+-                            and active[0].status == "WATCHING"))):
+-            raise V20FinamBlocked("FLAT_CLEANUP_STOP_ID_MISMATCH")
++        stop_key = key + ":stop"
++        replacement = self.journal.store.get("r070_protect3:" + key)
++        if replacement is not None:
++            # After broker-flat, cancel the verified NEW 100%-SLTP, never
++            # retry the old Protect3 cancellation or trust a naked order ID.
++            if (not isinstance(replacement, dict)
++                    or replacement.get("state") != "PROTECTED"
++                    or len(active) != 1
++                    or any(o.active and o.kind == "REGULAR" and o.symbol == symbol
++                           for o in current.orders)):
++                raise V20FinamBlocked("R070_FLAT_CLEANUP_UNSETTLED_ORDERS")
++            from .r070_linked_sltp import verify_r070_protect3_flat_successor
++            from .tp6_protect3 import TP6Protect3Unsafe
++            try:
++                verify_r070_protect3_flat_successor(
++                    journal=self.journal, entry_key=key,
++                    broker_order=active[0])
++            except TP6Protect3Unsafe as exc:
++                raise V20FinamBlocked("R070_FLAT_CLEANUP_REPLACED_STOP_INVALID") from exc
++        else:
++            # Preserve the frozen H1 original stop cleanup unchanged.
++            if (len(active) != 1 or active[0].order_id != proof.get("broker_stop_id")
++                    or active[0].comment != stop_key
++                    or not (active[0].client_order_id == compact_client_order_id(stop_key)
++                            or (active[0].client_order_id == ""
++                                and active[0].status == "WATCHING"))):
++                raise V20FinamBlocked("FLAT_CLEANUP_STOP_ID_MISMATCH")
+         cancel_key = key + ":cancel-after-flat"
+         with self.journal.store.transaction():
+             if self.journal.store.intent(cancel_key):
