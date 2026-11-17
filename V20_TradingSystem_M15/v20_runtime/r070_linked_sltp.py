@@ -811,14 +811,13 @@ def plan_r070_protect3_cancel_first(
 
 def prepare_r070_protect3_from_v20_readonly(
     *, journal, reader, snapshot, entry_key: str, now,
-    boundary, quote_response: dict,
+    boundary, quote_response: dict | None = None,
 ):
-    """Read-only bridge: V20 durable full fill + active linked SLTP -> +3R plan.
+    """Read-only bridge: durable full fill + linked SLTP + M15 -> +3R plan.
 
-    No API requests or write-side operations in this function. Callers obtain
-    a genuine FINAM M15 boundary and LastQuote independently by existing
-    READONLY transport. Only a confirmed completed M15 and a fresh bid/ask
-    may produce a plan; a plan itself cannot cancel an SLTP.
+    A caller supplies an already READONLY-verified LastQuote response, or
+    this bridge makes ONE authenticated FINAM GET after +3R is detected.
+    No POST/DELETE, SQLite writes or permission to cancel an SLTP.
     """
     from datetime import datetime
     from TradingSystemLab.stage8_robot.production_runtime import _load_registry
@@ -877,11 +876,16 @@ def prepare_r070_protect3_from_v20_readonly(
         currently_proved_stop=levels.initial_stop)
     if review.status != "LOCK_1R_DUE_NEXT_M15_BROKER_REPLACE_BLOCKED":
         return review, None
-    price = prove_r070_protect3_fresh_quote(
-        response=quote_response,
-        symbol=entry["payload"]["finam_symbol"],
-        direction=levels.direction, observed_utc=now,
-        tick=levels.tick)
+    price = (
+        read_r070_protect3_quote_from_finam(
+            reader=reader, symbol=symbol, direction=levels.direction)
+        if quote_response is None else
+        prove_r070_protect3_fresh_quote(
+            response=quote_response,
+            symbol=entry["payload"]["finam_symbol"],
+            direction=levels.direction, observed_utc=now,
+            tick=levels.tick)
+    )
     plan = plan_r070_protect3_cancel_first(
         levels=levels, review=review,
         observed_position=snapshot.positions[entry["payload"]["finam_symbol"]],
