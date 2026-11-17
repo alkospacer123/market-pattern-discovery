@@ -510,7 +510,25 @@ jobs:
             if (@($errors).Count -ne 0) { throw ('R070_PS_SYNTAX_ERROR '+$source+' '+(($errors | ForEach-Object {$_.Message}) -join ';')) }
           }
           Write-Output 'R070_CNY_PHYSICAL_PS_SYNTAX=PASS_NO_EXECUTION'
+          $builder=Get-Content -LiteralPath $scripts[1] -Raw
+          foreach($hash in @(
+            'b80fb9eb135f7cdcb4c78337e2b808c4d7135195',
+            '6b600451178b42bd4f8b2037995e7db3a9ad27c8',
+            '0c25db6d1223a39bcd0a5f28eccb738ef96931ab',
+            '05dfd4d0fe5210fdd8cf7e933c556a3d439dbc6b',
+            'fabfa58e9d84553fe0c51833530cb90d89412e85'
+          )) {
+            if (-not $builder.Contains($hash)) { throw ('R070_FULL_PACKAGE_REQUIRED_PIN_MISSING_'+$hash) }
+          }
+          if ($builder.Contains('Start-ScheduledTask') -or
+              $builder.Contains('Enable-ScheduledTask') -or
+              $builder.Contains('place_order(') -or
+              $builder.Contains('Cancel-Order') -or
+              $builder.Contains('arm -robot')) {
+            throw 'R070_FULL_PACKAGE_PREPARER_LIVE_ACTION_FORBIDDEN'
+          }
           Write-Output 'R070_FULL_RELEASE_PREPARE_PS_SYNTAX=PASS_NO_EXECUTION'
+          Write-Output 'R070_FULL_RELEASE_PREPARE_PINS_AND_NO_LIVE_ACTION=PASS'
 
       - name: R070 FINAM incomplete GET incident 20261117 (ephemeral only)
         shell: pwsh
