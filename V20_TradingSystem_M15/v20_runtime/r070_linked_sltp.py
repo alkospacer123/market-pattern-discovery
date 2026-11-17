@@ -625,6 +625,7 @@ def review_r070_protect3_m15_boundary(
     alone authorize cancellation of a real SLTP. Returns a pure review only.
     """
     from datetime import datetime, timedelta
+    from zoneinfo import ZoneInfo
     from .finam_execution import V20M15Boundary
     from .tp6_protect3 import ProtectionReview, review_completed_m15
 
@@ -640,6 +641,10 @@ def review_r070_protect3_m15_boundary(
             or not isinstance(broker_stop_proved, bool)
             or boundary.observed_at_utc.tzinfo is None):
         raise TP6Protect3Unsafe("R070_PROTECT3_M15_BOUNDARY_SCOPE_INVALID")
+    observed_msk = boundary.observed_at_utc.astimezone(
+        ZoneInfo("Europe/Moscow")).replace(tzinfo=None)
+    if not timedelta(0) <= observed_msk - boundary.at_msk <= timedelta(seconds=60):
+        raise TP6Protect3Unsafe("R070_PROTECT3_M15_BOUNDARY_NOT_FRESH")
     if boundary.completed is None or boundary.completed.empty:
         raise TP6Protect3Unsafe("R070_PROTECT3_COMPLETED_M15_MISSING")
     last = boundary.completed.iloc[-1]
