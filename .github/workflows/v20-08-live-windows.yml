@@ -674,3 +674,39 @@ jobs:
           path: ${{ runner.temp }}/r070-full-bundle-20261117/
           if-no-files-found: error
           retention-days: 14
+
+      - name: Build R070 CNY physical timestamp evidence kit (no FINAM)
+        shell: pwsh
+        run: |
+          $ErrorActionPreference='Stop'
+          $dest=Join-Path $env:RUNNER_TEMP 'r070-cny-get-only-evidence'
+          New-Item -ItemType Directory -Path $dest -Force | Out-Null
+          $expected=[ordered]@{
+            'r070-cny-intel-readonly.py'='ce988769658eeab2d8c9869da283e25104f52355'
+            'r070-cny-intel-readonly.ps1'='63dcb6f9647cec1e05df775f1602d33ed3379b74'
+          }
+          foreach($name in $expected.Keys){
+            $origin='V20_TradingSystem_M15/V20-08/'+$name
+            $text=[io.file]::ReadAllText((Resolve-Path -LiteralPath $origin).Path)
+            $text=$text.Replace("`r`n","`n")
+            $path=Join-Path $dest $name
+            [io.file]::WriteAllText($path,$text,[text.utf8encoding]::new($false))
+            $actual=(& git.exe hash-object -- $path).Trim().ToLowerInvariant()
+            if($actual -ne $expected[$name]){throw ('R070_CNY_EVIDENCE_SHA_INVALID_'+$name)}
+          }
+          $manifest=[ordered]@{
+            schema='r070.cny.timestamp_diagnostic.getonly.v2'
+            status='READONLY_DIAGNOSTIC_NOT_LIVE'
+            allowed_days='2026-11-17..2026-11-20'
+            no_trading_endpoints=$true
+            files_git_sha=$expected
+          }
+          [io.file]::WriteAllText((Join-Path $dest 'manifest.json'),($manifest|ConvertTo-Json -Depth 4),[text.utf8encoding]::new($false))
+          Write-Output 'R070_CNY_PHYSICAL_EVIDENCE_KIT=PASS_2_OF_2_PINS_NO_FINAM'
+      - name: Upload R070 CNY physical timestamp evidence kit
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: r070-cny-get-only-evidence-20261117
+          path: ${{ runner.temp }}/r070-cny-get-only-evidence/
+          if-no-files-found: error
+          retention-days: 14
