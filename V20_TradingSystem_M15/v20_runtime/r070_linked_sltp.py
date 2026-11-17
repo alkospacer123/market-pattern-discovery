@@ -971,21 +971,18 @@ def verify_r070_protect3_new_sltp(
 
 def stage_r070_protect3_cancel_first_once(
     *, journal, reader, entry_key: str, plan: R070Protect3CancelFirstPlan,
-    broker_api, observed_at,
+    broker_api, observed_at, authorized_live_sender=None,
 ) -> str:
-    """Candidate-only one-shot FINAM protocol; NEVER called by LIVE worker.
+    """One-shot CANCEL→broker proof→new SLTP, durable at each transition.
 
-    Explicit broker_api dependency permits offline fake execution only in CI.
-    This routine is NOT a production auth gate, not installed or auto-bound.
-    It persists the old broker ID + proposed wire BEFORE cancel and POST,
-    consults broker after each operation, and fail-closes on ANY uncertainty.
-    An existing attempt is never retried here after restart.
+    Default is OFFLINE fake only. The optional actual FINAM route requires
+    the real V20LiveTransport, its existing authorization, ARMED state and
+    a separately pinned R070 release approval in the durable journal.
+    No production worker calls this until a distinct staged patch is approved.
     """
     from datetime import datetime
     from .finam_execution import V20TradeJournal, V20FinamReadAdapter
 
-    if getattr(journal, "live_runtime", False):
-        raise TP6Protect3Unsafe("R070_PROTECT3_NO_LIVE_WORKER_HOOK")
     if (not isinstance(journal, V20TradeJournal)
             or not isinstance(reader, V20FinamReadAdapter)
             or not isinstance(plan, R070Protect3CancelFirstPlan)
@@ -998,10 +995,38 @@ def stage_r070_protect3_cancel_first_once(
             or not hasattr(broker_api, "place_sltp_order")
             or not callable(reader.snapshot)):
         raise TP6Protect3Unsafe("R070_PROTECT3_CANDIDATE_SCOPE_INVALID")
-    # Never accept a real broker API through the uninstalled candidate helper.
-    # The future LIVE bridge needs its own explicit authorization and tests.
-    if broker_api is reader.api:
-        raise TP6Protect3Unsafe("R070_PROTECT3_CANDIDATE_REAL_API_FORBIDDEN")
+    if authorized_live_sender is None:
+        # Backward-compatible isolated mock-only candidate.
+        if getattr(journal, "live_runtime", False) or broker_api is reader.api:
+            raise TP6Protect3Unsafe("R070_PROTECT3_CANDIDATE_REAL_API_FORBIDDEN")
+    else:
+        from .finam_live import (
+            V20LiveTransport, V20LiveJournal, _safe_auth, load_kill_switch,
+        )
+        sender = authorized_live_sender
+        if (not isinstance(sender, V20LiveTransport)
+                or not isinstance(journal, V20LiveJournal)
+                or sender.journal is not journal
+                or sender.reader is not reader
+                or broker_api is not reader.api
+                or not journal.live_runtime):
+            raise TP6Protect3Unsafe("R070_PROTECT3_LIVE_TRANSPORT_IDENTITY_INVALID")
+        # A normal V20 authorization does not automatically approve R070.
+        # The explicit release marker is never created by this function.
+        approval = journal.store.get("r070_protect3_release_authorization")
+        if approval != {
+            "schema": "r070.protect3.live_approval.v1",
+            "source_commit": sender.source,
+            "robot": reader.robot_id,
+            "account_sha256": reader.account_hash,
+            "owner_approved": True,
+        }:
+            raise TP6Protect3Unsafe("R070_PROTECT3_LIVE_RELEASE_NOT_AUTHORIZED")
+        _safe_auth(sender.auth_path, journal=journal, source=sender.source)
+        switch, error = load_kill_switch(journal.instance_root)
+        if error or not switch or switch.get("state") != "ARMED":
+            raise TP6Protect3Unsafe("R070_PROTECT3_SWITCH_NOT_ARMED")
+        sender._permit(key=entry_key, kind="PROTECTIVE_STOP")
     key = "r070_protect3:" + entry_key
     original = journal.store.intent(entry_key)
     old_intent = journal.store.intent(entry_key + ":stop")
