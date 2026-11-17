@@ -12,7 +12,7 @@ $tools=Join-Path $candidate 'tooling'
 $python=Join-Path $root '.venv-raw\scripts\python.exe'
 $h1=Join-Path $root 'source-raw'
 $receipt=Join-Path $root 'pretrade-08\DPAPI_TRADING_BINDINGS_REPORT.json'
-$commit='5b91ad072b82a34c94fe4ee89da7ebec45ce4017'
+$commit='64eae9196775c2fdc5906d1b6ce0dd28ad97218d'
 $expectedR060='80291246ba4692485545f58fd28c7563199bf7be28033fc16eb296efee377e31'
 $expectedCNY='f6ae045a074fea9be3f7c9b5ca47dfc7dedae4481f61e8a71fc60d16b502d4f2'
 $names=@('v20-shallow','v20-obv')
@@ -28,10 +28,14 @@ function no-junction([string]$path) {
         require (-not ((Get-Item -LiteralPath $path -Force).Attributes -band [io.fileattributes]::ReparsePoint)) 'R070_PHYSICAL_REPARSE_FORBIDDEN'
     }
 }
-function pinned([string]$file,[string]$blob) {
+function pinned([string]$file,[string]$blob,[string]$previous='') {
     $target=Join-Path $tools $file
     no-junction $target
-    if(-not (Test-Path -LiteralPath $target -PathType Leaf)) {
+    $present=(Test-Path -LiteralPath $target -PathType Leaf)
+    $current=if($present){(& git.exe hash-object -- $target).Trim().ToLowerInvariant()}else{''}
+    if($present){require ($LASTEXITCODE -eq 0) 'R070_PHYSICAL_LOCAL_BLOB_CHECK_FAILED'}
+    if(-not $present -or $current -ne $blob) {
+        require (-not $present -or ($previous -ne '' -and $current -eq $previous)) 'R070_PHYSICAL_UNEXPECTED_LOCAL_SCRIPT_CHANGED'
         $uri='https://raw.githubusercontent.com/alkospacer123/market-pattern-discovery/'+$commit+'/V20_TradingSystem_M15/V20-08/'+$file
         $tmp=$target+'.download'
         require (-not (Test-Path -LiteralPath $tmp)) 'R070_PHYSICAL_PARTIAL_DOWNLOAD'
@@ -39,7 +43,7 @@ function pinned([string]$file,[string]$blob) {
             Invoke-WebRequest -Uri $uri -OutFile $tmp -UseBasicParsing
             $hash=(& git.exe hash-object -- $tmp).Trim().ToLowerInvariant()
             require ($LASTEXITCODE -eq 0 -and $hash -eq $blob) 'R070_PHYSICAL_DOWNLOADED_BLOB_INVALID'
-            Move-Item -LiteralPath $tmp -Destination $target -ErrorAction Stop
+            Move-Item -LiteralPath $tmp -Destination $target -Force -ErrorAction Stop
         } finally {
             if(Test-Path -LiteralPath $tmp){Remove-Item -LiteralPath $tmp -Force}
         }
@@ -61,7 +65,7 @@ require ($report.schema -eq 'v20.08.1.dpapi_trading_bindings.v1' -and $report.st
 New-Item -ItemType Directory -Path $tools -Force | Out-Null
 no-junction $tools
 $builder=pinned 'r070-build-verified-cny-checkpoint.py' 'd2ab63b5519ddcd4049b9240b1249dc4047c78d0'
-$reader=pinned 'r070-cny-intel-readonly.py' '0e5526b85e9d9ee251a45ef168f4261fbfa6bdf1'
+$reader=pinned 'r070-cny-intel-readonly.py' '259e324277019652fa5de5e7cfee7ac97501e9c7' '0e5526b85e9d9ee251a45ef168f4261fbfa6bdf1'
 $oldPath=$env:PYTHONPATH
 $oldAccount=$env:V20_FINAM_ACCOUNT
 $oldToken=$env:V20_FINAM_TOKEN
