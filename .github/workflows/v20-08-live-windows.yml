@@ -710,3 +710,56 @@ jobs:
           path: ${{ runner.temp }}/r070-cny-get-only-evidence/
           if-no-files-found: error
           retention-days: 14
+
+      - name: Checkout historical N4 price source at immutable data SHA
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          repository: alkospacer123/market-pattern-data
+          ref: f8486b446cf3d5f9f3cba6dfec32bdef8fd184c8
+          path: data-prefix-source
+          persist-credentials: false
+
+      - name: R070 pinned N4 history prefix evidence (offline, no FINAM)
+        shell: pwsh
+        run: |
+          $ErrorActionPreference='Stop'
+          $root='data-prefix-source'
+          $head=(& git.exe -C $root rev-parse HEAD).Trim().ToLowerInvariant()
+          if($head -ne 'f8486b446cf3d5f9f3cba6dfec32bdef8fd184c8'){throw 'R070_HISTORY_SOURCE_COMMIT_CHANGED'}
+          $pins=[ordered]@{
+            'USDRUBF'=@('forever/USDRUBF/USDRUBF_M15.csv','6d4f7691c1c6bfbad59b62a6f5d613a4ed1e984e')
+            'CNYRUBF'=@('forever/CNYRUBF/CNYRUBF_M15.csv','a5ff61bbdd9bb6659a0f4fea7141b04b5e8bc35e')
+            'GLDRUBF'=@('forever/GLDRUBF/GLDRUBF_M15.csv','726c9242a025e75de4d0e93a2c215cc2778b9a9a')
+            'IMOEXF'=@('forever/IMOEXF/IMOEXF_M15.csv','23d8e02920684a1a55e50b222271faaa81be5120')
+          }
+          $dir=Join-Path $env:RUNNER_TEMP 'r070-historical-prefix-public'
+          New-Item -ItemType Directory -Path $dir -Force | Out-Null
+          foreach($name in $pins.Keys) {
+            $file=Join-Path $root $pins[$name][0]
+            if(-not(Test-Path -LiteralPath $file -PathType Leaf)){throw ('R070_HIST_MISSING_'+$name)}
+            $data=[io.file]::ReadAllText((Resolve-Path -LiteralPath $file).Path)
+            $data=$data.Replace("`r`n","`n")
+            $target=Join-Path $dir ($name+'_M15_history.csv')
+            [io.file]::WriteAllText($target,$data,[text.utf8encoding]::new($false))
+            if ((& git.exe hash-object -- $target).Trim().ToLowerInvariant() -ne $pins[$name][1]) {
+              throw ('R070_HIST_BLOB_SHA_CHANGED_'+$name)
+            }
+          }
+          $manifest=[ordered]@{
+            schema='r070.n4.public_historical_source.v1'
+            mode='READONLY_NO_LIVE_NO_FINAM'
+            source_repository='alkospacer123/market-pattern-data'
+            source_commit='f8486b446cf3d5f9f3cba6dfec32bdef8fd184c8'
+            source_files_git_blob_sha=$pins
+            verified_not_yet_merged=$true
+          }
+          [io.file]::WriteAllText((Join-Path $dir 'manifest.json'),($manifest|ConvertTo-Json -Depth 6),[text.utf8encoding]::new($false))
+          Write-Output 'R070_HIST_PUBLIC_SOURCE=PASS_4_OF_4_GIT_SHA_NO_FINAM'
+
+      - name: Upload R070 pinned N4 history prefix evidence
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: r070-public-history-prefix-20261117
+          path: ${{ runner.temp }}/r070-historical-prefix-public/
+          if-no-files-found: error
+          retention-days: 14
