@@ -533,3 +533,57 @@ jobs:
           }
           if ((& git.exe hash-object -- $target).Trim() -ne $pinned) { throw 'R070_GET_INCOMPLETE_LIVE_SHA_CHANGED_AFTER_TEST' }
           Write-Output 'R070_GET_INCOMPLETE=PASS_RESTORED_PRODUCTION_PIN_NO_FINAM'
+
+      - name: R070 full bundle patch integration including 20261117 FINAM GET (ephemeral)
+        shell: pwsh
+        env:
+          PYTHONDONTWRITEBYTECODE: '1'
+          R070_PROTECT3_PATCH_ACTIVE: '1'
+          R070_PROTECT3_FLAT_PATCH_ACTIVE: '1'
+          R070_PROTECT3_LIVE_HOOK_PATCH_ACTIVE: '1'
+          R070_PROTECT3_NIGHT_PATCH_ACTIVE: '1'
+        run: |
+          $ErrorActionPreference='Stop'
+          $live='V20_TradingSystem_M15/v20_runtime/finam_live.py'
+          $execution='V20_TradingSystem_M15/v20_runtime/finam_execution.py'
+          $origLive='b80fb9eb135f7cdcb4c78337e2b808c4d7135195'
+          $origExec='6b600451178b42bd4f8b2037995e7db3a9ad27c8'
+          if ((& git.exe hash-object -- $live).Trim() -ne $origLive -or
+              (& git.exe hash-object -- $execution).Trim() -ne $origExec) {
+            throw 'R070_FULL_BUNDLE_ORIGINAL_PINS_CHANGED'
+          }
+          $patches=@(
+            'r070-tp6-one-shot-candidate.patch',
+            'r070-protect3-flat-cleanup-candidate.patch',
+            'r070-protect3-broker-id-readonly-candidate.patch',
+            'r070-protect3-live-trigger-candidate.patch',
+            'r070-protect3-night-monitor-candidate.patch',
+            'r070-ext2-pre-intent-candidate.patch',
+            'r070-finam-get-incomplete-read-candidate.patch'
+          ) | ForEach-Object { 'V20_TradingSystem_M15/V20-08/'+$_ }
+          $applied=New-Object 'System.Collections.Generic.List[string]'
+          try {
+            foreach($p in $patches) {
+              & git.exe apply --check -- $p
+              if ($LASTEXITCODE -ne 0) { throw ('R070_FULL_BUNDLE_CONFLICT_'+$p) }
+              & git.exe apply -- $p
+              if ($LASTEXITCODE -ne 0) { throw ('R070_FULL_BUNDLE_APPLY_FAILED_'+$p) }
+              $applied.Add($p)
+            }
+            python -m unittest -v V20_TradingSystem_M15.v20_runtime.tests.test_r070_ext2_pre_intent_staged V20_TradingSystem_M15.v20_runtime.tests.test_r070_tp6_one_shot_staged V20_TradingSystem_M15.v20_runtime.tests.test_r070_v20_protection_handoff V20_TradingSystem_M15.v20_runtime.tests.test_r070_finam_get_incomplete_read_staged
+            if ($LASTEXITCODE -ne 0) { throw 'R070_FULL_BUNDLE_COMBINED_MOCK_FAILED' }
+            python -m py_compile $live $execution
+            if ($LASTEXITCODE -ne 0) { throw 'R070_FULL_BUNDLE_COMPILED_INVALID' }
+          } finally {
+            $reverse=@($applied.ToArray())
+            [array]::Reverse($reverse)
+            foreach($p in $reverse) {
+              & git.exe apply -R -- $p
+              if ($LASTEXITCODE -ne 0) { throw ('R070_FULL_BUNDLE_RESTORE_FAILED_'+$p) }
+            }
+          }
+          if ((& git.exe hash-object -- $live).Trim() -ne $origLive -or
+              (& git.exe hash-object -- $execution).Trim() -ne $origExec) {
+            throw 'R070_FULL_BUNDLE_RESTORE_PINS_CHANGED'
+          }
+          Write-Output 'R070_FULL_BUNDLE=PASS_7_PATCHES_COMBINED_ORIGINAL_SHA_RESTORED_NO_FINAM'
