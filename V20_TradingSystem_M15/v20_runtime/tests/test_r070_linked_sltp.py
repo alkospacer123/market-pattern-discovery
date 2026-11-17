@@ -316,6 +316,107 @@ class R070LinkedSltpTests(unittest.TestCase):
                 broker_api=api, observed_at=now)
         self.assertEqual(api.place_sltp_order.call_count, 1)
 
+    def test_protect3_explicit_live_sender_requires_separate_release_pin(self):
+        from contextlib import nullcontext
+        from datetime import datetime, timezone
+        from pathlib import Path
+        from types import SimpleNamespace
+        from unittest.mock import Mock, patch
+        from V20_TradingSystem_M15.v20_runtime.finam_live import (
+            V20LiveTransport, V20LiveJournal,
+        )
+        from V20_TradingSystem_M15.v20_runtime.finam_execution import V20FinamReadAdapter
+        from V20_TradingSystem_M15.v20_runtime.r070_linked_sltp import (
+            stage_r070_protect3_cancel_first_once,
+        )
+        from V20_TradingSystem_M15.v20_runtime.tp6_protect3 import ProtectionReview
+
+        levels, _, wire, old = self.fixture()
+        mark = datetime(2026, 11, 17, 10, 15)
+        plan = plan_r070_protect3_cancel_first(
+            levels=levels,
+            review=ProtectionReview(
+                "LOCK_1R_DUE_NEXT_M15_BROKER_REPLACE_BLOCKED",
+                mark, levels.locked_stop_1r),
+            observed_position=2, orders=(old,), old_wire=wire,
+            old_order_id=old.order_id, m15_boundary_msk=mark,
+            broker_last_price="106")
+        k = "v20:shallow:acct:entry"
+        now = datetime(2026, 11, 17, 7, 15, tzinfo=timezone.utc)
+        cancelled = replace(old, active=False, status="CANCELLED")
+        successor = BrokerOrderView(
+            "new-456", "WATCHING", True, "SLTP",
+            wire["symbol"], plan.new_wire["client_order_id"],
+            plan.new_wire["comment"], plan.new_wire["side"], plan.new_wire.copy())
+        states = [
+            SimpleNamespace(positions={wire["symbol"]: 2}, orders=(old,)),
+            SimpleNamespace(positions={wire["symbol"]: 2}, orders=(cancelled,)),
+            SimpleNamespace(positions={wire["symbol"]: 2}, orders=(cancelled, successor)),
+        ]
+        data = {}
+        store = Mock()
+        store.get.side_effect = lambda key: data.get(key)
+        store.put.side_effect = lambda key, val: data.__setitem__(key, val)
+        store.transaction.side_effect = lambda: nullcontext()
+        store.intent.side_effect = lambda key: {
+            k: {"status": "RECONCILED",
+                "payload": {"finam_symbol": wire["symbol"]}},
+            k + ":stop": {
+                "status": "ACK", "broker_order_id": old.order_id},
+        }.get(key)
+        data["protected_fill:" + k] = {
+            "broker_stop_id": old.order_id,
+            "account_sha256": "a"*64, "broker_stop_percent": "100",
+        }
+        journal = V20LiveJournal.__new__(V20LiveJournal)
+        journal.store = store
+        journal.robot_id = "v20-shallow"
+        journal.account_hash = "a"*64
+        journal.instance_root = Path("C:/offline/not-a-live-instance")
+        reader = V20FinamReadAdapter.__new__(V20FinamReadAdapter)
+        reader.robot_id = journal.robot_id
+        reader.account_hash = journal.account_hash
+        reader.account_id = "offline-fake-account"
+        reader.snapshot = Mock(side_effect=states)
+        api = Mock()
+        api.place_sltp_order.return_value = {"order_id": "new-456"}
+        reader.api = api
+        sender = V20LiveTransport.__new__(V20LiveTransport)
+        sender.journal, sender.reader = journal, reader
+        sender.source = "b"*40
+        sender.auth_path = Path("C:/offline/not-a-live-authorization.json")
+        sender._permit = Mock(return_value={})
+        args = dict(
+            journal=journal, reader=reader, entry_key=k, plan=plan,
+            broker_api=api, observed_at=now, authorized_live_sender=sender,
+        )
+        with self.assertRaisesRegex(
+                TP6Protect3Unsafe, "LIVE_RELEASE_NOT_AUTHORIZED"):
+            stage_r070_protect3_cancel_first_once(**args)
+        api.cancel_order.assert_not_called()
+        api.place_sltp_order.assert_not_called()
+
+        data["r070_protect3_release_authorization"] = {
+            "schema": "r070.protect3.live_approval.v1",
+            "source_commit": sender.source, "robot": reader.robot_id,
+            "account_sha256": reader.account_hash, "owner_approved": True,
+        }
+        with patch(
+            "V20_TradingSystem_M15.v20_runtime.finam_live._safe_auth",
+            return_value={},
+        ), patch(
+            "V20_TradingSystem_M15.v20_runtime.finam_live.load_kill_switch",
+            return_value=({"state": "ARMED"}, None),
+        ):
+            self.assertEqual(stage_r070_protect3_cancel_first_once(**args),
+                             "new-456")
+        api.cancel_order.assert_called_once_with(reader.account_id, old.order_id)
+        api.place_sltp_order.assert_called_once()
+        self.assertEqual(data["r070_protect3:" + k]["state"], "PROTECTED")
+        self.assertEqual(data["r070_protect3:" + k]["new_broker_id"], "new-456")
+        sender._permit.assert_called_once_with(
+            key=k, kind="PROTECTIVE_STOP")
+
     def test_single_linked_sltp_has_two_100pct_parts_and_6r(self):
         for direction in ("LONG", "SHORT"):
             levels, action, wire, order = self.fixture(direction)
