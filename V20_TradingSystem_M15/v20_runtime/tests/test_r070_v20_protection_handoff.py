@@ -318,6 +318,21 @@ class R070V20HandoffTests(TestCase):
                     "USDRUBF@FUT",
                     "" if empty_client else new_wire["client_order_id"],
                     comment, new_wire["side"], new_wire.copy())
+                if empty_client:
+                    # Exercise REAL FINAM response parser, not just a
+                    # hand-built BrokerOrderView with missing client ID.
+                    from V20_TradingSystem_M15.v20_runtime.finam_execution import (
+                        _v20_order_views,
+                    )
+                    parsed, omitted = _v20_order_views({"orders": [{
+                        "order_id": "successor-789",
+                        "status": "ORDER_STATUS_WATCHING",
+                        "sltp_order": {**new_wire, "client_order_id": ""},
+                    }]})
+                    self.assertEqual(omitted, 0)
+                    self.assertEqual(len(parsed), 1)
+                    self.assertEqual(parsed[0].client_order_id, "")
+                    successor = parsed[0]
                 d.snapshot = replace(
                     d.snapshot,
                     positions={"USDRUBF@FUT": 0},
