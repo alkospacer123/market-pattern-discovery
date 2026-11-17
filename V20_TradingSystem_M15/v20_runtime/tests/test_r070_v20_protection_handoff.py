@@ -788,6 +788,86 @@ class R070V20HandoffTests(TestCase):
         api.session_details.assert_called_once()
         api.create_session.assert_not_called()
 
+    def test_r070_physical_cny_three_daily_finam_gets_not_multiday(self):
+        from importlib.util import module_from_spec, spec_from_file_location
+        from pathlib import Path
+        from urllib.parse import parse_qs, urlparse
+        from datetime import datetime, timezone
+        import pandas as pd
+        from TradingSystemLab.stage8_robot.finam_api import FinamAPI, FinamTimeout
+        path = (Path(__file__).resolve().parents[2] / "V20-08"
+                / "r070-cny-intel-readonly.py")
+        spec = spec_from_file_location("r070_intel_short_days_test", path)
+        module = module_from_spec(spec)
+        spec.loader.exec_module(module)
+        start = datetime(2026, 11, 15, 7, tzinfo=timezone.utc)
+        until = datetime(2026, 11, 17, 12, 33, tzinfo=timezone.utc)
+        spans = module.m15_regular_session_slices(start, until)
+        self.assertEqual(len(spans), 3)
+        self.assertEqual([a.date().isoformat() for a, _ in spans],
+                         ["2026-11-15", "2026-11-16", "2026-11-17"])
+        self.assertTrue(all((b-a).total_seconds() <= 8*3600
+                            for a, b in spans))
+        self.assertEqual(spans[-1][1], until)
+        with self.assertRaisesRegex(module.Hold, "FINAM_M15_DAILY_WINDOW_INVALID"):
+            module.m15_regular_session_slices(start, start.replace(day=16))
+
+        calls = []
+        def fake_request(api, method, path, payload=None, auth=True, retries=2):
+            calls.append((method, path, retries))
+            if path == "/v1/sessions":
+                return SimpleNamespace(body={"token": "synthetic-jwt"})
+            if path == "/v1/sessions/details":
+                return SimpleNamespace(body={
+                    "readonly": False, "account_ids": ["synthetic-a"]})
+            if method == "GET":
+                return SimpleNamespace(body={"bars": []})
+            self.fail("unapproved method or endpoint")
+        def fake_parse(body, first, last, parser):
+            self.assertLessEqual(last-first, timedelta(hours=8))
+            return pd.DataFrame({"Datetime": [
+                first.astimezone(module.MOSCOW).replace(tzinfo=None)]})
+        with patch.object(FinamAPI, "_request", autospec=True,
+                          side_effect=fake_request), patch.object(
+                              module, "parse_finam_bars", side_effect=fake_parse
+                          ):
+            frame = module.fetch_from_finam(
+                token="synthetic-token", account="synthetic-a",
+                start=start, until=until,
+                source_dir=Path(__file__).resolve().parents[3])
+        self.assertEqual(len(frame), 3)
+        http_get = [(p, retries) for method, p, retries in calls if method == "GET"]
+        self.assertEqual(len(http_get), 3)
+        self.assertEqual([r for _, r in http_get], [1, 1, 1])
+        for (uri, _), (first, last) in zip(http_get, spans):
+            parsed = urlparse(uri)
+            self.assertEqual(
+                parsed.path, "/v1/instruments/CNYRUBF@RTSX/bars")
+            params = parse_qs(parsed.query)
+            self.assertEqual(params["timeframe"], ["TIME_FRAME_M15"])
+            self.assertEqual(
+                datetime.fromisoformat(params["interval.start_time"][0]), first)
+            self.assertEqual(
+                datetime.fromisoformat(params["interval.end_time"][0]), last)
+        self.assertEqual([method for method, _, _ in calls],
+                         ["POST", "POST", "GET", "GET", "GET"])
+
+        def first_day_timeout(api, method, path, payload=None, auth=True, retries=2):
+            if path == "/v1/sessions":
+                return SimpleNamespace(body={"token": "synthetic-jwt"})
+            if path == "/v1/sessions/details":
+                return SimpleNamespace(body={
+                    "readonly": False, "account_ids": ["synthetic-a"]})
+            raise FinamTimeout("synthetic-bars-timeout")
+        with patch.object(FinamAPI, "_request", autospec=True,
+                          side_effect=first_day_timeout):
+            with self.assertRaisesRegex(
+                    module.Hold, "R070_CNY_FINAM_M15_DAY_TIMEOUT_20261115"):
+                module.fetch_from_finam(
+                    token="synthetic-token", account="synthetic-a",
+                    start=start, until=until,
+                    source_dir=Path(__file__).resolve().parents[3])
+
     def test_r070_physical_cny_get_only_logic_uses_real_checkpoint_format(self):
         from datetime import date, datetime, timedelta, timezone
         from decimal import Decimal
