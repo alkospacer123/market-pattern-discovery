@@ -574,6 +574,8 @@ jobs:
             if ($LASTEXITCODE -ne 0) { throw 'R070_FULL_BUNDLE_COMBINED_MOCK_FAILED' }
             python -m py_compile $live $execution
             if ($LASTEXITCODE -ne 0) { throw 'R070_FULL_BUNDLE_COMPILED_INVALID' }
+            Write-Output ('R070_FULL_BUNDLE_LIVE_DERIVED_SHA=' + (& git.exe hash-object -- $live).Trim())
+            Write-Output ('R070_FULL_BUNDLE_EXEC_DERIVED_SHA=' + (& git.exe hash-object -- $execution).Trim())
           } finally {
             $reverse=@($applied.ToArray())
             [array]::Reverse($reverse)
