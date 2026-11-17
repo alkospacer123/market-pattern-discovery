@@ -36,11 +36,15 @@ function pinned([string]$file,[string]$blob,[string]$previous='') {
     if($present){require ($LASTEXITCODE -eq 0) 'R070_PHYSICAL_LOCAL_BLOB_CHECK_FAILED'}
     if(-not $present -or $current -ne $blob) {
         require (-not $present -or ($previous -ne '' -and $current -eq $previous)) 'R070_PHYSICAL_UNEXPECTED_LOCAL_SCRIPT_CHANGED'
-        $uri='https://raw.githubusercontent.com/alkospacer123/market-pattern-discovery/'+$commit+'/V20_TradingSystem_M15/V20-08/'+$file
+        # Keep existing pinned Git blob; fetch through GitHub API because
+        # raw.githubusercontent.com may time out on the Intel workstation.
+        $uri='https://api.github.com/repos/alkospacer123/market-pattern-discovery/git/blobs/'+$blob
         $tmp=$target+'.download'
         require (-not (Test-Path -LiteralPath $tmp)) 'R070_PHYSICAL_PARTIAL_DOWNLOAD'
         try {
-            Invoke-WebRequest -Uri $uri -OutFile $tmp -UseBasicParsing
+            $response=Invoke-RestMethod -Uri $uri -Headers @{'user-agent'='v20lab'} -TimeoutSec 30
+            require ($response.sha -eq $blob -and $response.encoding -eq 'base64') 'R070_PHYSICAL_GITHUB_BLOB_INVALID'
+            [io.file]::writeallbytes($tmp,[convert]::frombase64string($response.content))
             $hash=(& git.exe hash-object -- $tmp).Trim().ToLowerInvariant()
             require ($LASTEXITCODE -eq 0 -and $hash -eq $blob) 'R070_PHYSICAL_DOWNLOADED_BLOB_INVALID'
             Move-Item -LiteralPath $tmp -Destination $target -Force -ErrorAction Stop
