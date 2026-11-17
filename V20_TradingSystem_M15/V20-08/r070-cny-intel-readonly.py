@@ -28,7 +28,8 @@ import pandas as pd
 TARGET = "CNYRUBF"
 FINAM = "CNYRUBF@RTSX"
 ORIGINAL_END = datetime(2026, 11, 15, 17, 45)
-LATEST_ALLOWED_DATE = date(2026, 11, 17)
+EARLIEST_ALLOWED_DATE = date(2026, 11, 17)
+LATEST_ALLOWED_DATE = date(2026, 11, 20)
 HISTORY_SHA = "6fcd14c5d473652d014e47577597d22512b97319ef73996aad04cbc38b9ff79c"
 SOURCE_SHA = "80291246ba4692485545f58fd28c7563199bf7be28033fc16eb296efee377e31"
 TERMINAL_SHA = "f6ae045a074fea9be3f7c9b5ca47dfc7dedae4481f61e8a71fc60d16b502d4f2"
@@ -102,14 +103,26 @@ def parse_finam_bars(body: dict, from_utc: datetime, to_utc: datetime, parse_dec
          isinstance(body.get("bars"), list) and body["bars"], "FINAM_M15_RESPONSE_INVALID")
     rows = []
     prev = None
-    for bar in body["bars"]:
+    for index, bar in enumerate(body["bars"]):
         need(isinstance(bar, dict) and isinstance(bar.get("timestamp"), str), "FINAM_M15_ROW_INVALID")
         try:
             at = datetime.fromisoformat(bar["timestamp"].replace("Z", "+00:00"))
             need(at.tzinfo is not None, "FINAM_TIMESTAMP_WITHOUT_ZONE")
             t = at.astimezone(UTC)
-            need(from_utc <= t < to_utc and (prev is None or t > prev) and
-                 not (t.minute % 15 or t.second or t.microsecond), "FINAM_M15_SEQUENCE_OR_TIME")
+            # Never relax the timestamp validator. Show the ONE rejected
+            # timestamp and reason; no prices, broker IDs or secret tokens.
+            reason = ("BEFORE_WINDOW" if t < from_utc else
+                      "AT_OR_AFTER_END" if t >= to_utc else
+                      "DUPLICATE_OR_UNSORTED" if prev is not None and t <= prev else
+                      "OFF_M15_GRID" if (t.minute % 15 or t.second or t.microsecond) else None)
+            if reason is not None:
+                previous = prev.isoformat() if prev is not None else "NONE"
+                raise Hold("R070_CNY_FINAM_M15_SEQUENCE_OR_TIME" +
+                           "|reason=" + reason + "|index=" + str(index) +
+                           "|received_utc=" + t.isoformat() +
+                           "|previous_utc=" + previous +
+                           "|window_start_utc=" + from_utc.isoformat() +
+                           "|window_end_exclusive_utc=" + to_utc.isoformat())
             values = [parse_decimal(bar.get(x)) for x in ("open", "high", "low", "close", "volume")]
             need(all(v.is_finite() for v in values) and all(v > 0 for v in values[:4]) and
                  values[4] >= 0 and values[1] >= max(values[0], values[2], values[3]) and
@@ -124,12 +137,15 @@ def parse_finam_bars(body: dict, from_utc: datetime, to_utc: datetime, parse_dec
 
 def compare(checkpoint: pd.DataFrame, broker: pd.DataFrame, clock_utc: datetime, tick: Decimal) -> dict:
     now_msk = clock_utc.astimezone(MOSCOW).replace(tzinfo=None)
-    need(now_msk.date() == LATEST_ALLOWED_DATE and now_msk >= datetime(2026, 11, 17, 11, 15),
-         "PHYSICAL_DATE_NOT_17NOV_OR_TOO_EARLY")
+    need(EARLIEST_ALLOWED_DATE <= now_msk.date() <= LATEST_ALLOWED_DATE and
+         datetime.combine(now_msk.date(), datetime.min.time()).replace(hour=11, minute=15) <= now_msk <
+         datetime.combine(now_msk.date(), datetime.min.time()).replace(hour=18),
+         "PHYSICAL_NOT_IN_APPROVED_MAIN_SESSION_WINDOW")
     boundary = (now_msk - timedelta(minutes=2)).replace(second=0, microsecond=0)
     boundary = boundary.replace(minute=boundary.minute // 15 * 15)
     end = boundary - timedelta(minutes=15)
-    need(datetime(2026, 11, 17, 10, 0) <= end <= datetime(2026, 11, 17, 17, 45),
+    need(datetime.combine(now_msk.date(), datetime.min.time()).replace(hour=10) <= end <=
+         datetime.combine(now_msk.date(), datetime.min.time()).replace(hour=17, minute=45),
          "FINAL_COMPLETED_SESSION_BAR_INVALID")
     h = checkpoint.set_index("Datetime")
     f = broker.set_index("Datetime")
@@ -143,13 +159,13 @@ def compare(checkpoint: pd.DataFrame, broker: pd.DataFrame, clock_utc: datetime,
              Decimal(str(hv["Volume"])) == Decimal(str(bv["Volume"])),
              "FINAM_HISTORICAL_OHLCV_DISAGREEMENT")
         matches += 1
-    for day, final_time in [(date(2026, 11, 15), "17:45"),
-                            (date(2026, 11, 16), "17:45"),
-                            (date(2026, 11, 17), end.strftime("%H:%M"))]:
+    for day in (date(2026, 11, 15) + timedelta(days=n) for n in
+                range((now_msk.date() - date(2026, 11, 15)).days + 1)):
+        final_time = end.strftime("%H:%M") if day == now_msk.date() else "17:45"
         expected = pd.date_range(f"{day} 10:00", f"{day} {final_time}", freq="15min")
         observed = f.index[(f.index.date == day) & (f.index.hour >= 10) &
                            ((f.index.hour < 17) | ((f.index.hour == 17) & (f.index.minute <= 45)))]
-        if day == date(2026, 11, 17):
+        if day == now_msk.date():
             observed = observed[observed <= end]
         need(observed.equals(expected), "FINAM_SESSION_M15_MISSING_" + str(day).replace("-", ""))
     fresh = f.loc[(f.index > h.index[-1]) & (f.index <= end)]
@@ -176,14 +192,15 @@ def session_details_bounded_retry(api, timeout_error):
 
 
 def m15_regular_session_slices(start: datetime, until: datetime):
-    """Only three known MOEX main sessions, never a multi-day FINAM bars GET."""
-    days = (date(2026, 11, 15), date(2026, 11, 16), date(2026, 11, 17))
+    """Bounded known 15-20 Nov main-session slices; no multi-day GET."""
     need(start == datetime(2026, 11, 15, 7, 0, tzinfo=UTC) and
          until.tzinfo is not None and until.utcoffset() == timedelta(0) and
-         until.date() == days[-1] and
-         datetime(2026, 11, 17, 7, 0, tzinfo=UTC) < until <=
-         datetime(2026, 11, 17, 15, 0, tzinfo=UTC),
+         EARLIEST_ALLOWED_DATE <= until.date() <= LATEST_ALLOWED_DATE and
+         datetime.combine(until.date(), datetime.min.time(), tzinfo=UTC).replace(hour=7) < until <=
+         datetime.combine(until.date(), datetime.min.time(), tzinfo=UTC).replace(hour=15),
          "FINAM_M15_DAILY_WINDOW_INVALID")
+    days = tuple(date(2026, 11, 15) + timedelta(days=i) for i in
+                 range((until.date() - date(2026, 11, 15)).days + 1))
     spans = []
     for day in days:
         first = datetime(day.year, day.month, day.day, 7, 0, tzinfo=UTC)
@@ -279,7 +296,9 @@ def main():
     checkpoint, digest = load_or_build(sources, work / ARCHIVE, args.builder)
     observed = datetime.now(UTC)
     local = observed.astimezone(MOSCOW)
-    need(local.date() == LATEST_ALLOWED_DATE, "PHYSICAL_DATE_NOT_17NOV")
+    need(EARLIEST_ALLOWED_DATE <= local.date() <= LATEST_ALLOWED_DATE and
+         (11, 15) <= (local.hour, local.minute) < (18, 0),
+         "PHYSICAL_NOT_IN_APPROVED_MAIN_SESSION_WINDOW")
     start = datetime(2026, 11, 15, 7, 0, tzinfo=UTC)
     end = observed - timedelta(minutes=1)
     broker = fetch_from_finam(token=token, account=account, start=start,
@@ -295,7 +314,7 @@ def main():
                     "observed_at_utc": observed.isoformat(),
                     "readonly_http_method": "FINAM GET /bars only plus session authentication",
                     "report_contains_token_or_account_id": False})
-    report = work / ("r070-cny-physical-" + args.robot + "-20261117.json")
+    report = work / ("r070-cny-physical-" + args.robot + "-" + local.strftime("%Y%m%d") + ".json")
     need(not report.exists() and not report.is_symlink(), "REPORT_ALREADY_EXISTS")
     with report.open("x", encoding="utf-8") as out:
         json.dump(outcome, out, indent=2, ensure_ascii=False)
