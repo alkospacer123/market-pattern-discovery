@@ -43,6 +43,44 @@ class R070LinkedSltpTests(unittest.TestCase):
         )
         return levels, action, wire, order
 
+    def test_protect3_current_finam_quote_only_bid_ask_and_stale_fail_closed(self):
+        from datetime import datetime, timezone
+        from V20_TradingSystem_M15.v20_runtime.r070_linked_sltp import (
+            prove_r070_protect3_fresh_quote,
+        )
+        now = datetime(2026, 11, 17, 7, 30, 4, tzinfo=timezone.utc)
+        quote = {"symbol": "USDRUBF@FUT", "quote": {
+            "symbol": "USDRUBF@FUT", "timestamp": "2026-11-17T07:30:02Z",
+            "bid": {"value": "106.0"}, "ask": {"value": "106.1"},
+        }}
+        args = dict(
+            response=quote, symbol="USDRUBF@FUT",
+            direction="LONG", observed_utc=now, tick="0.1",
+        )
+        self.assertEqual(prove_r070_protect3_fresh_quote(**args),
+                         Decimal("106.0"))
+        self.assertEqual(prove_r070_protect3_fresh_quote(
+            **{**args, "direction": "SHORT"}), Decimal("106.1"))
+        for mutated in (
+            {**quote, "symbol": "CNYRUBF@FUT"},
+            {**quote, "quote": {**quote["quote"],
+                 "timestamp": "2026-11-17T07:29:50Z"}},
+            {**quote, "quote": {**quote["quote"],
+                 "timestamp": "2026-11-17T07:30:09Z"}},
+            {**quote, "quote": {**quote["quote"],
+                 "ask": {"value": "105.9"}}},
+            {**quote, "quote": {**quote["quote"],
+                 "bid": {"value": "106.05"}}},
+            {**quote, "quote": {**quote["quote"],
+                 "bid": None}},
+        ):
+            with self.subTest(mutated=mutated), self.assertRaises(TP6Protect3Unsafe):
+                prove_r070_protect3_fresh_quote(
+                    **{**args, "response": mutated})
+        with self.assertRaises(TP6Protect3Unsafe):
+            prove_r070_protect3_fresh_quote(
+                **{**args, "observed_utc": now.replace(tzinfo=None)})
+
     def test_protect3_finamboundary_closed_m15_trigger_no_forming_bar(self):
         from datetime import datetime, timezone
         from decimal import Decimal
