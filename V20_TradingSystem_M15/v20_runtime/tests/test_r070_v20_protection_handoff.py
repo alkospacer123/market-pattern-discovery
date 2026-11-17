@@ -404,6 +404,97 @@ class R070V20HandoffTests(TestCase):
                     cancel()
                 self.assertEqual(api.cancel_order.call_count, 1)
 
+    @skipUnless(os.environ.get("R070_PROTECT3_LIVE_HOOK_PATCH_ACTIVE") == "1",
+                "ephemeral authorized +3R LIVE hook patch required")
+    def test_staged_live_cycle_calls_protect3_only_after_holding_and_tp6(self):
+        from datetime import datetime, timezone
+        from V20_TradingSystem_M15.v20_runtime.finam_live import (
+            _follow_existing,
+        )
+        from V20_TradingSystem_M15.v20_runtime.tp6_protect3 import TP6Protect3Unsafe
+        now = datetime(2026, 11, 17, 7, 30, tzinfo=timezone.utc)
+        k = "v20:v20-shallow:aaaaaaaaaaaaaaaa:synthetic"
+        payload = {
+            "finam_symbol": "USDRUBF@FUT", "symbol": "USDRUBF",
+            "direction": "LONG", "entry_at": "2026-11-17T10:15:00"}
+        row = {"idempotency_key": k, "payload": payload, "status": "RECONCILED"}
+        wire = {
+            "tp_qty_measure": "SLTP_QTY_MEASURE_PERCENT",
+            "quantity_tp": {"value": "100"}}
+        intents = {k + ":stop": {"status": "ACK", "payload": {"wire": wire}}}
+        values = {}
+        store = SimpleNamespace(
+            intent=Mock(side_effect=lambda key: intents.get(key)),
+            get=Mock(side_effect=lambda key: values.get(key)),
+            put=Mock())
+        journal = SimpleNamespace(store=store)
+        reader = SimpleNamespace(api=Mock())
+        sender = SimpleNamespace(
+            journal=journal, reader=reader,
+            submit_frozen_exit_once=Mock())
+        snapshot = SimpleNamespace(positions={"USDRUBF@FUT": 2}, orders=())
+        boundary = SimpleNamespace(at_msk=datetime(2026, 11, 17, 10, 30))
+        review, plan = object(), object()
+        with patch(
+            "V20_TradingSystem_M15.v20_runtime.finam_live._ownership",
+            return_value=[row],
+        ), patch(
+            "V20_TradingSystem_M15.v20_runtime.finam_live._verify_sealed_protection",
+        ), patch(
+            "V20_TradingSystem_M15.v20_runtime.finam_live.read_finam_m15_boundary",
+            return_value=boundary,
+        ), patch(
+            "V20_TradingSystem_M15.v20_runtime.finam_live.frozen_observed_session_exit",
+            return_value="HOLD_UNTIL_THIRD_OBSERVED_SESSION",
+        ) as due, patch(
+            "V20_TradingSystem_M15.v20_runtime.r070_linked_sltp.prepare_r070_protect3_from_v20_readonly",
+            return_value=(review, plan),
+        ) as prepared, patch(
+            "V20_TradingSystem_M15.v20_runtime.r070_linked_sltp.stage_r070_protect3_cancel_first_once",
+            return_value="new-protect3-stop",
+        ) as executed:
+            self.assertEqual(_follow_existing(sender, now, snapshot),
+                             "R070_PROTECT3_REPLACED_NEEDS_NEXT_BROKER_CHECK")
+            prepared.assert_called_once()
+            executed.assert_called_once()
+            self.assertIs(
+                executed.call_args.kwargs["authorized_live_sender"], sender)
+            self.assertIs(executed.call_args.kwargs["broker_api"], reader.api)
+            self.assertEqual(executed.call_args.kwargs["entry_key"], k)
+            prepared.reset_mock()
+            executed.reset_mock()
+
+            # The frozen third observed session exit takes priority.
+            due.return_value = "EXIT_AT_THIRD_OBSERVED_SESSION_OPEN"
+            self.assertEqual(_follow_existing(sender, now, snapshot),
+                             "FROZEN_EXIT_ACK_KEEP_STOP_UNTIL_FLAT")
+            executed.assert_not_called()
+            prepared.assert_not_called()
+            sender.submit_frozen_exit_once.assert_called_once()
+
+            # Plain old V20 100%-SL without TP6 must remain unchanged.
+            due.return_value = "HOLD_UNTIL_THIRD_OBSERVED_SESSION"
+            intents[k + ":stop"]["payload"]["wire"] = {"quantity_sl": {"value": "100"}}
+            self.assertEqual(_follow_existing(sender, now, snapshot),
+                             "BROKER_RECONCILED_PROTECTION_PASS")
+            prepared.assert_not_called()
+            executed.assert_not_called()
+
+            # Restore linked TP6, but an earlier Protect3 attempt cannot replay.
+            intents[k + ":stop"]["payload"]["wire"] = wire
+            values["r070_protect3:" + k] = {"state": "PROTECTED"}
+            self.assertEqual(_follow_existing(sender, now, snapshot),
+                             "BROKER_RECONCILED_PROTECTION_PASS")
+            executed.assert_not_called()
+            values.clear()
+
+            prepared.side_effect = TP6Protect3Unsafe(
+                "R070_PROTECT3_QUOTE_STALE_OR_FUTURE")
+            self.assertEqual(_follow_existing(sender, now, snapshot),
+                             "PROTECT3_QUOTE_UNVERIFIED_KEEP_OLD_STOP")
+            executed.assert_not_called()
+        store.put.assert_not_called()
+
     @skipUnless(os.environ.get("R070_PROTECT3_PATCH_ACTIVE") == "1",
                 "ephemeral broker-ID patch required; LIVE source unchanged")
     def test_staged_protect3_new_broker_id_is_owned_and_sealed(self):
