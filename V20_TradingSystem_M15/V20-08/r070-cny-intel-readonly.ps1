@@ -12,7 +12,7 @@ $tools=Join-Path $candidate 'tooling'
 $python=Join-Path $root '.venv-raw\scripts\python.exe'
 $h1=Join-Path $root 'source-raw'
 $receipt=Join-Path $root 'pretrade-08\DPAPI_TRADING_BINDINGS_REPORT.json'
-$commit='64eae9196775c2fdc5906d1b6ce0dd28ad97218d'
+$commit='16a35d6713f049fe30dee806b409a7de8bb644fd'
 $expectedR060='80291246ba4692485545f58fd28c7563199bf7be28033fc16eb296efee377e31'
 $expectedCNY='f6ae045a074fea9be3f7c9b5ca47dfc7dedae4481f61e8a71fc60d16b502d4f2'
 $names=@('v20-shallow','v20-obv')
@@ -69,7 +69,7 @@ require ($report.schema -eq 'v20.08.1.dpapi_trading_bindings.v1' -and $report.st
 New-Item -ItemType Directory -Path $tools -Force | Out-Null
 no-junction $tools
 $builder=pinned 'r070-build-verified-cny-checkpoint.py' 'd2ab63b5519ddcd4049b9240b1249dc4047c78d0'
-$reader=pinned 'r070-cny-intel-readonly.py' '259e324277019652fa5de5e7cfee7ac97501e9c7' '0e5526b85e9d9ee251a45ef168f4261fbfa6bdf1'
+$reader=pinned 'r070-cny-intel-readonly.py' 'ad4e3432eb244ed71ad4cd6229ecae59568a08a7' '259e324277019652fa5de5e7cfee7ac97501e9c7'
 $oldPath=$env:PYTHONPATH
 $oldAccount=$env:V20_FINAM_ACCOUNT
 $oldToken=$env:V20_FINAM_TOKEN
