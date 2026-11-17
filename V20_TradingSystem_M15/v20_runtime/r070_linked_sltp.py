@@ -781,6 +781,90 @@ def plan_r070_protect3_cancel_first(
     )
 
 
+def prepare_r070_protect3_from_v20_readonly(
+    *, journal, reader, snapshot, entry_key: str, now,
+    boundary, quote_response: dict,
+):
+    """Read-only bridge: V20 durable full fill + active linked SLTP -> +3R plan.
+
+    No API requests or write-side operations in this function. Callers obtain
+    a genuine FINAM M15 boundary and LastQuote independently by existing
+    READONLY transport. Only a confirmed completed M15 and a fresh bid/ask
+    may produce a plan; a plan itself cannot cancel an SLTP.
+    """
+    from datetime import datetime
+    from TradingSystemLab.stage8_robot.production_runtime import _load_registry
+    from .finam_execution import (
+        LiveAccountSnapshot, V20FinamReadAdapter, V20TradeJournal,
+        V20M15Boundary,
+    )
+
+    if (not isinstance(journal, V20TradeJournal)
+            or not isinstance(reader, V20FinamReadAdapter)
+            or not isinstance(snapshot, LiveAccountSnapshot)
+            or not isinstance(boundary, V20M15Boundary)
+            or not isinstance(entry_key, str)
+            or not isinstance(now, datetime) or now.tzinfo is None
+            or journal.robot_id != reader.robot_id
+            or journal.account_hash != reader.account_hash
+            or snapshot.robot_id != reader.robot_id
+            or snapshot.account_hash != reader.account_hash):
+        raise TP6Protect3Unsafe("R070_PROTECT3_HANDOFF_SCOPE_INVALID")
+    if (journal.store.get("r070_protect3:" + entry_key) is not None
+            or journal.store.get("execution_halt") is not None
+            or journal.store.get("flat_cleanup:" + entry_key) is not None
+            or journal.store.intent(entry_key + ":frozen-exit") is not None):
+        raise TP6Protect3Unsafe("R070_PROTECT3_HANDOFF_ALREADY_ATTEMPTED_OR_EXIT")
+    entry = journal.store.intent(entry_key)
+    stop = journal.store.intent(entry_key + ":stop")
+    proof = journal.store.get("protected_fill:" + entry_key)
+    if (not isinstance(entry, dict) or entry.get("status") != "RECONCILED"
+            or not isinstance(stop, dict) or not isinstance(proof, dict)
+            or not isinstance(entry.get("payload"), dict)
+            or not isinstance(stop.get("payload"), dict)
+            or not isinstance(stop["payload"].get("wire"), dict)):
+        raise TP6Protect3Unsafe("R070_PROTECT3_HANDOFF_DURABLE_MISSING")
+    symbol = entry["payload"].get("symbol")
+    if boundary.symbol != symbol or symbol not in _load_registry():
+        raise TP6Protect3Unsafe("R070_PROTECT3_HANDOFF_M15_SYMBOL_MISMATCH")
+    old = verify_r070_tp6_after_restart(
+        journal=journal, reader=reader, snapshot=snapshot,
+        entry_key=entry_key, now=now)
+    try:
+        entry_open = datetime.fromisoformat(entry["payload"]["entry_at"])
+        if entry_open.tzinfo is not None:
+            raise ValueError("entry clock must be Moscow-naive")
+        rows = journal.store.fills_for_order(entry["broker_order_id"])
+        levels = levels_from_finam_fills(
+            direction=entry["payload"]["direction"],
+            fills=[(int(f["quantity"]), f["price"]) for f in rows],
+            initial_stop=proof["installed_stop"],
+            tick=_load_registry()[symbol]["price_step"])
+    except (KeyError, ValueError, TypeError, InvalidOperation,
+            OverflowError, ZeroDivisionError) as exc:
+        raise TP6Protect3Unsafe("R070_PROTECT3_HANDOFF_VWAP_OR_ENTRY_INVALID") from exc
+    review = review_r070_protect3_m15_boundary(
+        levels=levels, boundary=boundary,
+        entry_open_msk=entry_open, broker_stop_proved=True,
+        currently_proved_stop=levels.initial_stop)
+    if review.status != "LOCK_1R_DUE_NEXT_M15_BROKER_REPLACE_BLOCKED":
+        return review, None
+    price = prove_r070_protect3_fresh_quote(
+        response=quote_response,
+        symbol=entry["payload"]["finam_symbol"],
+        direction=levels.direction, observed_utc=now,
+        tick=levels.tick)
+    plan = plan_r070_protect3_cancel_first(
+        levels=levels, review=review,
+        observed_position=snapshot.positions[entry["payload"]["finam_symbol"]],
+        orders=snapshot.orders, old_wire=stop["payload"]["wire"],
+        old_order_id=old.order_id,
+        m15_boundary_msk=boundary.at_msk,
+        broker_last_price=price,
+    )
+    return review, plan
+
+
 def verify_r070_protect3_cancelled_before_post(
     *, plan: R070Protect3CancelFirstPlan, observed_position: int,
     orders: tuple[BrokerOrderView, ...],
