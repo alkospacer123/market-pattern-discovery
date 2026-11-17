@@ -595,3 +595,152 @@ def verify_r070_tp6_after_restart(
         observed_position=qty, orders=snapshot.orders,
         levels=levels, wire=expected_wire,
         expected_broker_order_id=stop_intent["broker_order_id"])
+
+
+
+# 17.11.2026 — explicitly user-authorized CANCEL FIRST -> NEW SLTP plan.
+# A plan/proof only. No API writes, LIVE hook or implicit risk acceptance.
+@dataclass(frozen=True)
+class R070Protect3CancelFirstPlan:
+    """A deliberate unprotected interval exists between cancel and new ACK."""
+    old_order_id: str
+    symbol: str
+    direction: str
+    position_quantity: int
+    old_wire: dict
+    new_wire: dict
+    stop_1r: Decimal
+    tp_6r: Decimal
+
+
+def plan_r070_protect3_cancel_first(
+    *, levels: TP6Levels, review, observed_position: int,
+    orders: tuple[BrokerOrderView, ...], old_wire: dict,
+    old_order_id: str, m15_boundary_msk, broker_last_price,
+) -> R070Protect3CancelFirstPlan:
+    """Pure candidate preflight, never a permission to call FINAM write APIs.
+
+    Requires one proved WATCHING linked 100% SLTP, completed +3R review,
+    full unchanged position, next-M15 boundary and price beyond the new SL.
+    If any fact is uncertain, keep the old stop; do NOT cancel.
+    """
+    from datetime import datetime
+    from .tp6_protect3 import ProtectionReview
+
+    if (not isinstance(review, ProtectionReview)
+            or review.status != "LOCK_1R_DUE_NEXT_M15_BROKER_REPLACE_BLOCKED"
+            or review.proposed_stop != levels.locked_stop_1r
+            or not isinstance(m15_boundary_msk, datetime)
+            or m15_boundary_msk.tzinfo is not None
+            or review.eligible_m15_open_msk != m15_boundary_msk
+            or not 10 <= m15_boundary_msk.hour < 18
+            or not isinstance(old_wire, dict)):
+        raise TP6Protect3Unsafe("R070_PROTECT3_PRECONDITIONS_UNVERIFIED")
+    old = verify_r070_linked_sltp(
+        observed_position=observed_position, orders=orders,
+        levels=levels, wire=old_wire,
+        expected_broker_order_id=old_order_id,
+    )
+    if old.status != "WATCHING":
+        raise TP6Protect3Unsafe("R070_PROTECT3_OLD_STOP_NOT_WATCHING")
+    try:
+        price = Decimal(str(broker_last_price))
+        if (not price.is_finite()
+                or (levels.direction == "LONG"
+                    and price < levels.locked_stop_1r + levels.tick)
+                or (levels.direction == "SHORT"
+                    and price > levels.locked_stop_1r - levels.tick)):
+            raise TP6Protect3Unsafe("R070_PROTECT3_PRICE_NO_LONGER_SAFE")
+    except (ValueError, TypeError, InvalidOperation) as exc:
+        raise TP6Protect3Unsafe("R070_PROTECT3_PRICE_UNVERIFIED") from exc
+    old_comment = old_wire.get("comment")
+    if (not isinstance(old_comment, str) or not old_comment.endswith(":stop")):
+        raise TP6Protect3Unsafe("R070_PROTECT3_STOP_IDENTITY_INVALID")
+    new_comment = old_comment[:-5] + ":protect3:1r"
+    if len(new_comment) > 128:
+        raise TP6Protect3Unsafe("R070_PROTECT3_COMMENT_TOO_LONG")
+    from TradingSystemLab.stage8_robot.broker import compact_client_order_id
+    from copy import deepcopy
+    new_wire = deepcopy(old_wire)
+    new_wire["sl_price"] = {"value": str(levels.locked_stop_1r)}
+    new_wire["comment"] = new_comment
+    new_wire["client_order_id"] = compact_client_order_id(new_comment)
+    if (new_wire["tp_price"] != old_wire["tp_price"]
+            or new_wire["quantity_sl"] != {"value": "100"}
+            or new_wire["quantity_tp"] != {"value": "100"}
+            or new_wire["sl_qty_measure"] != "SLTP_QTY_MEASURE_PERCENT"
+            or new_wire["tp_qty_measure"] != "SLTP_QTY_MEASURE_PERCENT"):
+        raise TP6Protect3Unsafe("R070_PROTECT3_TP_OR_COVERAGE_CHANGED")
+    return R070Protect3CancelFirstPlan(
+        old_order_id=old_order_id, symbol=old_wire["symbol"],
+        direction=levels.direction, position_quantity=observed_position,
+        old_wire=deepcopy(old_wire), new_wire=new_wire,
+        stop_1r=levels.locked_stop_1r, tp_6r=levels.take_profit,
+    )
+
+
+def verify_r070_protect3_cancelled_before_post(
+    *, plan: R070Protect3CancelFirstPlan, observed_position: int,
+    orders: tuple[BrokerOrderView, ...],
+) -> None:
+    """Broker GET must show EXACT old ID CANCELLED and no active child/order.
+
+    Cancel ACK alone or missing old order cannot prove this. No second POST
+    until the uncertain cancellation has been reconciled. If the position is
+    open without SLTP, operator escalation is required immediately.
+    """
+    if not isinstance(plan, R070Protect3CancelFirstPlan):
+        raise TP6Protect3Unsafe("R070_PROTECT3_PLAN_REQUIRED")
+    if type(observed_position) is not int or observed_position != plan.position_quantity:
+        raise TP6Protect3Unsafe("R070_PROTECT3_POSITION_CHANGED_AFTER_CANCEL")
+    if not isinstance(orders, tuple) or any(
+            not isinstance(o, BrokerOrderView) for o in orders):
+        raise TP6Protect3Unsafe("R070_PROTECT3_ORDERS_UNVERIFIED")
+    old = [o for o in orders if o.order_id == plan.old_order_id]
+    if (len(old) != 1 or old[0].symbol != plan.symbol
+            or old[0].kind != "SLTP" or old[0].active
+            or old[0].status not in {"CANCELLED", "CANCELED"}):
+        raise TP6Protect3Unsafe("R070_PROTECT3_CANCEL_NOT_BROKER_PROVEN")
+    if any(o.active and o.symbol == plan.symbol for o in orders):
+        raise TP6Protect3Unsafe("R070_PROTECT3_CONFLICTING_ACTIVE_ORDER_AFTER_CANCEL")
+
+
+def verify_r070_protect3_new_sltp(
+    *, plan: R070Protect3CancelFirstPlan, observed_position: int,
+    orders: tuple[BrokerOrderView, ...], new_order_id: str,
+) -> BrokerOrderView:
+    """After NEW broker POST, require exactly one WATCHING SLTP and 100% SL+TP6."""
+    if (not isinstance(plan, R070Protect3CancelFirstPlan)
+            or type(observed_position) is not int
+            or observed_position != plan.position_quantity
+            or not isinstance(orders, tuple)
+            or not isinstance(new_order_id, str) or not new_order_id
+            or new_order_id == plan.old_order_id):
+        raise TP6Protect3Unsafe("R070_PROTECT3_NEW_PROOF_SCOPE_INVALID")
+    active = [o for o in orders if o.active and o.symbol == plan.symbol]
+    if len(active) != 1 or active[0].kind != "SLTP":
+        raise TP6Protect3Unsafe("R070_PROTECT3_NEW_EXCLUSIVE_SLTP_REQUIRED")
+    order = active[0]
+    if (order.order_id != new_order_id or order.status != "WATCHING"
+            or order.side != plan.new_wire.get("side")
+            or order.symbol != plan.symbol
+            or order.comment != plan.new_wire.get("comment")
+            or not (order.client_order_id == plan.new_wire.get("client_order_id")
+                    or order.client_order_id == "")
+            or not isinstance(order.request, dict)):
+        raise TP6Protect3Unsafe("R070_PROTECT3_NEW_BROKER_IDENTITY_INVALID")
+    try:
+        _validate_production_sltp(order)
+        for k in ("sl_price", "tp_price", "quantity_sl", "quantity_tp"):
+            if Decimal(str(order.request[k]["value"])) != Decimal(str(plan.new_wire[k]["value"])):
+                raise TP6Protect3Unsafe("R070_PROTECT3_NEW_LEVEL_OR_COVERAGE_MISMATCH")
+        for k in ("sl_qty_measure", "tp_qty_measure", "valid_before"):
+            if order.request.get(k) != plan.new_wire.get(k):
+                raise TP6Protect3Unsafe("R070_PROTECT3_NEW_MEASURE_OR_VALIDITY_MISMATCH")
+        if (Decimal(str(order.request["sl_price"]["value"])) != plan.stop_1r
+                or Decimal(str(order.request["tp_price"]["value"])) != plan.tp_6r):
+            raise TP6Protect3Unsafe("R070_PROTECT3_NEW_TARGET_CHANGED")
+    except (KeyError, TypeError, ValueError, InvalidOperation,
+            ProductionBrokerStateError) as exc:
+        raise TP6Protect3Unsafe("R070_PROTECT3_NEW_BROKER_FIELDS_UNVERIFIED") from exc
+    return order
