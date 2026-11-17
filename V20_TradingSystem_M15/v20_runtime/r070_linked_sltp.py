@@ -716,7 +716,7 @@ def prove_r070_protect3_fresh_quote(
 
 
 def read_r070_protect3_quote_from_finam(
-    *, reader, symbol: str, direction: str,
+    *, reader, symbol: str, direction: str, reference_utc=None,
 ) -> Decimal:
     """One authenticated FINAM READONLY GET LastQuote, no POST/DELETE.
 
@@ -738,6 +738,11 @@ def read_r070_protect3_quote_from_finam(
     path = "/v1/instruments/" + symbol_wire + "/quotes/latest"
     response = reader.api._request("GET", path).body
     observed = datetime.now(timezone.utc)
+    if reference_utc is not None:
+        if not isinstance(reference_utc, datetime) or reference_utc.tzinfo is None:
+            raise TP6Protect3Unsafe("R070_PROTECT3_QUOTE_REFERENCE_TIME_INVALID")
+        if abs((observed - reference_utc.astimezone(timezone.utc)).total_seconds()) > 5:
+            raise TP6Protect3Unsafe("R070_PROTECT3_QUOTE_SNAPSHOT_CLOCK_DIVERGED")
     return prove_r070_protect3_fresh_quote(
         response=response, symbol=symbol_wire,
         direction=direction, observed_utc=observed, tick=tick)
@@ -878,7 +883,8 @@ def prepare_r070_protect3_from_v20_readonly(
         return review, None
     price = (
         read_r070_protect3_quote_from_finam(
-            reader=reader, symbol=symbol, direction=levels.direction)
+            reader=reader, symbol=symbol, direction=levels.direction,
+            reference_utc=now)
         if quote_response is None else
         prove_r070_protect3_fresh_quote(
             response=quote_response,
