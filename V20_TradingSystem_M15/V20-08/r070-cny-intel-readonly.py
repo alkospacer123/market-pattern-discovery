@@ -175,6 +175,25 @@ def session_details_bounded_retry(api, timeout_error):
             raise Hold("R070_CNY_FINAM_SESSION_DETAILS_TIMEOUT_AFTER_ONE_RETRY") from exc
 
 
+def m15_regular_session_slices(start: datetime, until: datetime):
+    """Only three known MOEX main sessions, never a multi-day FINAM bars GET."""
+    days = (date(2026, 11, 15), date(2026, 11, 16), date(2026, 11, 17))
+    need(start == datetime(2026, 11, 15, 7, 0, tzinfo=UTC) and
+         until.tzinfo is not None and until.utcoffset() == timedelta(0) and
+         until.date() == days[-1] and
+         datetime(2026, 11, 17, 7, 0, tzinfo=UTC) < until <=
+         datetime(2026, 11, 17, 15, 0, tzinfo=UTC),
+         "FINAM_M15_DAILY_WINDOW_INVALID")
+    spans = []
+    for day in days:
+        first = datetime(day.year, day.month, day.day, 7, 0, tzinfo=UTC)
+        last = min(datetime(day.year, day.month, day.day, 15, 0, tzinfo=UTC), until)
+        need(last > first and last - first <= timedelta(hours=8),
+             "FINAM_M15_DAILY_SLICE_INVALID")
+        spans.append((first, last))
+    return tuple(spans)
+
+
 def fetch_from_finam(*, token: str, account: str, start: datetime,
                      until: datetime, source_dir: Path):
     sys.path.insert(0, str(source_dir))
@@ -214,11 +233,29 @@ def fetch_from_finam(*, token: str, account: str, start: datetime,
          details["account_ids"].count(account) == 1,
          "FINAM_EXACT_TRADING_ACCOUNT_BINDING_FAILED")
     api.bound = True
-    query = urlencode({"timeframe": "TIME_FRAME_M15",
-                       "interval.start_time": start.isoformat(),
-                       "interval.end_time": until.isoformat()})
-    response = api._request("GET", f"/v1/instruments/{FINAM}/bars?" + query).body
-    return parse_finam_bars(response, start, until, parse_rest_decimal_value_object)
+    # A single 53-hour history GET timed out on Intel. Keep the existing
+    # authenticated session, but fetch ONLY the 8h main session per day.
+    # Explicit retries=1 restores one bounded safe GET retry (the GETOnly
+    # override defaults to 0). Do not loop indefinitely on FINAM failures.
+    frames = []
+    for first, last in m15_regular_session_slices(start, until):
+        query = urlencode({"timeframe": "TIME_FRAME_M15",
+                           "interval.start_time": first.isoformat(),
+                           "interval.end_time": last.isoformat()})
+        try:
+            response = api._request(
+                "GET", f"/v1/instruments/{FINAM}/bars?" + query,
+                retries=1).body
+        except FinamTimeout as exc:
+            raise Hold(
+                "R070_CNY_FINAM_M15_DAY_TIMEOUT_" + first.strftime("%Y%m%d")
+            ) from exc
+        frames.append(
+            parse_finam_bars(response, first, last, parse_rest_decimal_value_object))
+    result = pd.concat(frames, ignore_index=True)
+    need(result.Datetime.is_unique and result.Datetime.is_monotonic_increasing,
+         "FINAM_M15_DAILY_JOIN_INVALID")
+    return result
 
 
 def main():
