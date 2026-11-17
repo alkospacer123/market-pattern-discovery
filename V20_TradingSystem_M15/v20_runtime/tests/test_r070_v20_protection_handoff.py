@@ -279,6 +279,97 @@ class R070V20HandoffTests(TestCase):
                     prove()
                 d.store.put.assert_not_called()
 
+    @skipUnless(os.environ.get("R070_PROTECT3_FLAT_PATCH_ACTIVE") == "1",
+                "ephemeral flat-cleanup patch required; production SHA unchanged")
+    def test_staged_broker_flat_cancels_only_successor_sltp(self):
+        from contextlib import nullcontext
+        from V20_TradingSystem_M15.v20_runtime.finam_execution import (
+            V20SingleTradeTransport, V20FinamBlocked,
+        )
+        from V20_TradingSystem_M15.v20_runtime.tp6_protect3 import (
+            levels_from_finam_fills,
+        )
+        for empty_client in (False, True):
+            with self.subTest(empty_client=empty_client):
+                d, old, proof, wire = self.prepared_restart()
+                levels = levels_from_finam_fills(
+                    direction="LONG", fills=[(2, "100")],
+                    initial_stop=proof["installed_stop"], tick="0.1")
+                comment = d.entry_key + ":protect3:1r"
+                new_wire = {**wire,
+                    "sl_price": {"value": str(levels.locked_stop_1r)},
+                    "comment": comment,
+                    "client_order_id": compact_client_order_id(comment)}
+                replacement = {
+                    "schema": "r070.protect3.cancel_first.candidate.v1",
+                    "state": "PROTECTED", "account_sha256": d.reader.account_hash,
+                    "robot": d.reader.robot_id, "symbol": "USDRUBF@FUT",
+                    "entry_key": d.entry_key, "old_broker_id": old.order_id,
+                    "position_quantity": 2,
+                    "new_client_order_id": new_wire["client_order_id"],
+                    "new_wire": new_wire, "new_broker_id": "successor-789"}
+                original_get = d.store.get.side_effect
+                d.store.get = Mock(side_effect=lambda k, default=None:
+                    replacement if k == "r070_protect3:" + d.entry_key
+                    else original_get(k, default))
+                successor = BrokerOrderView(
+                    "successor-789", "WATCHING", True, "SLTP",
+                    "USDRUBF@FUT",
+                    "" if empty_client else new_wire["client_order_id"],
+                    comment, new_wire["side"], new_wire.copy())
+                d.snapshot = replace(
+                    d.snapshot,
+                    positions={"USDRUBF@FUT": 0},
+                    orders=(d.entry, replace(old, active=False, status="CANCELLED"),
+                            successor))
+                d.reader.snapshot = Mock(return_value=d.snapshot)
+                api = SimpleNamespace(cancel_order=Mock(return_value={}))
+                d.reader.api = api
+                d.store.transaction = Mock(side_effect=lambda: nullcontext())
+                durable = {}
+                original_intent = d.store.intent.side_effect
+                d.store.intent = Mock(
+                    side_effect=lambda k: durable.get(k, original_intent(k)))
+                def persist(k, payload):
+                    durable[k] = {"status": "INTENT_PERSISTED",
+                                  "payload": payload, "broker_order_id": None}
+                    return True
+                def transition(k, status, broker_order_id=None):
+                    durable[k]["status"] = status
+                    durable[k]["broker_order_id"] = broker_order_id
+                d.store.persist_intent = Mock(side_effect=persist)
+                d.store.transition_intent = Mock(side_effect=transition)
+                sender = SimpleNamespace(
+                    journal=d.journal, reader=d.reader, _live_mode=True,
+                    _permit=Mock(return_value={}))
+                def cancel():
+                    return V20SingleTradeTransport.cancel_stop_after_flat_once(
+                        sender, key=d.entry_key, snapshot=d.snapshot, now=d.now)
+                self.assertEqual(cancel(),
+                                 "CANCEL_ACK_REQUIRE_BROKER_NO_STOP_CONFIRMATION")
+                api.cancel_order.assert_called_once_with(d.reader.account_id, "successor-789")
+                intent = durable[d.entry_key + ":cancel-after-flat"]
+                self.assertEqual(intent["payload"]["broker_order_id"], "successor-789")
+                self.assertEqual(intent["status"], "ACK")
+                with self.assertRaisesRegex(
+                        V20FinamBlocked, "FLAT_CANCEL_ALREADY_ATTEMPTED_NO_RETRANSMIT"):
+                    cancel()
+                self.assertEqual(api.cancel_order.call_count, 1)
+
+                # Reset only persisted cancel state; an UNKNOWN transition
+                # or a foreign successor must never dispatch another CANCEL.
+                durable.clear()
+                replacement["state"] = "NEW_POST_OUTCOME_UNKNOWN"
+                with self.assertRaisesRegex(
+                        V20FinamBlocked, "R070_FLAT_CLEANUP_UNSETTLED_ORDERS"):
+                    cancel()
+                replacement["state"] = "PROTECTED"
+                replacement["new_broker_id"] = "foreign-order"
+                with self.assertRaisesRegex(
+                        V20FinamBlocked, "R070_FLAT_CLEANUP_REPLACED_STOP_INVALID"):
+                    cancel()
+                self.assertEqual(api.cancel_order.call_count, 1)
+
     @skipUnless(os.environ.get("R070_PROTECT3_PATCH_ACTIVE") == "1",
                 "ephemeral broker-ID patch required; LIVE source unchanged")
     def test_staged_protect3_new_broker_id_is_owned_and_sealed(self):
