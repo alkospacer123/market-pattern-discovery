@@ -12,7 +12,7 @@ $tools=Join-Path $candidate 'tooling'
 $python=Join-Path $root '.venv-raw\scripts\python.exe'
 $h1=Join-Path $root 'source-raw'
 $receipt=Join-Path $root 'pretrade-08\DPAPI_TRADING_BINDINGS_REPORT.json'
-$commit='16a35d6713f049fe30dee806b409a7de8bb644fd'
+$commit='07ada1eb37d8acbf31244a4dbd6cd02234c490ef'
 $expectedR060='80291246ba4692485545f58fd28c7563199bf7be28033fc16eb296efee377e31'
 $expectedCNY='f6ae045a074fea9be3f7c9b5ca47dfc7dedae4481f61e8a71fc60d16b502d4f2'
 $names=@('v20-shallow','v20-obv')
@@ -69,7 +69,7 @@ require ($report.schema -eq 'v20.08.1.dpapi_trading_bindings.v1' -and $report.st
 New-Item -ItemType Directory -Path $tools -Force | Out-Null
 no-junction $tools
 $builder=pinned 'r070-build-verified-cny-checkpoint.py' 'd2ab63b5519ddcd4049b9240b1249dc4047c78d0'
-$reader=pinned 'r070-cny-intel-readonly.py' 'ad4e3432eb244ed71ad4cd6229ecae59568a08a7' '259e324277019652fa5de5e7cfee7ac97501e9c7'
+$reader=pinned 'r070-cny-intel-readonly.py' 'ce988769658eeab2d8c9869da283e25104f52355' 'ad4e3432eb244ed71ad4cd6229ecae59568a08a7'
 $oldPath=$env:PYTHONPATH
 $oldAccount=$env:V20_FINAM_ACCOUNT
 $oldToken=$env:V20_FINAM_TOKEN
@@ -86,7 +86,7 @@ try {
         require (Test-Path -LiteralPath $secretPath -PathType Leaf) 'R070_PHYSICAL_DPAPI_SECRET_MISSING'
         $secret=Get-Content -LiteralPath $secretPath -Raw -Encoding UTF8 | ConvertFrom-Json
         require ($secret.schema -eq 'v20.08.1.dpapi_finam_pair.v1' -and $secret.robot_id -eq $name -and $secret.account_sha256 -eq $match[0].account_sha256 -and $secret.principal_sid -eq $sid) 'R070_PHYSICAL_ROBOT_ACCOUNT_SCOPE_INVALID'
-        $completed=Join-Path $candidate ('m15\r070-cny-physical-'+$name+'-20261117.json')
+        $completed=Join-Path $candidate ('m15\r070-cny-physical-'+$name+'-'+([datetimeoffset]::Now).ToString('yyyyMMdd')+'.json')
         if(Test-Path -LiteralPath $completed) {
             no-junction $completed
             $prior=Get-Content -LiteralPath $completed -Raw -Encoding UTF8 | ConvertFrom-Json
