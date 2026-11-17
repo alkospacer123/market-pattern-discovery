@@ -798,6 +798,10 @@ def stage_r070_protect3_cancel_first_once(
         raise TP6Protect3Unsafe("R070_PROTECT3_CANDIDATE_PROOF_INVALID")
     if journal.store.get(key) is not None:
         raise TP6Protect3Unsafe("R070_PROTECT3_ALREADY_ATTEMPTED_NO_REPLAY")
+    if (journal.store.get("execution_halt") is not None
+            or journal.store.get("flat_cleanup:" + entry_key) is not None
+            or journal.store.intent(entry_key + ":frozen-exit") is not None):
+        raise TP6Protect3Unsafe("R070_PROTECT3_EXIT_OR_HALT_PENDING")
     # This is an OFFLINE broker fake; still verify the broker-like observations.
     before = reader.snapshot(now=observed_at)
     if (before.positions.get(plan.symbol, 0) != plan.position_quantity
@@ -816,6 +820,7 @@ def stage_r070_protect3_cancel_first_once(
             "state": "CANCEL_OUTCOME_UNKNOWN", "account_sha256": journal.account_hash,
             "robot": reader.robot_id, "symbol": plan.symbol,
             "entry_key": entry_key, "old_broker_id": plan.old_order_id,
+            "position_quantity": plan.position_quantity,
             "new_client_order_id": plan.new_wire["client_order_id"],
             "new_wire": deepcopy(plan.new_wire),
             "new_broker_id": None,
@@ -892,6 +897,9 @@ def examine_r070_protect3_after_restart(
     symbol = rec["symbol"]
     if current.positions.get(symbol, 0) == 0:
         return "BROKER_FLAT_RECONCILE_NO_WRITE"
+    if (type(rec.get("position_quantity")) is not int
+            or current.positions.get(symbol) != rec["position_quantity"]):
+        return "CRITICAL_UNKNOWN_OR_UNPROTECTED_OPERATOR_REQUIRED"
     if rec["state"] != "PROTECTED":
         return "CRITICAL_UNKNOWN_OR_UNPROTECTED_OPERATOR_REQUIRED"
     new = [o for o in current.orders
