@@ -160,10 +160,27 @@ def compare(checkpoint: pd.DataFrame, broker: pd.DataFrame, clock_utc: datetime,
             "orders_sent": 0, "orders_cancelled": 0}
 
 
+def session_details_bounded_retry(api, timeout_error):
+    """Session metadata POST is non-trading; repeat only its network timeout once.
+
+    Reuse the same JWT, never create another session or retry any order endpoint.
+    A second timeout remains HOLD with no broker-side history claims.
+    """
+    try:
+        return api.session_details()
+    except timeout_error:
+        try:
+            return api.session_details()
+        except timeout_error as exc:
+            raise Hold("R070_CNY_FINAM_SESSION_DETAILS_TIMEOUT_AFTER_ONE_RETRY") from exc
+
+
 def fetch_from_finam(*, token: str, account: str, start: datetime,
                      until: datetime, source_dir: Path):
     sys.path.insert(0, str(source_dir))
-    from TradingSystemLab.stage8_robot.finam_api import (FinamAPI, SESSION_PATH, SESSION_DETAILS_PATH)
+    from TradingSystemLab.stage8_robot.finam_api import (
+        FinamAPI, FinamTimeout, SESSION_PATH, SESSION_DETAILS_PATH,
+    )
     from TradingSystemLab.stage8_robot.margin import parse_rest_decimal_value_object
 
     class GETOnly(FinamAPI):
@@ -190,7 +207,8 @@ def fetch_from_finam(*, token: str, account: str, start: datetime,
             return super()._request(method, path, payload=payload, auth=auth, retries=retries)
 
     api = GETOnly(token)
-    api.create_session(); details = api.session_details()
+    api.create_session()
+    details = session_details_bounded_retry(api, FinamTimeout)
     need(isinstance(details, dict) and details.get("readonly") is False and
          isinstance(details.get("account_ids"), list) and
          details["account_ids"].count(account) == 1,
