@@ -12,8 +12,8 @@ $stage=Join-Path $package 'staged'
 $liveDir=Join-Path $root 'pretrade-08\live-runtime-08\V20_TradingSystem_M15\v20_runtime'
 $origLive='b80fb9eb135f7cdcb4c78337e2b808c4d7135195'
 $origExecution='6b600451178b42bd4f8b2037995e7db3a9ad27c8'
-$expectedLive='PENDING_WINDOWS_CI'
-$expectedExecution='PENDING_WINDOWS_CI'
+$expectedLive='0c25db6d1223a39bcd0a5f28eccb738ef96931ab'
+$expectedExecution='05dfd4d0fe5210fdd8cf7e933c556a3d439dbc6b'
 $base='V20_TradingSystem_M15/v20_runtime/'
 $patchBase='V20_TradingSystem_M15/V20-08/'
 $files=[ordered]@{
@@ -97,7 +97,6 @@ try {
     } finally {Pop-Location}
     $finalLive=git-hash (Join-Path $stage ($base+'finam_live.py').Replace('/','\'))
     $finalExecution=git-hash (Join-Path $stage ($base+'finam_execution.py').Replace('/','\'))
-    need ($expectedLive -ne 'PENDING_WINDOWS_CI' -and $expectedExecution -ne 'PENDING_WINDOWS_CI') 'R070_PKG_DERIVED_SHA_NOT_RELEASED'
     need ($finalLive -ceq $expectedLive -and $finalExecution -ceq $expectedExecution) 'R070_PKG_FINAL_COMBINED_SHA_INVALID'
     $manifest=[ordered]@{
        schema='v20.r070.20261117.full_staged_bundle.v1'
@@ -123,7 +122,7 @@ try {
     [io.file]::WriteAllText($manifestPath,($manifest|ConvertTo-Json -Depth 8),[text.utf8encoding]::new($false))
     $targetZip=$package+'.zip'
     need (-not (Test-Path -LiteralPath $targetZip)) 'R070_PKG_ZIP_EXISTS'
-    Compress-Archive -LiteralPath $stage -DestinationPath $targetZip -CompressionLevel Optimal
+    Compress-Archive -Path (Join-Path $package '*') -DestinationPath $targetZip -CompressionLevel Optimal
     need (Test-Path -LiteralPath $targetZip -PathType Leaf) 'R070_PKG_ZIP_MISSING'
     $digest=(Get-FileHash -LiteralPath $targetZip -Algorithm SHA256).Hash.ToLowerInvariant()
     Write-Output ('R070_PKG_FULL_STAGED=PASS_7_PATCHES '+$targetZip)
