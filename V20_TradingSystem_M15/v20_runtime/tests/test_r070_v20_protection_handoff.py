@@ -282,6 +282,7 @@ class R070V20HandoffTests(TestCase):
     @skipUnless(os.environ.get("R070_PROTECT3_FLAT_PATCH_ACTIVE") == "1",
                 "ephemeral flat-cleanup patch required; production SHA unchanged")
     def test_staged_broker_flat_cancels_only_successor_sltp(self):
+        from V20_TradingSystem_M15.v20_runtime.finam_live import V20LiveJournal, _ownership
         from contextlib import nullcontext
         from V20_TradingSystem_M15.v20_runtime.finam_execution import (
             V20SingleTradeTransport, V20FinamBlocked,
@@ -325,6 +326,24 @@ class R070V20HandoffTests(TestCase):
                 d.reader.snapshot = Mock(return_value=d.snapshot)
                 api = SimpleNamespace(cancel_order=Mock(return_value={}))
                 d.reader.api = api
+                # The LIVE ownership pass runs BEFORE flat cleanup.
+                # It must recognize the replacement even at position=0.
+                entry = d.store.intent(d.entry_key)
+                row = {"idempotency_key": d.entry_key, "status": "RECONCILED",
+                       "payload": {**entry["payload"],
+                                   "mode": "PRETRADE_NOT_AUTHORIZED",
+                                   "robot_id": d.reader.robot_id,
+                                   "account_sha256": d.reader.account_hash}}
+                d.store.all_intents = Mock(return_value=[row])
+                live = V20LiveJournal.__new__(V20LiveJournal)
+                live.store, live.robot_id, live.account_hash = (
+                    d.store, d.reader.robot_id, d.reader.account_hash)
+                with patch(
+                    "V20_TradingSystem_M15.v20_runtime.finam_live._load_registry",
+                    return_value=d.registry,
+                ):
+                    self.assertEqual(_ownership(
+                        live, d.snapshot, reader=d.reader, now=d.now), [row])
                 d.store.transaction = Mock(side_effect=lambda: nullcontext())
                 durable = {}
                 original_intent = d.store.intent.side_effect
