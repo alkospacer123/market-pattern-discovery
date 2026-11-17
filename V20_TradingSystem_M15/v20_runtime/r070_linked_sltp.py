@@ -744,3 +744,159 @@ def verify_r070_protect3_new_sltp(
             ProductionBrokerStateError) as exc:
         raise TP6Protect3Unsafe("R070_PROTECT3_NEW_BROKER_FIELDS_UNVERIFIED") from exc
     return order
+
+def stage_r070_protect3_cancel_first_once(
+    *, journal, reader, entry_key: str, plan: R070Protect3CancelFirstPlan,
+    broker_api, observed_at,
+) -> str:
+    """Candidate-only one-shot FINAM protocol; NEVER called by LIVE worker.
+
+    Explicit broker_api dependency permits offline fake execution only in CI.
+    This routine is NOT a production auth gate, not installed or auto-bound.
+    It persists the old broker ID + proposed wire BEFORE cancel and POST,
+    consults broker after each operation, and fail-closes on ANY uncertainty.
+    An existing attempt is never retried here after restart.
+    """
+    from datetime import datetime
+    from .finam_execution import V20TradeJournal, V20FinamReadAdapter
+
+    if (not isinstance(journal, V20TradeJournal)
+            or not isinstance(reader, V20FinamReadAdapter)
+            or not isinstance(plan, R070Protect3CancelFirstPlan)
+            or not isinstance(entry_key, str) or not entry_key
+            or not isinstance(observed_at, datetime)
+            or observed_at.tzinfo is None
+            or journal.robot_id != reader.robot_id
+            or journal.account_hash != reader.account_hash
+            or not hasattr(broker_api, "cancel_order")
+            or not hasattr(broker_api, "place_sltp_order")
+            or not callable(reader.snapshot)):
+        raise TP6Protect3Unsafe("R070_PROTECT3_CANDIDATE_SCOPE_INVALID")
+    # Never accept a real broker API through the uninstalled candidate helper.
+    # The future LIVE bridge needs its own explicit authorization and tests.
+    if broker_api is reader.api:
+        raise TP6Protect3Unsafe("R070_PROTECT3_CANDIDATE_REAL_API_FORBIDDEN")
+    key = "r070_protect3:" + entry_key
+    original = journal.store.intent(entry_key)
+    old_intent = journal.store.intent(entry_key + ":stop")
+    proof = journal.store.get("protected_fill:" + entry_key)
+    if (not isinstance(original, dict)
+            or original.get("status") != "RECONCILED"
+            or not isinstance(old_intent, dict)
+            or old_intent.get("status") not in {"ACK", "RECONCILED"}
+            or old_intent.get("broker_order_id") != plan.old_order_id
+            or not isinstance(proof, dict)
+            or proof.get("broker_stop_id") != plan.old_order_id
+            or proof.get("account_sha256") != journal.account_hash
+            or proof.get("broker_stop_percent") != "100"
+            or plan.old_wire.get("symbol") != original.get("payload", {}).get("finam_symbol")
+            or plan.old_wire.get("comment") != entry_key + ":stop"
+            or plan.new_wire.get("client_order_id") ==
+                plan.old_wire.get("client_order_id")):
+        raise TP6Protect3Unsafe("R070_PROTECT3_CANDIDATE_PROOF_INVALID")
+    # This is an OFFLINE broker fake; still verify the broker-like observations.
+    before = reader.snapshot(now=observed_at)
+    if (before.positions.get(plan.symbol, 0) != plan.position_quantity
+            or len([o for o in before.orders
+                    if o.active and o.symbol == plan.symbol]) != 1
+            or not any(o.active and o.order_id == plan.old_order_id
+                       and o.kind == "SLTP" and o.status == "WATCHING"
+                       for o in before.orders)):
+        raise TP6Protect3Unsafe("R070_PROTECT3_BEFORE_CANCEL_CHANGED")
+    from copy import deepcopy
+    with journal.store.transaction():
+        if journal.store.get(key) is not None:
+            raise TP6Protect3Unsafe("R070_PROTECT3_ALREADY_ATTEMPTED_NO_REPLAY")
+        journal.store.put(key, {
+            "schema": "r070.protect3.cancel_first.candidate.v1",
+            "state": "CANCEL_OUTCOME_UNKNOWN", "account_sha256": journal.account_hash,
+            "robot": reader.robot_id, "symbol": plan.symbol,
+            "entry_key": entry_key, "old_broker_id": plan.old_order_id,
+            "new_client_order_id": plan.new_wire["client_order_id"],
+            "new_wire": deepcopy(plan.new_wire),
+            "new_broker_id": None,
+        })
+
+    def progress(state: str, new_broker_id=None):
+        # Store the entire state so restart can inspect but NEVER replay POST.
+        with journal.store.transaction():
+            item = journal.store.get(key)
+            if not isinstance(item, dict):
+                raise TP6Protect3Unsafe("R070_PROTECT3_DURABLE_STATE_MISSING")
+            item["state"] = state
+            item["new_broker_id"] = new_broker_id
+            journal.store.put(key, item)
+
+    # Any exception beyond this point may mean there is NO active stop.
+    # The durable alert survives restart; no other order is auto-issued.
+    try:
+        broker_api.cancel_order(reader.account_id, plan.old_order_id)
+        progress("CANCEL_ACK_UNVERIFIED")
+        after_cancel = reader.snapshot(now=observed_at)
+        verify_r070_protect3_cancelled_before_post(
+            plan=plan, observed_position=after_cancel.positions.get(plan.symbol, 0),
+            orders=after_cancel.orders,
+        )
+        progress("CANCEL_PROVED_UNPROTECTED")
+        # Persist the unique new POST key BEFORE dispatch. No second attempt.
+        progress("NEW_POST_OUTCOME_UNKNOWN")
+        result = broker_api.place_sltp_order(reader.account_id, deepcopy(plan.new_wire))
+        oid = result.get("order_id") if isinstance(result, dict) else None
+        if not isinstance(oid, str) or not oid:
+            raise TP6Protect3Unsafe("R070_PROTECT3_NEW_ACK_MISSING")
+        progress("NEW_ACK_UNVERIFIED", oid)
+        after_new = reader.snapshot(now=observed_at)
+        verify_r070_protect3_new_sltp(
+            plan=plan, observed_position=after_new.positions.get(plan.symbol, 0),
+            orders=after_new.orders, new_order_id=oid,
+        )
+        progress("PROTECTED", oid)
+        return oid
+    except BaseException:
+        # A state without fresh proof must never be reported as protected.
+        journal.store.put("execution_halt", "PROTECT3_UNPROTECTED_OR_UNKNOWN")
+        raise
+
+
+def examine_r070_protect3_after_restart(
+    *, journal, reader, entry_key: str, observed_at,
+) -> str:
+    """GET-only recognition of previous attempt; NEVER resends CANCEL/POST.
+
+    Also never declares protection from a stored ACK. Ownership/seal handoff
+    to LIVE must be added and accepted separately before deployment.
+    """
+    from datetime import datetime
+    from .finam_execution import V20TradeJournal, V20FinamReadAdapter
+
+    if (not isinstance(journal, V20TradeJournal)
+            or not isinstance(reader, V20FinamReadAdapter)
+            or not isinstance(observed_at, datetime) or observed_at.tzinfo is None
+            or journal.account_hash != reader.account_hash
+            or journal.robot_id != reader.robot_id):
+        raise TP6Protect3Unsafe("R070_PROTECT3_RESTART_SCOPE_INVALID")
+    key = "r070_protect3:" + entry_key
+    rec = journal.store.get(key)
+    if (not isinstance(rec, dict)
+            or rec.get("schema") != "r070.protect3.cancel_first.candidate.v1"
+            or rec.get("entry_key") != entry_key
+            or rec.get("account_sha256") != journal.account_hash
+            or rec.get("robot") != reader.robot_id
+            or not isinstance(rec.get("new_wire"), dict)):
+        raise TP6Protect3Unsafe("R070_PROTECT3_RESTART_STATE_INVALID")
+    current = reader.snapshot(now=observed_at)
+    symbol = rec["symbol"]
+    if current.positions.get(symbol, 0) == 0:
+        return "BROKER_FLAT_RECONCILE_NO_WRITE"
+    if rec["state"] != "PROTECTED":
+        return "CRITICAL_UNKNOWN_OR_UNPROTECTED_OPERATOR_REQUIRED"
+    new = [o for o in current.orders
+           if o.order_id == rec.get("new_broker_id") and o.active
+           and o.kind == "SLTP" and o.status == "WATCHING"
+           and o.symbol == symbol
+           and o.request == rec["new_wire"]]
+    if (len(new) != 1
+            or len([o for o in current.orders if o.active and o.symbol == symbol]) != 1):
+        return "CRITICAL_UNKNOWN_OR_UNPROTECTED_OPERATOR_REQUIRED"
+    # This is an OFFLINE diagnostic, not authority for new entries.
+    return "CANDIDATE_PROTECTED_BROKER_SNAPSHOT_ONLY"
