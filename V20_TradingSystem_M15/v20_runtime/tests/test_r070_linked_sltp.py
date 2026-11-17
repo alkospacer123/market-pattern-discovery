@@ -110,6 +110,112 @@ class R070LinkedSltpTests(unittest.TestCase):
             with self.subTest(change=change), self.assertRaises(TP6Protect3Unsafe):
                 plan_r070_protect3_cancel_first(**{**base, **change})
 
+    def test_protect3_one_shot_candidate_durable_and_restart_mock_only(self):
+        from contextlib import nullcontext
+        from datetime import datetime, timezone
+        from types import SimpleNamespace
+        from unittest.mock import Mock
+        from V20_TradingSystem_M15.v20_runtime.finam_execution import (
+            V20TradeJournal, V20FinamReadAdapter)
+        from V20_TradingSystem_M15.v20_runtime.tp6_protect3 import ProtectionReview
+        from V20_TradingSystem_M15.v20_runtime.r070_linked_sltp import (
+            stage_r070_protect3_cancel_first_once,
+            examine_r070_protect3_after_restart)
+        levels, _, wire, old = self.fixture()
+        mark = datetime(2026, 11, 17, 10, 15)
+        plan = plan_r070_protect3_cancel_first(
+            levels=levels,
+            review=ProtectionReview(
+                "LOCK_1R_DUE_NEXT_M15_BROKER_REPLACE_BLOCKED", mark,
+                levels.locked_stop_1r),
+            observed_position=2, orders=(old,), old_wire=wire,
+            old_order_id="order-123", m15_boundary_msk=mark,
+            broker_last_price="106")
+        new_order = BrokerOrderView(
+            "new-order-456", "WATCHING", True, "SLTP",
+            wire["symbol"], plan.new_wire["client_order_id"],
+            plan.new_wire["comment"], plan.new_wire["side"], plan.new_wire.copy())
+        before = SimpleNamespace(positions={wire["symbol"]: 2}, orders=(old,))
+        cancelled = SimpleNamespace(
+            positions={wire["symbol"]: 2},
+            orders=(replace(old, active=False, status="CANCELLED"),))
+        after = SimpleNamespace(
+            positions={wire["symbol"]: 2}, orders=(*cancelled.orders, new_order))
+        k = "v20:shallow:acct:entry"
+        now = datetime(2026, 11, 17, 7, 15, tzinfo=timezone.utc)
+
+        def environment(snapshots):
+            rows = {}
+            store = Mock()
+            store.get.side_effect = lambda key: rows.get(key)
+            store.put.side_effect = lambda key, val: rows.__setitem__(key, val)
+            store.transaction.side_effect = lambda: nullcontext()
+            store.intent.side_effect = lambda key: ({
+                k: {"status": "RECONCILED",
+                    "payload": {"finam_symbol": wire["symbol"]}},
+                k + ":stop": {"status": "RECONCILED",
+                              "broker_order_id": "order-123"},
+            }).get(key)
+            rows["protected_fill:" + k] = {
+                "broker_stop_id": "order-123", "account_sha256": "a"*64,
+                "broker_stop_percent": "100"}
+            journal = Mock(spec=V20TradeJournal)
+            journal.store = store
+            journal.robot_id = "v20-shallow"
+            journal.account_hash = "a"*64
+            reader = Mock(spec=V20FinamReadAdapter)
+            reader.robot_id = "v20-shallow"
+            reader.account_hash = "a"*64
+            reader.account_id = "offline-test-account"
+            reader.api = object()
+            reader.snapshot.side_effect = snapshots
+            api = Mock()
+            api.place_sltp_order.return_value = {"order_id": "new-order-456"}
+            return rows, journal, reader, api
+
+        rows, journal, reader, api = environment((before, cancelled, after, after))
+        self.assertEqual(stage_r070_protect3_cancel_first_once(
+            journal=journal, reader=reader, entry_key=k, plan=plan,
+            broker_api=api, observed_at=now), "new-order-456")
+        self.assertEqual(api.cancel_order.call_count, 1)
+        self.assertEqual(api.place_sltp_order.call_count, 1)
+        self.assertEqual(rows["r070_protect3:" + k]["state"], "PROTECTED")
+        self.assertEqual(rows["r070_protect3:" + k]["new_broker_id"], "new-order-456")
+        self.assertEqual(examine_r070_protect3_after_restart(
+            journal=journal, reader=reader, entry_key=k, observed_at=now),
+            "CANDIDATE_PROTECTED_BROKER_SNAPSHOT_ONLY")
+
+        # Missing cancel proof must NEVER permit a replacement POST.
+        rows, journal, reader, api = environment((before, before))
+        with self.assertRaisesRegex(TP6Protect3Unsafe,
+                                    "R070_PROTECT3_CANCEL_NOT_BROKER_PROVEN"):
+            stage_r070_protect3_cancel_first_once(
+                journal=journal, reader=reader, entry_key=k, plan=plan,
+                broker_api=api, observed_at=now)
+        self.assertEqual(api.cancel_order.call_count, 1)
+        self.assertEqual(api.place_sltp_order.call_count, 0)
+        self.assertEqual(rows["execution_halt"], "PROTECT3_UNPROTECTED_OR_UNKNOWN")
+        self.assertEqual(rows["r070_protect3:" + k]["state"],
+                         "CANCEL_ACK_UNVERIFIED")
+
+        # A POST timeout is UNKNOWN, not authority to create another SLTP.
+        rows, journal, reader, api = environment((before, cancelled))
+        api.place_sltp_order.side_effect = TimeoutError("offline timeout")
+        with self.assertRaises(TimeoutError):
+            stage_r070_protect3_cancel_first_once(
+                journal=journal, reader=reader, entry_key=k, plan=plan,
+                broker_api=api, observed_at=now)
+        self.assertEqual(api.place_sltp_order.call_count, 1)
+        self.assertEqual(rows["execution_halt"], "PROTECT3_UNPROTECTED_OR_UNKNOWN")
+        self.assertEqual(rows["r070_protect3:" + k]["state"],
+                         "NEW_POST_OUTCOME_UNKNOWN")
+        with self.assertRaisesRegex(TP6Protect3Unsafe,
+                                    "R070_PROTECT3_ALREADY_ATTEMPTED_NO_REPLAY"):
+            stage_r070_protect3_cancel_first_once(
+                journal=journal, reader=reader, entry_key=k, plan=plan,
+                broker_api=api, observed_at=now)
+        self.assertEqual(api.place_sltp_order.call_count, 1)
+
     def test_single_linked_sltp_has_two_100pct_parts_and_6r(self):
         for direction in ("LONG", "SHORT"):
             levels, action, wire, order = self.fixture(direction)
