@@ -1054,3 +1054,84 @@ def verify_r070_protect3_effective_stop(
         plan=plan, observed_position=qty,
         orders=snapshot.orders, new_order_id=rec["new_broker_id"],
     )
+
+
+def verify_r070_protect3_flat_successor(
+    *, journal, entry_key: str, broker_order: BrokerOrderView,
+) -> BrokerOrderView:
+    """Recognize only the successor SLTP for broker-FLAT cleanup, no writes.
+
+    The caller must independently prove broker-flat (zero position) and no
+    active closing/entry children before attempting the existing one-shot
+    H1 cancel-after-flat. Original :stop identity is never rewritten.
+    """
+    from .finam_execution import V20TradeJournal
+    if (not isinstance(journal, V20TradeJournal)
+            or not isinstance(entry_key, str)
+            or not entry_key.startswith(
+                "v20:" + journal.robot_id + ":" + journal.account_hash[:16] + ":")
+            or not isinstance(broker_order, BrokerOrderView)
+            or broker_order.kind != "SLTP" or not broker_order.active
+            or broker_order.status != "WATCHING"):
+        raise TP6Protect3Unsafe("R070_FLAT_CLEANUP_SCOPE_INVALID")
+    initial = journal.store.intent(entry_key + ":stop")
+    proof = journal.store.get("protected_fill:" + entry_key)
+    replacement = journal.store.get("r070_protect3:" + entry_key)
+    if (not isinstance(initial, dict)
+            or initial.get("status") not in {"ACK", "RECONCILED"}
+            or not isinstance(proof, dict)
+            or proof.get("account_sha256") != journal.account_hash
+            or proof.get("broker_stop_id") != initial.get("broker_order_id")
+            or proof.get("broker_stop_percent") != "100"
+            or not isinstance(replacement, dict)
+            or replacement.get("schema") != "r070.protect3.cancel_first.candidate.v1"
+            or replacement.get("state") != "PROTECTED"
+            or replacement.get("robot") != journal.robot_id
+            or replacement.get("account_sha256") != journal.account_hash
+            or replacement.get("entry_key") != entry_key
+            or replacement.get("old_broker_id") != initial["broker_order_id"]
+            or replacement.get("new_broker_id") == initial["broker_order_id"]
+            or replacement.get("new_broker_id") != broker_order.order_id):
+        raise TP6Protect3Unsafe("R070_FLAT_CLEANUP_DURABLE_ID_INVALID")
+    original_payload = initial.get("payload")
+    if (not isinstance(original_payload, dict)
+            or original_payload.get("kind") != "STOP"
+            or original_payload.get("account_sha256") != journal.account_hash
+            or original_payload.get("entry_key") != entry_key
+            or not isinstance(original_payload.get("wire"), dict)
+            or not isinstance(replacement.get("new_wire"), dict)):
+        raise TP6Protect3Unsafe("R070_FLAT_CLEANUP_WIRE_PROOF_MISSING")
+    old = original_payload["wire"]
+    new = replacement["new_wire"]
+    expected_client = compact_client_order_id(entry_key + ":protect3:1r")
+    if (new.get("comment") != entry_key + ":protect3:1r"
+            or new.get("client_order_id") != expected_client
+            or replacement.get("new_client_order_id") != expected_client
+            or broker_order.comment != new["comment"]
+            or not (broker_order.client_order_id == expected_client
+                    or broker_order.client_order_id == "")
+            or broker_order.side != new.get("side")
+            or broker_order.symbol != new.get("symbol")
+            or new.get("symbol") != old.get("symbol")
+            or new.get("side") != old.get("side")
+            or new.get("tp_price") != old.get("tp_price")
+            or new.get("quantity_sl") != {"value": "100"}
+            or new.get("quantity_tp") != {"value": "100"}
+            or old.get("quantity_sl") != {"value": "100"}
+            or old.get("quantity_tp") != {"value": "100"}
+            or new.get("sl_qty_measure") != "SLTP_QTY_MEASURE_PERCENT"
+            or new.get("tp_qty_measure") != "SLTP_QTY_MEASURE_PERCENT"):
+        raise TP6Protect3Unsafe("R070_FLAT_CLEANUP_SUCCESSOR_CONTRACT_INVALID")
+    try:
+        _validate_production_sltp(broker_order)
+        for name in ("sl_price", "tp_price", "quantity_sl", "quantity_tp"):
+            if (Decimal(str(broker_order.request[name]["value"]))
+                    != Decimal(str(new[name]["value"]))):
+                raise ValueError("broker wire mismatch")
+        for name in ("sl_qty_measure", "tp_qty_measure", "valid_before"):
+            if broker_order.request.get(name) != new.get(name):
+                raise ValueError("broker measure mismatch")
+    except (KeyError, TypeError, ValueError, InvalidOperation,
+            ProductionBrokerStateError) as exc:
+        raise TP6Protect3Unsafe("R070_FLAT_CLEANUP_BROKER_WIRE_INVALID") from exc
+    return broker_order
