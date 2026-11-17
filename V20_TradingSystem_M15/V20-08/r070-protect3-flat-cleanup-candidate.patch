@@ -1,6 +1,13 @@
 diff --git a/V20_TradingSystem_M15/v20_runtime/finam_execution.py b/V20_TradingSystem_M15/v20_runtime/finam_execution.py
 --- a/V20_TradingSystem_M15/v20_runtime/finam_execution.py
 +++ b/V20_TradingSystem_M15/v20_runtime/finam_execution.py
+@@ -93,5 +93,5 @@
+                 and isinstance(comment, str)
+                 and re.fullmatch(
+-                    r"v20:v20-(?:shallow|obv|inside):[a-f0-9]{16}:.+:stop",
++                    r"v20:v20-(?:shallow|obv|inside):[a-f0-9]{16}:.+:(?:stop|protect3:1r)",
+                     comment) is not None
+             )
 @@ -1243,16 +1243,33 @@
                  "account_sha256": self.journal.account_hash,
              })
