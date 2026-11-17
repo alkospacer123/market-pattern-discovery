@@ -912,3 +912,145 @@ def examine_r070_protect3_after_restart(
         return "CRITICAL_UNKNOWN_OR_UNPROTECTED_OPERATOR_REQUIRED"
     # This is an OFFLINE diagnostic, not authority for new entries.
     return "CANDIDATE_PROTECTED_BROKER_SNAPSHOT_ONLY"
+
+
+def verify_r070_protect3_effective_stop(
+    *, journal, reader, snapshot, entry_key: str, now,
+) -> BrokerOrderView:
+    """Read-only reconciliation of an already replaced SLTP after reboot.
+
+    The immutable original :stop intent, the durable original fill/VWAP
+    proof and the R070 transition record must all agree with the CURRENT
+    broker position and the single new SLTP. No HTTP, SQLite writes,
+    broker cancellation or submission is performed by this function.
+    An unconfirmed CANCEL/POST is NEVER interpreted as protection.
+    """
+    from TradingSystemLab.stage8_robot.production_runtime import _load_registry
+    from .finam_execution import (
+        LiveAccountSnapshot, V20FinamReadAdapter, V20TradeJournal,
+    )
+
+    if (not isinstance(journal, V20TradeJournal)
+            or not isinstance(reader, V20FinamReadAdapter)
+            or not isinstance(snapshot, LiveAccountSnapshot)
+            or journal.robot_id != reader.robot_id
+            or snapshot.robot_id != reader.robot_id
+            or journal.account_hash != reader.account_hash
+            or snapshot.account_hash != reader.account_hash
+            or not isinstance(entry_key, str)
+            or not entry_key.startswith(
+                "v20:" + reader.robot_id + ":" + reader.account_hash[:16] + ":")):
+        raise TP6Protect3Unsafe("R070_EFFECTIVE_STOP_ACCOUNT_OR_ENTRY_INVALID")
+    reader._fresh(snapshot, now)
+    entry = journal.store.intent(entry_key)
+    initial = journal.store.intent(entry_key + ":stop")
+    proof = journal.store.get("protected_fill:" + entry_key)
+    rec = journal.store.get("r070_protect3:" + entry_key)
+    if (not isinstance(entry, dict) or entry.get("status") != "RECONCILED"
+            or not isinstance(entry.get("broker_order_id"), str)
+            or not isinstance(initial, dict)
+            or initial.get("status") not in {"ACK", "RECONCILED"}
+            or not isinstance(proof, dict)
+            or proof.get("account_sha256") != reader.account_hash
+            or proof.get("broker_order_id") != entry["broker_order_id"]
+            or proof.get("broker_stop_id") != initial.get("broker_order_id")
+            or proof.get("broker_stop_percent") != "100"
+            or not isinstance(proof.get("risk_assessment"), dict)
+            or proof["risk_assessment"].get("status") != "PASS"
+            or proof["risk_assessment"].get("stop_conforms") is not True
+            or not isinstance(rec, dict)
+            or rec.get("schema") != "r070.protect3.cancel_first.candidate.v1"
+            or rec.get("state") != "PROTECTED"
+            or rec.get("robot") != reader.robot_id
+            or rec.get("account_sha256") != reader.account_hash
+            or rec.get("entry_key") != entry_key
+            or rec.get("old_broker_id") != initial["broker_order_id"]
+            or not isinstance(rec.get("new_broker_id"), str)
+            or not rec["new_broker_id"]
+            or rec["new_broker_id"] == rec["old_broker_id"]
+            or not isinstance(rec.get("new_wire"), dict)):
+        raise TP6Protect3Unsafe("R070_EFFECTIVE_STOP_DURABLE_PROOF_INVALID")
+    payload = entry.get("payload")
+    initial_payload = initial.get("payload")
+    if (not isinstance(payload, dict)
+            or not isinstance(initial_payload, dict)
+            or initial_payload.get("kind") != "STOP"
+            or initial_payload.get("entry_key") != entry_key
+            or initial_payload.get("account_sha256") != reader.account_hash
+            or not isinstance(initial_payload.get("wire"), dict)):
+        raise TP6Protect3Unsafe("R070_EFFECTIVE_STOP_ORIGINAL_WIRE_INVALID")
+    old_wire = initial_payload["wire"]
+    symbol, direction = payload.get("symbol"), payload.get("direction")
+    registry = _load_registry()
+    if (symbol not in registry or direction not in {"LONG", "SHORT"}
+            or payload.get("finam_symbol") != registry[symbol]["finam_symbol"]
+            or old_wire.get("symbol") != payload["finam_symbol"]
+            or rec.get("symbol") != payload["finam_symbol"]
+            or rec.get("new_wire", {}).get("symbol") != payload["finam_symbol"]
+            or old_wire.get("comment") != entry_key + ":stop"
+            or type(payload.get("quantity")) is not int
+            or payload["quantity"] <= 0):
+        raise TP6Protect3Unsafe("R070_EFFECTIVE_STOP_SYMBOL_OR_SIDE_INVALID")
+    qty = snapshot.positions.get(payload["finam_symbol"])
+    expected = payload["quantity"] if direction == "LONG" else -payload["quantity"]
+    if (type(qty) is not int or qty != expected
+            or rec.get("position_quantity") != qty
+            or type(proof.get("filled_quantity")) is not int
+            or proof["filled_quantity"] != abs(qty)
+            or initial_payload.get("observed_position_quantity") != qty):
+        raise TP6Protect3Unsafe("R070_EFFECTIVE_STOP_POSITION_CHANGED")
+    try:
+        fills = journal.store.fills_for_order(entry["broker_order_id"])
+        if not isinstance(fills, list) or not fills:
+            raise ValueError("no durable fills")
+        ids = set()
+        rows = []
+        for fill in fills:
+            if (not isinstance(fill, dict)
+                    or fill.get("entry_key") != entry_key
+                    or fill.get("trade_id") != entry_key
+                    or fill.get("account_sha256") != reader.account_hash
+                    or fill.get("broker_order_id") != entry["broker_order_id"]
+                    or not isinstance(fill.get("fill_id"), str)
+                    or not fill["fill_id"].startswith("finam:" + reader.account_hash + ":")
+                    or fill["fill_id"] in ids):
+                raise ValueError("unproven fill")
+            ids.add(fill["fill_id"])
+            rows.append((int(fill["quantity"]), fill["price"]))
+        from fractions import Fraction
+        if (sum(q for q, _ in rows) != abs(qty)
+                or sum((q * Fraction(price) for q, price in rows), Fraction(0))
+                   != abs(qty) * Fraction(proof["average_exact"])):
+            raise ValueError("fill quantity or VWAP mismatch")
+        levels = levels_from_finam_fills(
+            direction=direction, fills=rows,
+            initial_stop=proof["installed_stop"],
+            tick=registry[symbol]["price_step"])
+        if (Decimal(str(old_wire["sl_price"]["value"])) != levels.initial_stop
+                or Decimal(str(old_wire["tp_price"]["value"])) != levels.take_profit):
+            raise ValueError("original linked SLTP not TP6")
+        old_comment = entry_key + ":stop"
+        from copy import deepcopy
+        expected_wire = deepcopy(old_wire)
+        expected_wire["sl_price"] = {"value": str(levels.locked_stop_1r)}
+        expected_wire["comment"] = entry_key + ":protect3:1r"
+        expected_wire["client_order_id"] = compact_client_order_id(
+            entry_key + ":protect3:1r")
+        if (old_wire.get("client_order_id") != compact_client_order_id(old_comment)
+                or rec["new_wire"] != expected_wire
+                or rec.get("new_client_order_id") != expected_wire["client_order_id"]):
+            raise ValueError("new wire not exactly derived from original seal")
+    except (KeyError, TypeError, ValueError, InvalidOperation,
+            OverflowError, ZeroDivisionError, TP6Protect3Unsafe) as exc:
+        raise TP6Protect3Unsafe("R070_EFFECTIVE_STOP_LEVELS_OR_FILLS_UNVERIFIED") from exc
+    plan = R070Protect3CancelFirstPlan(
+        old_order_id=initial["broker_order_id"],
+        symbol=payload["finam_symbol"], direction=direction,
+        position_quantity=qty, old_wire=old_wire,
+        new_wire=expected_wire, stop_1r=levels.locked_stop_1r,
+        tp_6r=levels.take_profit,
+    )
+    return verify_r070_protect3_new_sltp(
+        plan=plan, observed_position=qty,
+        orders=snapshot.orders, new_order_id=rec["new_broker_id"],
+    )
