@@ -583,8 +583,8 @@ class R070V20HandoffTests(TestCase):
                     review.status, "LOCK_1R_DUE_NEXT_M15_BROKER_REPLACE_BLOCKED")
                 self.assertEqual(plan.old_order_id, old.order_id)
                 self.assertEqual(
-                    plan.new_wire["sl_price"]["value"],
-                    "102" if direction == "LONG" else "98")
+                    Decimal(plan.new_wire["sl_price"]["value"]),
+                    Decimal("102") if direction == "LONG" else Decimal("98"))
                 self.assertEqual(plan.new_wire["tp_price"], wire["tp_price"])
                 self.assertEqual(plan.new_wire["quantity_tp"], {"value": "100"})
                 d.store.put.assert_not_called()
