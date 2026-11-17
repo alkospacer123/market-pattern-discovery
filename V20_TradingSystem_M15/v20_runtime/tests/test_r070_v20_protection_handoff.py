@@ -868,6 +868,79 @@ class R070V20HandoffTests(TestCase):
                     start=start, until=until,
                     source_dir=Path(__file__).resolve().parents[3])
 
+    def test_r070_cny_readonly_rejected_timestamp_is_specific_and_nonsecret(self):
+        from importlib.util import module_from_spec, spec_from_file_location
+        from pathlib import Path
+        from datetime import datetime, timezone
+        from decimal import Decimal
+        path = (Path(__file__).resolve().parents[2] / "V20-08"
+                / "r070-cny-intel-readonly.py")
+        spec = spec_from_file_location("r070_intel_timestamp_diagnostic", path)
+        mod = module_from_spec(spec)
+        spec.loader.exec_module(mod)
+        start = datetime(2026, 11, 18, 7, tzinfo=timezone.utc)
+        until = datetime(2026, 11, 18, 15, tzinfo=timezone.utc)
+
+        def bar(at):
+            return {"timestamp": at, "open": "12.31", "high": "12.32",
+                    "low": "12.30", "close": "12.31", "volume": "1"}
+
+        for rows, reason, received in (
+            ([bar("2026-11-18T06:45:00Z")], "BEFORE_WINDOW", "06:45:00"),
+            ([bar("2026-11-18T15:00:00Z")], "AT_OR_AFTER_END", "15:00:00"),
+            ([bar("2026-11-18T07:07:00Z")], "OFF_M15_GRID", "07:07:00"),
+            ([bar("2026-11-18T07:15:00Z"),
+              bar("2026-11-18T07:00:00Z")],
+             "DUPLICATE_OR_UNSORTED", "07:00:00"),
+        ):
+            with self.subTest(reason=reason):
+                with self.assertRaises(mod.Hold) as ctx:
+                    mod.parse_finam_bars(
+                        {"bars": rows}, start, until, Decimal)
+                error = str(ctx.exception)
+                self.assertIn("R070_CNY_FINAM_M15_SEQUENCE_OR_TIME", error)
+                self.assertIn("reason=" + reason, error)
+                self.assertIn(received, error)
+                self.assertIn("window_end_exclusive_utc=", error)
+                self.assertNotIn("synthetic-secret", error)
+        self.assertEqual(
+            len(mod.m15_regular_session_slices(
+                datetime(2026, 11, 15, 7, tzinfo=timezone.utc),
+                datetime(2026, 11, 18, 11, tzinfo=timezone.utc))), 4)
+        with self.assertRaisesRegex(mod.Hold, "FINAM_M15_DAILY_WINDOW_INVALID"):
+            mod.m15_regular_session_slices(
+                datetime(2026, 11, 15, 7, tzinfo=timezone.utc),
+                datetime(2026, 11, 21, 11, tzinfo=timezone.utc))
+
+    def test_r070_cny_next_session_completed_grid_remains_strict(self):
+        from importlib.util import module_from_spec, spec_from_file_location
+        from pathlib import Path
+        from datetime import datetime, timezone, timedelta
+        from decimal import Decimal
+        import pandas as pd
+        source = (Path(__file__).resolve().parents[2] / "V20-08"
+                  / "r070-cny-intel-readonly.py")
+        spec = spec_from_file_location("r070_intel_cny_next_day", source)
+        module = module_from_spec(spec)
+        spec.loader.exec_module(module)
+
+        def bars(day, count=32):
+            return pd.DataFrame([{
+                "Datetime": t, "Open": 12.313,
+                "High": 12.314, "Low": 12.312, "Close": 12.313,
+                "Volume": 100,
+            } for t in pd.date_range(day + " 10:00", periods=count, freq="15min")])
+        checkpoint = bars("2026-11-15")
+        frame = pd.concat([
+            checkpoint, bars("2026-11-16"), bars("2026-11-17"),
+            bars("2026-11-18", 18)], ignore_index=True)
+        observed = datetime(2026, 11, 18, 14, 46, tzinfo=timezone(timedelta(hours=3)))
+        result = module.compare(checkpoint, frame, observed, Decimal("0.001"))
+        self.assertEqual(result["last_completed_open_msk"], "2026-11-18T14:15:00")
+        missing = frame[frame.Datetime != pd.Timestamp("2026-11-17 13:30")]
+        with self.assertRaisesRegex(module.Hold, "FINAM_SESSION_M15_MISSING_20261117"):
+            module.compare(checkpoint, missing, observed, Decimal("0.001"))
+
     def test_r070_physical_cny_get_only_logic_uses_real_checkpoint_format(self):
         from datetime import date, datetime, timedelta, timezone
         from decimal import Decimal
