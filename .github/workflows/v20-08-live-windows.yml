@@ -494,3 +494,14 @@ jobs:
           if ((& git.exe hash-object -- $live).Trim() -ne $liveSha) { throw 'R070_PROTECT3_PINNED_LIVE_SHA_AFTER' }
           if ((& git.exe hash-object -- $execution).Trim() -ne $execSha) { throw 'R070_PROTECT3_PINNED_EXEC_SHA_AFTER' }
           Write-Output 'R070_PROTECT3_FULL_STAGED_HOOK_AND_NIGHT=PASS_PINNED_BOTH_RESTORED'
+
+      - name: R070 Intel CNY GET-only PowerShell syntax (no execution)
+        shell: pwsh
+        run: |
+          $ErrorActionPreference='Stop'
+          $source='V20_TradingSystem_M15/V20-08/r070-cny-intel-readonly.ps1'
+          $tokens=$null
+          $errors=$null
+          $null=[System.Management.Automation.Language.Parser]::ParseFile($source,[ref]$tokens,[ref]$errors)
+          if (@($errors).Count -ne 0) { throw ('R070_CNY_READONLY_PS_SYNTAX_ERROR '+(($errors | ForEach-Object {$_.Message}) -join ';')) }
+          Write-Output 'R070_CNY_PHYSICAL_PS_SYNTAX=PASS_NO_EXECUTION'
