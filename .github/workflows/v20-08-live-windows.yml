@@ -505,3 +505,31 @@ jobs:
           $null=[System.Management.Automation.Language.Parser]::ParseFile($source,[ref]$tokens,[ref]$errors)
           if (@($errors).Count -ne 0) { throw ('R070_CNY_READONLY_PS_SYNTAX_ERROR '+(($errors | ForEach-Object {$_.Message}) -join ';')) }
           Write-Output 'R070_CNY_PHYSICAL_PS_SYNTAX=PASS_NO_EXECUTION'
+
+      - name: R070 FINAM incomplete GET incident 20261117 (ephemeral only)
+        shell: pwsh
+        env:
+          PYTHONDONTWRITEBYTECODE: '1'
+        run: |
+          $ErrorActionPreference='Stop'
+          $target='V20_TradingSystem_M15/v20_runtime/finam_live.py'
+          $patch='V20_TradingSystem_M15/V20-08/r070-finam-get-incomplete-read-candidate.patch'
+          $pinned='b80fb9eb135f7cdcb4c78337e2b808c4d7135195'
+          if ((& git.exe hash-object -- $target).Trim() -ne $pinned) { throw 'R070_GET_INCOMPLETE_LIVE_PIN_CHANGED' }
+          & git.exe apply --check -- $patch
+          if ($LASTEXITCODE -ne 0) { throw 'R070_GET_INCOMPLETE_PATCH_CHECK_FAILED' }
+          $applied=$false
+          try {
+            & git.exe apply -- $patch
+            if ($LASTEXITCODE -ne 0) { throw 'R070_GET_INCOMPLETE_PATCH_APPLY_FAILED' }
+            $applied=$true
+            python -m unittest -v V20_TradingSystem_M15.v20_runtime.tests.test_r070_finam_get_incomplete_read_staged
+            if ($LASTEXITCODE -ne 0) { throw 'R070_GET_INCOMPLETE_MOCK_FAILED' }
+          } finally {
+            if ($applied) {
+              & git.exe apply -R -- $patch
+              if ($LASTEXITCODE -ne 0) { throw 'R070_GET_INCOMPLETE_PATCH_RESTORE_FAILED' }
+            }
+          }
+          if ((& git.exe hash-object -- $target).Trim() -ne $pinned) { throw 'R070_GET_INCOMPLETE_LIVE_SHA_CHANGED_AFTER_TEST' }
+          Write-Output 'R070_GET_INCOMPLETE=PASS_RESTORED_PRODUCTION_PIN_NO_FINAM'
