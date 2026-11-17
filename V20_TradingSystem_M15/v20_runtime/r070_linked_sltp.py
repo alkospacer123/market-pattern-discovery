@@ -668,6 +668,53 @@ def review_r070_protect3_m15_boundary(
     )
 
 
+def prove_r070_protect3_fresh_quote(
+    *, response: dict, symbol: str, direction: str,
+    observed_utc, tick, maximum_age_seconds: int = 5,
+) -> Decimal:
+    """Validate a fresh FINAM LastQuote GET response, never a M15 Open.
+
+    bid is the immediate SELL-side reference for LONG, ask the BUY-side
+    reference for SHORT. Neither proves future execution or stop liquidity.
+    Old/missing/crossed quotes refuse a Protect3 cancellation.
+    """
+    from datetime import datetime, timedelta, timezone
+
+    if (not isinstance(response, dict)
+            or not isinstance(symbol, str) or not symbol
+            or direction not in {"LONG", "SHORT"}
+            or not isinstance(observed_utc, datetime)
+            or observed_utc.tzinfo is None
+            or type(maximum_age_seconds) is not int
+            or maximum_age_seconds not in range(1, 16)):
+        raise TP6Protect3Unsafe("R070_PROTECT3_QUOTE_SCOPE_INVALID")
+    quote = response.get("quote")
+    if (response.get("symbol") != symbol
+            or not isinstance(quote, dict)
+            or quote.get("symbol") != symbol):
+        raise TP6Protect3Unsafe("R070_PROTECT3_QUOTE_SYMBOL_INVALID")
+    try:
+        timestamp = datetime.fromisoformat(
+            quote["timestamp"].replace("Z", "+00:00"))
+        if timestamp.tzinfo is None:
+            raise ValueError("naive quote time")
+        age = observed_utc.astimezone(timezone.utc) - timestamp.astimezone(timezone.utc)
+        if not timedelta(0) <= age <= timedelta(seconds=maximum_age_seconds):
+            raise TP6Protect3Unsafe("R070_PROTECT3_QUOTE_STALE_OR_FUTURE")
+        step = Decimal(str(tick))
+        bid = Decimal(str(quote["bid"]["value"]))
+        ask = Decimal(str(quote["ask"]["value"]))
+        if (not step.is_finite() or step <= 0
+                or not bid.is_finite() or not ask.is_finite()
+                or bid <= 0 or ask <= 0 or bid > ask
+                or bid / step != (bid / step).to_integral_value()
+                or ask / step != (ask / step).to_integral_value()):
+            raise TP6Protect3Unsafe("R070_PROTECT3_QUOTE_SPREAD_OR_GRID_INVALID")
+    except (KeyError, AttributeError, TypeError, ValueError, InvalidOperation) as exc:
+        raise TP6Protect3Unsafe("R070_PROTECT3_QUOTE_FIELDS_INVALID") from exc
+    return bid if direction == "LONG" else ask
+
+
 def plan_r070_protect3_cancel_first(
     *, levels: TP6Levels, review, observed_position: int,
     orders: tuple[BrokerOrderView, ...], old_wire: dict,
