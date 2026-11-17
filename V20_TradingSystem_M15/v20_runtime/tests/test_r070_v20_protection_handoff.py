@@ -404,6 +404,53 @@ class R070V20HandoffTests(TestCase):
                     cancel()
                 self.assertEqual(api.cancel_order.call_count, 1)
 
+    @skipUnless(os.environ.get("R070_PROTECT3_NIGHT_PATCH_ACTIVE") == "1",
+                "ephemeral Protect3 night-monitor patch required")
+    def test_staged_night_replacement_keeps_normal_protected_slow_poll(self):
+        from V20_TradingSystem_M15.v20_runtime.finam_live import (
+            _closed_night_protected,
+        )
+        key = "v20:v20-shallow:aaaaaaaaaaaaaaaa:synthetic"
+        replacement = {
+            "state": "PROTECTED", "new_broker_id": "new-sltp-123"}
+        d = {
+            "protected_fill:" + key: {
+                "filled_quantity": 2, "broker_stop_percent": "100",
+                "broker_stop_id": "old-sltp-123",
+            },
+            "r070_protect3:" + key: replacement,
+        }
+        store = SimpleNamespace(
+            get=Mock(side_effect=lambda k: d.get(k)),
+            intent=Mock(side_effect=lambda k:
+                {"status": "RECONCILED"} if k == key + ":stop" else None))
+        journal = SimpleNamespace(store=store)
+        row = {"idempotency_key": key, "status": "RECONCILED",
+               "payload": {"finam_symbol": "USDRUBF@FUT"}}
+        stop = BrokerOrderView(
+            "new-sltp-123", "WATCHING", True, "SLTP", "USDRUBF@FUT",
+            "cid", key + ":protect3:1r", "SIDE_SELL", {})
+        snap = SimpleNamespace(
+            positions={"USDRUBF@FUT": 2}, orders=(stop,))
+        with patch(
+            "V20_TradingSystem_M15.v20_runtime.finam_live._entries",
+            return_value=[row],
+        ):
+            self.assertTrue(_closed_night_protected(journal, snap))
+            d["r070_protect3:" + key] = {
+                "state": "NEW_POST_OUTCOME_UNKNOWN"}
+            self.assertFalse(_closed_night_protected(journal, snap))
+            d["r070_protect3:" + key] = replacement
+            d.pop("r070_protect3:" + key)
+            self.assertFalse(_closed_night_protected(journal, snap))
+            d["r070_protect3:" + key] = replacement
+            child = BrokerOrderView(
+                "pending", "NEW", True, "REGULAR", "USDRUBF@FUT",
+                "c", None, "SIDE_SELL", {})
+            self.assertFalse(_closed_night_protected(
+                journal, SimpleNamespace(
+                    positions=snap.positions, orders=(stop, child))))
+
     @skipUnless(os.environ.get("R070_PROTECT3_LIVE_HOOK_PATCH_ACTIVE") == "1",
                 "ephemeral authorized +3R LIVE hook patch required")
     def test_staged_live_cycle_calls_protect3_only_after_holding_and_tp6(self):
