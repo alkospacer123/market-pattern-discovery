@@ -16,7 +16,7 @@ diff --git a/V20_TradingSystem_M15/v20_runtime/finam_live.py b/V20_TradingSystem
 +    for row in entries:
          key, payload = row["idempotency_key"], row["payload"]
          symbol = payload["finam_symbol"]
-@@ -187,7 +188,29 @@
+@@ -187,7 +188,44 @@
          if symbol in current_symbols:
              raise V20FinamBlocked("V20_LIVE_TWO_POSITIONS_SAME_INSTRUMENT")
 -        current_symbols[symbol] = row
@@ -31,25 +31,40 @@ diff --git a/V20_TradingSystem_M15/v20_runtime/finam_live.py b/V20_TradingSystem
 +                    or not isinstance(replacement, dict)
 +                    or replacement.get("state") != "PROTECTED"):
 +                raise V20FinamBlocked("R070_PROTECT3_REPLACEMENT_UNCERTAIN_OPERATOR")
-+            from .r070_linked_sltp import verify_r070_protect3_effective_stop
++            from .r070_linked_sltp import (
++                verify_r070_protect3_effective_stop,
++                verify_r070_protect3_flat_successor,
++            )
 +            from .tp6_protect3 import TP6Protect3Unsafe
++            confirmed = None
 +            try:
-+                confirmed = verify_r070_protect3_effective_stop(
-+                    journal=journal, reader=reader, snapshot=snapshot,
-+                    entry_key=key, now=now)
++                if snapshot.positions.get(symbol, 0) == 0:
++                    active = [o for o in snapshot.orders
++                              if o.active and o.symbol == symbol]
++                    if active:
++                        if len(active) != 1 or active[0].kind != "SLTP":
++                            raise TP6Protect3Unsafe("R070_FLAT_ACTIVE_CHILD_UNVERIFIED")
++                        confirmed = verify_r070_protect3_flat_successor(
++                            journal=journal, entry_key=key,
++                            broker_order=active[0])
++                else:
++                    confirmed = verify_r070_protect3_effective_stop(
++                        journal=journal, reader=reader, snapshot=snapshot,
++                        entry_key=key, now=now)
 +            except TP6Protect3Unsafe as exc:
 +                raise V20FinamBlocked("R070_PROTECT3_REPLACED_STOP_UNVERIFIED") from exc
-+            new_client = compact_client_order_id(key + ":protect3:1r")
-+            if (new_client in expected_orders
-+                    or confirmed.order_id in successor_by_broker_id):
-+                raise V20FinamBlocked("R070_PROTECT3_DUPLICATE_SUCCESSOR")
-+            expected_orders[new_client] = (symbol, "SLTP")
-+            successor_by_broker_id[confirmed.order_id] = new_client
++            if confirmed is not None:
++                new_client = compact_client_order_id(key + ":protect3:1r")
++                if (new_client in expected_orders
++                        or confirmed.order_id in successor_by_broker_id):
++                    raise V20FinamBlocked("R070_PROTECT3_DUPLICATE_SUCCESSOR")
++                expected_orders[new_client] = (symbol, "SLTP")
++                successor_by_broker_id[confirmed.order_id] = new_client
 +        for suffix, kind in (("", "REGULAR"), (":stop", "SLTP"),
 +                             (":frozen-exit", "REGULAR")):
              intent_key = key + suffix
              if (suffix == "" or journal.store.intent(intent_key) is not None):
-@@ -210,6 +233,8 @@
+@@ -210,6 +248,8 @@
          if not order.active:
              continue
 -        client = order.client_order_id
@@ -60,14 +75,14 @@ diff --git a/V20_TradingSystem_M15/v20_runtime/finam_live.py b/V20_TradingSystem
 +        if client == "":
              # FINAM 2026-11-03: live WATCHING stop may omit client_order_id.
              # Correlate ONLY with the exact durable stop broker ID, full
-@@ -284,5 +309,5 @@
+@@ -284,5 +324,5 @@
                  or refreshed.available_cash != snapshot.available_cash):
              raise V20FinamBlocked("V20_LIVE_BROKER_CHANGED_BEFORE_ENTRY")
 -        _ownership(self.journal, refreshed)
 +        _ownership(self.journal, refreshed, reader=self.reader, now=now)
          row = self.journal.store.intent(key)
          if row is None or row["status"] != "INTENT_PERSISTED":
-@@ -337,7 +362,20 @@
+@@ -337,7 +377,20 @@
              or stop_intent["broker_order_id"] != proof.get("broker_stop_id")):
          raise V20FinamBlocked("SEALED_ENTRY_DURABLE_PROTECTION_INVALID")
 -    try:
@@ -91,21 +106,21 @@ diff --git a/V20_TradingSystem_M15/v20_runtime/finam_live.py b/V20_TradingSystem
 +            snapshot, entry_key=key, symbol=payload["symbol"],
              direction=payload["direction"],
              stop_price=Decimal(str(proof["installed_stop"])), now=now)
-@@ -366,5 +404,5 @@
+@@ -366,5 +419,5 @@
  def _follow_existing(sender: V20LiveTransport, now: datetime, snapshot) -> str:
      journal, reader = sender.journal, sender.reader
 -    entries = _ownership(journal, snapshot)
 +    entries = _ownership(journal, snapshot, reader=reader, now=now)
      # Unsettled entries need protection before already RECONCILED positions.
      # 2026-11-06: this prevents the earlier protected CNY entry from blocking
-@@ -690,5 +728,5 @@
+@@ -690,5 +743,5 @@
                  reader, symbol=symbol, from_utc=now-timedelta(days=20),
                  now=now, cost_per_contract=cost,
 -                broker_ownership=lambda snap: _ownership(journal, snap))
 +                broker_ownership=lambda snap: _ownership(journal, snap, reader=reader, now=now))
          except V20FinamBlocked as exc:
              if str(exc) in ("M15_NEXT_OPEN_WITNESS_MISSING",
-@@ -738,5 +776,5 @@
+@@ -738,5 +791,5 @@
          # intention. A crash cannot replay the same frozen NEXT_OPEN.
          journal.store.put("live_decision:" + symbol, boundary_id)
 -        _ownership(journal, broker)
