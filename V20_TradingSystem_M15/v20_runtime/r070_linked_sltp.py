@@ -1,7 +1,7 @@
-"""R070 staged single SL+TP6 broker contract; verification only, NO API calls.
+"""R070 linked SLTP proof and isolated Protect3 candidate-only orchestration.
 
-Reuses H1 protective stop payload and FINAM broker order view. Does not
-replace an active SLTP, submit orders, touch SQLite or enable LIVE.
+Current LIVE is unchanged. OFFLINE candidate accepts a separately injected
+fake broker transport only; the actual FINAM API is rejected by identity.
 """
 from __future__ import annotations
 
@@ -794,6 +794,8 @@ def stage_r070_protect3_cancel_first_once(
             or plan.new_wire.get("client_order_id") ==
                 plan.old_wire.get("client_order_id")):
         raise TP6Protect3Unsafe("R070_PROTECT3_CANDIDATE_PROOF_INVALID")
+    if journal.store.get(key) is not None:
+        raise TP6Protect3Unsafe("R070_PROTECT3_ALREADY_ATTEMPTED_NO_REPLAY")
     # This is an OFFLINE broker fake; still verify the broker-like observations.
     before = reader.snapshot(now=observed_at)
     if (before.positions.get(plan.symbol, 0) != plan.position_quantity
