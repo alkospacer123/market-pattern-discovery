@@ -715,6 +715,34 @@ def prove_r070_protect3_fresh_quote(
     return bid if direction == "LONG" else ask
 
 
+def read_r070_protect3_quote_from_finam(
+    *, reader, symbol: str, direction: str,
+) -> Decimal:
+    """One authenticated FINAM READONLY GET LastQuote, no POST/DELETE.
+
+    Reuses V20's existing authenticated reader._request(). The server quote
+    timestamp, bid/ask side and tick grid are checked independently;
+    a successful GET does not by itself authorize a stop replacement.
+    """
+    from datetime import datetime, timezone
+    from TradingSystemLab.stage8_robot.production_runtime import _load_registry
+    from .finam_execution import V20FinamReadAdapter
+
+    if (not isinstance(reader, V20FinamReadAdapter)
+            or not isinstance(symbol, str) or symbol not in _load_registry()
+            or direction not in {"LONG", "SHORT"}):
+        raise TP6Protect3Unsafe("R070_PROTECT3_FINAM_QUOTE_SCOPE_INVALID")
+    reader._require_bound()
+    symbol_wire = _load_registry()[symbol]["finam_symbol"]
+    tick = _load_registry()[symbol]["price_step"]
+    path = "/v1/instruments/" + symbol_wire + "/quotes/latest"
+    response = reader.api._request("GET", path).body
+    observed = datetime.now(timezone.utc)
+    return prove_r070_protect3_fresh_quote(
+        response=response, symbol=symbol_wire,
+        direction=direction, observed_utc=observed, tick=tick)
+
+
 def plan_r070_protect3_cancel_first(
     *, levels: TP6Levels, review, observed_position: int,
     orders: tuple[BrokerOrderView, ...], old_wire: dict,
