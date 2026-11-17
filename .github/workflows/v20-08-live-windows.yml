@@ -600,6 +600,59 @@ jobs:
             if ($LASTEXITCODE -ne 0) { throw 'R070_FULL_BUNDLE_COMPILED_INVALID' }
             Write-Output ('R070_FULL_BUNDLE_LIVE_DERIVED_SHA=' + (& git.exe hash-object -- $live).Trim())
             Write-Output ('R070_FULL_BUNDLE_EXEC_DERIVED_SHA=' + (& git.exe hash-object -- $execution).Trim())
+            # Build one offline package on the CI host. Intel does not need
+            # to make sixteen separate GitHub API calls.
+            $base='V20_TradingSystem_M15/'
+            $bundle=Join-Path $env:RUNNER_TEMP 'r070-full-bundle-20261117'
+            if(Test-Path -LiteralPath $bundle){throw 'R070_ARTIFACT_ALREADY_EXISTS'}
+            $staged=Join-Path $bundle 'staged'
+            $additional=@(
+              'v20_runtime/tp6_protect3.py',
+              'v20_runtime/ext2_r060.py',
+              'v20_runtime/ext2_history_bridge.py',
+              'v20_runtime/r070_candidate_entry.py',
+              'v20_runtime/r070_m15_checkpoint.py',
+              'v20_runtime/r070_m15_candidate_state.py',
+              'v20_runtime/r070_linked_sltp.py'
+            )
+            $sourceFiles=@($live,$execution)+@($additional | ForEach-Object { $base+$_ })+$patches
+            foreach($p in $sourceFiles){
+              if(-not(Test-Path -LiteralPath $p -PathType Leaf)){throw ('R070_ARTIFACT_SOURCE_MISSING_'+$p)}
+              $dst=Join-Path $staged $p
+              $dir=Split-Path -Parent $dst
+              New-Item -ItemType Directory -Path $dir -Force | Out-Null
+              Copy-Item -LiteralPath $p -Destination $dst -ErrorAction Stop
+              if ((& git.exe hash-object -- $dst).Trim() -ne (& git.exe hash-object -- $p).Trim()) {
+                throw ('R070_ARTIFACT_COPY_SHA_CHANGED_'+$p)
+              }
+            }
+            $builder='V20_TradingSystem_M15/V20-08/r070-20261117-prepare-full-package.ps1'
+            Copy-Item -LiteralPath $builder -Destination (Join-Path $bundle 'r070-20261117-prepare-full-package.ps1') -ErrorAction Stop
+            $pins=[ordered]@{}
+            foreach($p in $sourceFiles){
+              $pins[$p]=(& git.exe hash-object -- (Join-Path $staged $p)).Trim().ToLowerInvariant()
+            }
+            if ($pins[$live] -ne '0c25db6d1223a39bcd0a5f28eccb738ef96931ab' -or
+                $pins[$execution] -ne '05dfd4d0fe5210fdd8cf7e933c556a3d439dbc6b') {
+              throw 'R070_ARTIFACT_COMBINED_SHA_MISMATCH'
+            }
+            $manifest=[ordered]@{
+              schema='v20.r070.20261117.full_staged_bundle.v1'
+              status='STAGED_NOT_INSTALLED'
+              source_commit=$env:GITHUB_SHA
+              patched_live_git_sha=$pins[$live]
+              patched_execution_git_sha=$pins[$execution]
+              original_live_git_sha=$origLive
+              original_execution_git_sha=$origExec
+              files_git_sha=$pins
+              no_finam_calls=$true
+              no_live_install=$true
+              auto_arm=$false
+              readiness='BLOCKED_UNTIL_EXT2_PHYSICAL_PROOF_AND_PROTECT3_LIVE_CUTOVER'
+            }
+            $manifestText=$manifest|ConvertTo-Json -Depth 6
+            [io.file]::WriteAllText((Join-Path $bundle 'manifest.json'),$manifestText,[text.utf8encoding]::new($false))
+            Write-Output ('R070_PACKAGE_ARTIFACT_READY='+$bundle)
           } finally {
             $reverse=@($applied.ToArray())
             [array]::Reverse($reverse)
@@ -613,3 +666,11 @@ jobs:
             throw 'R070_FULL_BUNDLE_RESTORE_PINS_CHANGED'
           }
           Write-Output 'R070_FULL_BUNDLE=PASS_7_PATCHES_COMBINED_ORIGINAL_SHA_RESTORED_NO_FINAM'
+
+      - name: Upload R070 one-download verified offline bundle
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: r070-full-bundle-20261117
+          path: ${{ runner.temp }}/r070-full-bundle-20261117/
+          if-no-files-found: error
+          retention-days: 14
