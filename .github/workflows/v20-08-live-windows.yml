@@ -499,12 +499,18 @@ jobs:
         shell: pwsh
         run: |
           $ErrorActionPreference='Stop'
-          $source='V20_TradingSystem_M15/V20-08/r070-cny-intel-readonly.ps1'
-          $tokens=$null
-          $errors=$null
-          $null=[System.Management.Automation.Language.Parser]::ParseFile($source,[ref]$tokens,[ref]$errors)
-          if (@($errors).Count -ne 0) { throw ('R070_CNY_READONLY_PS_SYNTAX_ERROR '+(($errors | ForEach-Object {$_.Message}) -join ';')) }
+          $scripts=@(
+            'V20_TradingSystem_M15/V20-08/r070-cny-intel-readonly.ps1',
+            'V20_TradingSystem_M15/V20-08/r070-20261117-prepare-full-package.ps1'
+          )
+          foreach($source in $scripts) {
+            $tokens=$null
+            $errors=$null
+            $null=[System.Management.Automation.Language.Parser]::ParseFile($source,[ref]$tokens,[ref]$errors)
+            if (@($errors).Count -ne 0) { throw ('R070_PS_SYNTAX_ERROR '+$source+' '+(($errors | ForEach-Object {$_.Message}) -join ';')) }
+          }
           Write-Output 'R070_CNY_PHYSICAL_PS_SYNTAX=PASS_NO_EXECUTION'
+          Write-Output 'R070_FULL_RELEASE_PREPARE_PS_SYNTAX=PASS_NO_EXECUTION'
 
       - name: R070 FINAM incomplete GET incident 20261117 (ephemeral only)
         shell: pwsh
