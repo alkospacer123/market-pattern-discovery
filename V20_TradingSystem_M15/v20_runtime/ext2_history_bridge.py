@@ -114,6 +114,8 @@ def _strict_m15(bars: pd.DataFrame) -> pd.DataFrame:
 def stitch_verified_m15(*, seed: pd.DataFrame, finam_recent: pd.DataFrame,
                         signal_open_msk: datetime, observed_at_msk: datetime,
                         verified_open_days: tuple[date, ...] | None = None,
+                        symbol: str | None = None,
+                        accepted_historical_gaps: tuple[datetime, ...] = (),
                         ) -> pd.DataFrame:
     """Join only exact overlapping completed M15, no gaps between sources.
 
@@ -149,6 +151,7 @@ def stitch_verified_m15(*, seed: pd.DataFrame, finam_recent: pd.DataFrame,
         stitched, from_msk=new.index[0].to_pydatetime(),
         signal_open_msk=signal_open_msk,
         verified_open_days=verified_open_days,
+        symbol=symbol, accepted_historical_gaps=accepted_historical_gaps,
     )
     try:
         feats = r060_features(stitched)
@@ -192,8 +195,10 @@ def _require_complete_previous_day(bars: pd.DataFrame, signal_open: datetime) ->
 def _require_continuous_trading_sessions(
     bars: pd.DataFrame, *, from_msk: datetime, signal_open_msk: datetime,
     verified_open_days: tuple[date, ...] | None,
+    symbol: str | None = None,
+    accepted_historical_gaps: tuple[datetime, ...] = (),
 ) -> None:
-    """Validate ALL recent normal-session M15 against an independently proved calendar.
+    """Validate recent observed M15 against the verified exchange calendar.
 
     R060 daily calculation is unchanged, but a short/incomplete LIVE history
     must fail closed. No inferred weekdays: exchange holidays and special
@@ -206,6 +211,19 @@ def _require_continuous_trading_sessions(
             or any(type(day) is not date for day in verified_open_days)
             or tuple(sorted(set(verified_open_days))) != verified_open_days):
         raise EXT2HistoryBlocked("EXT2_VERIFIED_SESSION_CALENDAR_REQUIRED")
+    # R088: FINAM's exact historical empty slots are authoritative as an
+    # observed-data inventory, not synthetic candles or proof of zero trades.
+    # The optional exception is restricted to the pinned 14 historical labels
+    # and their correct instrument. Any other hole retains the old strict HOLD.
+    from .r088_finam_historical_gaps import accepted_historical_missing_m15
+    approved = accepted_historical_missing_m15(symbol or "")
+    if (not isinstance(accepted_historical_gaps, tuple)
+            or any(type(ts) is not datetime or ts.tzinfo is not None
+                   for ts in accepted_historical_gaps)
+            or (accepted_historical_gaps and
+                accepted_historical_gaps != approved)):
+        raise EXT2HistoryBlocked("R088_HISTORICAL_GAP_SCOPE_NOT_PINNED")
+    acceptable = set(approved if accepted_historical_gaps else ())
     begin = from_msk.date()
     final = signal_open_msk.date()
     relevant = tuple(day for day in verified_open_days if begin <= day <= final)
@@ -229,7 +247,11 @@ def _require_continuous_trading_sessions(
             raise EXT2HistoryBlocked("EXT2_SIGNAL_OUTSIDE_SESSION")
         expected = pd.date_range(start, end, freq="15min")
         present = day_to_bars.get(day, pd.DatetimeIndex([]))
-        if not present.equals(expected):
+        # No new/unexpected timestamps and no missing stamps beyond the exact
+        # R088 FINAM historical inventory. A current signal Open is mandatory.
+        missing = expected.difference(present)
+        unexpected = present.difference(expected)
+        if (len(unexpected) or any(ts.to_pydatetime() not in acceptable for ts in missing)):
             raise EXT2HistoryBlocked("EXT2_RECENT_SESSION_M15_MISSING")
 
 
@@ -251,6 +273,8 @@ def advance_verified_m15(
     *, verified_prefix: pd.DataFrame, prefix_sha256: str,
     finam_recent: pd.DataFrame, signal_open_msk: datetime,
     observed_at_msk: datetime, verified_open_days: tuple[date, ...],
+    symbol: str | None = None,
+    accepted_historical_gaps: tuple[datetime, ...] = (),
 ) -> tuple[pd.DataFrame, str]:
     """Advance a previously checked source using ONLY overlapping FINAM GET M15.
 
@@ -274,6 +298,7 @@ def advance_verified_m15(
         signal_open_msk=signal_open_msk,
         observed_at_msk=observed_at_msk,
         verified_open_days=verified_open_days,
+        symbol=symbol, accepted_historical_gaps=accepted_historical_gaps,
     )
     if (len(stitched) <= len(before)
             or not stitched.iloc[:len(before)][list(REQUIRED)].reset_index(drop=True).equals(
