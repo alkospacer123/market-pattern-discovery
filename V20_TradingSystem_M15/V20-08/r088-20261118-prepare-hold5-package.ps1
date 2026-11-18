@@ -17,6 +17,7 @@ $expectedExecution='0fc4c454d55f37e4e87fd74e3370cbc1ad83b53f'
 $base='V20_TradingSystem_M15/v20_runtime/'
 $patchBase='V20_TradingSystem_M15/V20-08/'
 $files=[ordered]@{
+  'V20_TradingSystem_M15/v20_runtime/__init__.py'='9a0512aaf8418df59f26fcfdeb1f181fc38e7139'
   'V20_TradingSystem_M15/v20_runtime/finam_live.py'=$origLive
   'V20_TradingSystem_M15/v20_runtime/finam_execution.py'=$origExecution
   'V20_TradingSystem_M15/v20_runtime/tp6_protect3.py'='a578cac629350f2c9fe3409121ac085c8a41eb63'
