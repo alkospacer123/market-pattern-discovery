@@ -43,19 +43,19 @@ class R088HOLD5ObservedSessions(unittest.TestCase):
 
     def test_first_broker_witnessed_open_of_sixth_session(self):
         dates = [MON, TUE, WED, THU]
-        self.assertEqual(self.classify(t(FRI2), dates), EXIT)
+        self.assertEqual(self.classify(t(FRI2, "09:00"), dates), EXIT)
         # Same restored broker history/entry after reboot means same result.
         rebuilt = tuple([self.entry, *[t(day) for day in dates]])
         self.assertEqual(
             hold5_observed_session_exit(
                 entry_open_msk=self.entry,
-                observed_open_msk=t(FRI2),
+                observed_open_msk=t(FRI2, "09:00"),
                 completed_m15_opens=rebuilt,
             ), EXIT)
 
     def test_no_calendar_day_counting_during_weekend_and_holiday(self):
         # Fri 13, Tue 17, Wed 18, Thu 19, Fri 20, Mon 23 = 6.
-        self.assertEqual(self.classify(t("2026-11-23"), [TUE, WED, THU, FRI2]), EXIT)
+        self.assertEqual(self.classify(t("2026-11-23", "09:00"), [TUE, WED, THU, FRI2]), EXIT)
         self.assertEqual(self.classify(t(THU), [TUE, WED]), HOLD)
 
     def test_witnessed_weekend_trading_does_count_as_session(self):
@@ -67,23 +67,35 @@ class R088HOLD5ObservedSessions(unittest.TestCase):
     def test_missed_open_or_late_sixth_is_not_retroactive_exit(self):
         five = [MON, TUE, WED, THU]
         self.assertEqual(
-            self.classify(t(FRI2, "10:15"), five,
-                          extras=[t(FRI2, "10:00")]), MISSED)
+            self.classify(t(FRI2, "09:15"), five,
+                          extras=[t(FRI2, "09:00")]), MISSED)
         self.assertEqual(
             self.classify(t("2026-11-23"), [*five, FRI2]),
             MISSED)
 
-    def test_first_available_broker_open_can_be_after_10_when_unobserved(self):
-        # 10:15 is permitted ONLY when there is no 10:00 completed bar from
-        # this session in the fully witnessed FINAM M15 response.
-        self.assertEqual(self.classify(t(FRI2, "10:15"),
+    def test_first_available_broker_open_can_be_after_09_when_unobserved(self):
+        # Research TIME3 starts an observed session at first 09:00-or-later
+        # broker Open; 09:15 is due ONLY without a completed 09:00 bar.
+        self.assertEqual(self.classify(t(FRI2, "09:15"),
                                        [MON, TUE, WED, THU]), EXIT)
 
-    def test_early_and_late_bars_do_not_make_extra_session(self):
+    def test_shifted_09_key_preserves_early_and_late_bars(self):
+        # Saturday 07:00 and Friday 19:00 share Friday's frozen session
+        # key; neither adds a fictitious new session.
         self.assertEqual(
             self.classify(t(THU, "10:00"), [MON, TUE, WED],
-                          extras=[t("2026-11-14", "07:00"),
-                                  t("2026-11-15", "18:30")]), HOLD)
+                          extras=[t("2026-11-13", "19:00"),
+                                  t("2026-11-14", "07:00")]), HOLD)
+
+    def test_09_shift_is_identical_to_frozen_time3_key(self):
+        from V20_TradingSystem_M15.v20_runtime.offline_planner import OfflinePlanner
+        sample = [t(FRI, "09:00"), t(FRI,"18:45"),
+                  t("2026-11-14","07:00"), t("2026-11-15","10:00")]
+        keys = [(stamp-timedelta(hours=9)).date() for stamp in sample]
+        self.assertEqual(keys, [OfflinePlanner._session_key(x) for x in sample])
+        self.assertEqual(keys[0], keys[1])
+        self.assertEqual(keys[1], keys[2])
+        self.assertNotEqual(keys[2], keys[3])
 
     def test_unverified_bar_or_entry_history_blocks(self):
         complete = [self.entry, t(MON)]
@@ -108,8 +120,8 @@ class R088HOLD5ObservedSessions(unittest.TestCase):
         )
         bars = pd.DataFrame({"Datetime":[self.entry,t(MON)]})
         boundary = V20M15Boundary(
-            "CNYRUBF", t(TUE), bars, Decimal("12.345"),
-            datetime(2026,11,17,7,tzinfo=timezone.utc),
+            "CNYRUBF", t(TUE, "09:00"), bars, Decimal("12.345"),
+            datetime(2026,11,17,6,tzinfo=timezone.utc),
         )
         self.assertEqual(
             frozen_observed_session_exit(
@@ -126,7 +138,7 @@ class R088HOLD5ObservedSessions(unittest.TestCase):
         for symbol in ("USDRUBF","CNYRUBF","GLDRUBF","IMOEXF"):
             with self.subTest(symbol=symbol):
                 boundary = V20M15Boundary(
-                    symbol,t(FRI2),bars,Decimal("100"),observed)
+                    symbol,t(FRI2, "09:00"),bars,Decimal("100"),observed)
                 self.assertEqual(hold5_from_broker_boundary(
                     boundary, entry_open_msk=self.entry), EXIT)
 
