@@ -69,6 +69,7 @@ def _check_physical_report(
           and report.get("report_contains_token_or_account_id") is False
           and at.tzinfo is not None
           and at.date().isoformat() == "2026-11-18"
+          and witnessed.tzinfo is None
           and witnessed >= MINIMUM_LIVE_PROOF
           and bool(re.fullmatch(r"[a-f0-9]{64}", str(report.get("checkpoint_file_sha256", "")))),
           "R088_CNY_PHYSICAL_PROOF_OR_ACCOUNT_MISMATCH")
