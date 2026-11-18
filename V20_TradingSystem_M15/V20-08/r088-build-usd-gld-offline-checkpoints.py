@@ -51,6 +51,35 @@ def _pinned_terminal_source(folder: Path, symbol: str) -> Path:
     return matches[0]
 
 
+
+def _stitch_pinned_finam_priority(old: pd.DataFrame, new: pd.DataFrame,
+                                  symbol: str):
+    """Favor FINAM observed bars; never accept any novel old-only Open."""
+    overlap = old.index.intersection(new.index)
+    need(len(overlap) > 0, "R088_SEED_FINAM_NO_OVERLAP")
+    for ts in overlap:
+        for col in REQUIRED[1:]:
+            need(Decimal(str(old.loc[ts,col])) == Decimal(str(new.loc[ts,col])),
+                 "R088_SEED_FINAM_OVERLAP_DISAGREEMENT")
+    # Original R060 can hold historical bars which the authoritative
+    # FINAM terminal export does not contain. Such source-only labels are
+    # NOT part of the exact overlap: seed+terminal-overlap is therefore an
+    # invalid stitched-row count. Accept deletion ONLY when each old-only
+    # label is one of the 14 pre-pinned, symbol-specific FINAM absences.
+    # Never fill a missing candle with the R060 value or an invented OHLCV.
+    old_tail = old.loc[old.index >= new.index[0]]
+    old_only = old_tail.index.difference(new.index)
+    approved = set(accepted_historical_missing_m15(symbol))
+    need(all(ts.to_pydatetime() in approved for ts in old_only),
+         "R088_SEED_FINAM_UNAPPROVED_DISAPPEARING_M15")
+    prefix = old.loc[old.index < new.index[0]]
+    combined = _strict_m15(pd.concat([prefix, new]).reset_index())
+    need(len(combined) == len(prefix) + len(terminal),
+         "R088_STITCH_COUNT_MISMATCH")
+    return combined, overlap, old_only
+
+
+
 def build(*, sources: Path, destination: Path, symbol: str) -> dict:
     need(symbol in SUPPORTED, "R088_HISTORICAL_SYMBOL_NOT_APPROVED")
     need(sources.is_dir() and not sources.is_symlink()
@@ -82,27 +111,7 @@ def build(*, sources: Path, destination: Path, symbol: str) -> dict:
     old, new = seed.set_index("Datetime"), terminal.set_index("Datetime")
     need(old.index[-1] <= pd.Timestamp(PINNED_LAST),
          "R088_SEED_HAS_FUTURE")
-    overlap = old.index.intersection(new.index)
-    need(len(overlap) > 0, "R088_SEED_FINAM_NO_OVERLAP")
-    for ts in overlap:
-        for col in REQUIRED[1:]:
-            need(Decimal(str(old.loc[ts,col])) == Decimal(str(new.loc[ts,col])),
-                 "R088_SEED_FINAM_OVERLAP_DISAGREEMENT")
-    # Original R060 can hold historical bars which the authoritative
-    # FINAM terminal export does not contain. Such source-only labels are
-    # NOT part of the exact overlap: seed+terminal-overlap is therefore an
-    # invalid stitched-row count. Accept deletion ONLY when each old-only
-    # label is one of the 14 pre-pinned, symbol-specific FINAM absences.
-    # Never fill a missing candle with the R060 value or an invented OHLCV.
-    old_tail = old.loc[old.index >= new.index[0]]
-    old_only = old_tail.index.difference(new.index)
-    approved = set(accepted_historical_missing_m15(symbol))
-    need(all(ts.to_pydatetime() in approved for ts in old_only),
-         "R088_SEED_FINAM_UNAPPROVED_DISAPPEARING_M15")
-    prefix = old.loc[old.index < new.index[0]]
-    combined = _strict_m15(pd.concat([prefix, new]).reset_index())
-    need(len(combined) == len(prefix) + len(terminal),
-         "R088_STITCH_COUNT_MISMATCH")
+    combined, overlap, old_only = _stitch_pinned_finam_priority(old, new, symbol)
     begin, finish = terminal.Datetime.iloc[0].date(), PINNED_LAST.date()
     need(begin == date(2026,8,30), "R088_FINAM_START_CHANGED")
     calendar = tuple(begin+timedelta(days=i)
