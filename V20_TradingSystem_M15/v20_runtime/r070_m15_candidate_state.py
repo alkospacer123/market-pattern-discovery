@@ -168,6 +168,7 @@ class R070CandidateCheckpointState:
         self, *, symbol: str, finam_recent: pd.DataFrame,
         signal_open_msk: datetime, observed_at_msk: datetime,
         independently_verified_open_days: tuple[date, ...],
+        accepted_historical_gaps: tuple[datetime, ...] = (),
     ) -> tuple[pd.DataFrame, dict]:
         """Re-verify old SHA + fresh FINAM overlap, then advance once."""
         previous = self._get(symbol)
@@ -186,6 +187,7 @@ class R070CandidateCheckpointState:
             finam_recent=finam_recent, signal_open_msk=signal_open_msk,
             observed_at_msk=observed_at_msk,
             independently_verified_open_days=independently_verified_open_days,
+            accepted_historical_gaps=accepted_historical_gaps,
         )
         new_row = self._save_new(
             symbol=symbol, verified_history=history,
@@ -236,6 +238,7 @@ class R070CandidateCheckpointState:
 def make_r070_checkpoint_refresh(
     *, candidate_state: R070CandidateCheckpointState,
     independently_verified_open_days: tuple[date, ...],
+    accepted_historical_gaps: tuple[datetime, ...] = (),
 ):
     """Explicit candidate callback for the existing R070 pre-intent gate.
 
@@ -279,7 +282,8 @@ def make_r070_checkpoint_refresh(
             symbol=symbol, finam_recent=finam_recent,
             signal_open_msk=signal_open_msk,
             observed_at_msk=observed_at_msk,
-            independently_verified_open_days=independently_verified_open_days)
+            independently_verified_open_days=independently_verified_open_days,
+            accepted_historical_gaps=accepted_historical_gaps)
         return history, pointer["history_sha256"]
 
     return refresh
