@@ -88,9 +88,20 @@ def build(*, sources: Path, destination: Path, symbol: str) -> dict:
         for col in REQUIRED[1:]:
             need(Decimal(str(old.loc[ts,col])) == Decimal(str(new.loc[ts,col])),
                  "R088_SEED_FINAM_OVERLAP_DISAGREEMENT")
-    combined = _strict_m15(
-        pd.concat([old.loc[old.index < new.index[0]], new]).reset_index())
-    need(len(combined) == len(seed) + len(terminal) - len(overlap),
+    # Original R060 can hold historical bars which the authoritative
+    # FINAM terminal export does not contain. Such source-only labels are
+    # NOT part of the exact overlap: seed+terminal-overlap is therefore an
+    # invalid stitched-row count. Accept deletion ONLY when each old-only
+    # label is one of the 14 pre-pinned, symbol-specific FINAM absences.
+    # Never fill a missing candle with the R060 value or an invented OHLCV.
+    old_tail = old.loc[old.index >= new.index[0]]
+    old_only = old_tail.index.difference(new.index)
+    approved = set(accepted_historical_missing_m15(symbol))
+    need(all(ts.to_pydatetime() in approved for ts in old_only),
+         "R088_SEED_FINAM_UNAPPROVED_DISAPPEARING_M15")
+    prefix = old.loc[old.index < new.index[0]]
+    combined = _strict_m15(pd.concat([prefix, new]).reset_index())
+    need(len(combined) == len(prefix) + len(terminal),
          "R088_STITCH_COUNT_MISMATCH")
     begin, finish = terminal.Datetime.iloc[0].date(), PINNED_LAST.date()
     need(begin == date(2026,8,30), "R088_FINAM_START_CHANGED")
@@ -149,7 +160,9 @@ def build(*, sources: Path, destination: Path, symbol: str) -> dict:
          "R088_CHECKPOINT_RELOAD_NOT_IDENTICAL")
     return {"symbol":symbol,"status":"PASS_OFFLINE_FROZEN_FINAM_GAPS_NOT_INSTALLED",
             "seed_rows":len(seed),"combined_rows":len(combined),
-            "overlap_rows":len(overlap),"missing_m15":len(missing),
+            "overlap_rows":len(overlap),"seed_only_finam_absent_rows":len(old_only),
+            "seed_only_finam_absent_open_msk":[ts.isoformat() for ts in old_only],
+            "missing_m15":len(missing),
             "missing_open_msk":[stamp.isoformat() for stamp in missing],
             "calendar_days":len(calendar),"history_sha256":history_sha,
             "checkpoint_zip_sha256":file_sha,
