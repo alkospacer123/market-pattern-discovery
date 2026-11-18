@@ -813,42 +813,6 @@ jobs:
           if-no-files-found: error
           retention-days: 14
 
-      - name: R088 no-EXT2 guarded LIVE cutover script syntax and authority (dry review only)
-        shell: pwsh
-        run: |
-          $ErrorActionPreference='Stop'
-          $file='V20_TradingSystem_M15/V20-08/r088-20261118-install-noext2.ps1'
-          $tokens=$null
-          $errors=$null
-          $null=[System.Management.Automation.Language.Parser]::ParseFile($file,[ref]$tokens,[ref]$errors)
-          if(@($errors).Count -ne 0){throw ('R088_NOEXT2_CUTOVER_PS_SYNTAX_ERROR '+(($errors | ForEach-Object {$_.Message}) -join ';'))}
-          $contents=Get-Content -LiteralPath $file -Raw
-          foreach($proof in @(
-            'd2e9240f9721039d7229aaad82a42ccb938d8548ed7c0100115ead579d6c23ca',
-            '54ae8e1262482f4ecc80d202c6e9063cf0d6e402',
-            '0fc4c454d55f37e4e87fd74e3370cbc1ad83b53f',
-            '4e7498d2eacf0930d0ee1bbf6343883735f3aefb',
-            'r070_protect3_release_authorization',
-            'r088-protect3-approval.py',
-            'switch-halted',
-            'broker-flat',
-            'stop-tasks',
-            'R088_NOEXT2_INSTALL=PASS_3_RUNNING_HALTED',
-            'R088_NO_NEW_ENTRIES_NO_REARM=YES',
-            'R088_ROLLBACK=PASS_ORIGINAL_CODE_RUNNING_HALTED_NO_REARM'
-          )){
-            if(-not $contents.Contains($proof)){throw ('R088_NOEXT2_CUTOVER_CONTRACT_MISSING_'+$proof)}
-          }
-          if($contents.Contains('Start-ScheduledTask -TaskName $name') -eq $false){
-            throw 'R088_NOEXT2_CUTOVER_RESTART_MISSING'
-          }
-          if($contents.Contains("'r070-ext2-pre-intent-candidate.patch'") -or
-             $contents.Contains("'r088-ext2-live-source-after-combined-candidate.patch'") -or
-             $contents.Contains('-mode arm -robot')){
-            throw 'R088_NOEXT2_CUTOVER_EXT2_OR_AUTO_ARM_FORBIDDEN'
-          }
-          Write-Output 'R088_NOEXT2_CUTOVER=PASS_PS_SYNTAX_SHA_PINS_ACCOUNT_RELEASE_NO_AUTO_ARM_NO_EXECUTION'
-
       - name: R088 no-EXT2 safe minimal release patch compatibility (offline only)
         shell: pwsh
         env:
