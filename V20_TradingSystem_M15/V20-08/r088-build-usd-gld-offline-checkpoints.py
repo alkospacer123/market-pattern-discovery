@@ -74,7 +74,7 @@ def _stitch_pinned_finam_priority(old: pd.DataFrame, new: pd.DataFrame,
          "R088_SEED_FINAM_UNAPPROVED_DISAPPEARING_M15")
     prefix = old.loc[old.index < new.index[0]]
     combined = _strict_m15(pd.concat([prefix, new]).reset_index())
-    need(len(combined) == len(prefix) + len(terminal),
+    need(len(combined) == len(prefix) + len(new),
          "R088_STITCH_COUNT_MISMATCH")
     return combined, overlap, old_only
 
