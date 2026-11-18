@@ -119,9 +119,15 @@ try {
        package_files_git_sha=$files
        patched_live_git_sha=$finalLive
        patched_execution_git_sha=$finalExecution
-       windows_test='44347998417'
+       windows_test='44355305090'
        physical_cny_finam_m15='PASS_2_OF_2_20261118_READONLY_OPERATOR_REPORTED'
        official_finam_reexport_20261118='ACCEPTED_14_EXACT_HISTORICAL_ABSENCES_NO_SYNTHETIC_OHLCV'
+       official_finam_reexport_sha256=[ordered]@{
+         USDRUBF='dd808379cbddd259164145508b30bc14d29950242032933d0f1eacea3bb80fc2'
+         GLDRUBF='0c26f9f288697640c4cfd71c51646d09eb177c9e18be2c2fa9e03d0cbb177b91'
+         CNYRUBF='e505a96bd313bcb3133dab2f0aa81867bbe02ea3848e04d1269d5f16bb0a9348'
+         IMOEXF='f531ac606df0146cc89420f0465fb07aa12f2ad33dc036a1e71cd2489fadfc11'
+       }
        ext2_rolling_refresh='STAGED_FAIL_CLOSED_ACCOUNT_SOURCE_HOOK_REQUIRES_ALL3_CHECKPOINTS_AND_CALENDAR'
        installation='NOT_EXECUTED'
        auto_arm=$false
