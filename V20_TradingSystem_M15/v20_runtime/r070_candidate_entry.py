@@ -214,13 +214,44 @@ def admit_r070_frozen_draft_pre_intent(
         return True
 
     provider = getattr(sender, "r070_verified_history_provider", None)
-    if not callable(provider):
+    refresh = getattr(sender, "r070_verified_history_refresh", None)
+    # Exactly one SHA-verified source. A rolling checkpoint refresher may
+    # use ONLY the existing independent second FINAM M15 witness below.
+    if (provider is not None and not callable(provider)) or (
+            refresh is not None and not callable(refresh)):
+        raise V20FinamBlocked("R070_EXT2_HISTORY_PROVIDER_INVALID")
+    if callable(provider) and callable(refresh):
+        raise V20FinamBlocked("R070_EXT2_HISTORY_SOURCE_AMBIGUOUS")
+    if not callable(provider) and not callable(refresh):
         record(EXT2Decision(True, False, "EXT2_VERIFIED_HISTORY_PROVIDER_MISSING"))
         return None
+
+    def witnessed_m15():
+        seen = read_finam_m15_boundary(
+            reader, symbol=symbol, from_utc=from_utc, now=now)
+        if (seen.symbol != symbol
+                or seen.at_msk != candidate.entry_bar_open
+                or seen.witnessed_open != candidate.reference_entry
+                or seen.completed.empty
+                or seen.completed.Datetime.iloc[-1] !=
+                pd.Timestamp(signal.signal_bar_open)):
+            raise V20FinamBlocked("R070_EXT2_SECOND_WITNESS_DIVERGED")
+        return seen
+
+    # Rolling source must be brought forward with real completed bars,
+    # before the source can be used to authorize the frozen draft.
+    observed = witnessed_m15() if callable(refresh) else None
     try:
-        source, source_sha = provider(
-            robot=reader.robot_id, symbol=symbol,
-            signal_open_msk=signal.signal_bar_open)
+        if callable(refresh):
+            source, source_sha = refresh(
+                robot=reader.robot_id, symbol=symbol,
+                signal_open_msk=signal.signal_bar_open,
+                finam_recent=observed.completed,
+                observed_at_msk=observed.at_msk)
+        else:
+            source, source_sha = provider(
+                robot=reader.robot_id, symbol=symbol,
+                signal_open_msk=signal.signal_bar_open)
         if (not isinstance(source, pd.DataFrame)
                 or not isinstance(source_sha, str)
                 or m15_history_sha256(source) != source_sha):
@@ -229,15 +260,8 @@ def admit_r070_frozen_draft_pre_intent(
         raise
     except Exception as exc:
         raise V20FinamBlocked("R070_EXT2_HISTORY_UNAVAILABLE") from exc
-    observed = read_finam_m15_boundary(
-        reader, symbol=symbol, from_utc=from_utc, now=now)
-    if (observed.symbol != symbol
-            or observed.at_msk != candidate.entry_bar_open
-            or observed.witnessed_open != candidate.reference_entry
-            or observed.completed.empty
-            or observed.completed.Datetime.iloc[-1] !=
-            pd.Timestamp(signal.signal_bar_open)):
-        raise V20FinamBlocked("R070_EXT2_SECOND_WITNESS_DIVERGED")
+    if observed is None:
+        observed = witnessed_m15()
     return stage_r070_after_frozen_proposal(
         robot=reader.robot_id, symbol=symbol,
         frozen_draft=frozen_draft,
