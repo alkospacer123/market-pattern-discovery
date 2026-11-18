@@ -806,7 +806,8 @@ jobs:
             'r070-protect3-night-monitor-candidate.patch',
             'r070-ext2-pre-intent-candidate.patch',
             'r070-finam-get-incomplete-read-candidate.patch',
-            'r088-hold5-after-r070-combined-candidate.patch'
+            'r088-hold5-after-r070-combined-candidate.patch',
+            'r088-ext2-live-source-after-combined-candidate.patch'
           ) | ForEach-Object {'V20_TradingSystem_M15/V20-08/'+$_}
           $applied=New-Object 'System.Collections.Generic.List[string]'
           try {
@@ -819,7 +820,7 @@ jobs:
             }
             python -m unittest -v V20_TradingSystem_M15.v20_runtime.tests.test_r088_hold5_offline
             if($LASTEXITCODE -ne 0){throw 'R088_HOLD5_OFFLINE_TESTS_FAILED'}
-            python -m py_compile $live $execution V20_TradingSystem_M15/v20_runtime/r088_hold5.py
+            python -m py_compile $live $execution V20_TradingSystem_M15/v20_runtime/r088_hold5.py V20_TradingSystem_M15/v20_runtime/r088_cny_verified_bootstrap.py V20_TradingSystem_M15/v20_runtime/r088_ext2_live_source.py
             if($LASTEXITCODE -ne 0){throw 'R088_HOLD5_SYNTAX_FAILED'}
             Write-Output ('R088_HOLD5_DERIVED_LIVE_GIT_SHA='+(& git.exe hash-object -- $live).Trim())
             Write-Output ('R088_HOLD5_DERIVED_EXEC_GIT_SHA='+(& git.exe hash-object -- $execution).Trim())
