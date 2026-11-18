@@ -502,7 +502,8 @@ jobs:
           $scripts=@(
             'V20_TradingSystem_M15/V20-08/r070-cny-intel-readonly.ps1',
             'V20_TradingSystem_M15/V20-08/r070-20261117-prepare-full-package.ps1',
-            'V20_TradingSystem_M15/V20-08/r088-20261118-prepare-hold5-package.ps1'
+            'V20_TradingSystem_M15/V20-08/r088-20261118-prepare-hold5-package.ps1',
+            'V20_TradingSystem_M15/V20-08/r088-20261118-prepare-noext2-package.ps1'
           )
           foreach($source in $scripts) {
             $tokens=$null
@@ -557,6 +558,26 @@ jobs:
             throw 'R088_HOLD5_BUILDER_LIVE_ACTION_FORBIDDEN'
           }
           Write-Output 'R088_NINE_PATCH_BUNDLE_PREPARE=PASS_SYNTAX_PINS_NO_LIVE_ACTION'
+          $simple=Get-Content -LiteralPath $scripts[3] -Raw
+          foreach($pin in @(
+            'b80fb9eb135f7cdcb4c78337e2b808c4d7135195',
+            '6b600451178b42bd4f8b2037995e7db3a9ad27c8',
+            '54ae8e1262482f4ecc80d202c6e9063cf0d6e402',
+            '0fc4c454d55f37e4e87fd74e3370cbc1ad83b53f',
+            'f0b9058707230299464f1f6fb5245653a022ec31',
+            '44363714666'
+          )){
+            if(-not $simple.Contains($pin)){throw ('R088_NOEXT2_STAGE_MISSING_PIN_'+$pin)}
+          }
+          foreach($forbidden in @('Start-ScheduledTask','Enable-ScheduledTask','place_order(','Cancel-Order','arm -robot')){
+            if($simple.Contains($forbidden)){throw ('R088_NOEXT2_STAGE_LIVE_ACTION_'+$forbidden)}
+          }
+          if($simple.Contains("'r070-ext2-pre-intent-candidate.patch'") -or
+             $simple.Contains("'r088-ext2-live-source-after-combined-candidate.patch'")){
+            throw 'R088_NOEXT2_STAGE_INCLUDES_EXT2_PATCH'
+          }
+          Write-Output 'R088_NOEXT2_STAGING_SCRIPT=PASS_7_PINNED_PATCHES_SYNTAX_NO_FINAM_NO_LIVE_ACTION'
+
 
       - name: R070 FINAM incomplete GET incident 20261117 (ephemeral only)
         shell: pwsh
