@@ -131,5 +131,39 @@ class R088HOLD5ObservedSessions(unittest.TestCase):
                     boundary, entry_open_msk=self.entry), EXIT)
 
 
+    def test_staged_bridge_preserves_stop_and_one_shot_broker_guards(self):
+        # Runs with the R088 patch applied EPHEMERALLY by Windows CI only.
+        # Static guard against a missing Protect3 successor at timed exit:
+        # no move of SL/TP, no second POST, no margin/risk edits.
+        import inspect
+        from V20_TradingSystem_M15.v20_runtime.finam_execution import (
+            V20SingleTradeTransport, run_v20_single_trial_cycle,
+        )
+        from V20_TradingSystem_M15.v20_runtime.finam_live import _follow_existing
+        submit = inspect.getsource(V20SingleTradeTransport.submit_frozen_exit_once)
+        follow = inspect.getsource(_follow_existing)
+        trial = inspect.getsource(run_v20_single_trial_cycle)
+        self.assertIn('verify_r070_protect3_effective_stop', submit)
+        self.assertIn('R088_EXIT_PROTECT3_TRANSITION_UNCERTAIN', submit)
+        self.assertIn('EXIT_ALREADY_ATTEMPTED_NO_RETRANSMIT', submit)
+        self.assertIn('FROZEN_EXIT_UNCERTAIN_KEEP_STOP', submit)
+        self.assertIn('r070_protect3:', submit)
+        self.assertIn('hold5_from_broker_boundary', submit)
+        self.assertIn('hold5_from_broker_boundary', follow)
+        self.assertIn('hold5_from_broker_boundary', trial)
+        self.assertLess(follow.index('if not position:'), follow.index('hold5_from_broker_boundary'))
+        self.assertLess(follow.index('_verify_sealed_protection'), follow.index('hold5_from_broker_boundary'))
+        for forbidden in ('size_position(', 'cap_r15_by_margin(', 'place_sltp_order('):
+            self.assertNotIn(forbidden, follow)
+
+    def test_hold5_only_reports_deadline_no_order_movement(self):
+        # No broker is instantiated; the policy must not access SLTP/GO.
+        source = __import__('inspect').getsource(hold5_observed_session_exit)
+        for name in ('place_order(', 'cancel_order(', 'place_sltp_order(',
+                     'send_order(', 'available_cash', 'initial_margin',
+                     'stop_price', 'take_profit'):
+            self.assertNotIn(name, source)
+
+
 if __name__ == "__main__":
     unittest.main()
