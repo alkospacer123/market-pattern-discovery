@@ -7,16 +7,13 @@ All timestamps are Moscow wall-clock M15 opens, without timezone.
 """
 from __future__ import annotations
 
-from datetime import datetime, time, timedelta
+from datetime import datetime, timedelta
 from typing import Iterable
 
 HOLD = "HOLD_UNTIL_SIXTH_OBSERVED_SESSION"
 EXIT = "EXIT_AT_SIXTH_OBSERVED_SESSION_OPEN"
 MISSED = "MISSED_OR_PASSED_SIXTH_SESSION_OPEN_HALT"
 _SESSIONS_HELD = 5
-_MAIN_START = time(10, 0)
-_MAIN_END = time(18, 0)
-
 
 class HOLD5Unverified(ValueError):
     """A missing/open-time/incomplete witness cannot authorize an exit."""
@@ -28,23 +25,19 @@ def _grid_msk(t: datetime) -> None:
         raise HOLD5Unverified("R088_M15_MSK_GRID_INVALID")
 
 
-def _regular(t: datetime) -> bool:
-    return _MAIN_START <= t.time() < _MAIN_END
-
-
 def hold5_observed_session_exit(
     *, entry_open_msk: datetime, observed_open_msk: datetime,
     completed_m15_opens: Iterable[datetime],
 ) -> str:
     """Keep five OBSERVED trading sessions incl. entry; first sixth Open exits.
 
-    `completed_m15_opens` are FINAM-confirmed M15 opens, not future bars or a
-    weekday calendar. A day counts only with an actual observed regular-session
-    candle (10:00..17:45 MSK); weekends with witnessed trading DO count.
-    The new session's Open is the separately broker-witnessed
-    `observed_open_msk`. If a sixth-session bar has already completed, the
-    required first Open was missed and this method returns MISSED (HALT),
-    never a market order at a fictitious past price.
+    `completed_m15_opens` are FINAM-confirmed M15 opens, not future bars
+    or a weekday calendar. Exactly as frozen TIME3, session_key=(MSK-9h).date().
+    First observed Open can therefore be 09:00 MSK (research TIME3 exit),
+    while 07:00 next calendar morning still belongs to the PRIOR session.
+    Weekend dates count only when FINAM M15 witnesses a bar for that session.
+    If a sixth-session bar has already completed, first Open was missed:
+    return MISSED (HALT), never a fictitious past-price market order.
 
     This candidate has no SQLite, FINAM or order side effects. Safe restart
     requires the same entry + all M15 history to be independently recovered;
@@ -52,8 +45,7 @@ def hold5_observed_session_exit(
     """
     _grid_msk(entry_open_msk)
     _grid_msk(observed_open_msk)
-    if (not _MAIN_START <= entry_open_msk.time() <= _MAIN_END
-            or observed_open_msk < entry_open_msk):
+    if observed_open_msk < entry_open_msk:
         raise HOLD5Unverified("R088_HOLD5_ENTRY_OR_CLOCK_INVALID")
     try:
         rows = tuple(completed_m15_opens)
@@ -69,27 +61,19 @@ def hold5_observed_session_exit(
     if entry_open_msk != observed_open_msk and entry_open_msk not in rows:
         raise HOLD5Unverified("R088_ENTRY_OPEN_WITNESS_MISSING")
 
-    # Exact V20 session grouping is 09:00 MSK shifted to the preceding day,
-    # but only observed 10:00..17:45 M15 bars can count as a held session.
-    # No 'weekday' or 'date difference' is used anywhere.
-    held = {
-        (stamp - timedelta(hours=9)).date()
-        for stamp in rows
-        if stamp >= entry_open_msk and _regular(stamp)
-    }
-    entry_session = (entry_open_msk - timedelta(hours=9)).date()
-    held.add(entry_session)
-    current_session = (observed_open_msk - timedelta(hours=9)).date()
-    if _regular(observed_open_msk):
-        held.add(current_session)
-    observed = sorted(held)
+    # Reuse EXACT frozen V20 session key to keep TIME3 replay parity.
+    from .offline_planner import OfflinePlanner
+    key = OfflinePlanner._session_key
+    entry_session = key(entry_open_msk)
+    current_session = key(observed_open_msk)
+    observed = sorted({key(stamp) for stamp in rows if stamp >= entry_open_msk}
+                      | {current_session, entry_session})
     if len(observed) <= _SESSIONS_HELD:
         return HOLD
     sixth = observed[_SESSIONS_HELD]
     if (len(observed) == _SESSIONS_HELD + 1
-            and current_session == sixth and _regular(observed_open_msk)
-            and not any(_regular(t) and (t-timedelta(hours=9)).date() == sixth
-                        for t in rows)):
+            and current_session == sixth
+            and not any(key(t) == sixth for t in rows)):
         return EXIT
     return MISSED
 
