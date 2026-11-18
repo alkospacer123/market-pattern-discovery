@@ -682,8 +682,8 @@ jobs:
           $dest=Join-Path $env:RUNNER_TEMP 'r070-cny-get-only-evidence'
           New-Item -ItemType Directory -Path $dest -Force | Out-Null
           $expected=[ordered]@{
-            'r070-cny-intel-readonly.py'='ce988769658eeab2d8c9869da283e25104f52355'
-            'r070-cny-intel-readonly.ps1'='63dcb6f9647cec1e05df775f1602d33ed3379b74'
+            'r070-cny-intel-readonly.py'='f798b1346a527249587e319c7e6e3c2b9af8adb0'
+            'r070-cny-intel-readonly.ps1'='4e9d7366567fe7d0bb9e6b0e1a5207d7742ed63f'
           }
           foreach($name in $expected.Keys){
             $origin='V20_TradingSystem_M15/V20-08/'+$name
