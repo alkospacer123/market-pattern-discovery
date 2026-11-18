@@ -367,7 +367,7 @@ jobs:
             if ($LASTEXITCODE -ne 0) { throw ('V20_H1_LIFECYCLE_PARITY_FAIL '+$case) }
           }
           Write-Output 'V20_H1_LIFECYCLE_FOUR_EXISTING_REGRESSIONS=PASS'
-          python -m unittest -v V20_TradingSystem_M15.v20_runtime.tests.test_ext2_r060 V20_TradingSystem_M15.v20_runtime.tests.test_tp6_protect3 V20_TradingSystem_M15.v20_runtime.tests.test_ext2_history_bridge V20_TradingSystem_M15.v20_runtime.tests.test_r070_candidate_entry V20_TradingSystem_M15.v20_runtime.tests.test_r070_linked_sltp V20_TradingSystem_M15.v20_runtime.tests.test_r070_v20_protection_handoff V20_TradingSystem_M15.v20_runtime.tests.test_r070_m15_checkpoint V20_TradingSystem_M15.v20_runtime.tests.test_r070_m15_candidate_state V20_TradingSystem_M15.v20_runtime.tests.test_r088_cny_verified_bootstrap V20_TradingSystem_M15.v20_runtime.tests.test_r088_ext2_live_source
+          python -m unittest -v V20_TradingSystem_M15.v20_runtime.tests.test_ext2_r060 V20_TradingSystem_M15.v20_runtime.tests.test_tp6_protect3 V20_TradingSystem_M15.v20_runtime.tests.test_ext2_history_bridge V20_TradingSystem_M15.v20_runtime.tests.test_r070_candidate_entry V20_TradingSystem_M15.v20_runtime.tests.test_r070_linked_sltp V20_TradingSystem_M15.v20_runtime.tests.test_r070_v20_protection_handoff V20_TradingSystem_M15.v20_runtime.tests.test_r070_m15_checkpoint V20_TradingSystem_M15.v20_runtime.tests.test_r070_m15_candidate_state V20_TradingSystem_M15.v20_runtime.tests.test_r088_cny_verified_bootstrap V20_TradingSystem_M15.v20_runtime.tests.test_r088_ext2_live_source V20_TradingSystem_M15.v20_runtime.tests.test_r088_finam_historical_gaps
           if ($LASTEXITCODE -ne 0) { throw 'V20_R070_OFFLINE_CONTRACT_FAIL' }
           Write-Output 'V20_R070_EXT2_TP6_PROTECT3_OFFLINE_CONTRACT=PASS'
           exit 0
@@ -823,7 +823,7 @@ jobs:
             }
             python -m unittest -v V20_TradingSystem_M15.v20_runtime.tests.test_r088_hold5_offline
             if($LASTEXITCODE -ne 0){throw 'R088_HOLD5_OFFLINE_TESTS_FAILED'}
-            python -m py_compile $live $execution V20_TradingSystem_M15/v20_runtime/r088_hold5.py V20_TradingSystem_M15/v20_runtime/r088_cny_verified_bootstrap.py V20_TradingSystem_M15/v20_runtime/r088_ext2_live_source.py
+            python -m py_compile $live $execution V20_TradingSystem_M15/v20_runtime/r088_hold5.py V20_TradingSystem_M15/v20_runtime/r088_cny_verified_bootstrap.py V20_TradingSystem_M15/v20_runtime/r088_ext2_live_source.py V20_TradingSystem_M15/v20_runtime/r088_finam_historical_gaps.py V20_TradingSystem_M15/V20-08/r088-build-usd-gld-offline-checkpoints.py
             if($LASTEXITCODE -ne 0){throw 'R088_HOLD5_SYNTAX_FAILED'}
             Write-Output ('R088_HOLD5_DERIVED_LIVE_GIT_SHA='+(& git.exe hash-object -- $live).Trim())
             Write-Output ('R088_HOLD5_DERIVED_EXEC_GIT_SHA='+(& git.exe hash-object -- $execution).Trim())
