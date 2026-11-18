@@ -22,7 +22,7 @@ from .r070_m15_checkpoint import load_r070_m15_checkpoint
 ROBOT_IDS = frozenset(("v20-shallow", "v20-obv"))
 SYMBOL = "CNYRUBF"
 REPORT_DATE = "20261118"
-ARCHIVE = "r070-cnyrubf-20261115-verified-offline.zip"
+ARCHIVE = "r070-cnyrubf-20261115-offline-m15-checkpoint.zip"
 LAST_ARCHIVE_OPEN = datetime(2026, 11, 15, 17, 45)
 MINIMUM_LIVE_PROOF = datetime(2026, 11, 18, 15, 30)
 HISTORY_SHA256 = "6fcd14c5d473652d014e47577597d22512b97319ef73996aad04cbc38b9ff79c"
