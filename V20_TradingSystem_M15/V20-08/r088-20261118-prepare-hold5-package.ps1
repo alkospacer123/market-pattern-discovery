@@ -1,18 +1,18 @@
-# R088 / 18 Nov 2026: prepare HOLD5 on top of seven pinned R070 patches
+# R088 / 18 Nov 2026: prepare HOLD5 + account source binding on seven pinned R070 patches
 # WITHOUT FINAM access, Task modification, live code changes or re-ARM.
-# Source SHA-pinned via GitHub blob API, all eight patches applied together.
+# Source SHA-pinned via GitHub blob API, all nine patches applied together.
 [CmdletBinding()]
 param([ValidateSet('prepare','verify')][string]$mode='prepare')
 $ErrorActionPreference='Stop'
 Set-StrictMode -Version Latest
 $root='c:\v20lab'
-$branchCommit='5b103752b81deb19c128f959f2daf432916fd21b'
-$package=Join-Path $root 'r088-candidate\release-20261118-hold5-all3-src3'
+$branchCommit='2d46e5b99f6ce302c20b46783c80989b3ac1d642'
+$package=Join-Path $root 'r088-candidate\release-20261118-hold5-all3-src4'
 $stage=Join-Path $package 'staged'
 $liveDir=Join-Path $root 'pretrade-08\live-runtime-08\V20_TradingSystem_M15\v20_runtime'
 $origLive='b80fb9eb135f7cdcb4c78337e2b808c4d7135195'
 $origExecution='6b600451178b42bd4f8b2037995e7db3a9ad27c8'
-$expectedLive='87dfbecf23784336ffcb4665292860dab8424d58'
+$expectedLive='e5e5fc765a6d846c914bb4f43af5df4ba7064abb'
 $expectedExecution='0fc4c454d55f37e4e87fd74e3370cbc1ad83b53f'
 $base='V20_TradingSystem_M15/v20_runtime/'
 $patchBase='V20_TradingSystem_M15/V20-08/'
@@ -27,6 +27,8 @@ $files=[ordered]@{
   'V20_TradingSystem_M15/v20_runtime/r070_m15_candidate_state.py'='81f25481b46753c7c54f138df8617a51f06f9a40'
   'V20_TradingSystem_M15/v20_runtime/r070_linked_sltp.py'='864d03d8fe467138adf73c6e6216a88fc81e8c21'
   'V20_TradingSystem_M15/v20_runtime/r088_hold5.py'='f0b9058707230299464f1f6fb5245653a022ec31'
+  'V20_TradingSystem_M15/v20_runtime/r088_cny_verified_bootstrap.py'='0042f844bcd3ed37c5fc3499e6a634ccf21640fd'
+  'V20_TradingSystem_M15/v20_runtime/r088_ext2_live_source.py'='888e30bfc94406ea8a6bb41439f2d5e7c5c595ec'
   'V20_TradingSystem_M15/V20-08/r070-tp6-one-shot-candidate.patch'='c1947f59ab68884fd6543c40d64892d6a899f225'
   'V20_TradingSystem_M15/V20-08/r070-protect3-flat-cleanup-candidate.patch'='b7d3eb587e97d4012cc21a593f2d8b605e431611'
   'V20_TradingSystem_M15/V20-08/r070-protect3-broker-id-readonly-candidate.patch'='4d975f8d2d4b701b48205f9ad24c0d49e45c9c4e'
@@ -35,6 +37,7 @@ $files=[ordered]@{
   'V20_TradingSystem_M15/V20-08/r070-ext2-pre-intent-candidate.patch'='53a07245857b79c53e1710eeca37b70f768d903d'
   'V20_TradingSystem_M15/V20-08/r070-finam-get-incomplete-read-candidate.patch'='fabfa58e9d84553fe0c51833530cb90d89412e85'
   'V20_TradingSystem_M15/V20-08/r088-hold5-after-r070-combined-candidate.patch'='0c73f8265a1c7f75a1bc8f4b849e5970fe274bc4'
+  'V20_TradingSystem_M15/V20-08/r088-ext2-live-source-after-combined-candidate.patch'='50f7ed23a8bee1d760c090113e12c68916cfa0d4'
 }
 $patchNames=@(
  'r070-tp6-one-shot-candidate.patch',
@@ -44,7 +47,8 @@ $patchNames=@(
  'r070-protect3-night-monitor-candidate.patch',
  'r070-ext2-pre-intent-candidate.patch',
  'r070-finam-get-incomplete-read-candidate.patch',
- 'r088-hold5-after-r070-combined-candidate.patch'
+ 'r088-hold5-after-r070-combined-candidate.patch',
+ 'r088-ext2-live-source-after-combined-candidate.patch'
 )
 function need([bool]$valid,[string]$code){if(-not $valid){throw $code}}
 function git-hash([string]$file) {
@@ -107,15 +111,15 @@ try {
     $finalExecution=git-hash (Join-Path $stage (($base+'finam_execution.py').Replace('/','\')))
     need ($finalLive -ceq $expectedLive -and $finalExecution -ceq $expectedExecution) 'R088_PKG_FINAL_COMBINED_SHA_INVALID'
     $manifest=[ordered]@{
-       schema='v20.r088.20261118.hold5_staged_bundle.v1'
+       schema='v20.r088.20261118.hold5_ext2_account_source_staged.v2'
        status='STAGED_NOT_INSTALLED_NO_LIVE_APPROVAL'
        source_commit=$branchCommit
        package_files_git_sha=$files
        patched_live_git_sha=$finalLive
        patched_execution_git_sha=$finalExecution
-       windows_test='44306841853'
+       windows_test='44347998417'
        physical_cny_finam_m15='PASS_2_OF_2_20261118_READONLY_OPERATOR_REPORTED'
-       ext2_rolling_refresh='STAGED_CODE_ONLY_NO_ACCOUNT_BOOTSTRAP_OR_CALENDAR_PIN'
+       ext2_rolling_refresh='STAGED_FAIL_CLOSED_ACCOUNT_SOURCE_HOOK_REQUIRES_ALL3_CHECKPOINTS_AND_CALENDAR'
        installation='NOT_EXECUTED'
        auto_arm=$false
        finam_requests=0
@@ -137,7 +141,7 @@ try {
     Compress-Archive -Path (Join-Path $package '*') -DestinationPath $targetZip -CompressionLevel Optimal
     need (Test-Path -LiteralPath $targetZip -PathType Leaf) 'R088_PKG_ZIP_MISSING'
     $digest=(Get-FileHash -LiteralPath $targetZip -Algorithm SHA256).Hash.ToLowerInvariant()
-    Write-Output ('R088_PKG_FULL_STAGED=PASS_8_PATCHES '+$targetZip)
+    Write-Output ('R088_PKG_FULL_STAGED=PASS_9_PATCHES '+$targetZip)
     Write-Output ('R088_PKG_ZIP_SHA256='+$digest)
     Write-Output ('R088_PKG_DERIVED_LIVE_SHA='+$finalLive)
     Write-Output ('R088_PKG_DERIVED_EXEC_SHA='+$finalExecution)
