@@ -538,8 +538,13 @@ jobs:
             '0fc4c454d55f37e4e87fd74e3370cbc1ad83b53f',
             'f0b9058707230299464f1f6fb5245653a022ec31',
             '0c73f8265a1c7f75a1bc8f4b849e5970fe274bc4',
-            '0042f844bcd3ed37c5fc3499e6a634ccf21640fd',
-            '888e30bfc94406ea8a6bb41439f2d5e7c5c595ec',
+            '8dba1a94c172a83e81e13b22c35293447549f85c',
+            '6e442fcd328a5c854597019165f75da67b146f9f',
+            '519bbeb37b95bed8c10800c8b060e9da9920077d',
+            'd91ddd10b11412d8f7829dc8c11cd554d7a35906',
+            '9eb076e903a475b30ffd6d71aacaae85d255a767',
+            '1865f3c01f83628c1585fc0186fe585ae818d0e7',
+            '360e6f1078c6bda526d2700e8578036861785eb5',
             '50f7ed23a8bee1d760c090113e12c68916cfa0d4'
           )) {
             if (-not $holdBuilder.Contains($hash)) { throw ('R088_HOLD5_BUNDLE_PIN_MISSING_'+$hash) }
