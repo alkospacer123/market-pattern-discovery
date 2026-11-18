@@ -792,6 +792,69 @@ jobs:
           if-no-files-found: error
           retention-days: 14
 
+      - name: R088 no-EXT2 safe minimal release patch compatibility (offline only)
+        shell: pwsh
+        env:
+          PYTHONDONTWRITEBYTECODE: '1'
+        run: |
+          $ErrorActionPreference='Stop'
+          $live='V20_TradingSystem_M15/v20_runtime/finam_live.py'
+          $execution='V20_TradingSystem_M15/v20_runtime/finam_execution.py'
+          $baseLive='b80fb9eb135f7cdcb4c78337e2b808c4d7135195'
+          $baseExec='6b600451178b42bd4f8b2037995e7db3a9ad27c8'
+          if(((& git.exe hash-object -- $live).Trim()) -ne $baseLive -or
+             ((& git.exe hash-object -- $execution).Trim()) -ne $baseExec){
+            throw 'R088_NO_EXT2_BASE_NOT_PINNED'
+          }
+          # No R070 EXT2 pre-intent patch, no R088 calendar/history source patch.
+          $patches=@(
+            'r070-tp6-one-shot-candidate.patch',
+            'r070-protect3-flat-cleanup-candidate.patch',
+            'r070-protect3-broker-id-readonly-candidate.patch',
+            'r070-protect3-live-trigger-candidate.patch',
+            'r070-protect3-night-monitor-candidate.patch',
+            'r070-finam-get-incomplete-read-candidate.patch',
+            'r088-hold5-after-r070-combined-candidate.patch'
+          ) | ForEach-Object { 'V20_TradingSystem_M15/V20-08/'+$_ }
+          $applied=New-Object 'System.Collections.Generic.List[string]'
+          try {
+            foreach($p in $patches){
+              & git.exe apply --check -- $p
+              if($LASTEXITCODE -ne 0){throw ('R088_NO_EXT2_PATCH_CONFLICT_'+$p)}
+              & git.exe apply -- $p
+              if($LASTEXITCODE -ne 0){throw ('R088_NO_EXT2_PATCH_FAILED_'+$p)}
+              $applied.Add($p)
+            }
+            $liveText=Get-Content -LiteralPath $live -Raw
+            foreach($forbidden in @(
+                'admit_r070_frozen_draft_pre_intent',
+                'configure_r088_ext2_live_source',
+                'r070_verified_history_refresh',
+                'r088-moex-calendar.json'
+            )){
+              if($liveText.Contains($forbidden)){throw ('R088_NO_EXT2_STILL_HOOKED_'+$forbidden)}
+            }
+            python -m unittest -q V20_TradingSystem_M15.v20_runtime.tests.test_r088_hold5_offline
+            if($LASTEXITCODE -ne 0){throw 'R088_NO_EXT2_HOLD5_REGRESSION_FAILED'}
+            python -m py_compile $live $execution
+            if($LASTEXITCODE -ne 0){throw 'R088_NO_EXT2_WORKER_SYNTAX_FAILED'}
+            Write-Output ('R088_NO_EXT2_DERIVED_LIVE_SHA='+(& git.exe hash-object -- $live).Trim())
+            Write-Output ('R088_NO_EXT2_DERIVED_EXEC_SHA='+(& git.exe hash-object -- $execution).Trim())
+            Write-Output 'R088_NO_EXT2_MINIMAL=PASS_TP6_PROTECT3_HOLD5_NO_HISTORY_CALENDAR_HOOK_NO_FINAM'
+          } finally {
+            $rev=@($applied.ToArray())
+            [array]::Reverse($rev)
+            foreach($p in $rev){
+              & git.exe apply -R -- $p
+              if($LASTEXITCODE -ne 0){throw ('R088_NO_EXT2_RESTORE_FAILED_'+$p)}
+            }
+          }
+          if(((& git.exe hash-object -- $live).Trim()) -ne $baseLive -or
+             ((& git.exe hash-object -- $execution).Trim()) -ne $baseExec){
+            throw 'R088_NO_EXT2_FROZEN_PINS_CHANGED'
+          }
+          Write-Output 'R088_NO_EXT2_RESTORED_ORIGINAL_LIVE_SHA=PASS'
+
       - name: R088 staged HOLD5 exit with frozen TIME3 parity (ephemeral, NO FINAM)
         shell: pwsh
         env:
