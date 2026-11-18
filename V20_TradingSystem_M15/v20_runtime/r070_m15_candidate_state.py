@@ -231,3 +231,55 @@ class R070CandidateCheckpointState:
         """Non-trading operator status from the candidate-only H1 SQLite."""
         row = self._get(symbol)
         return None if row is None else dict(row)
+
+
+def make_r070_checkpoint_refresh(
+    *, candidate_state: R070CandidateCheckpointState,
+    independently_verified_open_days: tuple[date, ...],
+):
+    """Explicit candidate callback for the existing R070 pre-intent gate.
+
+    Reuse the already isolated, account-bound H1 SQLite checkpoint, not the
+    trading journal. The caller must separately prove the MOEX calendar,
+    original source bootstrap and today's FINAM M15 witness. There is NO
+    broker request here, no auto-binding to the LIVE sender, and no entry POST.
+    """
+    if (not isinstance(candidate_state, R070CandidateCheckpointState)
+            or candidate_state.store is None
+            or not isinstance(independently_verified_open_days, tuple)
+            or not independently_verified_open_days
+            or any(type(day) is not date for day in independently_verified_open_days)
+            or tuple(sorted(set(independently_verified_open_days)))
+                != independently_verified_open_days):
+        raise EXT2HistoryBlocked("R070_REFRESH_CALENDAR_OR_STATE_NOT_PROVEN")
+
+    def refresh(*, robot: str, symbol: str, signal_open_msk: datetime,
+                finam_recent: pd.DataFrame, observed_at_msk: datetime,
+                ) -> tuple[pd.DataFrame, str]:
+        if robot != candidate_state.identity["robot_id"]:
+            raise EXT2HistoryBlocked("R070_REFRESH_ACCOUNT_OR_ROBOT_MISMATCH")
+        previous = candidate_state.verified_cursor(symbol)
+        if previous is None:
+            raise EXT2HistoryBlocked("R070_REFRESH_INITIAL_BOOTSTRAP_REQUIRED")
+        if (not isinstance(signal_open_msk, datetime)
+                or signal_open_msk.tzinfo is not None):
+            raise EXT2HistoryBlocked("R070_REFRESH_SIGNAL_INVALID")
+        try:
+            cursor = datetime.fromisoformat(previous["last_open_msk"])
+        except (TypeError, ValueError, KeyError) as exc:
+            raise EXT2HistoryBlocked("R070_REFRESH_CURSOR_INVALID") from exc
+        if cursor > signal_open_msk:
+            raise EXT2HistoryBlocked("R070_REFRESH_CURSOR_AHEAD_OF_SIGNAL")
+        if cursor == signal_open_msk:
+            # The caller's EXT2 gate still validates the fresh independent
+            # FINAM last four M15 bars, including OHLCV, before any entry.
+            return candidate_state.provide_ext2_history(
+                robot=robot, symbol=symbol, signal_open_msk=signal_open_msk)
+        history, pointer = candidate_state.restore_and_advance(
+            symbol=symbol, finam_recent=finam_recent,
+            signal_open_msk=signal_open_msk,
+            observed_at_msk=observed_at_msk,
+            independently_verified_open_days=independently_verified_open_days)
+        return history, pointer["history_sha256"]
+
+    return refresh
