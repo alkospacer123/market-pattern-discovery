@@ -912,6 +912,41 @@ class R070V20HandoffTests(TestCase):
                 datetime(2026, 11, 15, 7, tzinfo=timezone.utc),
                 datetime(2026, 11, 21, 11, tzinfo=timezone.utc))
 
+    def test_r070_cny_finam_inclusive_endpoint_exactly_one_final_bar_only(self):
+        from datetime import datetime, timezone
+        from decimal import Decimal
+        from importlib.util import module_from_spec, spec_from_file_location
+        from pathlib import Path
+        path = Path(__file__).resolve().parents[2] / "V20-08" / "r070-cny-intel-readonly.py"
+        spec = spec_from_file_location("r070_finam_inclusive_endpoint", path)
+        mod = module_from_spec(spec)
+        spec.loader.exec_module(mod)
+        start = datetime(2026, 11, 15, 7, tzinfo=timezone.utc)
+        end = datetime(2026, 11, 15, 15, tzinfo=timezone.utc)
+        def candle(timestamp):
+            return dict(timestamp=timestamp, open="12.30", high="12.31",
+                        low="12.29", close="12.30", volume="100")
+        accepted = [candle("2026-11-15T07:00:00Z"),
+                    candle("2026-11-15T14:45:00Z")]
+        inclusive = accepted + [candle("2026-11-15T15:00:00Z")]
+        parsed = mod.parse_finam_bars({"bars": inclusive}, start, end, Decimal)
+        self.assertEqual(len(parsed), 2)
+        self.assertEqual(parsed.Datetime.iloc[-1].isoformat(), "2026-11-15T17:45:00")
+        # A second/out-of-order end candle is still rejected: no loose >= filtering.
+        for invalid in (
+            [*accepted, candle("2026-11-15T15:00:00Z"), candle("2026-11-15T15:00:00Z")],
+            [*accepted, candle("2026-11-15T15:15:00Z")],
+            [*accepted, candle("2026-11-15T15:00:01Z")],
+            [*accepted, candle("2026-11-15T15:00:00Z"), candle("2026-11-15T14:45:00Z")],
+        ):
+            with self.subTest(timestamps=[v["timestamp"] for v in invalid]):
+                with self.assertRaisesRegex(mod.Hold, "R070_CNY_FINAM_M15_SEQUENCE_OR_TIME"):
+                    mod.parse_finam_bars({"bars": invalid}, start, end, Decimal)
+        # Never consume OHLCV from a candle whose open equals request.end.
+        unformed = dict(inclusive[-1]); unformed.pop("close")
+        self.assertEqual(len(mod.parse_finam_bars(
+            {"bars": accepted + [unformed]}, start, end, Decimal)), 2)
+
     def test_r070_cny_next_session_completed_grid_remains_strict(self):
         from importlib.util import module_from_spec, spec_from_file_location
         from pathlib import Path
