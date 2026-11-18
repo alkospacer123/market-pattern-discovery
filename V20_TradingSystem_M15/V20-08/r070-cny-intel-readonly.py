@@ -109,8 +109,19 @@ def parse_finam_bars(body: dict, from_utc: datetime, to_utc: datetime, parse_dec
             at = datetime.fromisoformat(bar["timestamp"].replace("Z", "+00:00"))
             need(at.tzinfo is not None, "FINAM_TIMESTAMP_WITHOUT_ZONE")
             t = at.astimezone(UTC)
-            # Never relax the timestamp validator. Show the ONE rejected
-            # timestamp and reason; no prices, broker IDs or secret tokens.
+            # FINAM GET has been witnessed returning exactly one extra
+            # final M15 open at interval.end_time (2026-11-15 15:00 UTC).
+            # It is NOT part of the requested [start,end) history.
+            # Ignore only that single terminal boundary candle; never use
+            # its unfinished OHLCV, never accept an over-end timestamp,
+            # duplicate, out-of-order or non-M15 timestamp.
+            if (t == to_utc and index == len(body["bars"]) - 1
+                    and rows and (prev is None or t > prev)
+                    and t.second == 0 and t.microsecond == 0
+                    and t.minute % 15 == 0):
+                continue
+            # Keep every other rejected timestamp fail-closed and print
+            # the precise UTC reason; never print sensitive account data.
             reason = ("BEFORE_WINDOW" if t < from_utc else
                       "AT_OR_AFTER_END" if t >= to_utc else
                       "DUPLICATE_OR_UNSORTED" if prev is not None and t <= prev else
