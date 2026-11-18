@@ -70,8 +70,11 @@ def _stitch_pinned_finam_priority(old: pd.DataFrame, new: pd.DataFrame,
     old_tail = old.loc[old.index >= new.index[0]]
     old_only = old_tail.index.difference(new.index)
     approved = set(accepted_historical_missing_m15(symbol))
-    need(all(ts.to_pydatetime() in approved for ts in old_only),
-         "R088_SEED_FINAM_UNAPPROVED_DISAPPEARING_M15")
+    unexpected = [ts.isoformat() for ts in old_only
+                  if ts.to_pydatetime() not in approved]
+    need(not unexpected,
+         "R088_SEED_FINAM_UNAPPROVED_DISAPPEARING_M15:" +
+         ",".join(unexpected[:16]))
     prefix = old.loc[old.index < new.index[0]]
     combined = _strict_m15(pd.concat([prefix, new]).reset_index())
     need(len(combined) == len(prefix) + len(new),
@@ -183,8 +186,10 @@ def main() -> None:
     parser=argparse.ArgumentParser()
     parser.add_argument("--sources", type=Path, required=True)
     parser.add_argument("--out", type=Path, required=True)
+    parser.add_argument("--symbol", choices=SUPPORTED,
+                        help="Build one remaining instrument without re-running PASS outputs")
     args=parser.parse_args()
-    for sym in SUPPORTED:
+    for sym in ((args.symbol,) if args.symbol else SUPPORTED):
         output = args.out / ("r070-"+sym.lower()+"-20261115-offline-m15-checkpoint.zip")
         print(json.dumps(build(sources=args.sources,destination=output,symbol=sym),
                          ensure_ascii=False,sort_keys=True),flush=True)
