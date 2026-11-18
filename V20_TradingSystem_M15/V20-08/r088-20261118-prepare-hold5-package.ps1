@@ -6,8 +6,8 @@ param([ValidateSet('prepare','verify')][string]$mode='prepare')
 $ErrorActionPreference='Stop'
 Set-StrictMode -Version Latest
 $root='c:\v20lab'
-$branchCommit='2d46e5b99f6ce302c20b46783c80989b3ac1d642'
-$package=Join-Path $root 'r088-candidate\release-20261118-hold5-all3-src4'
+$branchCommit='2e383e3fc31f482e3ffab50cf0b60787b92a4683'
+$package=Join-Path $root 'r088-candidate\release-20261118-hold5-all3-src5'
 $stage=Join-Path $package 'staged'
 $liveDir=Join-Path $root 'pretrade-08\live-runtime-08\V20_TradingSystem_M15\v20_runtime'
 $origLive='b80fb9eb135f7cdcb4c78337e2b808c4d7135195'
@@ -21,14 +21,16 @@ $files=[ordered]@{
   'V20_TradingSystem_M15/v20_runtime/finam_execution.py'=$origExecution
   'V20_TradingSystem_M15/v20_runtime/tp6_protect3.py'='a578cac629350f2c9fe3409121ac085c8a41eb63'
   'V20_TradingSystem_M15/v20_runtime/ext2_r060.py'='60ab3e16cda819d785e7763ca17a8e74a8a30e04'
-  'V20_TradingSystem_M15/v20_runtime/ext2_history_bridge.py'='1045555cb423542dec2568496c7366b1749a9761'
+  'V20_TradingSystem_M15/v20_runtime/ext2_history_bridge.py'='8dba1a94c172a83e81e13b22c35293447549f85c'
   'V20_TradingSystem_M15/v20_runtime/r070_candidate_entry.py'='b1a695f04b953299aba3134dfa31ff25e75236fa'
-  'V20_TradingSystem_M15/v20_runtime/r070_m15_checkpoint.py'='8923b1614c00f9c84b9f5e62c728b1447778c146'
-  'V20_TradingSystem_M15/v20_runtime/r070_m15_candidate_state.py'='81f25481b46753c7c54f138df8617a51f06f9a40'
+  'V20_TradingSystem_M15/v20_runtime/r070_m15_checkpoint.py'='6e442fcd328a5c854597019165f75da67b146f9f'
+  'V20_TradingSystem_M15/v20_runtime/r070_m15_candidate_state.py'='519bbeb37b95bed8c10800c8b060e9da9920077d'
   'V20_TradingSystem_M15/v20_runtime/r070_linked_sltp.py'='864d03d8fe467138adf73c6e6216a88fc81e8c21'
   'V20_TradingSystem_M15/v20_runtime/r088_hold5.py'='f0b9058707230299464f1f6fb5245653a022ec31'
-  'V20_TradingSystem_M15/v20_runtime/r088_cny_verified_bootstrap.py'='0042f844bcd3ed37c5fc3499e6a634ccf21640fd'
-  'V20_TradingSystem_M15/v20_runtime/r088_ext2_live_source.py'='888e30bfc94406ea8a6bb41439f2d5e7c5c595ec'
+  'V20_TradingSystem_M15/v20_runtime/r088_cny_verified_bootstrap.py'='d91ddd10b11412d8f7829dc8c11cd554d7a35906'
+  'V20_TradingSystem_M15/v20_runtime/r088_ext2_live_source.py'='9eb076e903a475b30ffd6d71aacaae85d255a767'
+  'V20_TradingSystem_M15/v20_runtime/r088_finam_historical_gaps.py'='1865f3c01f83628c1585fc0186fe585ae818d0e7'
+  'V20_TradingSystem_M15/V20-08/r088-build-usd-gld-offline-checkpoints.py'='360e6f1078c6bda526d2700e8578036861785eb5'
   'V20_TradingSystem_M15/V20-08/r070-tp6-one-shot-candidate.patch'='c1947f59ab68884fd6543c40d64892d6a899f225'
   'V20_TradingSystem_M15/V20-08/r070-protect3-flat-cleanup-candidate.patch'='b7d3eb587e97d4012cc21a593f2d8b605e431611'
   'V20_TradingSystem_M15/V20-08/r070-protect3-broker-id-readonly-candidate.patch'='4d975f8d2d4b701b48205f9ad24c0d49e45c9c4e'
@@ -111,7 +113,7 @@ try {
     $finalExecution=git-hash (Join-Path $stage (($base+'finam_execution.py').Replace('/','\')))
     need ($finalLive -ceq $expectedLive -and $finalExecution -ceq $expectedExecution) 'R088_PKG_FINAL_COMBINED_SHA_INVALID'
     $manifest=[ordered]@{
-       schema='v20.r088.20261118.hold5_ext2_account_source_staged.v2'
+       schema='v20.r088.20261118.hold5_finam_official_historic_gaps_staged.v3'
        status='STAGED_NOT_INSTALLED_NO_LIVE_APPROVAL'
        source_commit=$branchCommit
        package_files_git_sha=$files
@@ -119,6 +121,7 @@ try {
        patched_execution_git_sha=$finalExecution
        windows_test='44347998417'
        physical_cny_finam_m15='PASS_2_OF_2_20261118_READONLY_OPERATOR_REPORTED'
+       official_finam_reexport_20261118='ACCEPTED_14_EXACT_HISTORICAL_ABSENCES_NO_SYNTHETIC_OHLCV'
        ext2_rolling_refresh='STAGED_FAIL_CLOSED_ACCOUNT_SOURCE_HOOK_REQUIRES_ALL3_CHECKPOINTS_AND_CALENDAR'
        installation='NOT_EXECUTED'
        auto_arm=$false
@@ -128,7 +131,7 @@ try {
        post_install_observation='FIRST_NATURAL_HOLD5_SIXTH_OPEN_BROKER_RECONCILIATION'
        unresolved_physical_gates=@(
          'R088_EXT2_ALL3_ACCOUNT_CHECKPOINT_BOOTSTRAP_AND_VERIFIED_MOEX_CALENDAR'
-         'R070_USDRUBF_GLDRUBF_M15_GAPS'
+         'R088_USD_GLD_OFFLINE_CHECKPOINT_BUILD_AND_ACCOUNT_PIN'
          'R070_PROTECT3_RELEASE_AUTHORIZATION_AND_BROKER_REPLACEMENT'
          'R070_LIVE_LAUNCHER_NEW_SOURCE_AND_SHA_CUTOVER'
        )
