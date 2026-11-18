@@ -21,8 +21,6 @@ $source='dd55f201b3e9a92ce5fa3f927289f5a5ef89366d'
 $oldLauncher='4e7498d2eacf0930d0ee1bbf6343883735f3aefb'
 $zipSha='d2e9240f9721039d7229aaad82a42ccb938d8548ed7c0100115ead579d6c23ca'
 $oldLive='b80fb9eb135f7cdcb4c78337e2b808c4d7135195'
-$oldExec='6b600451178b42bd4f8e8c10800c8b060e9da9920077d'
-# Exact reviewed pre-cutover execution pin (not the unrelated state SHA).
 $oldExec='6b600451178b42bd4f8b2037995e7db3a9ad27c8'
 $newLive='54ae8e1262482f4ecc80d202c6e9063cf0d6e402'
 $newExec='0fc4c454d55f37e4e87fd74e3370cbc1ad83b53f'
@@ -114,9 +112,12 @@ try:
             raise RuntimeError("R088_RELEASE_APPROVAL_ALREADY_EXISTS")
         db.execute("INSERT INTO state (key,value) VALUES (?,?)",(key,json.dumps(expected,sort_keys=True,separators=(",",":"))))
     elif operation=="revoke":
-        if not row or json.loads(row[0])!=expected:
-            raise RuntimeError("R088_RELEASE_APPROVAL_NOT_OWNED")
-        db.execute("DELETE FROM state WHERE key=?",(key,))
+        # Idempotent rollback after an interrupted install that may have
+        # authorized only a subset of the three independent accounts.
+        if row:
+            if json.loads(row[0])!=expected:
+                raise RuntimeError("R088_RELEASE_APPROVAL_NOT_OWNED")
+            db.execute("DELETE FROM state WHERE key=?",(key,))
     else:
         raise RuntimeError("R088_SQLITE_OPERATION_INVALID")
     db.commit()
