@@ -122,8 +122,11 @@ def configure_r088_ext2_live_source(
             except (KeyError, TypeError, ValueError) as exc:
                 raise EXT2HistoryBlocked("R088_EXT2_CURSOR_INVALID") from exc
             _need(stamp.tzinfo is None, "R088_EXT2_CURSOR_INVALID")
+    approved_robot = robot
     def refresh(*, robot: str, symbol: str, signal_open_msk: datetime,
                 finam_recent, observed_at_msk: datetime):
+        _need(robot == approved_robot and symbol in COVERED,
+              "R088_EXT2_REFRESH_CROSS_ACCOUNT_OR_SYMBOL")
         # Short exclusive lock only while advancing the isolated H1 store.
         with R070CandidateCheckpointState(
                 v20_root=root, robot_id=robot, account_id=account_id) as state:
