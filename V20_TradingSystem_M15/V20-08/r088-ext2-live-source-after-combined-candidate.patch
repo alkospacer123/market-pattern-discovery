@@ -1,7 +1,7 @@
 diff --git a/V20_TradingSystem_M15/v20_runtime/finam_live.py b/V20_TradingSystem_M15/v20_runtime/finam_live.py
 --- a/V20_TradingSystem_M15/v20_runtime/finam_live.py
 +++ b/V20_TradingSystem_M15/v20_runtime/finam_live.py
-@@ -838,8 +838,17 @@ def run(*, root: Path, robot: str, source: str, once: bool = False,
+@@ -839,7 +839,15 @@ def run(*, root: Path, robot: str, source: str, once: bool = False,
          reader = V20FinamReadAdapter(
              api=api, robot_id=robot, account_id=account,
              expected_account_hash=scope)
