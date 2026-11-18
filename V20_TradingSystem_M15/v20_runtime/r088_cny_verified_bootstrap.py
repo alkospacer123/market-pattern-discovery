@@ -6,9 +6,11 @@ Original 2026-11-18 FINAM report and existing checkpoint are authoritative.
 """
 from __future__ import annotations
 
+import argparse
 from datetime import datetime
 from hashlib import sha256
 import json
+import os
 from pathlib import Path
 import re
 
@@ -135,3 +137,24 @@ def bootstrap_r088_verified_cny(
         "cursor_msk": row["last_open_msk"], "generation": row["generation"],
         "live_installed": False, "orders_sent": 0, "finam_requests": 0,
     }
+
+
+def main() -> int:
+    """Account ID comes only from SID-bound launcher environment; never argv."""
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--root", type=Path, required=True)
+    parser.add_argument("--robot", choices=sorted(ROBOT_IDS), required=True)
+    opts = parser.parse_args()
+    account_id = os.environ.get("V20_FINAM_ACCOUNT", "")
+    scope = os.environ.get("V20_FINAM_ACCOUNT_SHA256", "")
+    if (not account_id or sha256(account_id.encode("utf-8")).hexdigest() != scope):
+        raise EXT2HistoryBlocked("R088_CNY_SID_ACCOUNT_SCOPE_INVALID")
+    result = bootstrap_r088_verified_cny(
+        root=opts.root, robot=opts.robot, account_id=account_id)
+    print("R088_CNY_" + opts.robot.replace("-", "_").upper() + "=" + result["status"])
+    print("R088_CNY_FINAM_REQUESTS=0_LIVE_ORDERS=0")
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
