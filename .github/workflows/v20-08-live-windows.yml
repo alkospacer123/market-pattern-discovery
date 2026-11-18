@@ -537,7 +537,11 @@ jobs:
             '87dfbecf23784336ffcb4665292860dab8424d58',
             '0fc4c454d55f37e4e87fd74e3370cbc1ad83b53f',
             'f0b9058707230299464f1f6fb5245653a022ec31',
-            '0c73f8265a1c7f75a1bc8f4b849e5970fe274bc4'
+            '0c73f8265a1c7f75a1bc8f4b849e5970fe274bc4',
+            'e5e5fc765a6d846c914bb4f43af5df4ba7064abb',
+            '0042f844bcd3ed37c5fc3499e6a634ccf21640fd',
+            '888e30bfc94406ea8a6bb41439f2d5e7c5c595ec',
+            '50f7ed23a8bee1d760c090113e12c68916cfa0d4'
           )) {
             if (-not $holdBuilder.Contains($hash)) { throw ('R088_HOLD5_BUNDLE_PIN_MISSING_'+$hash) }
           }
@@ -548,7 +552,7 @@ jobs:
               $holdBuilder.Contains('arm -robot')) {
             throw 'R088_HOLD5_BUILDER_LIVE_ACTION_FORBIDDEN'
           }
-          Write-Output 'R088_EIGHT_PATCH_BUNDLE_PREPARE=PASS_SYNTAX_PINS_NO_LIVE_ACTION'
+          Write-Output 'R088_NINE_PATCH_BUNDLE_PREPARE=PASS_SYNTAX_PINS_NO_LIVE_ACTION'
 
       - name: R070 FINAM incomplete GET incident 20261117 (ephemeral only)
         shell: pwsh
