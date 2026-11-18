@@ -69,7 +69,7 @@ require ($report.schema -eq 'v20.08.1.dpapi_trading_bindings.v1' -and $report.st
 New-Item -ItemType Directory -Path $tools -Force | Out-Null
 no-junction $tools
 $builder=pinned 'r070-build-verified-cny-checkpoint.py' 'd2ab63b5519ddcd4049b9240b1249dc4047c78d0'
-$reader=pinned 'r070-cny-intel-readonly.py' 'ce988769658eeab2d8c9869da283e25104f52355' 'ad4e3432eb244ed71ad4cd6229ecae59568a08a7'
+$reader=pinned 'r070-cny-intel-readonly.py' 'f798b1346a527249587e319c7e6e3c2b9af8adb0' 'ce988769658eeab2d8c9869da283e25104f52355'
 $oldPath=$env:PYTHONPATH
 $oldAccount=$env:V20_FINAM_ACCOUNT
 $oldToken=$env:V20_FINAM_TOKEN
