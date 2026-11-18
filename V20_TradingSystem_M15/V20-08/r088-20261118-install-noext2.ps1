@@ -238,8 +238,8 @@ try {
  start-tasks
  cycle-halted-after $started
  switch-halted
- $manifest.status='INSTALLED_RUNNING_HALTED_FRESH_CYCLES'
- $manifest.installed_utc=[datetimeoffset]::UtcNow.ToString('o')
+ $manifest['status']='INSTALLED_RUNNING_HALTED_FRESH_CYCLES'
+ $manifest['installed_utc']=[datetimeoffset]::UtcNow.ToString('o')
  [io.file]::WriteAllText((Join-Path $backup 'release-manifest.json'),($manifest|ConvertTo-Json -Depth 5),[text.utf8encoding]::new($false))
  Write-Output 'R088_NOEXT2_INSTALL=PASS_3_RUNNING_HALTED_FRESH_CYCLES'
  Write-Output 'R088_TP6_PROTECT3_RELEASE_AUTHORIZED_3_OF_3=YES'
