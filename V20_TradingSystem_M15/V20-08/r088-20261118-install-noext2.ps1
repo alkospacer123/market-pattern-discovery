@@ -198,6 +198,9 @@ if($mode -eq 'rollback'){
 pin $launcher $oldLauncher
 pin (Join-Path $runtime 'finam_live.py') $oldLive
 pin (Join-Path $runtime 'finam_execution.py') $oldExec
+foreach($name in $names){
+ need (Test-Path -LiteralPath (Join-Path $backRoot ('v20-live-20261118T184141Z\\'+$name+'.sqlite3')) -PathType Leaf) ('R088_CONFIRMED_SQLITE_BACKUP_MISSING_'+$name)
+}
 need ((Get-FileHash -LiteralPath $zip -Algorithm SHA256).Hash.ToLowerInvariant() -ceq $zipSha) 'R088_RELEASE_ZIP_SHA_MISMATCH'
 foreach($name in @($modules.Keys)){pin (Join-Path $stage $name) $modules[$name]}
 $oldText=[io.file]::ReadAllText($launcher)
@@ -235,6 +238,9 @@ try {
  start-tasks
  cycle-halted-after $started
  switch-halted
+ $manifest.status='INSTALLED_RUNNING_HALTED_FRESH_CYCLES'
+ $manifest.installed_utc=[datetimeoffset]::UtcNow.ToString('o')
+ [io.file]::WriteAllText((Join-Path $backup 'release-manifest.json'),($manifest|ConvertTo-Json -Depth 5),[text.utf8encoding]::new($false))
  Write-Output 'R088_NOEXT2_INSTALL=PASS_3_RUNNING_HALTED_FRESH_CYCLES'
  Write-Output 'R088_TP6_PROTECT3_RELEASE_AUTHORIZED_3_OF_3=YES'
  Write-Output 'R088_NO_NEW_ENTRIES_NO_REARM=YES'
