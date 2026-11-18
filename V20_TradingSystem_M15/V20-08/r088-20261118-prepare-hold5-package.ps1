@@ -1,13 +1,13 @@
 # R088 / 18 Nov 2026: prepare HOLD5 on top of seven pinned R070 patches
 # WITHOUT FINAM access, Task modification, live code changes or re-ARM.
-# Source SHA-pinned via GitHub blob API, all seven patches applied together.
+# Source SHA-pinned via GitHub blob API, all eight patches applied together.
 [CmdletBinding()]
 param([ValidateSet('prepare','verify')][string]$mode='prepare')
 $ErrorActionPreference='Stop'
 Set-StrictMode -Version Latest
 $root='c:\v20lab'
-$branchCommit='f84fa0f73e15214aa90b571a174dba980fcee1fe'
-$package=Join-Path $root 'r088-candidate\release-20261118-hold5-all3'
+$branchCommit='6a45e41678d4dff40180cedd286241c281360075'
+$package=Join-Path $root 'r088-candidate\release-20261118-hold5-all3-src2'
 $stage=Join-Path $package 'staged'
 $liveDir=Join-Path $root 'pretrade-08\live-runtime-08\V20_TradingSystem_M15\v20_runtime'
 $origLive='b80fb9eb135f7cdcb4c78337e2b808c4d7135195'
@@ -22,7 +22,7 @@ $files=[ordered]@{
   'V20_TradingSystem_M15/v20_runtime/tp6_protect3.py'='a578cac629350f2c9fe3409121ac085c8a41eb63'
   'V20_TradingSystem_M15/v20_runtime/ext2_r060.py'='60ab3e16cda819d785e7763ca17a8e74a8a30e04'
   'V20_TradingSystem_M15/v20_runtime/ext2_history_bridge.py'='1045555cb423542dec2568496c7366b1749a9761'
-  'V20_TradingSystem_M15/v20_runtime/r070_candidate_entry.py'='59e9405d8fed88cc18be6676a298d1faaa27afc8'
+  'V20_TradingSystem_M15/v20_runtime/r070_candidate_entry.py'='b1a695f04b953299aba3134dfa31ff25e75236fa'
   'V20_TradingSystem_M15/v20_runtime/r070_m15_checkpoint.py'='8923b1614c00f9c84b9f5e62c728b1447778c146'
   'V20_TradingSystem_M15/v20_runtime/r070_m15_candidate_state.py'='680fb9f1aad165b70f54c3cc3122a98fef0a753e'
   'V20_TradingSystem_M15/v20_runtime/r070_linked_sltp.py'='864d03d8fe467138adf73c6e6216a88fc81e8c21'
@@ -113,14 +113,16 @@ try {
        package_files_git_sha=$files
        patched_live_git_sha=$finalLive
        patched_execution_git_sha=$finalExecution
-       windows_test='44303381429'
+       windows_test='44306841853'
+       physical_cny_finam_m15='PASS_2_OF_2_20261118_READONLY_OPERATOR_REPORTED'
+       ext2_rolling_refresh='STAGED_CODE_ONLY_NO_ACCOUNT_BOOTSTRAP'
        installation='NOT_EXECUTED'
        auto_arm=$false
        finam_requests=0
        orders_sent=0
        original_live_pins_verified=$true
        unresolved_physical_gates=@(
-         'R070_EXT2_ACCOUNT_BOUND_HISTORY_AND_FRESH_FINAM_M15'
+         'R070_EXT2_ACCOUNT_BOUND_ROLLING_HISTORY_PROVIDER'
          'R070_USDRUBF_GLDRUBF_M15_GAPS'
          'R070_PROTECT3_RELEASE_AUTHORIZATION_AND_BROKER_REPLACEMENT'
          'R070_LIVE_LAUNCHER_NEW_SOURCE_AND_SHA_CUTOVER'
