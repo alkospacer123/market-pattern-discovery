@@ -85,6 +85,24 @@ function start-tasks(){
  }
  need (@($names | Where-Object {(Get-ScheduledTask -TaskName $_ -TaskPath '\').State -ne 'Running'}).Count -eq 0) 'R088_RESTARTED_TASK_NOT_RUNNING'
 }
+function cycle-halted-after([datetimeoffset]$since){
+ for($attempt=0;$attempt -lt 45;$attempt++){
+  $ok=0
+  foreach($name in $names){
+   $log=Join-Path $root ('robots\'+$name.Substring(4)+'\logs\live-m15.jsonl')
+   if(-not (Test-Path -LiteralPath $log -PathType Leaf)){continue}
+   try {
+    $last=(Get-Content -LiteralPath $log -Tail 1 -Encoding UTF8 | ConvertFrom-Json -ErrorAction Stop)
+    $when=[datetimeoffset]::Parse([string]$last.utc,[globalization.cultureinfo]::InvariantCulture)
+    if($last.robot -eq $name -and $last.state -eq 'HALTED_NO_NEW_ENTRIES' -and
+       $when -ge $since.AddSeconds(-5)){$ok++}
+   } catch {}
+  }
+  if($ok -eq 3){return}
+  Start-Sleep -Seconds 1
+ }
+ throw 'R088_FRESH_3_HALTED_WORKER_CYCLES_NOT_CONFIRMED'
+}
 function broker-flat(){
  foreach($name in $names){
   $output=@(& powershell.exe -noprofile -noninteractive -executionpolicy bypass -file $launcher -mode readonly -robot $name 2>&1)
@@ -213,9 +231,11 @@ try {
   & powershell.exe -noprofile -noninteractive -executionpolicy bypass -file $launcher -mode verify -robot $name
   need ($LASTEXITCODE -eq 0) ('R088_NEW_LAUNCHER_VERIFY_FAILED_'+$name)
  }
+ $started=[datetimeoffset]::UtcNow
  start-tasks
+ cycle-halted-after $started
  switch-halted
- Write-Output 'R088_NOEXT2_INSTALL=PASS_3_RUNNING_HALTED'
+ Write-Output 'R088_NOEXT2_INSTALL=PASS_3_RUNNING_HALTED_FRESH_CYCLES'
  Write-Output 'R088_TP6_PROTECT3_RELEASE_AUTHORIZED_3_OF_3=YES'
  Write-Output 'R088_NO_NEW_ENTRIES_NO_REARM=YES'
  Write-Output ('R088_ROLLBACK_DIR='+$backup)
