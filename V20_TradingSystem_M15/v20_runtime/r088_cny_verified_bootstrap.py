@@ -119,7 +119,6 @@ def bootstrap_r088_verified_cny(
                 _need(existing["history_sha256"] == history_sha,
                       "R088_CNY_ALREADY_BOUND_DIFFERENT_SEED")
             else:
-                from .r070_m15_checkpoint import load_r070_m15_checkpoint
                 last, sha = load_r070_m15_checkpoint(
                     path=state.archive_dir / existing["filename"], symbol=SYMBOL,
                     expected_checkpoint_sha256=existing["checkpoint_sha256"],
