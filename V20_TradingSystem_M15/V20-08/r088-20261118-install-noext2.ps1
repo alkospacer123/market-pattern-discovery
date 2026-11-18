@@ -200,8 +200,8 @@ $manifest=[ordered]@{schema='v20.r088.noext2.cutover.v1';status='BACKUP_BEFORE_I
 [io.file]::WriteAllText((Join-Path $backup 'release-manifest.json'),($manifest|ConvertTo-Json -Depth 5),[text.utf8encoding]::new($false))
 Write-Output ('R088_ROLLBACK_DIR='+$backup)
 # Never replace modules in a running process.
-stop-tasks
 try {
+ stop-tasks
  foreach($name in @($modules.Keys)){
    Copy-Item -LiteralPath (Join-Path $stage $name) -Destination (Join-Path $runtime $name) -Force
    pin (Join-Path $runtime $name) $modules[$name]
@@ -220,7 +220,34 @@ try {
  Write-Output 'R088_NO_NEW_ENTRIES_NO_REARM=YES'
  Write-Output ('R088_ROLLBACK_DIR='+$backup)
 } catch {
- Write-Output ('R088_INSTALL_HOLD='+$_.Exception.Message)
+ $problem=$_.Exception.Message
+ Write-Output ('R088_INSTALL_HOLD='+$problem)
+ # A partial copy or approval failure must not strand an unprotected half
+ # release. All tasks are HALTED and the broker was proven FLAT above.
+ try {
+  stop-tasks
+  Copy-Item -LiteralPath (Join-Path $backup 'v20-08-live-launch.ps1') -Destination $launcher -Force
+  foreach($name in @($modules.Keys)){
+   $target=Join-Path $runtime $name
+   $prior=Join-Path $backup $name
+   if(Test-Path -LiteralPath $prior){Copy-Item -LiteralPath $prior -Destination $target -Force}
+   elseif(Test-Path -LiteralPath $target){Remove-Item -LiteralPath $target -Force}
+  }
+  approve 'revoke' $backup
+  pin $launcher $oldLauncher
+  pin (Join-Path $runtime 'finam_live.py') $oldLive
+  pin (Join-Path $runtime 'finam_execution.py') $oldExec
+  foreach($name in $names){
+    & powershell.exe -noprofile -noninteractive -executionpolicy bypass -file $launcher -mode verify -robot $name
+    need ($LASTEXITCODE -eq 0) ('R088_AUTO_ROLLBACK_VERIFY_FAILED_'+$name)
+  }
+  start-tasks
+  switch-halted
+  Write-Output 'R088_INSTALL_FAILED_AUTO_ROLLBACK=PASS_ORIGINAL_RUNNING_HALTED'
+ } catch {
+  Write-Output ('R088_AUTO_ROLLBACK_HOLD='+$_.Exception.Message)
+  Write-Output 'R088_TASKS_MAY_BE_STOPPED_MANUAL_RECOVERY_REQUIRED=YES'
+ }
  Write-Output ('R088_ROLLBACK_DIR='+$backup)
  Write-Output 'R088_DO_NOT_ARM_OR_RETRY_BLINDLY=YES'
  throw
