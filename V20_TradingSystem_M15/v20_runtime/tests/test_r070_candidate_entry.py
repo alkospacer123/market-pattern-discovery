@@ -13,7 +13,7 @@ from V20_TradingSystem_M15.v20_runtime.ext2_history_bridge import m15_history_sh
 from V20_TradingSystem_M15.v20_runtime.offline_planner import FrozenSignal, ProposedEntry
 from V20_TradingSystem_M15.v20_runtime.r070_candidate_entry import (
     evaluate_r070_candidate_ext2, stage_r070_after_frozen_proposal,
-    propose_r070_readonly_candidate,
+    propose_r070_readonly_candidate, admit_r070_frozen_draft_pre_intent,
 )
 from V20_TradingSystem_M15.v20_runtime.tests.test_ext2_r060 import history
 
@@ -234,6 +234,66 @@ class R070EntryCandidateTests(TestCase):
                     verified_full_history=full,
                     verified_history_refresh=lambda **kwargs: (full, m15_history_sha256(full)),
                     durable_audit=lambda **kw: self.fail("AUDIT_AFTER_DOUBLE_SOURCE"))
+
+
+    def test_live_refresh_uses_single_second_finam_m15_witness(self):
+        signal, full, recent, draft = fixtures(contra=True)
+        now = (signal.signal_bar_open + timedelta(minutes=15)).replace(tzinfo=timezone.utc)
+        boundary = SimpleNamespace(
+            symbol="GLDRUBF", at_msk=draft[1].entry_bar_open,
+            witnessed_open=draft[1].reference_entry, completed=recent)
+        writes, calls = [], []
+
+        def refresh(**kwargs):
+            calls.append(kwargs)
+            return full, m15_history_sha256(full)
+
+        sender = SimpleNamespace(r070_verified_history_refresh=refresh)
+        reader = SimpleNamespace(robot_id="v20-shallow")
+        journal = SimpleNamespace(
+            robot_id="v20-shallow",
+            store=SimpleNamespace(put=lambda key, val: writes.append((key, val))))
+        with patch(
+            "V20_TradingSystem_M15.v20_runtime.finam_execution.read_finam_m15_boundary",
+            return_value=boundary) as get:
+            result = admit_r070_frozen_draft_pre_intent(
+                sender=sender, journal=journal, reader=reader,
+                symbol="GLDRUBF", frozen_draft=draft,
+                from_utc=now-timedelta(days=3), now=now)
+        self.assertIs(result, draft)
+        self.assertEqual(get.call_count, 1)
+        self.assertEqual(len(calls), 1)
+        self.assertIs(calls[0]["finam_recent"], recent)
+        self.assertEqual(calls[0]["signal_open_msk"], signal.signal_bar_open)
+        self.assertEqual(calls[0]["observed_at_msk"], boundary.at_msk)
+        self.assertEqual(len(writes), 1)
+        self.assertTrue(writes[0][1]["permit"])
+
+    def test_live_missing_or_ambiguous_history_cannot_send_second_get(self):
+        signal, full, recent, draft = fixtures(contra=True)
+        now = (signal.signal_bar_open + timedelta(minutes=15)).replace(tzinfo=timezone.utc)
+        reader = SimpleNamespace(robot_id="v20-shallow")
+        writes = []
+        journal = SimpleNamespace(
+            robot_id="v20-shallow",
+            store=SimpleNamespace(put=lambda key, val: writes.append(val)))
+        with patch(
+            "V20_TradingSystem_M15.v20_runtime.finam_execution.read_finam_m15_boundary",
+            side_effect=AssertionError("NO_GET_FOR_MISSING_OR_AMBIGUOUS_PROVIDER")):
+            result = admit_r070_frozen_draft_pre_intent(
+                sender=SimpleNamespace(), journal=journal, reader=reader,
+                symbol="GLDRUBF", frozen_draft=draft,
+                from_utc=now-timedelta(days=3), now=now)
+            self.assertIsNone(result)
+            self.assertEqual(writes[-1]["reason"], "EXT2_VERIFIED_HISTORY_PROVIDER_MISSING")
+            with self.assertRaisesRegex(V20FinamBlocked, "R070_EXT2_HISTORY_SOURCE_AMBIGUOUS"):
+                admit_r070_frozen_draft_pre_intent(
+                    sender=SimpleNamespace(
+                        r070_verified_history_provider=lambda **kwargs: (full, m15_history_sha256(full)),
+                        r070_verified_history_refresh=lambda **kwargs: (full, m15_history_sha256(full))),
+                    journal=journal, reader=reader,
+                    symbol="GLDRUBF", frozen_draft=draft,
+                    from_utc=now-timedelta(days=3), now=now)
 
     def test_no_signal_preserves_frozen_null_and_no_audit(self):
         self.assertIsNone(stage_r070_after_frozen_proposal(
