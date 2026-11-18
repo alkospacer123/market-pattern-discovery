@@ -125,12 +125,12 @@ try {
        finam_requests=0
        orders_sent=0
        original_live_pins_verified=$true
+       post_install_observation='FIRST_NATURAL_HOLD5_SIXTH_OPEN_BROKER_RECONCILIATION'
        unresolved_physical_gates=@(
-         'R070_EXT2_ACCOUNT_BOUND_ROLLING_HISTORY_PROVIDER'
+         'R088_EXT2_ALL3_ACCOUNT_CHECKPOINT_BOOTSTRAP_AND_VERIFIED_MOEX_CALENDAR'
          'R070_USDRUBF_GLDRUBF_M15_GAPS'
          'R070_PROTECT3_RELEASE_AUTHORIZATION_AND_BROKER_REPLACEMENT'
          'R070_LIVE_LAUNCHER_NEW_SOURCE_AND_SHA_CUTOVER'
-         'R088_HOLD5_SIXTH_OPEN_PHYSICAL_BROKER_PROOF'
        )
     }
     $manifestPath=Join-Path $package 'manifest.json'
