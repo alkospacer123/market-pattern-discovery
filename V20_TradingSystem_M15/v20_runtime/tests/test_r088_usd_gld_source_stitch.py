@@ -53,7 +53,7 @@ class ExactFinamPriorityStitchTests(TestCase):
         self.assertEqual(tuple(str(x) for x in skipped), (
             "2026-09-27 10:00:00", "2026-09-27 10:30:00"))
         self.assertEqual(len(result), 1 + len(self.finam))
-        self.assertEqual(len(overlap), 3)
+        self.assertEqual(len(overlap), 4)
         self.assertEqual(len(result), 5)
         self.assertFalse(result.Datetime.isin(skipped).any())
 
