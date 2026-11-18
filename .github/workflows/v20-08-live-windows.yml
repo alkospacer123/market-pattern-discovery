@@ -763,3 +763,57 @@ jobs:
           path: ${{ runner.temp }}/r070-historical-prefix-public/
           if-no-files-found: error
           retention-days: 14
+
+      - name: R088 staged HOLD5 exit with frozen TIME3 parity (ephemeral, NO FINAM)
+        shell: pwsh
+        env:
+          PYTHONDONTWRITEBYTECODE: '1'
+        run: |
+          $ErrorActionPreference='Stop'
+          $live='V20_TradingSystem_M15/v20_runtime/finam_live.py'
+          $execution='V20_TradingSystem_M15/v20_runtime/finam_execution.py'
+          $origLive='b80fb9eb135f7cdcb4c78337e2b808c4d7135195'
+          $origExec='6b600451178b42bd4f8b2037995e7db3a9ad27c8'
+          if(((& git.exe hash-object -- $live).Trim()) -ne $origLive -or
+             ((& git.exe hash-object -- $execution).Trim()) -ne $origExec){
+            throw 'R088_BASE_FROZEN_SHA_CHANGED'
+          }
+          $patches=@(
+            'r070-tp6-one-shot-candidate.patch',
+            'r070-protect3-flat-cleanup-candidate.patch',
+            'r070-protect3-broker-id-readonly-candidate.patch',
+            'r070-protect3-live-trigger-candidate.patch',
+            'r070-protect3-night-monitor-candidate.patch',
+            'r070-ext2-pre-intent-candidate.patch',
+            'r070-finam-get-incomplete-read-candidate.patch',
+            'r088-hold5-after-r070-combined-candidate.patch'
+          ) | ForEach-Object {'V20_TradingSystem_M15/V20-08/'+$_}
+          $applied=New-Object 'System.Collections.Generic.List[string]'
+          try {
+            foreach($p in $patches){
+              & git.exe apply --check -- $p
+              if($LASTEXITCODE -ne 0){throw ('R088_COMBINED_PATCH_CONFLICT_'+$p)}
+              & git.exe apply -- $p
+              if($LASTEXITCODE -ne 0){throw ('R088_COMBINED_PATCH_APPLY_FAILED_'+$p)}
+              $applied.Add($p)
+            }
+            python -m unittest -v V20_TradingSystem_M15.v20_runtime.tests.test_r088_hold5_offline
+            if($LASTEXITCODE -ne 0){throw 'R088_HOLD5_OFFLINE_TESTS_FAILED'}
+            python -m py_compile $live $execution V20_TradingSystem_M15/v20_runtime/r088_hold5.py
+            if($LASTEXITCODE -ne 0){throw 'R088_HOLD5_SYNTAX_FAILED'}
+            Write-Output ('R088_HOLD5_DERIVED_LIVE_GIT_SHA='+(& git.exe hash-object -- $live).Trim())
+            Write-Output ('R088_HOLD5_DERIVED_EXEC_GIT_SHA='+(& git.exe hash-object -- $execution).Trim())
+            Write-Output 'R088_HOLD5_OFFLINE=PASS_TIME3_UNTOUCHED_HOLD5_SIXTH_OPEN_STOP_PROOF_NO_FINAM'
+          } finally {
+            $reverse=@($applied.ToArray())
+            [array]::Reverse($reverse)
+            foreach($p in $reverse){
+              & git.exe apply -R -- $p
+              if($LASTEXITCODE -ne 0){throw ('R088_FROZEN_RESTORE_FAILED_'+$p)}
+            }
+          }
+          if(((& git.exe hash-object -- $live).Trim()) -ne $origLive -or
+             ((& git.exe hash-object -- $execution).Trim()) -ne $origExec){
+            throw 'R088_SOURCE_PINS_NOT_RESTORED'
+          }
+          Write-Output 'R088_NO_LIVE_NO_FINAM_PINS_RESTORED=PASS'
