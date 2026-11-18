@@ -501,7 +501,8 @@ jobs:
           $ErrorActionPreference='Stop'
           $scripts=@(
             'V20_TradingSystem_M15/V20-08/r070-cny-intel-readonly.ps1',
-            'V20_TradingSystem_M15/V20-08/r070-20261117-prepare-full-package.ps1'
+            'V20_TradingSystem_M15/V20-08/r070-20261117-prepare-full-package.ps1',
+            'V20_TradingSystem_M15/V20-08/r088-20261118-prepare-hold5-package.ps1'
           )
           foreach($source in $scripts) {
             $tokens=$null
@@ -529,6 +530,25 @@ jobs:
           }
           Write-Output 'R070_FULL_RELEASE_PREPARE_PS_SYNTAX=PASS_NO_EXECUTION'
           Write-Output 'R070_FULL_RELEASE_PREPARE_PINS_AND_NO_LIVE_ACTION=PASS'
+          $holdBuilder=Get-Content -LiteralPath $scripts[2] -Raw
+          foreach($hash in @(
+            'b80fb9eb135f7cdcb4c78337e2b808c4d7135195',
+            '6b600451178b42bd4f8b2037995e7db3a9ad27c8',
+            '87dfbecf23784336ffcb4665292860dab8424d58',
+            '0fc4c454d55f37e4e87fd74e3370cbc1ad83b53f',
+            'f0b9058707230299464f1f6fb5245653a022ec31',
+            '0c73f8265a1c7f75a1bc8f4b849e5970fe274bc4'
+          )) {
+            if (-not $holdBuilder.Contains($hash)) { throw ('R088_HOLD5_BUNDLE_PIN_MISSING_'+$hash) }
+          }
+          if ($holdBuilder.Contains('Start-ScheduledTask') -or
+              $holdBuilder.Contains('Enable-ScheduledTask') -or
+              $holdBuilder.Contains('place_order(') -or
+              $holdBuilder.Contains('Cancel-Order') -or
+              $holdBuilder.Contains('arm -robot')) {
+            throw 'R088_HOLD5_BUILDER_LIVE_ACTION_FORBIDDEN'
+          }
+          Write-Output 'R088_EIGHT_PATCH_BUNDLE_PREPARE=PASS_SYNTAX_PINS_NO_LIVE_ACTION'
 
       - name: R070 FINAM incomplete GET incident 20261117 (ephemeral only)
         shell: pwsh
