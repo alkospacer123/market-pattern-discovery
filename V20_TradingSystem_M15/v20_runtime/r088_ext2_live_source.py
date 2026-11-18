@@ -14,6 +14,7 @@ from pathlib import Path
 import re
 
 from .ext2_history_bridge import EXT2HistoryBlocked
+from .r088_finam_historical_gaps import accepted_historical_missing_m15
 from .h1_state_journal import _require_v20_root
 from .r070_m15_candidate_state import (
     R070CandidateCheckpointState, make_r070_checkpoint_refresh,
@@ -131,7 +132,8 @@ def configure_r088_ext2_live_source(
         with R070CandidateCheckpointState(
                 v20_root=root, robot_id=robot, account_id=account_id) as state:
             provider = make_r070_checkpoint_refresh(
-                candidate_state=state, independently_verified_open_days=days)
+                candidate_state=state, independently_verified_open_days=days,
+                accepted_historical_gaps=accepted_historical_missing_m15(symbol))
             return provider(
                 robot=robot, symbol=symbol, signal_open_msk=signal_open_msk,
                 finam_recent=finam_recent, observed_at_msk=observed_at_msk)
