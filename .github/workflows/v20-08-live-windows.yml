@@ -906,6 +906,8 @@ jobs:
             }
             & python -m py_compile $live
             if($LASTEXITCODE -ne 0){throw 'INSIDE_PATCH_SYNTAX_INVALID'}
+            & python -m unittest -q V20_TradingSystem_M15.v20_runtime.tests.test_r088_prepost_all3
+            if($LASTEXITCODE -ne 0){throw 'R088_ALL3_PREPOST_MOCK_FAILED'}
             $src=Get-Content -LiteralPath $live -Raw
             foreach($required in @('def _resolve_never_posted_entry','PREPARED_ONLY_NO_POST',
               'journal.store.transition_intent(key, "CANCELLED")','journal.store.get("live_post:" + key) is None',
