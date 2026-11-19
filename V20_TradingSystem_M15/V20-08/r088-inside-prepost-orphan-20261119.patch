@@ -26,7 +26,7 @@ diff --git a/V20_TradingSystem_M15/v20_runtime/finam_live.py b/V20_TradingSystem
 +                        and journal.store.get("entry_submission:" + key) is None
 +                        and journal.store.get("flat_cleanup:" + key) is None
 +                        and not snapshot.positions.get(finam_symbol, 0)
-+                        and not any(o.symbol == finam_symbol for o in snapshot.orders)):
++                        and not any(o.active and o.symbol == finam_symbol for o in snapshot.orders)):
 +                    with journal.store.transaction():
 +                        latest = journal.store.intent(key)
 +                        if (latest is None
