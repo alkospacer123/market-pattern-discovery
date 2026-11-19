@@ -876,6 +876,55 @@ jobs:
           }
           Write-Output 'R088_NO_EXT2_RESTORED_ORIGINAL_LIVE_SHA=PASS'
 
+      - name: R088 Inside pre-POST orphan narrow LIVE recovery (offline only)
+        shell: pwsh
+        env:
+          PYTHONDONTWRITEBYTECODE: '1'
+        run: |
+          $ErrorActionPreference='Stop'
+          $live='V20_TradingSystem_M15/v20_runtime/finam_live.py'
+          $base='b80fb9eb135f7cdcb4c78337e2b808c4d7135195'
+          if(((& git.exe hash-object -- $live).Trim()) -ne $base){throw 'INSIDE_BASE_SHA_INVALID'}
+          $patches=@(
+            'r070-tp6-one-shot-candidate.patch',
+            'r070-protect3-flat-cleanup-candidate.patch',
+            'r070-protect3-broker-id-readonly-candidate.patch',
+            'r070-protect3-live-trigger-candidate.patch',
+            'r070-protect3-night-monitor-candidate.patch',
+            'r070-finam-get-incomplete-read-candidate.patch',
+            'r088-hold5-after-r070-combined-candidate.patch',
+            'r088-inside-prepost-orphan-20261119.patch'
+          ) | ForEach-Object {'V20_TradingSystem_M15/V20-08/'+$_}
+          $done=New-Object 'System.Collections.Generic.List[string]'
+          try {
+            foreach($p in $patches){
+              & git.exe apply --check -- $p
+              if($LASTEXITCODE -ne 0){throw ('INSIDE_PATCH_CONFLICT_'+$p)}
+              & git.exe apply -- $p
+              if($LASTEXITCODE -ne 0){throw ('INSIDE_PATCH_FAIL_'+$p)}
+              $done.Add($p)
+            }
+            & python -m py_compile $live
+            if($LASTEXITCODE -ne 0){throw 'INSIDE_PATCH_SYNTAX_INVALID'}
+            $src=Get-Content -LiteralPath $live -Raw
+            foreach($required in @('journal.robot_id == "v20-inside"','result == "PREPARED_ONLY_NO_POST"',
+              'journal.store.transition_intent(key, "CANCELLED")','journal.store.get("live_post:" + key) is None',
+              'journal.store.get("entry_submission:" + key) is None',
+              'PREPOST_ABORT_NO_FINAM_ORDER')){
+              if(-not $src.Contains($required)){throw ('INSIDE_RECOVERY_PROOF_MISSING_'+$required)}
+            }
+            Write-Output ('R088_INSIDE_PREPOST_PATCHED_LIVE_SHA='+(& git.exe hash-object -- $live).Trim())
+            Write-Output 'R088_INSIDE_PREPOST_FIX=PASS_SYNTAX_SAFE_NO_POST_BROKER_SCOPE'
+          } finally {
+            $rev=@($done.ToArray())
+            [array]::Reverse($rev)
+            foreach($p in $rev){
+              & git.exe apply -R -- $p
+              if($LASTEXITCODE -ne 0){throw ('INSIDE_RESTORE_FAIL_'+$p)}
+            }
+          }
+          if(((& git.exe hash-object -- $live).Trim()) -ne $base){throw 'INSIDE_BASE_NOT_RESTORED'}
+
       - name: R088 staged HOLD5 exit with frozen TIME3 parity (ephemeral, NO FINAM)
         shell: pwsh
         env:
