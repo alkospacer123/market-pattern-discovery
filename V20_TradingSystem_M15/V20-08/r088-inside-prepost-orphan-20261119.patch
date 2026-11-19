@@ -1,9 +1,7 @@
 diff --git a/V20_TradingSystem_M15/v20_runtime/finam_live.py b/V20_TradingSystem_M15/v20_runtime/finam_live.py
 --- a/V20_TradingSystem_M15/v20_runtime/finam_live.py
 +++ b/V20_TradingSystem_M15/v20_runtime/finam_live.py
-@@ -363,7 +363,39 @@
-         raise V20FinamBlocked("SEALED_ENTRY_BROKER_STOP_ID_CHANGED")
- 
+@@ -365,3 +365,35 @@
  
 -def _follow_existing(sender: V20LiveTransport, now: datetime, snapshot) -> str:
 +def _resolve_never_posted_entry(journal, snapshot, key: str, payload: dict) -> bool:
@@ -40,8 +38,6 @@ diff --git a/V20_TradingSystem_M15/v20_runtime/finam_live.py b/V20_TradingSystem
 +
 +def _follow_existing(sender: V20LiveTransport, now: datetime, snapshot) -> str:
      journal, reader = sender.journal, sender.reader
-     entries = _ownership(journal, snapshot)
-     # Unsettled entries need protection before already RECONCILED positions.
 @@ -377,9 +377,11 @@
          finam_symbol = payload["finam_symbol"]
          position = snapshot.positions.get(finam_symbol, 0)
