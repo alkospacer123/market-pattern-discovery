@@ -1,8 +1,48 @@
 diff --git a/V20_TradingSystem_M15/v20_runtime/finam_live.py b/V20_TradingSystem_M15/v20_runtime/finam_live.py
 --- a/V20_TradingSystem_M15/v20_runtime/finam_live.py
 +++ b/V20_TradingSystem_M15/v20_runtime/finam_live.py
-@@ -376,11 +376,45 @@
-             continue
+@@ -363,7 +363,39 @@
+         raise V20FinamBlocked("SEALED_ENTRY_BROKER_STOP_ID_CHANGED")
+ 
+ 
+-def _follow_existing(sender: V20LiveTransport, now: datetime, snapshot) -> str:
++def _resolve_never_posted_entry(journal, snapshot, key: str, payload: dict) -> bool:
++    """Release only a PRE-POST intent proved absent from FINAM. All robots."""
++    row = journal.store.intent(key)
++    symbol = payload["finam_symbol"]
++    if (row is None or row["status"] != "INTENT_PERSISTED"
++            or row["broker_order_id"] is not None
++            or journal.store.get("live_post:" + key) is not None
++            or journal.store.get("entry_submission:" + key) is not None
++            or journal.store.get("flat_cleanup:" + key) is not None
++            or snapshot.positions.get(symbol, 0)
++            or any(o.active and o.symbol == symbol for o in snapshot.orders)):
++        return False
++    if journal.reconcile_order(key=key, snapshot=snapshot) != "PREPARED_ONLY_NO_POST":
++        return False
++    with journal.store.transaction():
++        current = journal.store.intent(key)
++        if (current is None or current["status"] != "INTENT_PERSISTED"
++                or current["broker_order_id"] is not None
++                or journal.store.get("live_post:" + key) is not None
++                or journal.store.get("entry_submission:" + key) is not None
++                or journal.store.get("flat_cleanup:" + key) is not None):
++            raise V20FinamBlocked("V20_PREPOST_RECOVERY_STATE_CHANGED")
++        journal.store.transition_intent(key, "CANCELLED")
++        journal.store.put("flat_cleanup:" + key, {
++            "status": "PREPOST_ABORT_NO_FINAM_ORDER",
++            "account_sha256": journal.account_hash,
++        })
++        _close_flat(journal, key)
++    # Session quota and NEXT_OPEN decision remain consumed: never re-enter.
++    return True
++
++
++def _follow_existing(sender: V20LiveTransport, now: datetime, snapshot) -> str:
+     journal, reader = sender.journal, sender.reader
+     entries = _ownership(journal, snapshot)
+     # Unsettled entries need protection before already RECONCILED positions.
+@@ -377,9 +377,11 @@
          finam_symbol = payload["finam_symbol"]
          position = snapshot.positions.get(finam_symbol, 0)
          if not position:
@@ -10,43 +50,35 @@ diff --git a/V20_TradingSystem_M15/v20_runtime/finam_live.py b/V20_TradingSystem
 -                journal.reconcile_order(key=key, snapshot=snapshot)
 -                raise V20FinamBlocked("V20_LIVE_ENTRY_RECONCILIATION_REQUIRED")
 +            if row["status"] in ("INTENT_PERSISTED", "UNCERTAIN", "SUBMITTED"):
-+                result = journal.reconcile_order(key=key, snapshot=snapshot)
-+                # 2026-11-19 Inside: the second M15 intent was prepared but
-+                # rejected BEFORE the irreversible POST checkpoint when the
-+                # broker snapshot changed after a protected CNY fill.
-+                # A proven no-POST intent must not block managing the earlier
-+                # live CNY position for the remaining HOLD5 sessions.
-+                # Only Inside gets this bounded recovery. Never clear an
-+                # UNCERTAIN/SUBMITTED/ACK trade or an unverified FINAM order.
-+                if (journal.robot_id == "v20-inside"
-+                        and result == "PREPARED_ONLY_NO_POST"
-+                        and row["status"] == "INTENT_PERSISTED"
-+                        and row["broker_order_id"] is None
-+                        and journal.store.get("live_post:" + key) is None
-+                        and journal.store.get("entry_submission:" + key) is None
-+                        and journal.store.get("flat_cleanup:" + key) is None
-+                        and not snapshot.positions.get(finam_symbol, 0)
-+                        and not any(o.active and o.symbol == finam_symbol for o in snapshot.orders)):
-+                    with journal.store.transaction():
-+                        latest = journal.store.intent(key)
-+                        if (latest is None
-+                                or latest["status"] != "INTENT_PERSISTED"
-+                                or latest["broker_order_id"] is not None
-+                                or journal.store.get("live_post:" + key) is not None
-+                                or journal.store.get("entry_submission:" + key) is not None
-+                                or journal.store.get("flat_cleanup:" + key) is not None):
-+                            raise V20FinamBlocked("V20_INSIDE_PREPOST_STATE_CHANGED")
-+                        journal.store.transition_intent(key, "CANCELLED")
-+                        journal.store.put("flat_cleanup:" + key, {
-+                            "status": "PREPOST_ABORT_NO_FINAM_ORDER",
-+                            "account_sha256": journal.account_hash,
-+                        })
-+                        _close_flat(journal, key)
-+                    # Preserve original session quota and live_decision cursor;
-+                    # never re-run this NEXT_OPEN or send another entry.
++                if _resolve_never_posted_entry(journal, snapshot, key, payload):
 +                    continue
++                journal.reconcile_order(key=key, snapshot=snapshot)
 +                raise V20FinamBlocked("V20_LIVE_ENTRY_RECONCILIATION_REQUIRED")
              exit_intent = journal.store.intent(key + ":frozen-exit")
              proof = journal.store.get("protected_fill:" + key)
              stop = next((o for o in snapshot.orders
-                          if isinstance(proof, dict)
+@@ -752,9 +752,21 @@
+                 # not a Kill Switch. Continue checking other N4 symbols.
+                 continue
+             raise  # Invalid/cross-account or untrusted evidence still HALT.
+-        sender.submit_entry_once(
+-            key=key, snapshot=reader.snapshot(now=now), now=now)
+-        return "ENTRY_ACK_NEEDS_FILL_AND_STOP"
++        try:
++            sender.submit_entry_once(
++                key=key, snapshot=reader.snapshot(now=now), now=now)
++        except V20FinamBlocked as exc:
++            # A second same-M15 signal may see different FINAM cash after
++            # the first entry/SLTP. This is BEFORE the USD POST checkpoint.
++            # Abort only a broker-proven never-sent intent, not an unknown POST.
++            if str(exc) != "V20_LIVE_BROKER_CHANGED_BEFORE_ENTRY":
++                raise
++            current = reader.snapshot(now=datetime.now(timezone.utc))
++            if not _resolve_never_posted_entry(
++                    journal, current, key, journal.store.intent(key)["payload"]):
++                raise
++            return "WAIT_NEXT_M15_OPEN"
++        return "ENTRY_ACK_NEEDS_FILL_AND_STOP"
+     return "NO_FROZEN_SIGNAL"
+ 
+ 
