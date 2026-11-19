@@ -927,30 +927,33 @@ jobs:
           }
           if(((& git.exe hash-object -- $live).Trim()) -ne $base){throw 'INSIDE_BASE_NOT_RESTORED'}
 
-      - name: Inside guarded recovery installer syntax (no live execution)
+      - name: R088 all-three guarded incident installer syntax (no LIVE execution)
         shell: pwsh
         run: |
           $ErrorActionPreference='Stop'
-          $file='V20_TradingSystem_M15/V20-08/r088-inside-incident-20261119-install.ps1'
-          $errors=$null
+          $file='V20_TradingSystem_M15/V20-08/r088-prepost-all3-20261119-install.ps1'
           $tokens=$null
+          $errors=$null
           $null=[System.Management.Automation.Language.Parser]::ParseFile($file,[ref]$tokens,[ref]$errors)
-          if(@($errors).Count -ne 0){throw ('INSIDE_INSTALL_PS_SYNTAX_INVALID '+(($errors | ForEach-Object {$_.Message}) -join ';'))}
+          if(@($errors).Count -ne 0){throw ('V20_ALL3_INSTALL_PS_SYNTAX_INVALID '+(($errors | ForEach-Object {$_.Message}) -join ';'))}
           $helper='V20_TradingSystem_M15/V20-08/r088-inside-incident-20261119-readonly.py'
           & python -m py_compile $helper
-          if($LASTEXITCODE -ne 0){throw 'INSIDE_READONLY_HELPER_SYNTAX_INVALID'}
+          if($LASTEXITCODE -ne 0){throw 'V20_INCIDENT_READONLY_HELPER_SYNTAX_INVALID'}
           $src=Get-Content -LiteralPath $file -Raw
-          foreach($needed in @('9ce789ead74dabed156ccc93d284cb79486ed2bc',
-            '54ae8e1262482f4ecc80d202c6e9063cf0d6e402',
-            'ac37ab66c4496871219d8f106561fdabc6abe4a5',
-            'c92c8dac3876f1d402e08f4891f3da2c8d66a6fe',
-            'INSIDE_BROKER_SLTP_OR_USD_PREPOST_PROOF_FAILED',
-            'INSIDE_AUTO_ROLLBACK=PASS_ORIGINAL_RUNNING_HALTED',
-            'INSIDE_PREPOST_FIX=PASS_INSTALLED_WORKER_RUNNING_HALTED',
-            'INSIDE_NO_TRADING_POST_DELETE_NO_ARM=YES')){
-            if(-not $src.Contains($needed)){throw ('INSIDE_RELEASE_CONTRACT_MISSING_'+$needed)}
+          foreach($proof in @(
+            "0b6b23e46b1e63a0afafe88d91cec52d7e19efb9",
+            "54ae8e1262482f4ecc80d202c6e9063cf0d6e402",
+            "c92c8dac3876f1d402e08f4891f3da2c8d66a6fe",
+            "V20_BROKER_FLAT_",
+            "V20_OPERATOR_HALT_ALL_FAILED",
+            "V20_SQLITE_BACKUP_3_FAILED",
+            "V20_AUTO_ROLLBACK=PASS_ORIGINAL_3_RUNNING_HALTED",
+            "V20_ALL3_PREPOST_FIX=PASS_3_RUNNING_HALTED_FRESH_CYCLES",
+            "V20_ALL3_NO_NEW_ORDERS_NO_AUTO_ARM=YES"
+          )){
+            if(-not $src.Contains($proof)){throw ('V20_INSTALLER_PIN_OR_GUARD_MISSING_'+$proof)}
           }
-          Write-Output 'INSIDE_FIX_INSTALLER=PASS_PARSE_PINNED_READONLY_BACKUP_ROLLBACK_NO_AUTO_ARM'
+          Write-Output 'V20_ALL3_INSTALLER=PASS_PS_SYNTAX_PINNED_FLAT_AND_SLTP_GATES_BACKUP_ROLLBACK'
 
       - name: R088 staged HOLD5 exit with frozen TIME3 parity (ephemeral, NO FINAM)
         shell: pwsh
