@@ -925,6 +925,31 @@ jobs:
           }
           if(((& git.exe hash-object -- $live).Trim()) -ne $base){throw 'INSIDE_BASE_NOT_RESTORED'}
 
+      - name: Inside guarded recovery installer syntax (no live execution)
+        shell: pwsh
+        run: |
+          $ErrorActionPreference='Stop'
+          $file='V20_TradingSystem_M15/V20-08/r088-inside-incident-20261119-install.ps1'
+          $errors=$null
+          $tokens=$null
+          $null=[System.Management.Automation.Language.Parser]::ParseFile($file,[ref]$tokens,[ref]$errors)
+          if(@($errors).Count -ne 0){throw ('INSIDE_INSTALL_PS_SYNTAX_INVALID '+(($errors | ForEach-Object {$_.Message}) -join ';'))}
+          $helper='V20_TradingSystem_M15/V20-08/r088-inside-incident-20261119-readonly.py'
+          & python -m py_compile $helper
+          if($LASTEXITCODE -ne 0){throw 'INSIDE_READONLY_HELPER_SYNTAX_INVALID'}
+          $src=Get-Content -LiteralPath $file -Raw
+          foreach($needed in @('9ce789ead74dabed156ccc93d284cb79486ed2bc',
+            '54ae8e1262482f4ecc80d202c6e9063cf0d6e402',
+            'ac37ab66c4496871219d8f106561fdabc6abe4a5',
+            'c92c8dac3876f1d402e08f4891f3da2c8d66a6fe',
+            'INSIDE_BROKER_SLTP_OR_USD_PREPOST_PROOF_FAILED',
+            'INSIDE_AUTO_ROLLBACK=PASS_ORIGINAL_RUNNING_HALTED',
+            'INSIDE_PREPOST_FIX=PASS_INSTALLED_WORKER_RUNNING_HALTED',
+            'INSIDE_NO_TRADING_POST_DELETE_NO_ARM=YES')){
+            if(-not $src.Contains($needed)){throw ('INSIDE_RELEASE_CONTRACT_MISSING_'+$needed)}
+          }
+          Write-Output 'INSIDE_FIX_INSTALLER=PASS_PARSE_PINNED_READONLY_BACKUP_ROLLBACK_NO_AUTO_ARM'
+
       - name: R088 staged HOLD5 exit with frozen TIME3 parity (ephemeral, NO FINAM)
         shell: pwsh
         env:
