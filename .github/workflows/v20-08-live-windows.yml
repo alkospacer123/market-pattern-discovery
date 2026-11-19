@@ -910,8 +910,8 @@ jobs:
             if($LASTEXITCODE -ne 0){throw 'R088_ALL3_PREPOST_MOCK_FAILED'}
             $src=Get-Content -LiteralPath $live -Raw
             foreach($required in @('def _resolve_never_posted_entry','PREPARED_ONLY_NO_POST',
-              'journal.store.transition_intent(key, "CANCELLED")','journal.store.get("live_post:" + key) is None',
-              'journal.store.get("entry_submission:" + key) is None',
+              'journal.store.transition_intent(key, "CANCELLED")','journal.store.get("live_post:" + key) is not None',
+              'journal.store.get("entry_submission:" + key) is not None',
               'PREPOST_ABORT_NO_FINAM_ORDER')){
               if(-not $src.Contains($required)){throw ('INSIDE_RECOVERY_PROOF_MISSING_'+$required)}
             }
