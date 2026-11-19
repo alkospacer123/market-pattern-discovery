@@ -13,7 +13,7 @@ diff --git a/V20_TradingSystem_M15/v20_runtime/finam_live.py b/V20_TradingSystem
 +                result = journal.reconcile_order(key=key, snapshot=snapshot)
 +                # 2026-11-19 Inside: the second M15 intent was prepared but
 +                # rejected BEFORE the irreversible POST checkpoint when the
-+                # broker money snapshot changed after a protected CNY fill.
++                # broker snapshot changed after a protected CNY fill.
 +                # A proven no-POST intent must not block managing the earlier
 +                # live CNY position for the remaining HOLD5 sessions.
 +                # Only Inside gets this bounded recovery. Never clear an
