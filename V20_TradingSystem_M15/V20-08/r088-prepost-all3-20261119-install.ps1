@@ -21,7 +21,7 @@ $log=Join-Path $root 'robots\inside\logs\live-m15.jsonl'
 $oldSha='54ae8e1262482f4ecc80d202c6e9063cf0d6e402'
 $newSha='NEW_SHA_TBD'
 $execSha='0fc4c454d55f37e4e87fd74e3370cbc1ad83b53f'
-$patchSha='34fba96898bf4a707a45be5401270f5e7bbbc47f'
+$patchSha='0b6b23e46b1e63a0afafe88d91cec52d7e19efb9'
 $helperSha='c92c8dac3876f1d402e08f4891f3da2c8d66a6fe'
 function need([bool]$ok,[string]$reason){if(-not $ok){throw $reason}}
 function pin([string]$p,[string]$sha){
