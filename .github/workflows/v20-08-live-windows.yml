@@ -876,7 +876,7 @@ jobs:
           }
           Write-Output 'R088_NO_EXT2_RESTORED_ORIGINAL_LIVE_SHA=PASS'
 
-      - name: R088 Inside pre-POST orphan narrow LIVE recovery (offline only)
+      - name: R088 all-robots pre-POST orphan recovery (offline only)
         shell: pwsh
         env:
           PYTHONDONTWRITEBYTECODE: '1'
@@ -907,14 +907,14 @@ jobs:
             & python -m py_compile $live
             if($LASTEXITCODE -ne 0){throw 'INSIDE_PATCH_SYNTAX_INVALID'}
             $src=Get-Content -LiteralPath $live -Raw
-            foreach($required in @('journal.robot_id == "v20-inside"','result == "PREPARED_ONLY_NO_POST"',
+            foreach($required in @('def _resolve_never_posted_entry','PREPARED_ONLY_NO_POST',
               'journal.store.transition_intent(key, "CANCELLED")','journal.store.get("live_post:" + key) is None',
               'journal.store.get("entry_submission:" + key) is None',
               'PREPOST_ABORT_NO_FINAM_ORDER')){
               if(-not $src.Contains($required)){throw ('INSIDE_RECOVERY_PROOF_MISSING_'+$required)}
             }
-            Write-Output ('R088_INSIDE_PREPOST_PATCHED_LIVE_SHA='+(& git.exe hash-object -- $live).Trim())
-            Write-Output 'R088_INSIDE_PREPOST_FIX=PASS_SYNTAX_SAFE_NO_POST_BROKER_SCOPE'
+            Write-Output ('R088_ALL3_PREPOST_PATCHED_LIVE_SHA='+(& git.exe hash-object -- $live).Trim())
+            Write-Output 'R088_ALL3_PREPOST_FIX=PASS_SYNTAX_SAFE_NO_POST_BROKER_SCOPE'
           } finally {
             $rev=@($done.ToArray())
             [array]::Reverse($rev)
