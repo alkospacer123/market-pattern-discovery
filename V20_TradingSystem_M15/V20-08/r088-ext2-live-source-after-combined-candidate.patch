@@ -1,0 +1,19 @@
+diff --git a/V20_TradingSystem_M15/v20_runtime/finam_live.py b/V20_TradingSystem_M15/v20_runtime/finam_live.py
+--- a/V20_TradingSystem_M15/v20_runtime/finam_live.py
++++ b/V20_TradingSystem_M15/v20_runtime/finam_live.py
+@@ -839,7 +839,15 @@ def run(*, root: Path, robot: str, source: str, once: bool = False,
+         reader = V20FinamReadAdapter(
+             api=api, robot_id=robot, account_id=account,
+             expected_account_hash=scope)
+         sender = V20LiveTransport(journal, reader, source=source)
++        # R088: explicit per-account EXT2 full-history binding. No source
++        # means fail-closed before ARMED trading, not silent EXT2 bypass.
++        # Inside keeps its original untouched frozen signal path.
++        if robot in ("v20-shallow", "v20-obv"):
++            from .r088_ext2_live_source import configure_r088_ext2_live_source
++            configure_r088_ext2_live_source(
++                sender=sender, root=root, robot=robot,
++                account_id=account, source_commit=source)
+         reader.authenticate()
+         logs = journal.instance_root / "logs"
+         if logs.is_symlink():

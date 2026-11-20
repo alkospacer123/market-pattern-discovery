@@ -1,0 +1,16 @@
+diff --git a/V20_TradingSystem_M15/v20_runtime/finam_live.py b/V20_TradingSystem_M15/v20_runtime/finam_live.py
+--- a/V20_TradingSystem_M15/v20_runtime/finam_live.py
++++ b/V20_TradingSystem_M15/v20_runtime/finam_live.py
+@@ -971,2 +971,12 @@
+ if __name__ == "__main__":
++    # Task Scheduler uses python -m, executing this LIVE worker as __main__.
++    # Protect3 imports .finam_live for V20LiveTransport/V20LiveJournal.
++    # Without this alias a second module is loaded and identical live
++    # instances fail isinstance() before the original SLTP can be changed.
++    import sys
++    _canonical = __package__ + ".finam_live"
++    _existing = sys.modules.get(_canonical)
++    if _existing is not None and _existing is not sys.modules["__main__"]:
++        raise SystemExit("V20_LIVE_CLASS_IDENTITY_COLLISION")
++    sys.modules[_canonical] = sys.modules["__main__"]
+     raise SystemExit(main())

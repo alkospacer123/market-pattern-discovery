@@ -1,0 +1,110 @@
+diff --git a/V20_TradingSystem_M15/v20_runtime/finam_execution.py b/V20_TradingSystem_M15/v20_runtime/finam_execution.py
+index 05dfd4d..0fc4c45 100644
+--- a/V20_TradingSystem_M15/v20_runtime/finam_execution.py
++++ b/V20_TradingSystem_M15/v20_runtime/finam_execution.py
+@@ -1167,10 +1167,13 @@ class V20SingleTradeTransport:
+         if (witnessed.at_msk != boundary.at_msk
+                 or witnessed.witnessed_open != boundary.witnessed_open):
+             raise V20FinamBlocked("EXIT_FINAM_M15_WITNESS_MISMATCH")
+-        if frozen_observed_session_exit(
++        # R088 HOLD5 candidate only; frozen TIME3 policy remains untouched.
++        # Independent fresh FINAM GET + same immutable NEXT_OPEN witness.
++        from .r088_hold5 import hold5_from_broker_boundary
++        if hold5_from_broker_boundary(
+             witnessed, entry_open_msk=entry_open,
+-        ) != "EXIT_AT_THIRD_OBSERVED_SESSION_OPEN":
+-            raise V20FinamBlocked("EXIT_THIRD_SESSION_OPEN_NOT_DUE")
++        ) != "EXIT_AT_SIXTH_OBSERVED_SESSION_OPEN":
++            raise V20FinamBlocked("R088_EXIT_SIXTH_SESSION_OPEN_NOT_DUE")
+         due = boundary.at_msk.replace(tzinfo=ZoneInfo("Europe/Moscow")).astimezone(timezone.utc)
+         if not timedelta(0) <= now.astimezone(timezone.utc) - due <= timedelta(seconds=60):
+             raise V20FinamBlocked("EXIT_OPEN_STALE")
+@@ -1180,13 +1183,32 @@ class V20SingleTradeTransport:
+                 or abs(position) != proof.get("filled_quantity")
+                 or abs(position) > approval["max_quantity"]):
+             raise V20FinamBlocked("EXIT_BROKER_QUANTITY_MISMATCH")
+-        stop = self.reader.inspect_protective_stop(
+-            current, entry_key=key, symbol=payload["symbol"],
+-            direction=payload["direction"],
+-            stop_price=Decimal(proof["installed_stop"]), now=now,
+-        )
+-        if stop.order_id != proof["broker_stop_id"]:
+-            raise V20FinamBlocked("EXIT_BROKER_STOP_ID_MISMATCH")
++        # HOLD5 may span a fully confirmed R070 Protect3 1R replacement.
++        # Require the CURRENT active 100%-SLTP, NEVER trust the original
++        # broker stop ID if replacement was durably confirmed.
++        replacement = self.journal.store.get("r070_protect3:" + key)
++        if replacement is None:
++            stop = self.reader.inspect_protective_stop(
++                current, entry_key=key, symbol=payload["symbol"],
++                direction=payload["direction"],
++                stop_price=Decimal(proof["installed_stop"]), now=now,
++            )
++            if stop.order_id != proof["broker_stop_id"]:
++                raise V20FinamBlocked("EXIT_BROKER_STOP_ID_MISMATCH")
++        else:
++            from .r070_linked_sltp import verify_r070_protect3_effective_stop
++            from .tp6_protect3 import TP6Protect3Unsafe
++            if not isinstance(replacement, dict) or replacement.get("state") != "PROTECTED":
++                raise V20FinamBlocked("R088_EXIT_PROTECT3_TRANSITION_UNCERTAIN")
++            try:
++                stop = verify_r070_protect3_effective_stop(
++                    journal=self.journal, reader=self.reader, snapshot=current,
++                    entry_key=key, now=now,
++                )
++            except TP6Protect3Unsafe as exc:
++                raise V20FinamBlocked("R088_EXIT_PROTECT3_BROKER_STOP_UNVERIFIED") from exc
++            if stop.order_id != replacement.get("new_broker_id"):
++                raise V20FinamBlocked("R088_EXIT_PROTECT3_BROKER_ID_MISMATCH")
+         exit_key = key + ":frozen-exit"
+         action = RuntimeAction("EMERGENCY_EXIT_REQUIRED", exit_key,
+                                payload["symbol"], payload["finam_symbol"],
+@@ -1886,13 +1908,14 @@ def run_v20_single_trial_cycle(
+         reader, symbol=trial_symbol, from_utc=since - STEP, now=now,
+         require_adjacent_completed=False,
+     )
+-    decision = frozen_observed_session_exit(
++    from .r088_hold5 import hold5_from_broker_boundary
++    decision = hold5_from_broker_boundary(
+         boundary, entry_open_msk=entry_at,
+     )
+-    if decision == "HOLD_UNTIL_THIRD_OBSERVED_SESSION":
++    if decision == "HOLD_UNTIL_SIXTH_OBSERVED_SESSION":
+         return {"state": "PROTECTED_HOLD", "orders": 0}
+-    if decision != "EXIT_AT_THIRD_OBSERVED_SESSION_OPEN":
+-        journal.store.put("execution_halt", "FROZEN_THIRD_SESSION_OPEN_MISSED")
++    if decision != "EXIT_AT_SIXTH_OBSERVED_SESSION_OPEN":
++        journal.store.put("execution_halt", "R088_SIXTH_SESSION_OPEN_MISSED")
+         raise V20FinamBlocked("TRIAL_CYCLE_DEADLINE_MISSED")
+     oid = transport.submit_frozen_exit_once(
+         key=key, boundary=boundary, snapshot=current, now=now,
+diff --git a/V20_TradingSystem_M15/v20_runtime/finam_live.py b/V20_TradingSystem_M15/v20_runtime/finam_live.py
+index 0c25db6..87dfbec 100644
+--- a/V20_TradingSystem_M15/v20_runtime/finam_live.py
++++ b/V20_TradingSystem_M15/v20_runtime/finam_live.py
+@@ -563,12 +563,13 @@ def _follow_existing(sender: V20LiveTransport, now: datetime, snapshot) -> str:
+             # The broker position and 100% SLTP were already reconciled above.
+             # Retry at 3s; never synthesize the Open or issue a late exit.
+             return "M15_EXIT_WITNESS_PENDING_RETRY"
+-        due = frozen_observed_session_exit(boundary, entry_open_msk=entry_at)
+-        if due == "EXIT_AT_THIRD_OBSERVED_SESSION_OPEN":
++        from .r088_hold5 import hold5_from_broker_boundary
++        due = hold5_from_broker_boundary(boundary, entry_open_msk=entry_at)
++        if due == "EXIT_AT_SIXTH_OBSERVED_SESSION_OPEN":
+             sender.submit_frozen_exit_once(
+                 key=key, boundary=boundary, snapshot=snapshot, now=now)
+             return "FROZEN_EXIT_ACK_KEEP_STOP_UNTIL_FLAT"
+-        if due == "HOLD_UNTIL_THIRD_OBSERVED_SESSION":
++        if due == "HOLD_UNTIL_SIXTH_OBSERVED_SESSION":
+             # R070 staged candidate: original 100%-TP6 SLTP must first
+             # pass the current V20 broker seal, then the completed +3R M15.
+             # The first safe choice is HOLD. No response/quote means no
+@@ -604,7 +605,7 @@ def _follow_existing(sender: V20LiveTransport, now: datetime, snapshot) -> str:
+                     if not new_id:
+                         raise V20FinamBlocked("R070_PROTECT3_NEW_STOP_ACK_MISSING")
+                     return "R070_PROTECT3_REPLACED_NEEDS_NEXT_BROKER_CHECK"
+-        if due != "HOLD_UNTIL_THIRD_OBSERVED_SESSION":
++        if due != "HOLD_UNTIL_SIXTH_OBSERVED_SESSION":
+             journal.store.put("execution_halt", "FROZEN_EXIT_OPEN_MISSED")
+             raise V20FinamBlocked("V20_LIVE_FROZEN_EXIT_DEADLINE_MISSED")
+     return "BROKER_RECONCILED_PROTECTION_PASS"

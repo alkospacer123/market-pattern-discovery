@@ -160,6 +160,7 @@ def resume_r070_m15_checkpoint(
     minimum_last_m15_open_msk: datetime, finam_recent: pd.DataFrame,
     signal_open_msk: datetime, observed_at_msk: datetime,
     independently_verified_open_days: tuple[date, ...],
+    accepted_historical_gaps: tuple[datetime, ...] = (),
 ) -> tuple[pd.DataFrame, str]:
     """After restart, prove fresh overlap and every recent exchange session.
 
@@ -177,4 +178,5 @@ def resume_r070_m15_checkpoint(
         finam_recent=finam_recent, signal_open_msk=signal_open_msk,
         observed_at_msk=observed_at_msk,
         verified_open_days=independently_verified_open_days,
+        symbol=symbol, accepted_historical_gaps=accepted_historical_gaps,
     )

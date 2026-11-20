@@ -11,7 +11,7 @@ from V20_TradingSystem_M15.v20_runtime.ext2_history_bridge import (
     EXT2HistoryBlocked, m15_history_sha256,
 )
 from V20_TradingSystem_M15.v20_runtime.r070_m15_candidate_state import (
-    R070CandidateCheckpointState,
+    R070CandidateCheckpointState, make_r070_checkpoint_refresh,
 )
 from V20_TradingSystem_M15.v20_runtime.r070_m15_checkpoint import (
     load_r070_m15_checkpoint,
@@ -76,6 +76,36 @@ class R070CandidateSQLiteTests(TestCase):
                 with self.assertRaisesRegex(
                         EXT2HistoryBlocked, "R070_CANDIDATE_CURSOR_NOT_ADVANCED|EXT2_PREFIX_NOT_ADVANCING"):
                     self._advance(state, full)
+
+    def test_explicit_refresh_rolls_forward_once_and_reuses_current_cursor(self):
+        with TemporaryDirectory() as tmp:
+            root, full, old = self._fixture(tmp)
+            signal = full.Datetime.iloc[-1].to_pydatetime()
+            sessions = tuple(d.date() for d in full.Datetime.iloc[17*32::32])
+            recent = full.iloc[17*32:].copy()
+            with self._fresh(root) as state:
+                state.bootstrap(
+                    symbol="CNYRUBF", verified_history=old,
+                    expected_history_sha256=m15_history_sha256(old))
+                refresh = make_r070_checkpoint_refresh(
+                    candidate_state=state, independently_verified_open_days=sessions)
+                params = dict(
+                    robot="v20-shallow", symbol="CNYRUBF",
+                    signal_open_msk=signal,
+                    observed_at_msk=signal+timedelta(minutes=15),
+                    finam_recent=recent)
+                new, digest = refresh(**params)
+                self.assertEqual(digest, m15_history_sha256(full))
+                self.assertEqual(len(new), len(full))
+                pointer = state.verified_cursor("CNYRUBF")
+                self.assertEqual(pointer["generation"], 2)
+                cached, same_digest = refresh(**params)
+                self.assertEqual(same_digest, digest)
+                self.assertEqual(state.verified_cursor("CNYRUBF"), pointer)
+                self.assertTrue(cached.Datetime.equals(full.Datetime))
+                with self.assertRaisesRegex(
+                        EXT2HistoryBlocked, "R070_REFRESH_ACCOUNT_OR_ROBOT_MISMATCH"):
+                    refresh(**dict(params, robot="v20-obv"))
 
     def test_after_zip_creation_failure_old_sqlite_pointer_remains(self):
         with TemporaryDirectory() as tmp:

@@ -367,7 +367,7 @@ jobs:
             if ($LASTEXITCODE -ne 0) { throw ('V20_H1_LIFECYCLE_PARITY_FAIL '+$case) }
           }
           Write-Output 'V20_H1_LIFECYCLE_FOUR_EXISTING_REGRESSIONS=PASS'
-          python -m unittest -v V20_TradingSystem_M15.v20_runtime.tests.test_ext2_r060 V20_TradingSystem_M15.v20_runtime.tests.test_tp6_protect3 V20_TradingSystem_M15.v20_runtime.tests.test_ext2_history_bridge V20_TradingSystem_M15.v20_runtime.tests.test_r070_candidate_entry V20_TradingSystem_M15.v20_runtime.tests.test_r070_linked_sltp V20_TradingSystem_M15.v20_runtime.tests.test_r070_v20_protection_handoff V20_TradingSystem_M15.v20_runtime.tests.test_r070_m15_checkpoint V20_TradingSystem_M15.v20_runtime.tests.test_r070_m15_candidate_state
+          python -m unittest -v V20_TradingSystem_M15.v20_runtime.tests.test_ext2_r060 V20_TradingSystem_M15.v20_runtime.tests.test_tp6_protect3 V20_TradingSystem_M15.v20_runtime.tests.test_ext2_history_bridge V20_TradingSystem_M15.v20_runtime.tests.test_r070_candidate_entry V20_TradingSystem_M15.v20_runtime.tests.test_r070_linked_sltp V20_TradingSystem_M15.v20_runtime.tests.test_r070_v20_protection_handoff V20_TradingSystem_M15.v20_runtime.tests.test_r070_m15_checkpoint V20_TradingSystem_M15.v20_runtime.tests.test_r070_m15_candidate_state V20_TradingSystem_M15.v20_runtime.tests.test_r088_cny_verified_bootstrap V20_TradingSystem_M15.v20_runtime.tests.test_r088_ext2_live_source V20_TradingSystem_M15.v20_runtime.tests.test_r088_finam_historical_gaps V20_TradingSystem_M15.v20_runtime.tests.test_r088_usd_gld_source_stitch
           if ($LASTEXITCODE -ne 0) { throw 'V20_R070_OFFLINE_CONTRACT_FAIL' }
           Write-Output 'V20_R070_EXT2_TP6_PROTECT3_OFFLINE_CONTRACT=PASS'
           exit 0
@@ -501,7 +501,9 @@ jobs:
           $ErrorActionPreference='Stop'
           $scripts=@(
             'V20_TradingSystem_M15/V20-08/r070-cny-intel-readonly.ps1',
-            'V20_TradingSystem_M15/V20-08/r070-20261117-prepare-full-package.ps1'
+            'V20_TradingSystem_M15/V20-08/r070-20261117-prepare-full-package.ps1',
+            'V20_TradingSystem_M15/V20-08/r088-20261118-prepare-hold5-package.ps1',
+            'V20_TradingSystem_M15/V20-08/r088-20261118-prepare-noext2-package.ps1'
           )
           foreach($source in $scripts) {
             $tokens=$null
@@ -529,6 +531,53 @@ jobs:
           }
           Write-Output 'R070_FULL_RELEASE_PREPARE_PS_SYNTAX=PASS_NO_EXECUTION'
           Write-Output 'R070_FULL_RELEASE_PREPARE_PINS_AND_NO_LIVE_ACTION=PASS'
+          $holdBuilder=Get-Content -LiteralPath $scripts[2] -Raw
+          foreach($hash in @(
+            'b80fb9eb135f7cdcb4c78337e2b808c4d7135195',
+            '6b600451178b42bd4f8b2037995e7db3a9ad27c8',
+            'e5e5fc765a6d846c914bb4f43af5df4ba7064abb',
+            '0fc4c454d55f37e4e87fd74e3370cbc1ad83b53f',
+            'f0b9058707230299464f1f6fb5245653a022ec31',
+            '0c73f8265a1c7f75a1bc8f4b849e5970fe274bc4',
+            '8dba1a94c172a83e81e13b22c35293447549f85c',
+            '6e442fcd328a5c854597019165f75da67b146f9f',
+            '519bbeb37b95bed8c10800c8b060e9da9920077d',
+            'd91ddd10b11412d8f7829dc8c11cd554d7a35906',
+            '9eb076e903a475b30ffd6d71aacaae85d255a767',
+            '1865f3c01f83628c1585fc0186fe585ae818d0e7',
+            '360e6f1078c6bda526d2700e8578036861785eb5',
+            '50f7ed23a8bee1d760c090113e12c68916cfa0d4'
+          )) {
+            if (-not $holdBuilder.Contains($hash)) { throw ('R088_HOLD5_BUNDLE_PIN_MISSING_'+$hash) }
+          }
+          if ($holdBuilder.Contains('Start-ScheduledTask') -or
+              $holdBuilder.Contains('Enable-ScheduledTask') -or
+              $holdBuilder.Contains('place_order(') -or
+              $holdBuilder.Contains('Cancel-Order') -or
+              $holdBuilder.Contains('arm -robot')) {
+            throw 'R088_HOLD5_BUILDER_LIVE_ACTION_FORBIDDEN'
+          }
+          Write-Output 'R088_NINE_PATCH_BUNDLE_PREPARE=PASS_SYNTAX_PINS_NO_LIVE_ACTION'
+          $simple=Get-Content -LiteralPath $scripts[3] -Raw
+          foreach($pin in @(
+            'b80fb9eb135f7cdcb4c78337e2b808c4d7135195',
+            '6b600451178b42bd4f8b2037995e7db3a9ad27c8',
+            '54ae8e1262482f4ecc80d202c6e9063cf0d6e402',
+            '0fc4c454d55f37e4e87fd74e3370cbc1ad83b53f',
+            'f0b9058707230299464f1f6fb5245653a022ec31',
+            '44363714666'
+          )){
+            if(-not $simple.Contains($pin)){throw ('R088_NOEXT2_STAGE_MISSING_PIN_'+$pin)}
+          }
+          foreach($forbidden in @('Start-ScheduledTask','Enable-ScheduledTask','place_order(','Cancel-Order','arm -robot')){
+            if($simple.Contains($forbidden)){throw ('R088_NOEXT2_STAGE_LIVE_ACTION_'+$forbidden)}
+          }
+          if($simple.Contains("'r070-ext2-pre-intent-candidate.patch'") -or
+             $simple.Contains("'r088-ext2-live-source-after-combined-candidate.patch'")){
+            throw 'R088_NOEXT2_STAGE_INCLUDES_EXT2_PATCH'
+          }
+          Write-Output 'R088_NOEXT2_STAGING_SCRIPT=PASS_7_PINNED_PATCHES_SYNTAX_NO_FINAM_NO_LIVE_ACTION'
+
 
       - name: R070 FINAM incomplete GET incident 20261117 (ephemeral only)
         shell: pwsh
@@ -763,3 +812,203 @@ jobs:
           path: ${{ runner.temp }}/r070-historical-prefix-public/
           if-no-files-found: error
           retention-days: 14
+
+      - name: R088 no-EXT2 safe minimal release patch compatibility (offline only)
+        shell: pwsh
+        env:
+          PYTHONDONTWRITEBYTECODE: '1'
+        run: |
+          $ErrorActionPreference='Stop'
+          $live='V20_TradingSystem_M15/v20_runtime/finam_live.py'
+          $execution='V20_TradingSystem_M15/v20_runtime/finam_execution.py'
+          $baseLive='b80fb9eb135f7cdcb4c78337e2b808c4d7135195'
+          $baseExec='6b600451178b42bd4f8b2037995e7db3a9ad27c8'
+          if(((& git.exe hash-object -- $live).Trim()) -ne $baseLive -or
+             ((& git.exe hash-object -- $execution).Trim()) -ne $baseExec){
+            throw 'R088_NO_EXT2_BASE_NOT_PINNED'
+          }
+          # No R070 EXT2 pre-intent patch, no R088 calendar/history source patch.
+          $patches=@(
+            'r070-tp6-one-shot-candidate.patch',
+            'r070-protect3-flat-cleanup-candidate.patch',
+            'r070-protect3-broker-id-readonly-candidate.patch',
+            'r070-protect3-live-trigger-candidate.patch',
+            'r070-protect3-night-monitor-candidate.patch',
+            'r070-finam-get-incomplete-read-candidate.patch',
+            'r088-hold5-after-r070-combined-candidate.patch'
+          ) | ForEach-Object { 'V20_TradingSystem_M15/V20-08/'+$_ }
+          $applied=New-Object 'System.Collections.Generic.List[string]'
+          try {
+            foreach($p in $patches){
+              & git.exe apply --check -- $p
+              if($LASTEXITCODE -ne 0){throw ('R088_NO_EXT2_PATCH_CONFLICT_'+$p)}
+              & git.exe apply -- $p
+              if($LASTEXITCODE -ne 0){throw ('R088_NO_EXT2_PATCH_FAILED_'+$p)}
+              $applied.Add($p)
+            }
+            $liveText=Get-Content -LiteralPath $live -Raw
+            foreach($forbidden in @(
+                'admit_r070_frozen_draft_pre_intent',
+                'configure_r088_ext2_live_source',
+                'r070_verified_history_refresh',
+                'r088-moex-calendar.json'
+            )){
+              if($liveText.Contains($forbidden)){throw ('R088_NO_EXT2_STILL_HOOKED_'+$forbidden)}
+            }
+            python -m unittest -q V20_TradingSystem_M15.v20_runtime.tests.test_r088_hold5_offline
+            if($LASTEXITCODE -ne 0){throw 'R088_NO_EXT2_HOLD5_REGRESSION_FAILED'}
+            python -m py_compile $live $execution
+            if($LASTEXITCODE -ne 0){throw 'R088_NO_EXT2_WORKER_SYNTAX_FAILED'}
+            Write-Output ('R088_NO_EXT2_DERIVED_LIVE_SHA='+(& git.exe hash-object -- $live).Trim())
+            Write-Output ('R088_NO_EXT2_DERIVED_EXEC_SHA='+(& git.exe hash-object -- $execution).Trim())
+            Write-Output 'R088_NO_EXT2_MINIMAL=PASS_TP6_PROTECT3_HOLD5_NO_HISTORY_CALENDAR_HOOK_NO_FINAM'
+          } finally {
+            $rev=@($applied.ToArray())
+            [array]::Reverse($rev)
+            foreach($p in $rev){
+              & git.exe apply -R -- $p
+              if($LASTEXITCODE -ne 0){throw ('R088_NO_EXT2_RESTORE_FAILED_'+$p)}
+            }
+          }
+          if(((& git.exe hash-object -- $live).Trim()) -ne $baseLive -or
+             ((& git.exe hash-object -- $execution).Trim()) -ne $baseExec){
+            throw 'R088_NO_EXT2_FROZEN_PINS_CHANGED'
+          }
+          Write-Output 'R088_NO_EXT2_RESTORED_ORIGINAL_LIVE_SHA=PASS'
+
+      - name: R088 all-robots pre-POST orphan recovery (offline only)
+        shell: pwsh
+        env:
+          PYTHONDONTWRITEBYTECODE: '1'
+        run: |
+          $ErrorActionPreference='Stop'
+          $live='V20_TradingSystem_M15/v20_runtime/finam_live.py'
+          $base='b80fb9eb135f7cdcb4c78337e2b808c4d7135195'
+          if(((& git.exe hash-object -- $live).Trim()) -ne $base){throw 'INSIDE_BASE_SHA_INVALID'}
+          $patches=@(
+            'r070-tp6-one-shot-candidate.patch',
+            'r070-protect3-flat-cleanup-candidate.patch',
+            'r070-protect3-broker-id-readonly-candidate.patch',
+            'r070-protect3-live-trigger-candidate.patch',
+            'r070-protect3-night-monitor-candidate.patch',
+            'r070-finam-get-incomplete-read-candidate.patch',
+            'r088-hold5-after-r070-combined-candidate.patch',
+            'r088-inside-prepost-orphan-20261119.patch',
+            'r088-protect3-main-identity-20261120.patch'
+          ) | ForEach-Object {'V20_TradingSystem_M15/V20-08/'+$_}
+          $done=New-Object 'System.Collections.Generic.List[string]'
+          try {
+            foreach($p in $patches){
+              & git.exe apply --check -- $p
+              if($LASTEXITCODE -ne 0){throw ('INSIDE_PATCH_CONFLICT_'+$p)}
+              & git.exe apply -- $p
+              if($LASTEXITCODE -ne 0){throw ('INSIDE_PATCH_FAIL_'+$p)}
+              $done.Add($p)
+            }
+            & python -m py_compile $live
+            if($LASTEXITCODE -ne 0){throw 'INSIDE_PATCH_SYNTAX_INVALID'}
+            & python -m unittest -q V20_TradingSystem_M15.v20_runtime.tests.test_r088_prepost_all3 V20_TradingSystem_M15.v20_runtime.tests.test_r088_protect3_identity
+            if($LASTEXITCODE -ne 0){throw 'R088_ALL3_PROTECT3_AND_PREPOST_MOCK_FAILED'}
+            $src=Get-Content -LiteralPath $live -Raw
+            foreach($required in @('def _resolve_never_posted_entry','PREPARED_ONLY_NO_POST',
+              'journal.store.transition_intent(key, "CANCELLED")','journal.store.get("live_post:" + key) is not None',
+              'journal.store.get("entry_submission:" + key) is not None',
+              'PREPOST_ABORT_NO_FINAM_ORDER')){
+              if(-not $src.Contains($required)){throw ('INSIDE_RECOVERY_PROOF_MISSING_'+$required)}
+            }
+            Write-Output ('R088_ALL3_PROTECT3_PREPOST_PATCHED_LIVE_SHA='+(& git.exe hash-object -- $live).Trim())
+            Write-Output 'R088_ALL3_PROTECT3_PREPOST_FIX=PASS_NO_FINAM_CLASS_IDENTITY_AND_UNKNOWN_POST_SAFETY'
+          } finally {
+            $rev=@($done.ToArray())
+            [array]::Reverse($rev)
+            foreach($p in $rev){
+              & git.exe apply -R -- $p
+              if($LASTEXITCODE -ne 0){throw ('INSIDE_RESTORE_FAIL_'+$p)}
+            }
+          }
+          if(((& git.exe hash-object -- $live).Trim()) -ne $base){throw 'INSIDE_BASE_NOT_RESTORED'}
+
+      - name: R088 all-three guarded PREPOST + Protect3 installer syntax (no LIVE execution)
+        shell: pwsh
+        run: |
+          $ErrorActionPreference='Stop'
+          $file='V20_TradingSystem_M15/V20-08/r088-prepost-all3-20261119-install.ps1'
+          $tokens=$null
+          $errors=$null
+          $null=[System.Management.Automation.Language.Parser]::ParseFile($file,[ref]$tokens,[ref]$errors)
+          if(@($errors).Count -ne 0){throw ('V20_ALL3_INSTALL_PS_SYNTAX_INVALID '+(($errors | ForEach-Object {$_.Message}) -join ';'))}
+          $helper='V20_TradingSystem_M15/V20-08/r088-inside-incident-20261119-readonly.py'
+          & python -m py_compile $helper
+          if($LASTEXITCODE -ne 0){throw 'V20_INCIDENT_READONLY_HELPER_SYNTAX_INVALID'}
+          $src=Get-Content -LiteralPath $file -Raw
+          foreach($proof in @(
+            "0b6b23e46b1e63a0afafe88d91cec52d7e19efb9",
+            "56f03cf0be39a357c2e22ba0ecd5bdc0861e7589",
+            "5d30270d3936fb52f58a61aa3abbf070d7df6b57",
+            "54ae8e1262482f4ecc80d202c6e9063cf0d6e402",
+            "c92c8dac3876f1d402e08f4891f3da2c8d66a6fe",
+            "V20_BROKER_FLAT_",
+            "V20_OPERATOR_HALT_ALL_FAILED",
+            "V20_SQLITE_BACKUP_3_FAILED",
+            "V20_AUTO_ROLLBACK=PASS_ORIGINAL_3_RUNNING_HALTED",
+            "V20_ALL3_PREPOST_PROTECT3_FIX=PASS_3_RUNNING_HALTED_FRESH_CYCLES",
+            "V20_ALL3_NO_NEW_ORDERS_NO_AUTO_ARM=YES"
+          )){
+            if(-not $src.Contains($proof)){throw ('V20_INSTALLER_PIN_OR_GUARD_MISSING_'+$proof)}
+          }
+          Write-Output 'V20_ALL3_INSTALLER=PASS_PS_SYNTAX_PINNED_FLAT_AND_SLTP_GATES_BACKUP_ROLLBACK'
+
+      - name: R088 staged HOLD5 exit with frozen TIME3 parity (ephemeral, NO FINAM)
+        shell: pwsh
+        env:
+          PYTHONDONTWRITEBYTECODE: '1'
+        run: |
+          $ErrorActionPreference='Stop'
+          $live='V20_TradingSystem_M15/v20_runtime/finam_live.py'
+          $execution='V20_TradingSystem_M15/v20_runtime/finam_execution.py'
+          $origLive='b80fb9eb135f7cdcb4c78337e2b808c4d7135195'
+          $origExec='6b600451178b42bd4f8b2037995e7db3a9ad27c8'
+          if(((& git.exe hash-object -- $live).Trim()) -ne $origLive -or
+             ((& git.exe hash-object -- $execution).Trim()) -ne $origExec){
+            throw 'R088_BASE_FROZEN_SHA_CHANGED'
+          }
+          $patches=@(
+            'r070-tp6-one-shot-candidate.patch',
+            'r070-protect3-flat-cleanup-candidate.patch',
+            'r070-protect3-broker-id-readonly-candidate.patch',
+            'r070-protect3-live-trigger-candidate.patch',
+            'r070-protect3-night-monitor-candidate.patch',
+            'r070-ext2-pre-intent-candidate.patch',
+            'r070-finam-get-incomplete-read-candidate.patch',
+            'r088-hold5-after-r070-combined-candidate.patch',
+            'r088-ext2-live-source-after-combined-candidate.patch'
+          ) | ForEach-Object {'V20_TradingSystem_M15/V20-08/'+$_}
+          $applied=New-Object 'System.Collections.Generic.List[string]'
+          try {
+            foreach($p in $patches){
+              & git.exe apply --check -- $p
+              if($LASTEXITCODE -ne 0){throw ('R088_COMBINED_PATCH_CONFLICT_'+$p)}
+              & git.exe apply -- $p
+              if($LASTEXITCODE -ne 0){throw ('R088_COMBINED_PATCH_APPLY_FAILED_'+$p)}
+              $applied.Add($p)
+            }
+            python -m unittest -v V20_TradingSystem_M15.v20_runtime.tests.test_r088_hold5_offline
+            if($LASTEXITCODE -ne 0){throw 'R088_HOLD5_OFFLINE_TESTS_FAILED'}
+            python -m py_compile $live $execution V20_TradingSystem_M15/v20_runtime/r088_hold5.py V20_TradingSystem_M15/v20_runtime/r088_cny_verified_bootstrap.py V20_TradingSystem_M15/v20_runtime/r088_ext2_live_source.py V20_TradingSystem_M15/v20_runtime/r088_finam_historical_gaps.py V20_TradingSystem_M15/V20-08/r088-build-usd-gld-offline-checkpoints.py
+            if($LASTEXITCODE -ne 0){throw 'R088_HOLD5_SYNTAX_FAILED'}
+            Write-Output ('R088_HOLD5_DERIVED_LIVE_GIT_SHA='+(& git.exe hash-object -- $live).Trim())
+            Write-Output ('R088_HOLD5_DERIVED_EXEC_GIT_SHA='+(& git.exe hash-object -- $execution).Trim())
+            Write-Output 'R088_HOLD5_OFFLINE=PASS_TIME3_UNTOUCHED_HOLD5_SIXTH_OPEN_STOP_PROOF_NO_FINAM'
+          } finally {
+            $reverse=@($applied.ToArray())
+            [array]::Reverse($reverse)
+            foreach($p in $reverse){
+              & git.exe apply -R -- $p
+              if($LASTEXITCODE -ne 0){throw ('R088_FROZEN_RESTORE_FAILED_'+$p)}
+            }
+          }
+          if(((& git.exe hash-object -- $live).Trim()) -ne $origLive -or
+             ((& git.exe hash-object -- $execution).Trim()) -ne $origExec){
+            throw 'R088_SOURCE_PINS_NOT_RESTORED'
+          }
+          Write-Output 'R088_NO_LIVE_NO_FINAM_PINS_RESTORED=PASS'
