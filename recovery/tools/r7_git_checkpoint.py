@@ -34,7 +34,7 @@ SHA40 = re.compile(r"^[0-9a-fA-F]{40}$")
 def run_git(*args: str, cwd: Path | None = None, timeout: int = 900) -> str:
     env = os.environ.copy()
     env["GIT_TERMINAL_PROMPT"] = "0"
-    env["GIT_CONFIG_NOSYSTEM"] = "1"  # Local/global credential helpers still possible.
+    env["GCM_INTERACTIVE"] = "never"  # No Windows credential-manager/browser pop-ups.
     try:
         result = subprocess.run(
             ["git", *args], cwd=cwd, env=env, stdout=subprocess.PIPE,
