@@ -165,7 +165,8 @@ pin $operator 'b06957ea7833daeda65296eb372890951860c008'
 pin-one-of $launcher @(
  '90e2171bd425015b6b7fd7f5d8e97e331e8b64cb',
  'e68eba0b522a08493549a5cd9ed60d27188c700c',
- '0ea762e73b76e64255489e2bb5428c62397a6e55'
+ '0ea762e73b76e64255489e2bb5428c62397a6e55',
+ '4e7498d2eacf0930d0ee1bbf6343883735f3aefb'
 )
 $sid=[security.principal.windowsidentity]::getcurrent().user.value
 $task=get-scheduledtask -taskname $robot -taskpath '\' -erroraction stop

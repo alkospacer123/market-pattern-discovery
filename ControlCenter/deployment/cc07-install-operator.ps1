@@ -5,7 +5,7 @@ param([ValidateSet('check','install')][string]$mode='check')
 $ErrorActionPreference='Stop'
 Set-StrictMode -Version Latest
 $repo='alkospacer123/market-pattern-discovery'
-$pin='8ce991a747fd0f37d307abad9e2d889a7757198c'
+$pin='d6133bb8551f019e429d90bfdfa30f9bb028d991'
 $root='c:\control center'
 $dest=Join-Path $root 'cc07-operator'
 $script=Join-Path $dest 'cc07-v20-operator.ps1'
