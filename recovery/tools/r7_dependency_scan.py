@@ -32,7 +32,7 @@ TEXT_SUFFIXES = frozenset({
 })
 # Reference-specific strings: explicit names, not generic 'BBW' indicator or 'results'.
 REF_PATTERNS: tuple[tuple[str, re.Pattern[str]], ...] = (
-    ("package:bbw_system", re.compile(r"\bbw_system\b", re.I)),
+    ("package:bbw_system", re.compile(r"(?<![A-Za-z0-9_])bbw_system(?![A-Za-z0-9_])", re.I)),
     ("package:market_pattern_discovery", re.compile(r"\bmarket_pattern_discovery\b", re.I)),
     ("historical:unknown_universe_v1", re.compile(r"\bunknown_universe_v1\b", re.I)),
     ("historical:research_domains.md", re.compile(r"\bresearch_domains\.md\b", re.I)),
@@ -180,7 +180,7 @@ def main(argv: list[str] | None = None) -> int:
             if destination.is_relative_to(checkout):
                 raise ValueError("--output must be outside Git checkout; never change source tree")
             # Only caller-provided path; creates a report outside checkout.
-            destination.write_text(out, encoding="utf-8")
+            destination.write_bytes(out.encode("utf-8"))
             print(json.dumps({"report_path": str(destination),
                               "sha256": hashlib.sha256(out.encode("utf-8")).hexdigest(),
                               "head": data["head"], "tracked": data["total_tracked"],
