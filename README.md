@@ -1,5 +1,7 @@
 # Market Pattern Discovery
 
+> **Актуальная навигация для GPT/Codex и Kimi (20.11.2026):** этот репозиторий — единая рабочая база V20, Control Center и Trading Research Lab. `TradingSystemLab` и `IntradayLab` — исторические системы с необходимыми V20-зависимостями; запускать их как LIVE запрещено. Прочитать [карту шести каталогов и границы ИИ](recovery/KIMI_REPOSITORY_BOUNDARIES_2026-11-20.md), затем [Recovery/Agent](recovery/Agent.md). Остальной текст ниже содержит исторические исследовательские контракты; не принимать его за текущие LIVE-настройки.
+
 A research-first, causality-safe Python foundation for strict Finam candle
 validation. The dependency and research direction is one way only:
 
