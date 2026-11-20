@@ -104,3 +104,24 @@
 - Даже ноль прямых ссылок во всех 315 прочитанных файлах **не даёт разрешение на удаление root-пакета**: `R7_A_DIRECT_SCAN=PASS_SCOPED`, `R7_A_FULL_DEPENDENCY_CLOSURE=NOT_VERIFIED`, `R7_DELETE_GATE=BLOCKED`.
 
 **Следующий предметный gate (не ещё один отчёт ради отчёта):** закрыть статические ссылки внутри исторических H1/M15 и TRL Markdown/конфигураций, проверить полноту сохранения взаимосвязанной исследовательской платформы и offline тесты на изолированном checkout. До любого удаления — независимый актуальный Git checkpoint, архив **всего согласованного логического комплекса** с SHA/provenance, независимый контроль регрессий и разрешение оператора на конкретный PR. Не менять LIVE.
+
+
+## R7-А — проверенные документальные связи и offline-инструмент (20.11.2026)
+
+**Метка:** \`R7_A_OFFLINE_SCANNER_STAGED / SYNTHETIC_TESTS_4_OF_4_PASS / REAL_CHECKOUT_SCAN_NOT_RUN\`.
+
+**Новые прямые факты по исходникам основного main \`f15d565755b996252081ed49ed5a094ee1e8d820\`:**
+- \`TradingSystemLab/README.md\` blob \`ba02ab218b1307ea0a1224909201fd42a326707c\`, строки 26, 69–81, явно отделяет исследовательский BBW от H1 и ссылается на корневой \`../research_domains.md\`. Это подтверждённая **документальная ссылка**, а не runtime import BBW пакета.
+- \`IntradayLab/README.md\` blob \`4a6b3ee47c7f3f6dd9e000dd5995e8b33c7ad3da\`, строка 60, прямо запрещает изменять корневые \`BBW/\`, \`results/\` и старые документы при работе со старой M15. Это историческая граница ответственности; удалить связанную документацию без сохранения provenance нельзя.
+- \`TradingSystemLab/strategies/trend/T1_BBW_Donchian.py\` blob \`0005f8639ae7004ace29cfa5625b4e34b1cf3297\` импортирует собственные H1 индикаторы, а \`BBW\` здесь — расчёт Bollinger Band Width. Совпадение трёх букв **не** является зависимостью \`bbw_system\`.
+- Корневой \`README.md\` blob \`b3c0ec9e488f4ff9c8745e6ce19cc090f0ff6319\` содержит старые CLI-команды \`python -m bbw_system...\` и \`python -m market_pattern_discovery...\` при наличии современной шапки. После архивирования связанной платформы эти команды необходимо удалить из рабочего *входа* либо явно перевести в историческую область, сохранив воспроизводимые инструкции в архиве.
+- Корневой \`AGENTS.md\` blob \`a3aa857b98dca524ea60c24c5171f96517e046c0\` объявляет 2025 «untouched TRUE OOS» для прежнего исследовательского контура; требуется scoped-разделение, чтобы не вводить Kimi в заблуждение о TRL. Нельзя переписать исторический эксперимент как якобы untouched.
+- \`.github/workflows/v20-08-live-windows.yml\`, \`v20-cap4-research.yml\`, \`controlcenter-cc03-windows-native.yml\` прочитаны: их области относятся к V20/CC, но **это только текущие 3 workflow**, без полного доказательства отсутствия прямых путей в иных Git refs/Windows/инсталляциях.
+
+**Воспроизводимый offline-инструмент для полного checkout:**
+- [\`recovery/tools/r7_dependency_scan.py\`](tools/r7_dependency_scan.py) blob \`aa1c3c44490029efadb46e8d7a259a01dbfe3178\` (stdlib only; read-only: \`git ls-files --stage\`, \`git rev-parse\`, \`git status\`, чтение текстовых файлов). Сохраняет Git HEAD/tree SHA, индекс отслеживаемых старых файлов и их Git blob SHA, классифицирует защищённые/старые ссылки по строкам без включения секретного содержимого строк.
+- [\`recovery/tools/tests/test_r7_dependency_scan.py\`](tools/tests/test_r7_dependency_scan.py) blob \`6fdc41b2b8dc886d58b342e0a1ad43e593c7c8ed\`; \`python -m unittest discover -s recovery/tools/tests -p test_r7_dependency_scan.py -v\`: **4/4 PASS на изолированных синтетических Git репозиториях**, Git blob обоих файлов сверены с локально проверенными originals.
+- Пример только для **отдельного read-only Git checkout** из его корня: \`python recovery/tools/r7_dependency_scan.py --repo . --output ../r7-dependency-report.json\`. Файл отчёта располагается **вне** checkout, а сам сканер не запускает код репозитория, FINAM, сеть, Windows Tasks или роботов.
+- **Не запускался на реальном checkout**: доступа к полной локальной копии репозитория в данном окружении нет, API через отдельные GitHub файлы не заменяет полную Git-копию. Не объявлять \`R7_A_FULL_DEPENDENCY_CLOSURE=PASS\`, \`CHECKPOINT=PASS\` или \`R7_DELETE_GATE=PASS\`.
+
+**Следующее подтверждение перед archive/cleanup:** получить реальный JSON полного checkout, вручную классифицировать защищённые ссылки и skipped/unreadable, проверить ссылки из TRL/H1/M15 на старые исследования и архив, затем защитный Git checkpoint, copy+SHA/privacy, offline before/after regressions и решение владельца о конкретном deletion PR.
