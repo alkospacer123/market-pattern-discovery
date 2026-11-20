@@ -153,3 +153,38 @@
 - **Что ещё НЕ доказано:** физическая независимость диска \`D:\` от Intel/основного SSD, хранение второй копии вне компьютера, экспорт PR/Issues/CI metadata, Git LFS при наличии, воспроизводимость зависимостей и запуск offline регрессий, зависимостный скан полного main. Это предварительный **R7-Б Git-only checkpoint**, НЕ финальное Disaster Recovery и пока НЕ разрешение на удаление.
 - **Следующий gate:** создать disposable \`market-pattern-discovery-scan-checkout\` из bundle на отдельном месте и исполнить read-only \`r7_dependency_scan.py --expected-head f15d565...\`, сохранить \`dependency-report.json\`; по результатам классифицировать защищённые ссылки и skipped файлы.
 
+
+## R7-A — полный локальный checkout: real-scan V1, триаж и коррекция (20.11.2026)
+
+**Метка:** \`R7_A_REAL_CHECKOUT_SCAN_V1_TRIAGED_20261120 / REVISED_SCANNER_V2_SELFTEST_10_OF_10_PASS / CLEANUP_GATE_NOT_YET_PASSED\`.
+
+Оператор скопировал исходный \`main=f15d565755b996252081ed49ed5a094ee1e8d820\` из подтверждённого bundle в отдельный checkout, запустил стандартный offline-сканер. JSON проанализирован напрямую. \`tree_sha=44a5fef98dd8a3b6bc3e6d172f64fafddac5df4b\`, \`tracked_tree_modified=false\`.
+
+| Измерение | Значение |
+|---|---:|
+| Tracked paths | 18 439 |
+| Успешно прочитанные текстовые файлы | 16 828 |
+| Точно учтённые старые root blobs | 331 |
+| Совпадения V1 всего | 1 721 |
+| Из них \`protected_or_entrypoint\` | 1 325 |
+| Из них legacy-13 | 361 |
+| Из них другие | 35 |
+| Пропущено из-за лимита 2MB | 1 012 (= 996 CSV, 14 JSON, 1 TXT, 1 MD) |
+| V20 matches | 0 (при V1-дефекте \`bbw_system\` — НЕ доказательство отсутствия зависимости) |
+| ControlCenter matches | 2 (snapshot \`ci/protected-main-tree.json\`) |
+| TRL matches | 5 (3 исторических отчёта) |
+| H1 matches | 7 (включая 2 Python скрипта с \`audit_only/\`) |
+| IntradayLab matches | 1 003 (преимущественно исторические hash/scope манифесты) |
+| Recovery matches | 300 (292 — один исследовательский blob audit) |
+
+**Критические прямые зависимости/границы:**
+1. \`TradingSystemLab/stage8_robot/signal_execution_diagnostic.py:22\` и \`stage8_robot/tests/replay_stop_tick_grid.py:19,64\` имеют *исполняемые ссылки* на \`audit_only/stop_tick_grid_20261012\`. Восьмой root-candidate \`audit_only\` поэтому \`NOT_REMOVABLE_AS_IS\`, пока не изменён и не протестирован H1 диагностический workflow. Кроме того, эти файлы не входят в набор 331 старых blobs.
+2. \`TradingResearchLab/reports/TRL-00-TESTER-MAP-2026-10-31.md:16–17\` указывает общие \`src/market_pattern_discovery/backtest\` и \`validation\` как \`SOURCE CONFIRMED\`; \`TRL-00-TESTER-REPRODUCIBILITY-2026-10-31.md:34\` описывает их как переиспользуемый движок и валидаторы. Это доказанная **исследовательская зависимость/наследие**, хотя прямой runtime import TRL этим не подтверждён. Нельзя объявлять \`src/\` целиком ненужным без миграции методик и тестов.
+3. \`IntradayLab/optimization_registry/audit_registry.py:16\` и \`build_registry.py:49,318\` упоминают \`src/market_pattern_discovery/backtest/top5_v4/\` как исторический companion/source path. Нужно проверить Git-object-based provenance и условия повтора, а не удалять M15 реестр/протокол.
+4. \`ControlCenter/ci/protected-main-tree.json:26,28\` содержит root snapshot \`pyproject.toml\`, \`research_domains.md\`. Снимок — исторический контроль Git дерева, возможно затрагивает CI/acceptance; не переписывать snapshot молча.
+5. У 1 325 protected hits большие концентрации: по 157 совпадений в шести M15 исторических JSON списках (в сумме 942); \`recovery/R0_T3_RESEARCH_DRAFT_BLOB_AUDIT_2026-11-20.md\` — 292. Совпадение в manifest ≠ runtime зависимость, но provenance сохранять.
+
+**Точность evidence JSON:** uploaded file \`dependency-report.json\` фактически содержит CRLF и имеет SHA256 \`d947370544f13d317843d879814c7c334094a09e2c37e881f8ba6ed65ed5cfc b\` (убрать пробел перед последним \`b\` при программной проверке); после нормализации CRLF→LF SHA256 \`8e683218f7398d955fb3406193d77d5d6faf08e6f9682203a73cbb122f678d32\`, совпадает с печатью Python. Причина — \`Path.write_text()\` в Windows перевёл LF в CRLF. **Исходный JSON не испорчен**. В сканере исправлено на \`write_bytes(out.encode("utf-8"))\`.
+**Дефект V1:** regex \`r"\bbw_system\b"\` фактически ищет \`bw_system\` после word boundary, а не \`bbw_system\`; в отчёте V1 отсутствует \`package:bbw_system\` даже в root \`pyproject.toml\`, где такие ссылки точно есть. Исправлено строгим bounded pattern \`(?<![A-Za-z0-9_])bbw_system(?![A-Za-z0-9_])\`; добавлены два теста на точный match и SHA физического файла. Всего scanner+checkpoint synthetic tests **10/10 PASS**. Поэтому V1 — **не финальная скан-метрика**; нужен \`dependency-report-v2.json\` с исправленным сканером, прежде чем одобрять cleanup.
+
+**Действия:** Не удалять \`audit_only/\`; не переносить в public archive исторические файлы без content/privacy контроля; не изменять TRL/H1/M15/CC snapshots; не делать Merge/LIVE. R7-D grouped-deletion PR разрешать только после triage реального V2 + protected reference rewrite/compat tests и проверки копии на независимом носителе.
