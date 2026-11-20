@@ -1,0 +1,16 @@
+# TRL-R053: Classic, Fast2, Deep3 — independent accounts, 3 exits, order execution hypothesis
+Frozen before R053 three-exit new replay. Date: 2026-11-12. Status RESEARCH ONLY.
+
+Source of signals: R052 frozen `run_r052.py` SHALLOW_PULLBACK/SHALLOW_FAST2/SHALLOW_DEEP3, no retuning; fixed historical M15 OHLCV N4, per N4 data end differs. Source code source copies hash-pinned by R052 archive.
+
+Three independent **45,000 ₽** starting bank accounts, 135k total, risk 1.5% per instrument trade, aggregate 6% per account, two new entries/day/account, one entry/symbol/day/account, stop2xATR, next M15 open, single position/instrument/account, no compounding, historical replay GO Oct2026 and GO Nov2026 *static proxies*, C1 exactly 1 price tick/side; NO live FINAM fees/spread/slippage. Three exits: BASE (3rd session expiration + trail as present in frozen engine), TP6 without profit locking, TP6 plus stop +1R after reaching +3R, effective next candle. Use identical engine across all.
+
+Expected Classic parity with R052: Oct GO TP6+LOCK3 736 deals +208506.7 ₽ PF1.9614. V20 Oct GO TP6+lock3 1449 deals +381607.6 ₽. Run independent exact reproduction and reject on mismatch.
+
+Analyze per variant/symbol/year/month, explicit trading signal and entry overlaps: same side, same symbol, same actual entry timestamp, same session ± one hour, overlapping live holding intervals, both vs Classic and Fast vs Deep; triple active same-side same symbol (observable intervals). Trade times sourced from frozen engine; no LIVE truth claims. Attribution to R031 trend-event catalogue 779 *retrospectively selected with future movement*, only as diagnostic of mechanisms, not prospective success. Distinguish partially overlapping events and any entry later than event start. Event assignment can produce multiple trades/event.
+
+Pairwise overlap measured for candidate trades with at least one overlapping same-symbol interval for other module, plus same-direction vs opposite; exact timestamps. Exclusive trades defined as candidate trade has no such overlap with Classic; not necessarily unique historical trend. Triple portfolio concatenates 3 independent accounts; no netting by symbol or shared GO. Compute portfolio closed PnL DD from chronological EXIT timestamp, 45 calendar-months (2023-01..2026-09), positive months and year PF. Separate capital and cross-robot correlated risk explicitly noted. Marginal return at weak Classic months is diagnostic, not true hedge.
+
+Limit research: compare previous 2026-11-05 M5 1589 signals, 1414 weekday matched and R052 M15 touch (price availability only); no tick trade/book/queue data => DO NOT state true execution rate or optimize partial fills. Finam API official proto order types IOC/FOK/partial statuses. Select conditional test architecture (capped marketable limit IOC + depth gate + risk protection of actual filled qty), NOT a verified historical optimal execution. No operational installation; research TRL only.
+
+2023–2026 is OOS_COMPROMISED; no strategy approvals from repeatedly tested old period, prospective validation required.
