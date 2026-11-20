@@ -1,7 +1,7 @@
 diff --git a/V20_TradingSystem_M15/v20_runtime/finam_live.py b/V20_TradingSystem_M15/v20_runtime/finam_live.py
 --- a/V20_TradingSystem_M15/v20_runtime/finam_live.py
 +++ b/V20_TradingSystem_M15/v20_runtime/finam_live.py
-@@ -971,2 +971,13 @@
+@@ -971,2 +971,12 @@
  if __name__ == "__main__":
 +    # Task Scheduler uses python -m, executing this LIVE worker as __main__.
 +    # Protect3 imports .finam_live for V20LiveTransport/V20LiveJournal.
