@@ -1,3 +1,19 @@
+# Control Center — актуальная V20-панель (состояние на 20.11.2026)
+
+**Действующий V20 UI:** `C:\Control Center\v20-preview-d80f2446\v20_app.py`, локальный адрес `http://127.0.0.1:8502`; три независимых робота Shallow / OBV / Inside. Код в [`v20_app.py`](v20_app.py), операционный журнал и границы приёмки — в [CC-08](docs/V20_CC08_OPERATIONS.md), этапы — в [V20 roadmap](docs/V20_CONTROL_CENTER_ROADMAP.md).
+
+- **Подтверждено оператором:** исправление совместимости после обновления V20 установлено 20.11 (`cc07_install=pass`); повторный `-mode check` вернул `cc07_install_status=already_current`. Панель и её управляющие кнопки работают по сообщению владельца. START/PAUSE проверялись на реальном оборудовании ранее; конкретные STOP/RESTART и защитный отказ RECOVER описаны в CC-08. Не считать этим доказанным каждое аварийное восстановление или текущее состояние FINAM.
+- **Точная установленная версия CC-07:** controller Git blob `10de325be0335733a248c412943f39d45bd93c62`, Python adapter `ef2fa2cd6b0ddfefc920548995274f123c5884bf`; V20 launcher только для сравнения `e1de4aad7a98cdc84768c1811131c3ad079d7d90`. Результат Windows CI #44711373064: SUCCESS для PR #568 head `b9da21b3b5e530460ed54100add999fa5afcf131` (757 passed / 15 skipped). Это **не** LIVE-верификация брокера.
+- **Граница действий:** ручное обновление экрана — READONLY. Команды CC-07 — отдельно подтверждаемые операторские действия с разрешениями, журналом и защитными проверками; не автоматическое восстановление. Не обходить HALT, не повторять команду при неизвестном результате и не управлять работоспособными V20 ради тестирования.
+- **Исходники V20:** установленный launcher и два закреплённых в нём модуля на Intel совпали с операторскими SHA, но GitHub не отдаёт их конкретные blob `e1de4aad…`, `0fc4c454…`, `5d30270d…` в PR #567. Для полного Kimi/DR-восстановления их потребуется отдельно включить в утверждённую историю V20; **не изменять V20 из этого PR**.
+- **GitHub:** отдельный Draft PR #568, только `ControlCenter/`; его Merge не выполняется автоматически. `main` перед подготовкой обновления: `0881d1e08b51a564fb54bb7d334d1578fc130400`.
+
+## Историческое направление CC-03 для H1/M15 (ниже, не инструкция для V20 8502)
+
+Весь материал ниже относится к более раннему отдельному контролю H1/Intraday и демонстрационной панели `app.py` / 8501. Его `NOT_EXECUTED` / `NO_MERGE` / отключённые кнопки **не описывают V20 Control Center**.
+
+---
+
 > **Актуальное продолжение CC-03 C:** [ручной WINDOWS_OS_ONLY](docs/CC03_MANUAL_OS_SOURCE.md) — один click, один bounded fixed Task/process helper под стандартным ccpanel, отдельная protected CC-only policy, session-local snapshot. Legacy content/metadata/exporter заблокированы. [Физическая готовность](docs/CC03_MANUAL_OS_INSTALLATION_READINESS.md): Intel NOT_EXECUTED, B/C не разрешены; CI не Intel PASS.
 
 > **CC-03 Windows OS continuation:** отдельный `python -m observer.windows_os` (default PREVIEW), штатные Task/process READONLY API ; metadata source отключён после native interference failure; live JSON не читается. Контракт `WINDOWS_OS_ONLY` не даёт HEALTHY, HALTED, broker или trading authority. [Механизм и ограничения](docs/CC03_WINDOWS_OS_OBSERVER.md), [native evidence](docs/CC03_OS_ACCEPTANCE.md), [будущие источники](docs/CC03_FUTURE_TELEMETRY_SPEC.md), [bounded stop / обслуживание](docs/CC03_EXPORT_MAINTENANCE.md). Production binding и Intel physical NOT_EXECUTED. NO INSTALL / NO TRADING.

@@ -1,0 +1,10 @@
+{
+  "schema_id": "cc.v20.source-policy.v1",
+  "approved": false,
+  "root_id": null,
+  "account_aliases": {
+    "V20_SHALLOW": "V20-SHALLOW",
+    "V20_OBV": "V20-OBV",
+    "V20_INSIDE": "V20-INSIDE"
+  }
+}

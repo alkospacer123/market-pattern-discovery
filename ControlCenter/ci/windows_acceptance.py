@@ -43,6 +43,10 @@ def build_bundle(evidence):
 
 
 def main():
+    # GitHub-hosted Windows may expose cp1252 stdout even for UTF-8 pytest logs.
+    # Preserve Unicode evidence rather than raising UnicodeEncodeError while
+    # streaming an already-recorded full-suite log to the Actions console.
+    sys.stdout.reconfigure(encoding='utf-8', errors='backslashreplace')
     assert os.name == 'nt' and os.environ.get('RUNNER_ENVIRONMENT') == 'github-hosted'
     assert sys.version_info[:3] == (3, 12, 10) and struct.calcsize('P') == 8
     # Even absence/UI tests must resolve default receiver/exporter I/O to a
@@ -98,7 +102,7 @@ def main():
             "$ErrorActionPreference='Stop'; Get-ChildItem deployment/*.ps1 | ForEach-Object { "
             "$tokens=$null; $errors=$null; [void][Management.Automation.Language.Parser]::ParseFile($_.FullName,[ref]$tokens,[ref]$errors); "
             "if ($errors.Count) { throw ($errors | Out-String) }; Write-Output ('SYNTAX_PASS '+$_.Name); "
-            "if ($_.Name -ne 'Common.ps1') { & $_.FullName } }"]),
+            "if ($_.Name -notin @('Common.ps1','cc07-install-operator.ps1','cc07-install-channel.ps1')) { & $_.FullName } }"]),
         ('powershell-rehearsal', ['powershell', '-NoProfile', '-NonInteractive', '-File', 'ci/Windows-Rehearsal.ps1']),
     ]
     results = {}
