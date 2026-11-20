@@ -19,9 +19,10 @@ $python=Join-Path $root '.venv-raw\scripts\python.exe'
 $h1=Join-Path $root 'source-raw'
 $log=Join-Path $root 'robots\inside\logs\live-m15.jsonl'
 $oldSha='54ae8e1262482f4ecc80d202c6e9063cf0d6e402'
-$newSha='5c2dfdf411dd6d00fbe39a749615b5caa12e8b11'
+$newSha='5d30270d3936fb52f58a61aa3abbf070d7df6b57'
 $execSha='0fc4c454d55f37e4e87fd74e3370cbc1ad83b53f'
 $patchSha='0b6b23e46b1e63a0afafe88d91cec52d7e19efb9'
+$protectSha='56f03cf0be39a357c2e22ba0ecd5bdc0861e7589'
 $helperSha='c92c8dac3876f1d402e08f4891f3da2c8d66a6fe'
 function need([bool]$ok,[string]$reason){if(-not $ok){throw $reason}}
 function pin([string]$p,[string]$sha){
@@ -162,8 +163,10 @@ need (-not (Test-Path -LiteralPath $working) -and -not (Test-Path -LiteralPath $
 [io.directory]::CreateDirectory($stage)|Out-Null
 [io.directory]::CreateDirectory($backup)|Out-Null
 $patch=Join-Path $working 'v20-prepost.patch'
+$protectPatch=Join-Path $working 'v20-protect3-module-identity.patch'
 $helper=Join-Path $working 'inside-incident-readonly.py'
 get-pin $patchSha $patch
+get-pin $protectSha $protectPatch
 get-pin $helperSha $helper
 Copy-Item -LiteralPath $live -Destination (Join-Path $stage 'finam_live.py')
 Push-Location $working
@@ -172,6 +175,10 @@ try {
  need ($LASTEXITCODE -eq 0) 'V20_PATCH_CONFLICT'
  & git.exe apply -- $patch
  need ($LASTEXITCODE -eq 0) 'V20_PATCH_APPLY_FAILED'
+ & git.exe apply --check -- $protectPatch
+ need ($LASTEXITCODE -eq 0) 'V20_PROTECT3_PATCH_CONFLICT'
+ & git.exe apply -- $protectPatch
+ need ($LASTEXITCODE -eq 0) 'V20_PROTECT3_PATCH_APPLY_FAILED'
 } finally {Pop-Location}
 $patched=Join-Path $stage 'finam_live.py'
 pin $patched $newSha
@@ -192,7 +199,7 @@ $bo | Write-Output
 Copy-Item -LiteralPath $live -Destination (Join-Path $backup 'finam_live.py')
 Copy-Item -LiteralPath $launcher -Destination (Join-Path $backup 'v20-08-live-launch.ps1')
 [io.file]::WriteAllText((Join-Path $backup 'fix-info.txt'),
- ('r088-all3-prepost-20261119 base='+$oldSha+' target='+$newSha+' patch='+$patchSha),
+ ('r088-all3-prepost-protect3-20261120 base='+$oldSha+' target='+$newSha+' patches='+$patchSha+','+$protectSha),
  [text.utf8encoding]::new($false))
 Write-Output ('V20_ALL3_ROLLBACK_DIR='+$backup)
 # No active Shallow/OBV position; Inside CNY stop identity was broker-proven.
@@ -212,7 +219,7 @@ try {
  & $python -B $helper post $db
  need ($LASTEXITCODE -eq 0) 'V20_INSIDE_SQLITE_ORPHAN_NOT_RESOLVED'
  all-halted
- Write-Output 'V20_ALL3_PREPOST_FIX=PASS_3_RUNNING_HALTED_FRESH_CYCLES'
+ Write-Output 'V20_ALL3_PREPOST_PROTECT3_FIX=PASS_3_RUNNING_HALTED_FRESH_CYCLES'
  Write-Output 'V20_INSIDE_USD_ORPHAN=CANCELLED_NO_BROKER_POST'
  Write-Output 'V20_CNY_EXISTING_SLTP=UNCHANGED'
  Write-Output 'V20_ALL3_NO_NEW_ORDERS_NO_AUTO_ARM=YES'
