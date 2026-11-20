@@ -1,0 +1,108 @@
+# R0 — ранний V20 #566 и исторический IntradayLab M15 #540
+
+**Дата сверки:** 20.11.2026; Main reference: `e6b8480b493365e0a4ff2bb56041891fde0a6f22`. Исторические PR: #566 head `01d04ac2bd5c567940defe1d57be3f67b84469f2` и #540 head `71207fe07c2728ebf81bdfb0c34fac8e2ae0ab25`.
+
+**Метод:** сравнение точных Git tree blob SHA-1 для каждого изменённого файла относительно файла с тем же путём в `main`. Это полный учёт состава указанных PR, но **не** проверка семантической уникальности, исходных данных, архива вне GitHub или восстановления.
+
+| PR | Путь | Git blob SHA-1 | Размер байт | Main по тому же пути |
+|---|---|---|---:|---|
+| #566 | `V20_TradingSystem_M15/V20-04/README_RU.md` | `c60321304894095e1f9d82e78fc93ceae0b92a02` | 5542 | different (`0f8e091ab49813e7dea52de161b45a3ac8b5f30f`) |
+| #566 | `V20_TradingSystem_M15/V20-04/SOURCE_INVENTORY.json` | `10573c55fd8333c98b0c26103e746b974a4ed32f` | 3593 | absent |
+| #566 | `V20_TradingSystem_M15/V20-04/robot_profiles.py` | `f38e3ce307e7440221ac38f9abc07185b9f2e6a1` | 3619 | absent |
+| #566 | `V20_TradingSystem_M15/V20-04/test_robot_profiles.py` | `fdfe2e0577f912cb09d9ff6cc34569646ef96406` | 3117 | absent |
+| #540 | `IntradayLab/m15_robot/AUDIT_05_20261016.md` | `8b3fdb6b6479bd943c14b3b36d2accfab3d5b24b` | 10206 | absent |
+| #540 | `IntradayLab/m15_robot/FINAM_09_READONLY_ACCEPTANCE_PLAN.md` | `1cfbcc6ce759a25c15665aa2efe6012d80c2e5d4` | 36676 | absent |
+| #540 | `IntradayLab/m15_robot/README.md` | `7e101f1122e615f20db8ad5dc209af0aa1542a46` | 24085 | absent |
+| #540 | `IntradayLab/m15_robot/ROADMAP.md` | `ddf6d134f01c9317efb870f2bae72e742d86c4bc` | 199696 | absent |
+| #540 | `IntradayLab/m15_robot/SOURCE_MAP.md` | `1475c8b3837b35b82933eb407513432a0fff3fdd` | 5413 | absent |
+| #540 | `IntradayLab/m15_robot/__init__.py` | `ddcf9fc85e70fe9096528d767918f790381a89ce` | 179 | absent |
+| #540 | `IntradayLab/m15_robot/account_boundary.py` | `72994f0179b36f2a11dcb032058f0cff536b09d0` | 2086 | absent |
+| #540 | `IntradayLab/m15_robot/bar_bridge.py` | `a766ddcbe472717c34ce4b2a1751217b8544e340` | 8836 | absent |
+| #540 | `IntradayLab/m15_robot/broker_fill_checkpoint.py` | `287f2b4a153bff17b55a33da714c2782090b6512` | 10842 | absent |
+| #540 | `IntradayLab/m15_robot/broker_fill_readonly.py` | `eb4fc40e4de461521fad9e62edb018f1b9ca8810` | 6486 | absent |
+| #540 | `IntradayLab/m15_robot/broker_receipt_store.py` | `2683f7439a4c5d84af26df3b84c241473e301721` | 9350 | absent |
+| #540 | `IntradayLab/m15_robot/broker_reconcile_gate.py` | `78c46ffbf2750aca31e8663a9f0d30d1753e9caa` | 6839 | absent |
+| #540 | `IntradayLab/m15_robot/broker_risk_readonly.py` | `2b5a1568e2cbd0041c79e658d43a206c3534a8cc` | 8101 | absent |
+| #540 | `IntradayLab/m15_robot/broker_snapshot.py` | `14a58c01244aa031a77bc1eefeae7e467b72e391` | 6331 | absent |
+| #540 | `IntradayLab/m15_robot/broker_status.py` | `2f935c4d9506dc653b295c39c4c267120b9daa9a` | 3773 | absent |
+| #540 | `IntradayLab/m15_robot/cashflow_reconcile_gate.py` | `f1bbfde1dfc89d68540394551ca1e4f1dd7a020c` | 5451 | absent |
+| #540 | `IntradayLab/m15_robot/continuation.py` | `2f2b16242919b534c10d1934af629ea263c14278` | 3273 | absent |
+| #540 | `IntradayLab/m15_robot/data_intake/M15_ZIP_20261016_AUDIT.json` | `80642f73c3e3a73ead2384c2d4fbd56be9713330` | 3946 | absent |
+| #540 | `IntradayLab/m15_robot/data_intake/M15_ZIP_20261016_REPORT_RU.md` | `82c5c059096dcc33cc7402256c855b04f3cd04b5` | 9680 | absent |
+| #540 | `IntradayLab/m15_robot/data_intake/STEP08_APPEND_ONLY_INTEL_CLOSEOUT_20261017.md` | `94ec77e4248982cead87e85fda22fb01808fbddd` | 6877 | absent |
+| #540 | `IntradayLab/m15_robot/data_intake/STEP08_IMOEXF_M5_CONFLICT_RESOLUTION_20261016.md` | `6e39e3a8c5b651bb048e1bf39b2c742386b4dc8f` | 7444 | absent |
+| #540 | `IntradayLab/m15_robot/exchange_contract.py` | `053181b06b50a9d6721991352033bc28340948e9` | 2924 | absent |
+| #540 | `IntradayLab/m15_robot/execution_cycle.py` | `03e8ba69372e09f40452948b41d5dca81f57c08e` | 22003 | absent |
+| #540 | `IntradayLab/m15_robot/feature_adapter.py` | `46d8373bbb8d399a41487d86c1f6e1d0de59bfcc` | 15599 | absent |
+| #540 | `IntradayLab/m15_robot/finam_readonly.py` | `5fbe0bf36e5277586a15212b5b7067b7619d752f` | 15290 | absent |
+| #540 | `IntradayLab/m15_robot/finam_trading.py` | `060804b6c39126141a01d767b89f2c66a134dcd4` | 14870 | absent |
+| #540 | `IntradayLab/m15_robot/grid_risk.py` | `9df744ea05dcd2f9b39d4a447b20cbd3119a2a30` | 7608 | absent |
+| #540 | `IntradayLab/m15_robot/initial_capital.py` | `dd79e4ff798a017582c03a76bc556216d7d70f50` | 5182 | absent |
+| #540 | `IntradayLab/m15_robot/initial_stop_from_fills.py` | `de5b85092c91127d0b1ca1f8f3a17cb471c6f86e` | 7133 | absent |
+| #540 | `IntradayLab/m15_robot/live_execution.py` | `9e8a68dc9458eacf4b15e2e324db6740e497f8f4` | 144330 | absent |
+| #540 | `IntradayLab/m15_robot/offline_intents.py` | `39c01d751479e36625878ca67e7cf375c8e7d93d` | 14463 | absent |
+| #540 | `IntradayLab/m15_robot/offline_trade_handoff.py` | `c271cdc24b983cc6371770728f8c281744804d7b` | 5727 | absent |
+| #540 | `IntradayLab/m15_robot/operator_installed_recovery.py` | `ecbf9c9552ecd9411289ba2f41edd9013b3e76e7` | 5220 | absent |
+| #540 | `IntradayLab/m15_robot/operator_readonly_recovery.py` | `19aacf46fa59d37a2e163a9e13b9b8eb53ae41e8` | 5541 | absent |
+| #540 | `IntradayLab/m15_robot/postfill_risk_review.py` | `9aea9a5ba3437e2ac26cf1d7031a86982672eccf` | 6963 | absent |
+| #540 | `IntradayLab/m15_robot/production_one_shot.py` | `fff111c8f5d9a24ea017675c16da8dca46eb8d6d` | 17025 | absent |
+| #540 | `IntradayLab/m15_robot/protective_gate.py` | `371fa62e28b6424c62e3a9ba19f64b484f543eeb` | 3397 | absent |
+| #540 | `IntradayLab/m15_robot/risk_batch.py` | `6911a3490af1c2566dd39ada5b90538227e2259e` | 3340 | absent |
+| #540 | `IntradayLab/m15_robot/service_clock.py` | `4d61708435de579447575bacb4158a9b27bfede1` | 8129 | absent |
+| #540 | `IntradayLab/m15_robot/shadow_service.py` | `9b98a2e772245ac5cbacdc0992940d593839cc9f` | 3272 | absent |
+| #540 | `IntradayLab/m15_robot/shadow_state.py` | `cf5f00133ca22d3b3ca9a52781e1c79a8dc2cadb` | 6387 | absent |
+| #540 | `IntradayLab/m15_robot/sltp_observation.py` | `cd4a27af2835786212e794147ac660aaafe6cfeb` | 5225 | absent |
+| #540 | `IntradayLab/m15_robot/spec.py` | `e1c1bebbcbd0dbaee36ef82cc7ee3f03b679cd41` | 721 | absent |
+| #540 | `IntradayLab/m15_robot/step15_broker_probe.py` | `99da6ca4e6222703fcfe7823de0dbf8e5628ff27` | 7175 | absent |
+| #540 | `IntradayLab/m15_robot/step15_capital_probe.py` | `ff9945deac2c9ee9a118af3bbd8f7ebca00bf733` | 3438 | absent |
+| #540 | `IntradayLab/m15_robot/step23_install.py` | `7c59d909a2ff99ecd4bee35d3e001992a5cb8e51` | 7914 | absent |
+| #540 | `IntradayLab/m15_robot/step23_readonly_preflight.py` | `fb418a98223de018f3d3596d2611f5bd631a0e88` | 9969 | absent |
+| #540 | `IntradayLab/m15_robot/step23_trade_jwt_get.py` | `6ac08210ff1b6f11561b686de3fe9354d013c09e` | 5405 | absent |
+| #540 | `IntradayLab/m15_robot/step23_trading_token_scope.py` | `de695b838d1f851c03193e09b01f92379ccc2b48` | 5387 | absent |
+| #540 | `IntradayLab/m15_robot/tests/__init__.py` | `df752900e670b0c131219587c214869df04adc55` | 81 | absent |
+| #540 | `IntradayLab/m15_robot/tests/test_bar_bridge.py` | `60517fb9d4a96f1c37bd9392cee2c6ad0598da1c` | 9342 | absent |
+| #540 | `IntradayLab/m15_robot/tests/test_broker_fill_checkpoint.py` | `bbeab35c50b660c5ae5d2e5d7f904aafa3e3cfa8` | 7229 | absent |
+| #540 | `IntradayLab/m15_robot/tests/test_broker_fill_readonly.py` | `4a8f0c31d648979b6553728f48e86445a71f519e` | 5528 | absent |
+| #540 | `IntradayLab/m15_robot/tests/test_broker_receipt_store.py` | `5cf8ee76f640b4b2565ad32fc770741f608b5537` | 8554 | absent |
+| #540 | `IntradayLab/m15_robot/tests/test_broker_reconcile_gate.py` | `52ea338e263512f2e561f5953dddf9bbcfe67a02` | 9259 | absent |
+| #540 | `IntradayLab/m15_robot/tests/test_broker_risk_readonly.py` | `467f20c1668a9d1c5cc4e3ac0291d41d0b849d5e` | 7818 | absent |
+| #540 | `IntradayLab/m15_robot/tests/test_cashflow_reconcile_gate.py` | `641320785d57d2ab7611b45c02a10b20d86824ea` | 7946 | absent |
+| #540 | `IntradayLab/m15_robot/tests/test_continuation.py` | `eae9b0663172da43379789681746451c0d4ffdb5` | 3687 | absent |
+| #540 | `IntradayLab/m15_robot/tests/test_exchange_contract.py` | `452f961f6bdfdf7f5fb45ccacf6fafa75f7539be` | 3566 | absent |
+| #540 | `IntradayLab/m15_robot/tests/test_finam_readonly.py` | `8313395a581be5e6bc7a484eab7f41b586cd3c71` | 22379 | absent |
+| #540 | `IntradayLab/m15_robot/tests/test_foundation.py` | `8f7365435b262a8eb6a71da4c99319e617752e48` | 21771 | absent |
+| #540 | `IntradayLab/m15_robot/tests/test_initial_capital.py` | `557d12c88845e5e909d693c2e719f3ce2b0bd80a` | 5442 | absent |
+| #540 | `IntradayLab/m15_robot/tests/test_initial_stop_from_fills.py` | `4cdb620be899e0146c21826555eae4de2e2a37b7` | 11417 | absent |
+| #540 | `IntradayLab/m15_robot/tests/test_live_execution.py` | `16d78f2f3f4a64e53f6a116055a0571f08603a52` | 153734 | absent |
+| #540 | `IntradayLab/m15_robot/tests/test_offline_intents.py` | `ed36d1e3358c4f154e93c43fbf400638e6044ac8` | 10362 | absent |
+| #540 | `IntradayLab/m15_robot/tests/test_offline_pipeline.py` | `e34aa07f703503aecd0a3ef6e562bb4ad0454737` | 5306 | absent |
+| #540 | `IntradayLab/m15_robot/tests/test_offline_trade_handoff.py` | `e7f2b2ee515f5dba5538492ec74a082231a7acc0` | 11100 | absent |
+| #540 | `IntradayLab/m15_robot/tests/test_operator_installed_recovery.py` | `70f9b9f473fe649b5c1a6f576fdb054aa4c66479` | 3804 | absent |
+| #540 | `IntradayLab/m15_robot/tests/test_operator_readonly_recovery.py` | `b6e86757f19b0ba74a88f4270ca13c27bf35f402` | 3315 | absent |
+| #540 | `IntradayLab/m15_robot/tests/test_postfill_risk_review.py` | `08065e8f9a5b30098bd5af20435b780cb161971d` | 7993 | absent |
+| #540 | `IntradayLab/m15_robot/tests/test_production_one_shot.py` | `c2805afc3ca18eb2dd77cd17158ad2dfe8af56fb` | 2315 | absent |
+| #540 | `IntradayLab/m15_robot/tests/test_protective_gate.py` | `69b0489a472fa2db6e231caa233acd1039bea42e` | 5231 | absent |
+| #540 | `IntradayLab/m15_robot/tests/test_risk_batch.py` | `246f0b2400bed031776ebc2f36462cbe44e7bb4d` | 5379 | absent |
+| #540 | `IntradayLab/m15_robot/tests/test_service_clock.py` | `ead89534b40f8088c9d0265c1986176d229cbdc7` | 4836 | absent |
+| #540 | `IntradayLab/m15_robot/tests/test_shadow.py` | `724a301bed1fec414f400794c748e0025d5ae902` | 10182 | absent |
+| #540 | `IntradayLab/m15_robot/tests/test_sltp_observation.py` | `74c357cf11258edf5cc318c1c3251a9a9f936fc5` | 6652 | absent |
+| #540 | `IntradayLab/m15_robot/tests/test_step15_gui.py` | `290e7d786b126b5ea5147dd5e0d14453d0434669` | 3522 | absent |
+| #540 | `IntradayLab/m15_robot/tests/test_step18_failure_replay.py` | `3b47214627c117eb036c6ac6e224c869585f12fa` | 13397 | absent |
+| #540 | `IntradayLab/m15_robot/tests/test_step18_replay.py` | `1448e5ada1de3f2a473033d8818a17e9f08fca2e` | 8670 | absent |
+| #540 | `IntradayLab/m15_robot/tests/test_step23_install.py` | `300fc89ae7b6f96f225fb62e44d9d4da42c4861e` | 4626 | absent |
+| #540 | `IntradayLab/m15_robot/tests/test_step23_readonly_preflight.py` | `592293e3e5ef5338f1c88e13bb53fb3534854806` | 7753 | absent |
+| #540 | `IntradayLab/m15_robot/tests/test_step23_trade_jwt_get.py` | `1341b5b2f0e9258e75157d9a14fe00bb8258d97f` | 4157 | absent |
+| #540 | `IntradayLab/m15_robot/tests/test_step23_trading_token_scope.py` | `3c0abd5de4587757f2958792a8a39823825cf1df` | 3631 | absent |
+| #540 | `IntradayLab/m15_robot/tests/test_trade_draft_contract.py` | `6c707cee1fe323d329191352fc2c8bfefbb55cbc` | 16372 | absent |
+| #540 | `IntradayLab/m15_robot/tests/test_trailing_gate.py` | `87fbee9ba3db5e075b66a0c422dbad38dd8cfb86` | 7223 | absent |
+| #540 | `IntradayLab/m15_robot/tools/run-offline-suite-windows.ps1` | `5f8dcd82197ed07c834cef146c18bedcfbee0e12` | 4684 | absent |
+| #540 | `IntradayLab/m15_robot/trade_draft_contract.py` | `838b05babacb3d23f09e95afde10dfd690508773` | 8425 | absent |
+| #540 | `IntradayLab/m15_robot/trailing_gate.py` | `21039867063ccae11e10c763c9bd18f3fa563b74` | 5924 | absent |
+| #540 | `IntradayLab/m15_robot/trailing_persistence.py` | `8449e333dbf93cc7701235eb01260217c9d5d9b8` | 14018 | absent |
+
+## Вывод и ограничения
+- **#566:** 4 файлов, absent=3, same=0, different=1, без Git blob=0.
+- **#540:** 89 файлов, absent=89, same=0, different=0, без Git blob=0.
+- **#566:** если файлы отсутствуют в main, сохранить исходный код/историю как ранний V20 bootstrap; не внедрять профили и тесты поверх принятой V20 без отдельного анализа.
+- **#540:** M15 самостоятельный исторический робот/инфраструктура. Сохранить код, тесты, методологию и операционные доказательства как ARCHIVE, не включать в текущий V20 и не запускать LIVE.
+- Git blob SHA-1 — не SHA256 независимой копии; PR, ref, обсуждения и CI сохранить перед закрытием; никаких merge/закрытий без явного решения оператора.
