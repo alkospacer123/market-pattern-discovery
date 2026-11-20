@@ -48,11 +48,12 @@ class TestScanner(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "HEAD mismatch"):
             scan(self.root, expected_head="a"*40)
 
-    def test_dirty_flag_without_modification(self):
+    def test_dirty_checkout_refused_without_modification(self):
         (self.root/"BBW"/"README.md").write_text("different but not staged\n", encoding="utf-8")
-        r = scan(self.root)
-        self.assertTrue(r["tracked_tree_modified"])
-        self.assertEqual(git(self.root, "status", "--porcelain").stdout.strip(), "M BBW/README.md")
+        before = git(self.root, "status", "--porcelain").stdout
+        with self.assertRaisesRegex(ValueError, "tracked Git checkout is dirty"):
+            scan(self.root)
+        self.assertEqual(before, git(self.root, "status", "--porcelain").stdout)
 
     def test_no_repo_write(self):
         git(self.root, "status", "--porcelain")
