@@ -40,6 +40,9 @@ class TestGitCheckpoint(unittest.TestCase):
         self.assertGreaterEqual(r["refs_count"], 3)
         self.assertTrue((dest / "market-pattern-discovery.bundle").is_file())
         self.assertTrue((dest / "checkpoint-report.json").is_file())
+        self.assertTrue((dest / "dependency-report.json").is_file())
+        self.assertEqual(r["dependency_legacy_bundle_tracked"], 0)
+        self.assertGreaterEqual(r["dependency_text_files_scanned"], 1)
         self.assertEqual(r["independent_media_copy"], "NOT_VERIFIED")
         self.assertEqual(r["r7_checkpoint_status"], "PARTIAL_GIT_ONLY_NOT_FINAL_RECOVERY")
 
