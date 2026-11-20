@@ -125,3 +125,16 @@
 - **Не запускался на реальном checkout**: доступа к полной локальной копии репозитория в данном окружении нет, API через отдельные GitHub файлы не заменяет полную Git-копию. Не объявлять \`R7_A_FULL_DEPENDENCY_CLOSURE=PASS\`, \`CHECKPOINT=PASS\` или \`R7_DELETE_GATE=PASS\`.
 
 **Следующее подтверждение перед archive/cleanup:** получить реальный JSON полного checkout, вручную классифицировать защищённые ссылки и skipped/unreadable, проверить ссылки из TRL/H1/M15 на старые исследования и архив, затем защитный Git checkpoint, copy+SHA/privacy, offline before/after regressions и решение владельца о конкретном deletion PR.
+
+
+## R7-Б — защитный Git-checkpoint и окончательная проверка источников (20.11.2026)
+
+**SCANNER SAFETY FIX:** сканер `recovery/tools/r7_dependency_scan.py` теперь немедленно отказывает при *любом* staged/unstaged изменении tracked Git-файлов: отчёт не может связывать изменённый worktree с SHA исходного Git index. Соответствующий тест `test_dirty_checkout_refused_without_modification` PASS.
+
+**Новый инструмент:** [`recovery/tools/r7_git_checkpoint.py`](tools/r7_git_checkpoint.py) создаёт новый каталог вне исходного checkout, полноценный `git clone --mirror`, проверяет `git fsck --strict`, создаёт Git bundle, сверяет SHA256, клонирует bundle обратно в отдельный bare repo, сверяет список refs, затем выполняет read-only сканирование старой платформы на **изолированном checkout, восстановленном из bundle**. Отчёты: `checkpoint-report.json` и `dependency-report.json`.
+
+[`recovery/tools/tests/test_r7_git_checkpoint.py`](tools/tests/test_r7_git_checkpoint.py) и тесты сканера: **8/8 PASS**, только на синтетических локальных репозиториях. Git blobs инструментов и тестов проверены против локально протестированных объектов. GitHub в рабочем окружении через Git CLI недоступен (DNS), поэтому **настоящий mirror/scan ещё не выполнен**, и тесты не являются proof of restore целевого проекта.
+
+**R7-B PASS требует отдельно:** независимой копии на носителе с проверенным SHA, сохранения полного актуального `Git history/refs/tags`, экспорта GitHub `PR/Issues/CI` (на момент проверки API сообщает 1163 workflow runs), проверки Git LFS/внешних зависимостей при наличии и решения оператора. Созданный скриптом Git-only отчёт намеренно оставляет `r7_checkpoint_status=PARTIAL_GIT_ONLY_NOT_FINAL_RECOVERY`. Он не заменяет финальные R5/R6 после Kimi.
+
+**Действия с source:** `NO_DELETIONS / NO_MERGE / NO_LIVE_CHANGE`. `R7_A_DEPENDENCY_CLOSURE=NOT_VERIFIED`; `R7_B_EXTERNAL_CHECKPOINT=NOT_VERIFIED`; `R7_G_CLEANUP=BLOCKED`.
