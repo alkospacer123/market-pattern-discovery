@@ -11,7 +11,7 @@
     },
     {
       "path": "README.md",
-      "sha256": "796245e8ee366e7bbfda828a95ece36b5a5376818b49ef653204a7adc7171d06"
+      "sha256": "f12dc0382c4692d9984b63d544bb276d6659ef1f28ac5fa5c87238e8b819b84c"
     },
     {
       "path": "app.py",
@@ -411,11 +411,11 @@
     },
     {
       "path": "docs/V20_CC08_OPERATIONS.md",
-      "sha256": "88b28c714a64174bca6722d18e0450b497380864f43c5de40497938b4d5ecf6b"
+      "sha256": "0f08c62fca233818fb0fb6b7161a6399235e1fa511e6a7bfc548bdcf7b9cef1e"
     },
     {
       "path": "docs/V20_CONTROL_CENTER_ROADMAP.md",
-      "sha256": "59a9e5c6dd786b0a531efdccdd459b589928f564ce979db60ab507990a970192"
+      "sha256": "c95f20888c49cce6de756c29410f4d6208dd63f5639b30c4636c818384a5042e"
     },
     {
       "path": "docs/browser-check.json",
