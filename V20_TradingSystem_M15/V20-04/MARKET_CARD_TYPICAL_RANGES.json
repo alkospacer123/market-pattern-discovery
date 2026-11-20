@@ -1,0 +1,125 @@
+{
+  "schema": "v20.market_ranges.descriptive.v1",
+  "metric_schema": "v20.market_metrics.clv_inside.v2",
+  "calibration_start": "2023-01-01",
+  "calibration_end": "2024-12-31",
+  "boundaries_available_from_msk": "2025-01-01T00:00:00",
+  "source_universe": [
+    "CNYRUBF",
+    "GLDRUBF",
+    "IMOEXF",
+    "USDRUBF"
+  ],
+  "percentiles": [
+    0.25,
+    0.75
+  ],
+  "min_base": 40,
+  "min_bucket": 10,
+  "ranges": {
+    "COMMON_ATR": {
+      "metric": "atr14_pct_close",
+      "label": "ATR/Close",
+      "n": 1127,
+      "p25": 0.0011710585427838964,
+      "p75": 0.001994933772137484,
+      "base_status": "ОПИСАТЕЛЬНЫЙ"
+    },
+    "SHALLOW_PULLBACK": {
+      "metric": "continuation_rate",
+      "label": "Продолжение пробоев",
+      "n": 554,
+      "p25": 0.42857142857142855,
+      "p75": 0.5261801410743353,
+      "base_status": "ОПИСАТЕЛЬНЫЙ"
+    },
+    "OBV_PRESSURE": {
+      "metric": "pressure_direction_alignment",
+      "label": "Согласованность давления",
+      "n": 493,
+      "p25": 0.08109939438092845,
+      "p75": 0.1131301892085147,
+      "base_status": "ОПИСАТЕЛЬНЫЙ"
+    },
+    "INSIDE_DAY_RELEASE": {
+      "metric": "range_compression_ratio",
+      "label": "Сжатие диапазона",
+      "n": 80,
+      "p25": 0.908569500674771,
+      "p75": 0.9799999999999898,
+      "base_status": "ОПИСАТЕЛЬНЫЙ"
+    }
+  },
+  "not_a_suitability_profile": true,
+  "independent_holdout": false,
+  "session_calendar": "OBSERVED_DATES_NOT_FINAM_VERIFIED",
+  "affects_signals_or_risk": false,
+  "checks": {
+    "COMMON_ATR": {
+      "periods": {
+        "2023-2024": {
+          "adequate": true,
+          "inside_better_mean_and_median": true
+        },
+        "2026_YTD": {
+          "adequate": true,
+          "inside_better_mean_and_median": false
+        }
+      },
+      "interval_hypothesis": "НЕ ПОДТВЕРЖДЕНО",
+      "suitability": "НЕ ОЦЕНЕНО"
+    },
+    "SHALLOW_PULLBACK": {
+      "periods": {
+        "2023-2024": {
+          "adequate": true,
+          "inside_better_mean_and_median": false
+        },
+        "2026_YTD": {
+          "adequate": true,
+          "inside_better_mean_and_median": false
+        }
+      },
+      "interval_hypothesis": "НЕ ПОДТВЕРЖДЕНО",
+      "suitability": "НЕ ОЦЕНЕНО"
+    },
+    "OBV_PRESSURE": {
+      "periods": {
+        "2023-2024": {
+          "adequate": true,
+          "inside_better_mean_and_median": false
+        },
+        "2026_YTD": {
+          "adequate": true,
+          "inside_better_mean_and_median": false
+        }
+      },
+      "interval_hypothesis": "НЕ ПОДТВЕРЖДЕНО",
+      "suitability": "НЕ ОЦЕНЕНО"
+    },
+    "INSIDE_DAY_RELEASE": {
+      "periods": {
+        "2023-2024": {
+          "adequate": true,
+          "inside_better_mean_and_median": true
+        },
+        "2026_YTD": {
+          "adequate": true,
+          "inside_better_mean_and_median": false
+        }
+      },
+      "interval_hypothesis": "НЕ ПОДТВЕРЖДЕНО",
+      "suitability": "НЕ ОЦЕНЕНО"
+    }
+  },
+  "source_sha256": {
+    "V20-03/comparison/QUOTE_PATH_DIAGNOSTICS.csv": "1f936dca02b9c99ed1df6ca30ef52c4c33128c9d06743175b6f5d6f59dee9c0f",
+    "USDRUBF": "fef80630080a4e2a5e968d620b663f51acd1b7ab9d5d326a42c68cf2b80c67b8",
+    "CNYRUBF": "259298733d1528c0d917b100118896009519a9f08bdad33d4b373d9ce86f99b4",
+    "GLDRUBF": "7381d672485b5687ca2c4d92aa5960c24bb132f527589bae3c622b2dfa20a83d",
+    "IMOEXF": "a1b9fa6102a955103d61b28e81533ed19de68117e30fd84ceb53e8e617559773"
+  },
+  "observations": 1604,
+  "outcomes_observed_through_msk": "2026-09-14 06:45:00",
+  "research_status": "ЗАВЕРШЕНО — БЕЗ ДАЛЬНЕЙШЕГО ПОДБОРА"
+}

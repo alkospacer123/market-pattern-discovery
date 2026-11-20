@@ -1,0 +1,536 @@
+{
+  "schema": "v20.04.2_04.3.offline_acceptance.v1",
+  "date_utc": "2026-10-23",
+  "github_main_at_start": "6f352acfac7ebdfabba73e143c4dfea3a6e48507",
+  "pr_head_at_start": "90946dcf5aff1ac89f4deaaa73116e2a366b156c",
+  "python": "3.12.14",
+  "quote_repo": "alkospacer123/market-pattern-data",
+  "quote_commit": "f8486b446cf3d5f9f3cba6dfec32bdef8fd184c8",
+  "quote_sha256": {
+    "USDRUBF": {
+      "sha256": "fef80630080a4e2a5e968d620b663f51acd1b7ab9d5d326a42c68cf2b80c67b8",
+      "status": "PASS"
+    },
+    "CNYRUBF": {
+      "sha256": "259298733d1528c0d917b100118896009519a9f08bdad33d4b373d9ce86f99b4",
+      "status": "PASS"
+    },
+    "GLDRUBF": {
+      "sha256": "7381d672485b5687ca2c4d92aa5960c24bb132f527589bae3c622b2dfa20a83d",
+      "status": "PASS"
+    },
+    "IMOEXF": {
+      "sha256": "a1b9fa6102a955103d61b28e81533ed19de68117e30fd84ceb53e8e617559773",
+      "status": "PASS"
+    }
+  },
+  "sources": {
+    "V20_TradingSystem_M15/V20-03/comparison/QUOTE_PATH_DIAGNOSTICS.csv": {
+      "sha256": "1f936dca02b9c99ed1df6ca30ef52c4c33128c9d06743175b6f5d6f59dee9c0f",
+      "git_blob": "32e6ab8c4006f259efeab2d0ab4df0bf340457d9"
+    },
+    "V20_TradingSystem_M15/V20-03/offline/stress_v20_03.py": {
+      "sha256": "0800f41fed4f6ad3749a0eb9987970a8d954c1682c18cd2c8eecdab7b50c91d0",
+      "git_blob": "f135b42219b816e7925892ac07404c61c4627cbf"
+    },
+    "V20_TradingSystem_M15/V20-03/offline/test_causality.py": {
+      "sha256": "344930d24bea4bf83de1b2b674f768be133e549a5de54eaa56add4ed9b6079a7",
+      "git_blob": "b5926aceb77c4e396351965df0115f7d84dc0f51"
+    },
+    "V20_TradingSystem_M15/research_original_v20/base.py": {
+      "sha256": "b7b9df00f8d7fb0a88c5cba103034e5a2335c108ae283258e5d8ebd5476aa59d",
+      "git_blob": "b917cc9c7c99fbad38423d9f4fdfbb82767545be"
+    },
+    "V20_TradingSystem_M15/research_original_v20/run.py": {
+      "sha256": "223545374f98d8c87cf2c09b3a7302b05b07020dc8bf34b5984ebaa3d74389fe",
+      "git_blob": "7d9ddf0ef498f0c93a139c0104af2a72d0e79151"
+    },
+    "V20_TradingSystem_M15/research_original_v20/legacy_v4/study_v4.py": {
+      "sha256": "0f49432e207235f631807a82536f521751ad5559cc374fc6c42f8ca4f289bd08",
+      "git_blob": "7749f82edcb8a04b4002978b588beeb26e484f71"
+    },
+    "V20_TradingSystem_M15/research_original_v20/legacy_v4/dependencies/study.py": {
+      "sha256": "68a4169a80870cfd10537aa896ea0b3bcd8b3baf9803240d7d7a48b78ba485ff",
+      "git_blob": "1294ff9884f7a1634fab67ee330ec702e0612c31"
+    },
+    "TradingSystemLab/stage8_robot/broker.py": {
+      "sha256": "e38e9f65dc9ce4ed86b385c54c93a19ab2839adafecb54512db9fa1a60838e5a",
+      "git_blob": "3573b4f88216086105fb577987f82310daf531dc"
+    },
+    "TradingSystemLab/stage8_robot/live_execution.py": {
+      "sha256": "c79bf24624cffa5477fee3560368b152163a1c4cf95fd1052e4388c53ff55c14",
+      "git_blob": "0c2fcd742a3157575cdecc5e1dac40d0c906b203"
+    },
+    "TradingSystemLab/stage8_robot/production_runtime.py": {
+      "sha256": "8c5b24586c48eac851097edbe191422de85fff886a0f8d77fde8383cb733d504",
+      "git_blob": "4ec35199be9269af5fc10093a086e0feb4207a34"
+    },
+    "TradingSystemLab/stage8_robot/production_broker_state.py": {
+      "sha256": "28de15eb1a7895a8da9d678e14dea81d7eebb0ca492c2d66726b85cb7a01521c",
+      "git_blob": "894321fc0d3101e75eea48f45ff3a26c0c0f58eb"
+    },
+    "TradingSystemLab/stage8_robot/state.py": {
+      "sha256": "afec9bc5b54ce0ef9fd3be2835a6a3506c79d43826a194932a6d8fca9d979a50",
+      "git_blob": "4f12e1cb61eccb0b14c1efb9ff0cdf2532a7b22b"
+    },
+    "TradingSystemLab/stage8_robot/operations.py": {
+      "sha256": "1ae2e848aa3301cbd924f7165bd61a8888a586e86a792fac807b7fd6ff5cd734",
+      "git_blob": "0d7ba1f2f9f4e6fa2f772921846bc334469dd3d5"
+    },
+    "TradingSystemLab/stage8_robot/reconciliation.py": {
+      "sha256": "b59de4946611dc54a80b14e40f357a99bfea90ffef7b41b978cc350b39d63aec",
+      "git_blob": "6585cfa96efd532ff651c23c5ce4b5b3880b88ad"
+    },
+    "TradingSystemLab/stage8_robot/protective_stop_contract.py": {
+      "sha256": "2725e97cafcbce101e13170bc9d4010f382282bf3eadf05d5ab7ecc5a71dca05",
+      "git_blob": "51a7ab88d2f64f969088d8ef04927383b7abc1aa"
+    },
+    "TradingSystemLab/stage8_robot/execution_grid.py": {
+      "sha256": "4a9f92108acc6872be5bea7f4a41dd03ca7166495a6a6a98dbc4345bbfb2ec72",
+      "git_blob": "d8e55d6083153f4854139ffcc9b921b35bdfca8a"
+    },
+    "TradingSystemLab/stage8_robot/risk.py": {
+      "sha256": "322080b499bdb2cd5c27757648aa7e45933ee75523ff61c5ac8d573c9663d1e5",
+      "git_blob": "afaae0b8fc305dec690967f38ef7d33c7b8da909"
+    },
+    "TradingSystemLab/stage8_robot/margin.py": {
+      "sha256": "05c1c44eb199dccb126d533bdd1f4389ff78ce53d920f2b6bec967155964339e",
+      "git_blob": "80117ff6ea169305a7c22ee52a12e3e9103c9deb"
+    },
+    "TradingSystemLab/stage8_robot/production_instrument_registry.csv": {
+      "sha256": "90d64e16dfeb292b4b339ac3eb196074e133bf52a962cc6715c488a32d16e013",
+      "git_blob": "122fd8e6d17fefc1d060e8b36184f328e9404dbf"
+    },
+    "IntradayLab/core/m15_bars.py": {
+      "sha256": "46bba5ed6a46b65666de3f5f243beaaf161e29d852575b9b2e8a2950c2b0d334",
+      "git_blob": "7d2eefb949de05cbd53936a713bd37644bb01a35"
+    },
+    "IntradayLab/core/models.py": {
+      "sha256": "693cdb3c8ba8658bb3872cced37aa5d000cbb8b5f0116676991b13e869bb2cba",
+      "git_blob": "fe5283a627c83e37d6494e8210482c79fcbd3808"
+    },
+    "TradingSystemLab/stage8_robot/finam_api.py": {
+      "sha256": "b6a895acbeca632506e84b0ba635324a00326407dea207bce7efaded66c458db",
+      "git_blob": "a1126a7d2c618c19b5895f5c54da8e1ad73b339a"
+    },
+    "TradingSystemLab/stage8_robot/account_cleanliness.py": {
+      "sha256": "7ab8b91483f7e37605f3a4962281fcdc338bf649cee96f141f06ac20294a2184",
+      "git_blob": "e3ad17c6f4330431b173658800489722a5731037"
+    }
+  },
+  "code_sha256": {
+    "V20_TradingSystem_M15/v20_runtime/frozen_adapter.py": "e6bbb1314bd6b1cc5c0d1fed7fc1a0ced4e4a034e9abbe1970e25c81594acb93",
+    "V20_TradingSystem_M15/v20_runtime/h1_state_journal.py": "f7e0c5f12b058e511ab9ae1846b3c937dfe995b0d691850e327851bf84c3cadf",
+    "V20_TradingSystem_M15/v20_runtime/prepare_n4_quotes.py": "efd5105cf7a458c1207b09f758a138d5770274061f8f2a8c16a7766f14de11ec",
+    "V20_TradingSystem_M15/v20_runtime/h1_execution.py": "7c6698e0a63cc639ce371b9a850b747b611cec5a7bbe5eb7c51dcc4995752748"
+  },
+  "test_sha256": {
+    "V20_TradingSystem_M15/v20_runtime/tests/test_frozen_n4_parity.py": "97c809bdf492100fd9c34a9895836b546d64a31d286664ff3d48ee913c744569",
+    "V20_TradingSystem_M15/v20_runtime/tests/test_m15_boundaries.py": "ca027bc624c196958747d0505a2ca1f14b9212463c977b2cb2db3a1122a4269a",
+    "V20_TradingSystem_M15/v20_runtime/tests/test_offline_planner.py": "a13813b79fecf6d47105424fc8e1b6ee43f0b74f2195532f388bab896b9c0141",
+    "V20_TradingSystem_M15/v20_runtime/tests/test_h1_state_journal.py": "80df9c4441cf754979769a56c0e11466e930916ff0a3c7b4cd78523712f088f6",
+    "V20_TradingSystem_M15/v20_runtime/tests/test_h1_execution.py": "3e8f847cdffe9b2ece9c6bd5f7490b94535538abd24122d560b74a385677736b"
+  },
+  "tests": {
+    "status": "PASS",
+    "run": 55,
+    "failures": 0,
+    "errors": 0,
+    "skips": 0,
+    "ids": [
+      "V20_TradingSystem_M15.v20_runtime.tests.test_frozen_n4_parity.AdditionalN4FrozenSignalParity.test_published_first_signal_each_strategy_and_available_side",
+      "V20_TradingSystem_M15.v20_runtime.tests.test_m15_boundaries.M15BoundaryTests.test_duplicates_reordering_timezone_and_subsecond_rejected",
+      "V20_TradingSystem_M15.v20_runtime.tests.test_m15_boundaries.M15BoundaryTests.test_existing_engine_gaps_third_session_roll_stop_and_c1",
+      "V20_TradingSystem_M15.v20_runtime.tests.test_m15_boundaries.M15BoundaryTests.test_frozen_session_is_09_msk_not_midnight",
+      "V20_TradingSystem_M15.v20_runtime.tests.test_m15_boundaries.M15BoundaryTests.test_no_cross_contract_or_corrupt_ohlcv",
+      "V20_TradingSystem_M15.v20_runtime.tests.test_m15_boundaries.M15BoundaryTests.test_prepare_fails_closed_on_existing_wrong_hash",
+      "V20_TradingSystem_M15.v20_runtime.tests.test_m15_boundaries.M15BoundaryTests.test_reused_m15_aggregation_never_invents_missing_child_path",
+      "V20_TradingSystem_M15.v20_runtime.tests.test_m15_boundaries.M15BoundaryTests.test_roll_uses_only_finished_previous_sessions",
+      "V20_TradingSystem_M15.v20_runtime.tests.test_m15_boundaries.M15BoundaryTests.test_sources_cannot_be_written_anywhere_in_checkout",
+      "V20_TradingSystem_M15.v20_runtime.tests.test_m15_boundaries.M15BoundaryTests.test_unfinished_stale_and_future_m15_rejected_before_features",
+      "V20_TradingSystem_M15.v20_runtime.tests.test_offline_planner.OfflineEntryTests.test_accounts_do_not_block_each_other",
+      "V20_TradingSystem_M15.v20_runtime.tests.test_offline_planner.OfflineEntryTests.test_bad_grid_fails_closed",
+      "V20_TradingSystem_M15.v20_runtime.tests.test_offline_planner.OfflineEntryTests.test_default_denies_live",
+      "V20_TradingSystem_M15.v20_runtime.tests.test_offline_planner.OfflineEntryTests.test_enforces_symbol_and_session_caps",
+      "V20_TradingSystem_M15.v20_runtime.tests.test_offline_planner.OfflineEntryTests.test_h1_short_outward_grid",
+      "V20_TradingSystem_M15.v20_runtime.tests.test_offline_planner.OfflineEntryTests.test_insufficient_margin_fails_closed",
+      "V20_TradingSystem_M15.v20_runtime.tests.test_offline_planner.OfflineEntryTests.test_next_session_reopens_after_flat",
+      "V20_TradingSystem_M15.v20_runtime.tests.test_offline_planner.OfflineEntryTests.test_rejects_gap_in_next_open",
+      "V20_TradingSystem_M15.v20_runtime.tests.test_offline_planner.OfflineEntryTests.test_rejects_strategy_leak_between_accounts",
+      "V20_TradingSystem_M15.v20_runtime.tests.test_offline_planner.OfflineEntryTests.test_reuses_h1_tick_grid_long",
+      "V20_TradingSystem_M15.v20_runtime.tests.test_offline_planner.OfflineEntryTests.test_risk_plus_fees_can_reduce_quantity",
+      "V20_TradingSystem_M15.v20_runtime.tests.test_h1_state_journal.H1StateReuseTests.test_duplicate_instance_process_lock",
+      "V20_TradingSystem_M15.v20_runtime.tests.test_h1_state_journal.H1StateReuseTests.test_first_and_repeated_reference_idempotent",
+      "V20_TradingSystem_M15.v20_runtime.tests.test_h1_state_journal.H1StateReuseTests.test_offline_never_live",
+      "V20_TradingSystem_M15.v20_runtime.tests.test_h1_state_journal.H1StateReuseTests.test_old_database_wrong_root_rejected_before_open",
+      "V20_TradingSystem_M15.v20_runtime.tests.test_h1_state_journal.H1StateReuseTests.test_reject_strategy_mismatch_without_persisting",
+      "V20_TradingSystem_M15.v20_runtime.tests.test_h1_state_journal.H1StateReuseTests.test_reopen_same_exact_identity_preserves_records",
+      "V20_TradingSystem_M15.v20_runtime.tests.test_h1_state_journal.H1StateReuseTests.test_symbol_once_per_session_even_if_direction_changes",
+      "V20_TradingSystem_M15.v20_runtime.tests.test_h1_state_journal.H1StateReuseTests.test_three_accounts_independent_same_symbol",
+      "V20_TradingSystem_M15.v20_runtime.tests.test_h1_state_journal.H1StateReuseTests.test_two_entries_per_session_and_symbol_deduplication",
+      "V20_TradingSystem_M15.v20_runtime.tests.test_h1_state_journal.H1StateReuseTests.test_wrong_account_refused_on_existing_database",
+      "V20_TradingSystem_M15.v20_runtime.tests.test_h1_execution.H1ExecutionTests.test_ack_then_crash_is_reconciled_by_persisted_client_id",
+      "V20_TradingSystem_M15.v20_runtime.tests.test_h1_execution.H1ExecutionTests.test_broker_wire_mismatch_cannot_be_adopted",
+      "V20_TradingSystem_M15.v20_runtime.tests.test_h1_execution.H1ExecutionTests.test_entry_ack_is_not_fill_and_duplicate_is_not_resent",
+      "V20_TradingSystem_M15.v20_runtime.tests.test_h1_execution.H1ExecutionTests.test_exact_fake_only_and_live_off",
+      "V20_TradingSystem_M15.v20_runtime.tests.test_h1_execution.H1ExecutionTests.test_filled_status_without_fill_authority_cannot_open_position",
+      "V20_TradingSystem_M15.v20_runtime.tests.test_h1_execution.H1ExecutionTests.test_frozen_exit_retains_stop_until_verified_flat_then_cancels",
+      "V20_TradingSystem_M15.v20_runtime.tests.test_h1_execution.H1ExecutionTests.test_incomplete_history_and_conflicting_fill_fail_closed",
+      "V20_TradingSystem_M15.v20_runtime.tests.test_h1_execution.H1ExecutionTests.test_partial_fill_installs_one_100_percent_stop_and_full_fill_reuses_it",
+      "V20_TradingSystem_M15.v20_runtime.tests.test_h1_execution.H1ExecutionTests.test_pending_unfilled_entry_blocks_same_symbol_next_session",
+      "V20_TradingSystem_M15.v20_runtime.tests.test_h1_execution.H1ExecutionTests.test_persistent_session_caps_and_wrong_account",
+      "V20_TradingSystem_M15.v20_runtime.tests.test_h1_execution.H1ExecutionTests.test_pre_post_crash_restores_intent_without_resubmission",
+      "V20_TradingSystem_M15.v20_runtime.tests.test_h1_execution.H1ExecutionTests.test_reject_wrong_grid_or_changed_frozen_stop_before_post",
+      "V20_TradingSystem_M15.v20_runtime.tests.test_h1_execution.H1ExecutionTests.test_rejected_entry_is_terminal_without_retry",
+      "V20_TradingSystem_M15.v20_runtime.tests.test_h1_execution.H1ExecutionTests.test_rejected_protection_blocks_and_is_not_retransmitted",
+      "V20_TradingSystem_M15.v20_runtime.tests.test_h1_execution.H1ExecutionTests.test_restart_restores_fills_position_stop_and_idempotency",
+      "V20_TradingSystem_M15.v20_runtime.tests.test_h1_execution.H1ExecutionTests.test_slipped_fill_protected_but_further_entries_require_04_4",
+      "V20_TradingSystem_M15.v20_runtime.tests.test_h1_execution.H1ExecutionTests.test_stop_ack_lost_does_not_duplicate_protection",
+      "V20_TradingSystem_M15.v20_runtime.tests.test_h1_execution.H1ExecutionTests.test_stop_execution_closes_position_without_reverse",
+      "V20_TradingSystem_M15.v20_runtime.tests.test_h1_execution.H1ExecutionTests.test_stop_timeout_without_ack_blocks_no_blind_retry",
+      "V20_TradingSystem_M15.v20_runtime.tests.test_h1_execution.H1ExecutionTests.test_three_robots_use_independent_identity_state_and_side",
+      "V20_TradingSystem_M15.v20_runtime.tests.test_h1_execution.H1ExecutionTests.test_timeout_after_entry_accept_is_reconciled_without_retry",
+      "V20_TradingSystem_M15.v20_runtime.tests.test_h1_execution.H1ExecutionTests.test_uncertain_missing_entry_stays_blocked_after_restart",
+      "V20_TradingSystem_M15.v20_runtime.tests.test_h1_execution.H1ExecutionTests.test_unknown_broker_position_cannot_be_adopted",
+      "V20_TradingSystem_M15.v20_runtime.tests.test_h1_execution.H1ExecutionTests.test_unknown_order_and_duplicate_client_id_fail_closed"
+    ]
+  },
+  "parity": {
+    "status": "PASS",
+    "new_signals": 18,
+    "signals": [
+      {
+        "symbol": "CNYRUBF",
+        "strategy": "INSIDE_DAY_RELEASE",
+        "side": -1,
+        "signal_bar_open": "2024-03-29T10:00:00",
+        "known_at": "2024-03-29T10:15:00",
+        "atr": 0.010943137464413444,
+        "expected_atr": 0.0109431374644151,
+        "next_open": 12.652,
+        "prefix_rows": 18457,
+        "status": "PASS",
+        "execution_restart": "PASS_FAKE_ONLY",
+        "reference_quantity": 20,
+        "initial_stop": "12.674"
+      },
+      {
+        "symbol": "CNYRUBF",
+        "strategy": "INSIDE_DAY_RELEASE",
+        "side": 1,
+        "signal_bar_open": "2024-01-18T12:00:00",
+        "known_at": "2024-01-18T12:15:00",
+        "atr": 0.018648327642763467,
+        "expected_atr": 0.018648327642774597,
+        "next_open": 12.261,
+        "prefix_rows": 15527,
+        "status": "PASS",
+        "execution_restart": "PASS_FAKE_ONLY",
+        "reference_quantity": 20,
+        "initial_stop": "12.223"
+      },
+      {
+        "symbol": "CNYRUBF",
+        "strategy": "OBV_PRESSURE",
+        "side": -1,
+        "signal_bar_open": "2024-01-09T13:15:00",
+        "known_at": "2024-01-09T13:30:00",
+        "atr": 0.0180160976458669,
+        "expected_atr": 0.01801609764585939,
+        "next_open": 12.571,
+        "prefix_rows": 15112,
+        "status": "PASS",
+        "execution_restart": "PASS_FAKE_ONLY",
+        "reference_quantity": 20,
+        "initial_stop": "12.608"
+      },
+      {
+        "symbol": "CNYRUBF",
+        "strategy": "OBV_PRESSURE",
+        "side": 1,
+        "signal_bar_open": "2024-01-18T16:45:00",
+        "known_at": "2024-01-18T17:00:00",
+        "atr": 0.015979256729964128,
+        "expected_atr": 0.0159792567299946,
+        "next_open": 12.274,
+        "prefix_rows": 15546,
+        "status": "PASS",
+        "execution_restart": "PASS_FAKE_ONLY",
+        "reference_quantity": 20,
+        "initial_stop": "12.242"
+      },
+      {
+        "symbol": "CNYRUBF",
+        "strategy": "SHALLOW_PULLBACK",
+        "side": -1,
+        "signal_bar_open": "2024-01-09T12:30:00",
+        "known_at": "2024-01-09T12:45:00",
+        "atr": 0.01837467999101441,
+        "expected_atr": 0.01837467999102941,
+        "next_open": 12.61,
+        "prefix_rows": 15109,
+        "status": "PASS",
+        "execution_restart": "PASS_FAKE_ONLY",
+        "reference_quantity": 20,
+        "initial_stop": "12.647"
+      },
+      {
+        "symbol": "CNYRUBF",
+        "strategy": "SHALLOW_PULLBACK",
+        "side": 1,
+        "signal_bar_open": "2024-01-24T14:00:00",
+        "known_at": "2024-01-24T14:15:00",
+        "atr": 0.012839972088318335,
+        "expected_atr": 0.012839972088288019,
+        "next_open": 12.302,
+        "prefix_rows": 15775,
+        "status": "PASS",
+        "execution_restart": "PASS_FAKE_ONLY",
+        "reference_quantity": 20,
+        "initial_stop": "12.276"
+      },
+      {
+        "symbol": "GLDRUBF",
+        "strategy": "INSIDE_DAY_RELEASE",
+        "side": -1,
+        "signal_bar_open": "2024-01-10T11:15:00",
+        "known_at": "2024-01-10T11:30:00",
+        "atr": 6.9180419430123266,
+        "expected_atr": 6.9180419430157,
+        "next_open": 5809.6,
+        "prefix_rows": 7569,
+        "status": "PASS",
+        "execution_restart": "PASS_FAKE_ONLY",
+        "reference_quantity": 20,
+        "initial_stop": "5823.5"
+      },
+      {
+        "symbol": "GLDRUBF",
+        "strategy": "INSIDE_DAY_RELEASE",
+        "side": 1,
+        "signal_bar_open": "2024-01-31T12:15:00",
+        "known_at": "2024-01-31T12:30:00",
+        "atr": 5.317691885992117,
+        "expected_atr": 5.317691885993354,
+        "next_open": 5836.2,
+        "prefix_rows": 8472,
+        "status": "PASS",
+        "execution_restart": "PASS_FAKE_ONLY",
+        "reference_quantity": 20,
+        "initial_stop": "5825.5"
+      },
+      {
+        "symbol": "GLDRUBF",
+        "strategy": "OBV_PRESSURE",
+        "side": -1,
+        "signal_bar_open": "2024-01-05T10:30:00",
+        "known_at": "2024-01-05T10:45:00",
+        "atr": 6.149035821179812,
+        "expected_atr": 6.149035821189106,
+        "next_open": 5888.2,
+        "prefix_rows": 7387,
+        "status": "PASS",
+        "execution_restart": "PASS_FAKE_ONLY",
+        "reference_quantity": 20,
+        "initial_stop": "5900.5"
+      },
+      {
+        "symbol": "GLDRUBF",
+        "strategy": "OBV_PRESSURE",
+        "side": 1,
+        "signal_bar_open": "2024-01-03T13:15:00",
+        "known_at": "2024-01-03T13:30:00",
+        "atr": 6.898394886743199,
+        "expected_atr": 6.898394886756912,
+        "next_open": 5937.3,
+        "prefix_rows": 7283,
+        "status": "PASS",
+        "execution_restart": "PASS_FAKE_ONLY",
+        "reference_quantity": 20,
+        "initial_stop": "5923.5"
+      },
+      {
+        "symbol": "GLDRUBF",
+        "strategy": "SHALLOW_PULLBACK",
+        "side": -1,
+        "signal_bar_open": "2024-01-05T12:00:00",
+        "known_at": "2024-01-05T12:15:00",
+        "atr": 7.106686380540935,
+        "expected_atr": 7.1066863805324765,
+        "next_open": 5864.0,
+        "prefix_rows": 7393,
+        "status": "PASS",
+        "execution_restart": "PASS_FAKE_ONLY",
+        "reference_quantity": 20,
+        "initial_stop": "5878.3"
+      },
+      {
+        "symbol": "GLDRUBF",
+        "strategy": "SHALLOW_PULLBACK",
+        "side": 1,
+        "signal_bar_open": "2024-01-24T16:30:00",
+        "known_at": "2024-01-24T16:45:00",
+        "atr": 4.8687743585265775,
+        "expected_atr": 4.868774358524763,
+        "next_open": 5752.9,
+        "prefix_rows": 8187,
+        "status": "PASS",
+        "execution_restart": "PASS_FAKE_ONLY",
+        "reference_quantity": 20,
+        "initial_stop": "5743.1"
+      },
+      {
+        "symbol": "IMOEXF",
+        "strategy": "INSIDE_DAY_RELEASE",
+        "side": -1,
+        "signal_bar_open": "2024-08-07T11:30:00",
+        "known_at": "2024-08-07T11:45:00",
+        "atr": 7.065645359268367,
+        "expected_atr": 7.06564535927049,
+        "next_open": 2816.5,
+        "prefix_rows": 10722,
+        "status": "PASS",
+        "execution_restart": "PASS_FAKE_ONLY",
+        "reference_quantity": 20,
+        "initial_stop": "2831.0"
+      },
+      {
+        "symbol": "IMOEXF",
+        "strategy": "INSIDE_DAY_RELEASE",
+        "side": 1,
+        "signal_bar_open": "2024-01-10T10:00:00",
+        "known_at": "2024-01-10T10:15:00",
+        "atr": 3.6983501393782143,
+        "expected_atr": 3.69835013937818,
+        "next_open": 3168.5,
+        "prefix_rows": 2186,
+        "status": "PASS",
+        "execution_restart": "PASS_FAKE_ONLY",
+        "reference_quantity": 20,
+        "initial_stop": "3161.0"
+      },
+      {
+        "symbol": "IMOEXF",
+        "strategy": "OBV_PRESSURE",
+        "side": -1,
+        "signal_bar_open": "2024-02-12T11:00:00",
+        "known_at": "2024-02-12T11:15:00",
+        "atr": 2.887986290343441,
+        "expected_atr": 2.887986290344386,
+        "next_open": 3236.0,
+        "prefix_rows": 3524,
+        "status": "PASS",
+        "execution_restart": "PASS_FAKE_ONLY",
+        "reference_quantity": 20,
+        "initial_stop": "3242.0"
+      },
+      {
+        "symbol": "IMOEXF",
+        "strategy": "OBV_PRESSURE",
+        "side": 1,
+        "signal_bar_open": "2024-01-03T10:15:00",
+        "known_at": "2024-01-03T10:30:00",
+        "atr": 3.1430209728090928,
+        "expected_atr": 3.1430209728188006,
+        "next_open": 3118.0,
+        "prefix_rows": 1894,
+        "status": "PASS",
+        "execution_restart": "PASS_FAKE_ONLY",
+        "reference_quantity": 20,
+        "initial_stop": "3111.5"
+      },
+      {
+        "symbol": "IMOEXF",
+        "strategy": "SHALLOW_PULLBACK",
+        "side": -1,
+        "signal_bar_open": "2024-01-24T14:00:00",
+        "known_at": "2024-01-24T14:15:00",
+        "atr": 3.565914684120995,
+        "expected_atr": 3.5659146841080003,
+        "next_open": 3162.0,
+        "prefix_rows": 2780,
+        "status": "PASS",
+        "execution_restart": "PASS_FAKE_ONLY",
+        "reference_quantity": 20,
+        "initial_stop": "3169.5"
+      },
+      {
+        "symbol": "IMOEXF",
+        "strategy": "SHALLOW_PULLBACK",
+        "side": 1,
+        "signal_bar_open": "2024-01-08T10:00:00",
+        "known_at": "2024-01-08T10:15:00",
+        "atr": 8.541239812844196,
+        "expected_atr": 8.541239812847511,
+        "next_open": 3150.0,
+        "prefix_rows": 2066,
+        "status": "PASS",
+        "execution_restart": "PASS_FAKE_ONLY",
+        "reference_quantity": 20,
+        "initial_stop": "3132.5"
+      }
+    ],
+    "usdrubf": "REUSED_PREVIOUS_6_NOT_RERUN"
+  },
+  "scope": {
+    "v20_04_2": "PASS_OFFLINE_ARCHIVE_AND_BOUNDARIES",
+    "v20_04_3": "PASS_MINIMAL_FAKE_BROKER_INTEGRATION",
+    "live": "DISABLED_NOT_TESTED",
+    "windows": "NOT_TESTED",
+    "roadmap": "UNCHANGED_8_STAGES_24_SUBSTAGES",
+    "v20_04_3_production": "PARTIAL_NOT_READY_FOR_BROKER_OR_AUTONOMOUS_PROCESS",
+    "v20_04_2_signal_coverage": "18 newly checked + 6 prior USD = 24 representative signals; not a new full 1589-trade replay"
+  },
+  "skipped": [
+    {
+      "check": "USDRUBF six signals",
+      "status": "SKIP_REUSE",
+      "reason": "Owner explicitly requested no repeat"
+    },
+    {
+      "check": "2012-2022 archive and full replay",
+      "status": "SKIP_REUSE",
+      "reason": "Unchanged archived sources; not required for 2024 parity"
+    },
+    {
+      "check": "FINAM LIVE, network broker, actual accounts",
+      "status": "SKIP_NOT_AUTHORIZED",
+      "reason": "Fake broker only; V20-06 remains READONLY acceptance"
+    },
+    {
+      "check": "Windows processes and scheduled tasks",
+      "status": "SKIP_NOT_IN_SCOPE",
+      "reason": "V20-05/07; no task manipulation"
+    }
+  ],
+  "limitations": [
+    "Targeted 18 new + 6 previously checked signals, not all-bar full-history replay.",
+    "Archived Moscow-naive open-labelled M15; actual FINAM boundary evidence remains V20-06.",
+    "N4 is perpetual: roll tests reuse LOCKED_V1 synthetic cases only, no synthetic OHLC splice.",
+    "H1 serializers/readers/state reused; H1 authorized transport and strategy runtime are not instantiated.",
+    "Full cumulative fake fill history required; physical bounded broker-history pagination not accepted here.",
+    "Actual-fill monetary risk, aggregate 6% cap, current directional GO/cash require V20-04.4; slipped fills protected but further entries halted.",
+    "Frozen exit decision supplied by caller; autonomous feed/clock orchestration and process acceptance remain outstanding.",
+    "A missing/uncertain stop acknowledgement blocks entries and needs diagnosis; no blind POST retry or assumption of protection."
+  ],
+  "fixes": [
+    "Reject mixed Ticker/symbol, subsecond grid and invalid OHLCV before frozen invocation.",
+    "Reject source destinations anywhere inside repository.",
+    "Verify both signal directions per strategy/symbol and NEXT_OPEN scalar independently.",
+    "Preserve pending entry occupancy across sessions and restart.",
+    "Use exact Fraction VWAP and H1 outward stop projection."
+  ],
+  "development_test_failure": {
+    "status": "FIXED",
+    "detail": "Wrong-grid rejection test initially expected binding error but grid validation ran first; binding guard moved before grid check. Final rerun is authoritative."
+  },
+  "source_integrity": {
+    "h1_and_intraday_tree_diff_vs_main": [],
+    "frozen_sources_diff_vs_start": [],
+    "status": "PASS"
+  },
+  "reproduce": [
+    "python -m V20_TradingSystem_M15.v20_runtime.prepare_n4_quotes --output /tmp/v20-n4-parity",
+    "V20_N4_QUOTES_ROOT=/tmp/v20-n4-parity python -m unittest V20_TradingSystem_M15.v20_runtime.tests.test_frozen_n4_parity V20_TradingSystem_M15.v20_runtime.tests.test_m15_boundaries V20_TradingSystem_M15.v20_runtime.tests.test_offline_planner V20_TradingSystem_M15.v20_runtime.tests.test_h1_state_journal V20_TradingSystem_M15.v20_runtime.tests.test_h1_execution -v"
+  ]
+}

@@ -1,0 +1,419 @@
+{
+  "schema": "v20.04.4_04.5_04.6.offline_acceptance.v1",
+  "checked_at_msk": "2026-10-23T17:44:27.105363+03:00",
+  "python": "3.12.14",
+  "github_main": "6f352acfac7ebdfabba73e143c4dfea3a6e48507",
+  "pr_head_at_start": "ad7cafde448f3737781a374550ed72c04f4d7491",
+  "tests": {
+    "status": "PASS",
+    "run": 99,
+    "failures": 0,
+    "errors": 0,
+    "skips": 0,
+    "modules": {
+      "test_account_risk": 15,
+      "test_h1_execution": 38,
+      "test_m15_runner": 16,
+      "test_m15_boundaries": 9,
+      "test_offline_planner": 11,
+      "test_h1_state_journal": 10
+    },
+    "ids": [
+      "V20_TradingSystem_M15.v20_runtime.tests.test_account_risk.MoneyRiskTests.test_account_isolation_and_duplicate_reservation",
+      "V20_TradingSystem_M15.v20_runtime.tests.test_account_risk.MoneyRiskTests.test_actual_fee_or_aggregate_excess_blocks_new_entries",
+      "V20_TradingSystem_M15.v20_runtime.tests.test_account_risk.MoneyRiskTests.test_corrupt_reservation_and_unproved_cash_reflection_rejected",
+      "V20_TradingSystem_M15.v20_runtime.tests.test_account_risk.MoneyRiskTests.test_existing_h1_sizing_caps_r15_and_margin",
+      "V20_TradingSystem_M15.v20_runtime.tests.test_account_risk.MoneyRiskTests.test_fresh_broker_cash_does_not_subtract_reflected_margin_twice",
+      "V20_TradingSystem_M15.v20_runtime.tests.test_account_risk.MoneyRiskTests.test_installed_stop_risk_and_no_duplicate_fee_budget",
+      "V20_TradingSystem_M15.v20_runtime.tests.test_account_risk.MoneyRiskTests.test_local_pending_reservations_prevent_double_spend",
+      "V20_TradingSystem_M15.v20_runtime.tests.test_account_risk.MoneyRiskTests.test_missing_evidence_is_fail_closed",
+      "V20_TradingSystem_M15.v20_runtime.tests.test_account_risk.MoneyRiskTests.test_mixed_reflected_and_local_pending_margin",
+      "V20_TradingSystem_M15.v20_runtime.tests.test_account_risk.MoneyRiskTests.test_old_reservation_migration_reserves_unpaid_cost_conservatively",
+      "V20_TradingSystem_M15.v20_runtime.tests.test_account_risk.MoneyRiskTests.test_one_lot_cannot_fit_risk_or_go",
+      "V20_TradingSystem_M15.v20_runtime.tests.test_account_risk.MoneyRiskTests.test_partial_fills_and_restart_serialization",
+      "V20_TradingSystem_M15.v20_runtime.tests.test_account_risk.MoneyRiskTests.test_planned_ceiling_and_trade_lot_are_both_respected",
+      "V20_TradingSystem_M15.v20_runtime.tests.test_account_risk.MoneyRiskTests.test_six_percent_account_risk_cap_reservations",
+      "V20_TradingSystem_M15.v20_runtime.tests.test_account_risk.MoneyRiskTests.test_vwap_slippage_and_fee_revaluation",
+      "V20_TradingSystem_M15.v20_runtime.tests.test_h1_execution.H1ExecutionTests.test_account_risk_reservation_is_durable_with_order_intent",
+      "V20_TradingSystem_M15.v20_runtime.tests.test_h1_execution.H1ExecutionTests.test_ack_then_crash_is_reconciled_by_persisted_client_id",
+      "V20_TradingSystem_M15.v20_runtime.tests.test_h1_execution.H1ExecutionTests.test_actual_slipped_fill_money_risk_and_protection",
+      "V20_TradingSystem_M15.v20_runtime.tests.test_h1_execution.H1ExecutionTests.test_broker_wire_mismatch_cannot_be_adopted",
+      "V20_TradingSystem_M15.v20_runtime.tests.test_h1_execution.H1ExecutionTests.test_changed_partial_vwap_keeps_stop_blocks_entries_and_allows_exit",
+      "V20_TradingSystem_M15.v20_runtime.tests.test_h1_execution.H1ExecutionTests.test_current_account_equity_r6_blocks_new_entries_keeps_stops",
+      "V20_TradingSystem_M15.v20_runtime.tests.test_h1_execution.H1ExecutionTests.test_entry_ack_is_not_fill_and_duplicate_is_not_resent",
+      "V20_TradingSystem_M15.v20_runtime.tests.test_h1_execution.H1ExecutionTests.test_exact_fake_only_and_live_off",
+      "V20_TradingSystem_M15.v20_runtime.tests.test_h1_execution.H1ExecutionTests.test_filled_status_without_fill_authority_cannot_open_position",
+      "V20_TradingSystem_M15.v20_runtime.tests.test_h1_execution.H1ExecutionTests.test_fresh_broker_snapshot_does_not_double_subtract_go",
+      "V20_TradingSystem_M15.v20_runtime.tests.test_h1_execution.H1ExecutionTests.test_frozen_exit_retains_stop_until_verified_flat_then_cancels",
+      "V20_TradingSystem_M15.v20_runtime.tests.test_h1_execution.H1ExecutionTests.test_go_and_cost_reserve_fit_cash_and_paid_fee_is_not_reserved_twice",
+      "V20_TradingSystem_M15.v20_runtime.tests.test_h1_execution.H1ExecutionTests.test_incomplete_history_and_conflicting_fill_fail_closed",
+      "V20_TradingSystem_M15.v20_runtime.tests.test_h1_execution.H1ExecutionTests.test_insufficient_money_capacity_blocks_before_post",
+      "V20_TradingSystem_M15.v20_runtime.tests.test_h1_execution.H1ExecutionTests.test_legacy_unaccounted_position_cannot_share_money_budget",
+      "V20_TradingSystem_M15.v20_runtime.tests.test_h1_execution.H1ExecutionTests.test_missing_or_wrong_money_authority_blocks_before_post",
+      "V20_TradingSystem_M15.v20_runtime.tests.test_h1_execution.H1ExecutionTests.test_money_reserve_and_intent_rollback_together",
+      "V20_TradingSystem_M15.v20_runtime.tests.test_h1_execution.H1ExecutionTests.test_partial_fill_installs_one_100_percent_stop_and_full_fill_reuses_it",
+      "V20_TradingSystem_M15.v20_runtime.tests.test_h1_execution.H1ExecutionTests.test_pending_unfilled_entry_blocks_same_symbol_next_session",
+      "V20_TradingSystem_M15.v20_runtime.tests.test_h1_execution.H1ExecutionTests.test_persistent_session_caps_and_wrong_account",
+      "V20_TradingSystem_M15.v20_runtime.tests.test_h1_execution.H1ExecutionTests.test_pre_post_crash_restores_intent_without_resubmission",
+      "V20_TradingSystem_M15.v20_runtime.tests.test_h1_execution.H1ExecutionTests.test_reduced_money_quantity_is_idempotent_after_restart",
+      "V20_TradingSystem_M15.v20_runtime.tests.test_h1_execution.H1ExecutionTests.test_reject_wrong_grid_or_changed_frozen_stop_before_post",
+      "V20_TradingSystem_M15.v20_runtime.tests.test_h1_execution.H1ExecutionTests.test_rejected_entry_is_terminal_without_retry",
+      "V20_TradingSystem_M15.v20_runtime.tests.test_h1_execution.H1ExecutionTests.test_rejected_protection_blocks_and_is_not_retransmitted",
+      "V20_TradingSystem_M15.v20_runtime.tests.test_h1_execution.H1ExecutionTests.test_restart_restores_fills_position_stop_and_idempotency",
+      "V20_TradingSystem_M15.v20_runtime.tests.test_h1_execution.H1ExecutionTests.test_slipped_fill_protected_but_further_entries_require_04_4",
+      "V20_TradingSystem_M15.v20_runtime.tests.test_h1_execution.H1ExecutionTests.test_stale_financial_snapshot_blocks_before_post",
+      "V20_TradingSystem_M15.v20_runtime.tests.test_h1_execution.H1ExecutionTests.test_stop_ack_lost_does_not_duplicate_protection",
+      "V20_TradingSystem_M15.v20_runtime.tests.test_h1_execution.H1ExecutionTests.test_stop_execution_closes_position_without_reverse",
+      "V20_TradingSystem_M15.v20_runtime.tests.test_h1_execution.H1ExecutionTests.test_stop_timeout_without_ack_blocks_no_blind_retry",
+      "V20_TradingSystem_M15.v20_runtime.tests.test_h1_execution.H1ExecutionTests.test_strict_money_required_and_sticky_across_legacy_constructor",
+      "V20_TradingSystem_M15.v20_runtime.tests.test_h1_execution.H1ExecutionTests.test_three_robots_use_independent_identity_state_and_side",
+      "V20_TradingSystem_M15.v20_runtime.tests.test_h1_execution.H1ExecutionTests.test_timeout_after_entry_accept_is_reconciled_without_retry",
+      "V20_TradingSystem_M15.v20_runtime.tests.test_h1_execution.H1ExecutionTests.test_uncertain_missing_entry_stays_blocked_after_restart",
+      "V20_TradingSystem_M15.v20_runtime.tests.test_h1_execution.H1ExecutionTests.test_unknown_broker_position_cannot_be_adopted",
+      "V20_TradingSystem_M15.v20_runtime.tests.test_h1_execution.H1ExecutionTests.test_unknown_fee_keeps_protection_and_does_not_disable_safe_exit",
+      "V20_TradingSystem_M15.v20_runtime.tests.test_h1_execution.H1ExecutionTests.test_unknown_order_and_duplicate_client_id_fail_closed",
+      "V20_TradingSystem_M15.v20_runtime.tests.test_m15_runner.M15LoopTests.test_broker_book_history_cursors_and_budget_survive_restart",
+      "V20_TradingSystem_M15.v20_runtime.tests.test_m15_runner.M15LoopTests.test_cli_requires_explicit_offline_and_has_no_live_switch",
+      "V20_TradingSystem_M15.v20_runtime.tests.test_m15_runner.M15LoopTests.test_crash_after_durable_fill_recovers_protection_without_entry_retry",
+      "V20_TradingSystem_M15.v20_runtime.tests.test_m15_runner.M15LoopTests.test_full_n4_deterministic_order_caps_and_duplicate_batch",
+      "V20_TradingSystem_M15.v20_runtime.tests.test_m15_runner.M15LoopTests.test_missing_broker_book_or_financial_evidence_is_never_recreated",
+      "V20_TradingSystem_M15.v20_runtime.tests.test_m15_runner.M15LoopTests.test_missing_financials_blocks_new_entries_but_autonomous_time_exit_survives",
+      "V20_TradingSystem_M15.v20_runtime.tests.test_m15_runner.M15LoopTests.test_no_capacity_refuses_entry_without_dropping_protection",
+      "V20_TradingSystem_M15.v20_runtime.tests.test_m15_runner.M15LoopTests.test_no_delayed_next_open_or_current_candle_fields",
+      "V20_TradingSystem_M15.v20_runtime.tests.test_m15_runner.M15LoopTests.test_no_network_and_no_live_or_unbound_config_path",
+      "V20_TradingSystem_M15.v20_runtime.tests.test_m15_runner.M15LoopTests.test_observed_intraday_gap_marks_open_path_censored_keeps_stop",
+      "V20_TradingSystem_M15.v20_runtime.tests.test_m15_runner.M15LoopTests.test_revision_and_out_of_order_event_never_rewrite_history",
+      "V20_TradingSystem_M15.v20_runtime.tests.test_m15_runner.M15LoopTests.test_stop_on_entry_bar_is_observed_only_when_bar_finishes",
+      "V20_TradingSystem_M15.v20_runtime.tests.test_m15_runner.M15LoopTests.test_third_observed_session_survives_restart_and_calendar_holes",
+      "V20_TradingSystem_M15.v20_runtime.tests.test_m15_runner.M15LoopTests.test_three_accounts_same_symbol_independent_and_instance_lock",
+      "V20_TradingSystem_M15.v20_runtime.tests.test_m15_runner.M15LoopTests.test_unfinished_future_bar_and_foreign_symbol_rejected_before_signal",
+      "V20_TradingSystem_M15.v20_runtime.tests.test_m15_runner.ThreeProcessFrozenAcceptance.test_three_real_frozen_signals_then_offline_stop_and_process_restart",
+      "V20_TradingSystem_M15.v20_runtime.tests.test_m15_boundaries.M15BoundaryTests.test_duplicates_reordering_timezone_and_subsecond_rejected",
+      "V20_TradingSystem_M15.v20_runtime.tests.test_m15_boundaries.M15BoundaryTests.test_existing_engine_gaps_third_session_roll_stop_and_c1",
+      "V20_TradingSystem_M15.v20_runtime.tests.test_m15_boundaries.M15BoundaryTests.test_frozen_session_is_09_msk_not_midnight",
+      "V20_TradingSystem_M15.v20_runtime.tests.test_m15_boundaries.M15BoundaryTests.test_no_cross_contract_or_corrupt_ohlcv",
+      "V20_TradingSystem_M15.v20_runtime.tests.test_m15_boundaries.M15BoundaryTests.test_prepare_fails_closed_on_existing_wrong_hash",
+      "V20_TradingSystem_M15.v20_runtime.tests.test_m15_boundaries.M15BoundaryTests.test_reused_m15_aggregation_never_invents_missing_child_path",
+      "V20_TradingSystem_M15.v20_runtime.tests.test_m15_boundaries.M15BoundaryTests.test_roll_uses_only_finished_previous_sessions",
+      "V20_TradingSystem_M15.v20_runtime.tests.test_m15_boundaries.M15BoundaryTests.test_sources_cannot_be_written_anywhere_in_checkout",
+      "V20_TradingSystem_M15.v20_runtime.tests.test_m15_boundaries.M15BoundaryTests.test_unfinished_stale_and_future_m15_rejected_before_features",
+      "V20_TradingSystem_M15.v20_runtime.tests.test_offline_planner.OfflineEntryTests.test_accounts_do_not_block_each_other",
+      "V20_TradingSystem_M15.v20_runtime.tests.test_offline_planner.OfflineEntryTests.test_bad_grid_fails_closed",
+      "V20_TradingSystem_M15.v20_runtime.tests.test_offline_planner.OfflineEntryTests.test_default_denies_live",
+      "V20_TradingSystem_M15.v20_runtime.tests.test_offline_planner.OfflineEntryTests.test_enforces_symbol_and_session_caps",
+      "V20_TradingSystem_M15.v20_runtime.tests.test_offline_planner.OfflineEntryTests.test_h1_short_outward_grid",
+      "V20_TradingSystem_M15.v20_runtime.tests.test_offline_planner.OfflineEntryTests.test_insufficient_margin_fails_closed",
+      "V20_TradingSystem_M15.v20_runtime.tests.test_offline_planner.OfflineEntryTests.test_next_session_reopens_after_flat",
+      "V20_TradingSystem_M15.v20_runtime.tests.test_offline_planner.OfflineEntryTests.test_rejects_gap_in_next_open",
+      "V20_TradingSystem_M15.v20_runtime.tests.test_offline_planner.OfflineEntryTests.test_rejects_strategy_leak_between_accounts",
+      "V20_TradingSystem_M15.v20_runtime.tests.test_offline_planner.OfflineEntryTests.test_reuses_h1_tick_grid_long",
+      "V20_TradingSystem_M15.v20_runtime.tests.test_offline_planner.OfflineEntryTests.test_risk_plus_fees_can_reduce_quantity",
+      "V20_TradingSystem_M15.v20_runtime.tests.test_h1_state_journal.H1StateReuseTests.test_duplicate_instance_process_lock",
+      "V20_TradingSystem_M15.v20_runtime.tests.test_h1_state_journal.H1StateReuseTests.test_first_and_repeated_reference_idempotent",
+      "V20_TradingSystem_M15.v20_runtime.tests.test_h1_state_journal.H1StateReuseTests.test_offline_never_live",
+      "V20_TradingSystem_M15.v20_runtime.tests.test_h1_state_journal.H1StateReuseTests.test_old_database_wrong_root_rejected_before_open",
+      "V20_TradingSystem_M15.v20_runtime.tests.test_h1_state_journal.H1StateReuseTests.test_reject_strategy_mismatch_without_persisting",
+      "V20_TradingSystem_M15.v20_runtime.tests.test_h1_state_journal.H1StateReuseTests.test_reopen_same_exact_identity_preserves_records",
+      "V20_TradingSystem_M15.v20_runtime.tests.test_h1_state_journal.H1StateReuseTests.test_symbol_once_per_session_even_if_direction_changes",
+      "V20_TradingSystem_M15.v20_runtime.tests.test_h1_state_journal.H1StateReuseTests.test_three_accounts_independent_same_symbol",
+      "V20_TradingSystem_M15.v20_runtime.tests.test_h1_state_journal.H1StateReuseTests.test_two_entries_per_session_and_symbol_deduplication",
+      "V20_TradingSystem_M15.v20_runtime.tests.test_h1_state_journal.H1StateReuseTests.test_wrong_account_refused_on_existing_database"
+    ]
+  },
+  "stages": {
+    "V20-04.4": "PASS_OFFLINE",
+    "V20-04.5": "PASS_THREE_OFFLINE_PROCESSES",
+    "V20-04.6": "PASS_MINIMAL_OFFLINE_INTEGRATION",
+    "V20-04.3": "OFFLINE_CONTRACT_PASS_PRODUCTION_PARTIAL",
+    "V20-05": "NEXT_OFFLINE_AND_WINDOWS_ACCEPTANCE_NOT_PERFORMED"
+  },
+  "processes": {
+    "first": [
+      {
+        "mode": "OFFLINE_FAKE_ONLY",
+        "pid": 48679,
+        "positions": {
+          "CNYRUBF@RTSX": -33
+        },
+        "post_count": 2,
+        "robot_id": "v20-shallow"
+      },
+      {
+        "mode": "OFFLINE_FAKE_ONLY",
+        "pid": 48680,
+        "positions": {
+          "CNYRUBF@RTSX": -33
+        },
+        "post_count": 2,
+        "robot_id": "v20-obv"
+      },
+      {
+        "mode": "OFFLINE_FAKE_ONLY",
+        "pid": 48681,
+        "positions": {
+          "CNYRUBF@RTSX": 49
+        },
+        "post_count": 2,
+        "robot_id": "v20-inside"
+      }
+    ],
+    "after_stop": [
+      {
+        "mode": "OFFLINE_FAKE_ONLY",
+        "pid": 48690,
+        "positions": {},
+        "post_count": 2,
+        "robot_id": "v20-shallow"
+      },
+      {
+        "mode": "OFFLINE_FAKE_ONLY",
+        "pid": 48691,
+        "positions": {},
+        "post_count": 2,
+        "robot_id": "v20-obv"
+      },
+      {
+        "mode": "OFFLINE_FAKE_ONLY",
+        "pid": 48692,
+        "positions": {},
+        "post_count": 2,
+        "robot_id": "v20-inside"
+      }
+    ],
+    "after_duplicate_restart": [
+      {
+        "mode": "OFFLINE_FAKE_ONLY",
+        "pid": 48701,
+        "positions": {},
+        "post_count": 2,
+        "robot_id": "v20-shallow"
+      },
+      {
+        "mode": "OFFLINE_FAKE_ONLY",
+        "pid": 48702,
+        "positions": {},
+        "post_count": 2,
+        "robot_id": "v20-obv"
+      },
+      {
+        "mode": "OFFLINE_FAKE_ONLY",
+        "pid": 48703,
+        "positions": {},
+        "post_count": 2,
+        "robot_id": "v20-inside"
+      }
+    ],
+    "quote_sha256": "259298733d1528c0d917b100118896009519a9f08bdad33d4b373d9ce86f99b4",
+    "fixture": "real CNY frozen prefix / synthetic adverse completed entry bar",
+    "signals": [
+      {
+        "robot_id": "v20-shallow",
+        "strategy": "SHALLOW_PULLBACK",
+        "signal_bar_open": "2024-01-09 12:30:00",
+        "known_at": "2024-01-09 12:45:00",
+        "side": -1
+      },
+      {
+        "robot_id": "v20-obv",
+        "strategy": "OBV_PRESSURE",
+        "signal_bar_open": "2024-01-09 13:15:00",
+        "known_at": "2024-01-09 13:30:00",
+        "side": -1
+      },
+      {
+        "robot_id": "v20-inside",
+        "strategy": "INSIDE_DAY_RELEASE",
+        "signal_bar_open": "2024-01-18 12:00:00",
+        "known_at": "2024-01-18 12:15:00",
+        "side": 1
+      }
+    ]
+  },
+  "full_n4_three_robot_unit_check": {
+    "robots": 3,
+    "symbols": [
+      "CNYRUBF",
+      "GLDRUBF",
+      "IMOEXF",
+      "USDRUBF"
+    ],
+    "entries_each": 4,
+    "fake_posts_each": 8,
+    "entry_sessions": 2,
+    "price_signal_source": "explicit synthetic signal fixtures; unchanged frozen function separately used in child processes"
+  },
+  "source_integrity": {
+    "frozen_diff": [],
+    "h1_intraday_diff_vs_main": [],
+    "status": "PASS"
+  },
+  "code_sha256": {
+    "V20_TradingSystem_M15/v20_runtime/account_risk.py": "50eb4b295602a200d7fb4993a7d577b1bf8c5bcde4eddfdec66388448883e24c",
+    "V20_TradingSystem_M15/v20_runtime/frozen_adapter.py": "b96fe99aeb1a448f057935c71fb0e0a0a9808479527a3130aaee330e16b2dec7",
+    "V20_TradingSystem_M15/v20_runtime/h1_execution.py": "45268dc2ce2bebe375e7e21dcba902083d66364b28a7ab4a059836ead7fdbf1f",
+    "V20_TradingSystem_M15/v20_runtime/m15_runner.py": "6d461a9324a8430e7ad97e2eefbf92b4b7bd61a83a2b7d7d9553ec8ae1e98005",
+    "V20_TradingSystem_M15/v20_runtime/robots.json": "27e16a30303b473883918e0a9882727f91bd05d1f368354d6580e505a0b2c976",
+    "V20_TradingSystem_M15/v20_runtime/h1_state_journal.py": "f7e0c5f12b058e511ab9ae1846b3c937dfe995b0d691850e327851bf84c3cadf",
+    "V20_TradingSystem_M15/v20_runtime/offline_planner.py": "c630bc548613a296cae618d12d6c99588c85f2ee9ceee1824a9924aa4f858710"
+  },
+  "test_sha256": {
+    "V20_TradingSystem_M15/v20_runtime/tests/test_account_risk.py": "d01357f8e24adfff50dfedbf64bed9bfd8b8812beba6f8fa8dd00a5207f07379",
+    "V20_TradingSystem_M15/v20_runtime/tests/test_h1_execution.py": "5317b4d18eb4457b9d6767f37e9308e2eb8bd7c66281e9331ca3e8d5e471e2c4",
+    "V20_TradingSystem_M15/v20_runtime/tests/test_m15_runner.py": "883a82d4ecb5c48678812c8d576c2a3e3b0e27c01c2b9ea71c673bf0c977aad6",
+    "V20_TradingSystem_M15/v20_runtime/tests/test_m15_boundaries.py": "ca027bc624c196958747d0505a2ca1f14b9212463c977b2cb2db3a1122a4269a",
+    "V20_TradingSystem_M15/v20_runtime/tests/test_offline_planner.py": "a13813b79fecf6d47105424fc8e1b6ee43f0b74f2195532f388bab896b9c0141",
+    "V20_TradingSystem_M15/v20_runtime/tests/test_h1_state_journal.py": "80df9c4441cf754979769a56c0e11466e930916ff0a3c7b4cd78523712f088f6"
+  },
+  "source_sha256": {
+    "TradingSystemLab/stage8_robot/broker.py": {
+      "sha256": "e38e9f65dc9ce4ed86b385c54c93a19ab2839adafecb54512db9fa1a60838e5a",
+      "git_blob": "3573b4f88216086105fb577987f82310daf531dc"
+    },
+    "TradingSystemLab/stage8_robot/live_execution.py": {
+      "sha256": "c79bf24624cffa5477fee3560368b152163a1c4cf95fd1052e4388c53ff55c14",
+      "git_blob": "0c2fcd742a3157575cdecc5e1dac40d0c906b203"
+    },
+    "TradingSystemLab/stage8_robot/production_broker_state.py": {
+      "sha256": "28de15eb1a7895a8da9d678e14dea81d7eebb0ca492c2d66726b85cb7a01521c",
+      "git_blob": "894321fc0d3101e75eea48f45ff3a26c0c0f58eb"
+    },
+    "TradingSystemLab/stage8_robot/production_runtime.py": {
+      "sha256": "8c5b24586c48eac851097edbe191422de85fff886a0f8d77fde8383cb733d504",
+      "git_blob": "4ec35199be9269af5fc10093a086e0feb4207a34"
+    },
+    "TradingSystemLab/stage8_robot/state.py": {
+      "sha256": "afec9bc5b54ce0ef9fd3be2835a6a3506c79d43826a194932a6d8fca9d979a50",
+      "git_blob": "4f12e1cb61eccb0b14c1efb9ff0cdf2532a7b22b"
+    },
+    "TradingSystemLab/stage8_robot/operations.py": {
+      "sha256": "1ae2e848aa3301cbd924f7165bd61a8888a586e86a792fac807b7fd6ff5cd734",
+      "git_blob": "0d7ba1f2f9f4e6fa2f772921846bc334469dd3d5"
+    },
+    "TradingSystemLab/stage8_robot/reconciliation.py": {
+      "sha256": "b59de4946611dc54a80b14e40f357a99bfea90ffef7b41b978cc350b39d63aec",
+      "git_blob": "6585cfa96efd532ff651c23c5ce4b5b3880b88ad"
+    },
+    "TradingSystemLab/stage8_robot/protective_stop_contract.py": {
+      "sha256": "2725e97cafcbce101e13170bc9d4010f382282bf3eadf05d5ab7ecc5a71dca05",
+      "git_blob": "51a7ab88d2f64f969088d8ef04927383b7abc1aa"
+    },
+    "TradingSystemLab/stage8_robot/execution_grid.py": {
+      "sha256": "4a9f92108acc6872be5bea7f4a41dd03ca7166495a6a6a98dbc4345bbfb2ec72",
+      "git_blob": "d8e55d6083153f4854139ffcc9b921b35bdfca8a"
+    },
+    "TradingSystemLab/stage8_robot/risk.py": {
+      "sha256": "322080b499bdb2cd5c27757648aa7e45933ee75523ff61c5ac8d573c9663d1e5",
+      "git_blob": "afaae0b8fc305dec690967f38ef7d33c7b8da909"
+    },
+    "TradingSystemLab/stage8_robot/margin.py": {
+      "sha256": "05c1c44eb199dccb126d533bdd1f4389ff78ce53d920f2b6bec967155964339e",
+      "git_blob": "80117ff6ea169305a7c22ee52a12e3e9103c9deb"
+    },
+    "TradingSystemLab/stage8_robot/production_instrument_registry.csv": {
+      "sha256": "90d64e16dfeb292b4b339ac3eb196074e133bf52a962cc6715c488a32d16e013",
+      "git_blob": "122fd8e6d17fefc1d060e8b36184f328e9404dbf"
+    },
+    "IntradayLab/core/execution.py": {
+      "sha256": "4b721495fb1e9ff08069b534f09a662b80c2c7cc667b82a5835942bbf45e675c",
+      "git_blob": "5268a3673b980dc0063d177fa2da81ee8e36bcf7"
+    },
+    "IntradayLab/core/models.py": {
+      "sha256": "693cdb3c8ba8658bb3872cced37aa5d000cbb8b5f0116676991b13e869bb2cba",
+      "git_blob": "fe5283a627c83e37d6494e8210482c79fcbd3808"
+    },
+    "IntradayLab/core/m15_bars.py": {
+      "sha256": "46bba5ed6a46b65666de3f5f243beaaf161e29d852575b9b2e8a2950c2b0d334",
+      "git_blob": "7d2eefb949de05cbd53936a713bd37644bb01a35"
+    },
+    "V20_TradingSystem_M15/V20-03/offline/stress_v20_03.py": {
+      "sha256": "0800f41fed4f6ad3749a0eb9987970a8d954c1682c18cd2c8eecdab7b50c91d0",
+      "git_blob": "f135b42219b816e7925892ac07404c61c4627cbf"
+    },
+    "V20_TradingSystem_M15/research_original_v20/base.py": {
+      "sha256": "b7b9df00f8d7fb0a88c5cba103034e5a2335c108ae283258e5d8ebd5476aa59d",
+      "git_blob": "b917cc9c7c99fbad38423d9f4fdfbb82767545be"
+    },
+    "V20_TradingSystem_M15/research_original_v20/run.py": {
+      "sha256": "223545374f98d8c87cf2c09b3a7302b05b07020dc8bf34b5984ebaa3d74389fe",
+      "git_blob": "7d9ddf0ef498f0c93a139c0104af2a72d0e79151"
+    },
+    "V20_TradingSystem_M15/research_original_v20/legacy_v4/study_v4.py": {
+      "sha256": "0f49432e207235f631807a82536f521751ad5559cc374fc6c42f8ca4f289bd08",
+      "git_blob": "7749f82edcb8a04b4002978b588beeb26e484f71"
+    },
+    "V20_TradingSystem_M15/research_original_v20/legacy_v4/dependencies/study.py": {
+      "sha256": "68a4169a80870cfd10537aa896ea0b3bcd8b3baf9803240d7d7a48b78ba485ff",
+      "git_blob": "1294ff9884f7a1634fab67ee330ec702e0612c31"
+    },
+    "V20_TradingSystem_M15/V20-03/comparison/QUOTE_PATH_DIAGNOSTICS.csv": {
+      "sha256": "1f936dca02b9c99ed1df6ca30ef52c4c33128c9d06743175b6f5d6f59dee9c0f",
+      "git_blob": "32e6ab8c4006f259efeab2d0ab4df0bf340457d9"
+    }
+  },
+  "guarantees": [
+    "Frozen M15/2ATR/NEXT_OPEN and original H1 grid/risk/margin operations reused.",
+    "R15 per entry and R6 per independent account with actual installed-stop risk and current equity checks.",
+    "Fresh free cash already includes broker GO: subtract only local reservations absent from snapshot coverage.",
+    "Financial snapshot proof, reserve, quota and intent committed atomically.",
+    "No POST retry on unknown/uncertain outcomes.",
+    "Changed partial-fill VWAP preserves old 100% SLTP and halts new entries when stop amendment is unconfirmed.",
+    "Runner requires fresh account-bound authority; legacy fake compatibility cannot enable production.",
+    "Completed bars and separately witnessed Open only; 09MSK observed-session exit survives restart.",
+    "Independent fake broker book survives ACK/fill before robot checkpoint; missing book/funds are never fabricated.",
+    "GO and unpaid round-trip cost buffers both fit free cash; already paid C1 is not reserved again.",
+    "Earlier risk records migrate reserved_cost conservatively; exact frozen risk fractions remain 0.015 and 0.06."
+  ],
+  "limitations": [
+    "Only explicit FakeBroker allowed; no actual FINAM accounts, auth, network broker, Tasks or Intel installation.",
+    "CNY process warmup and first frozen signal use SHA-pinned real historical data. Adverse completed entry bars are synthetic control fixtures, not economic replay.",
+    "Static fake baseline GO 10000 LONG / 15000 SHORT, account equity/cash 500000 are not real FINAM specifications.",
+    "Physical FINAM timestamp/freshness, current directional GO and bounded broker trade-history retrieval require V20-05/06 validation.",
+    "Broker stop replacement after changed VWAP is not implemented: preserve active protection, halt entries and diagnose.",
+    "Crash between decision claim and intent may skip one entry; never replay a historical NEXT_OPEN late.",
+    "Execution is a JSONL/stdin offline event loop. Physical feed/transport and operational Windows deployment not accepted."
+  ],
+  "skipped": [
+    {
+      "check": "2012-2026 research and heavy replay",
+      "status": "SKIP_REUSE",
+      "reason": "Sources/frozen code unchanged and user excluded repetition"
+    },
+    {
+      "check": "Prior 6 USD and full N4 signal audit",
+      "status": "SKIP_REUSE",
+      "reason": "Only new runner stitches use 3 CNY frozen prefixes; no repeated USD research"
+    },
+    {
+      "check": "FINAM LIVE and Windows/Intel",
+      "status": "SKIP_NOT_AUTHORIZED",
+      "reason": "Offline only, no credentials Tasks or real orders"
+    }
+  ],
+  "development_failure": {
+    "status": "FIXED",
+    "count": 1,
+    "reason": "No-capacity fixture left cash -1 after known C1 fee; guard correctly returned NEGATIVE_FORTS_FUNDS. Fixture adjusted to zero free cash and expected margin-capacity refusal verified."
+  },
+  "reproduce": "python -m unittest V20_TradingSystem_M15.v20_runtime.tests.test_account_risk V20_TradingSystem_M15.v20_runtime.tests.test_h1_execution V20_TradingSystem_M15.v20_runtime.tests.test_m15_runner V20_TradingSystem_M15.v20_runtime.tests.test_m15_boundaries V20_TradingSystem_M15.v20_runtime.tests.test_offline_planner V20_TradingSystem_M15.v20_runtime.tests.test_h1_state_journal -v",
+  "quote_commit": "f8486b446cf3d5f9f3cba6dfec32bdef8fd184c8",
+  "implementation_notes": [
+    "Existing fee-only margin assertions updated: 200000 cash, 10000 GO and 50 roundtrip buffer fund 19 contracts, not 20. This is a cash feasibility correction, not strategy/PF optimization.",
+    "Initial requested command on published ad7cafde executed: 38 tests PASS; final composed acceptance supersedes the intermediate results.",
+    "No new services, dependencies, strategy parameters, branch, PR or roadmap IDs."
+  ],
+  "changed_files": [
+    "V20_TradingSystem_M15/v20_runtime/account_risk.py",
+    "V20_TradingSystem_M15/v20_runtime/frozen_adapter.py",
+    "V20_TradingSystem_M15/v20_runtime/h1_execution.py",
+    "V20_TradingSystem_M15/v20_runtime/m15_runner.py",
+    "V20_TradingSystem_M15/v20_runtime/robots.json",
+    "V20_TradingSystem_M15/v20_runtime/tests/test_account_risk.py",
+    "V20_TradingSystem_M15/v20_runtime/tests/test_h1_execution.py",
+    "V20_TradingSystem_M15/v20_runtime/tests/test_m15_runner.py",
+    "V20_TradingSystem_M15/V20-04/OFFLINE_FRAMEWORK_ACCEPTANCE.json",
+    "V20_TradingSystem_M15/V20-04/RISK_04_4_PROGRESS_RU.md",
+    "V20_TradingSystem_M15/V20-04/README_RU.md",
+    "V20_TradingSystem_M15/docs/TASK_TRACKER.csv",
+    "V20_TradingSystem_M15/docs/ROADMAP_DETAILED_RU.md"
+  ]
+}

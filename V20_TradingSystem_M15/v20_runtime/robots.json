@@ -1,0 +1,52 @@
+{
+  "execution_mode": "OFFLINE_ONLY",
+  "planned_account_capital_rub": 500000,
+  "provisional_risk_fraction": "0.015",
+  "symbols": [
+    "USDRUBF",
+    "CNYRUBF",
+    "GLDRUBF",
+    "IMOEXF"
+  ],
+  "robots": [
+    {
+      "robot_id": "v20-shallow",
+      "strategy": "SHALLOW_PULLBACK",
+      "task": "v20-shallow",
+      "state_dir": "C:\\V20Lab\\shallow\\state",
+      "token_binding": "UNCONFIGURED",
+      "account_id": "OFFLINE-v20-shallow",
+      "process_name": "v20-shallow-offline",
+      "log_dir": "C:\\V20Lab\\shallow\\logs"
+    },
+    {
+      "robot_id": "v20-obv",
+      "strategy": "OBV_PRESSURE",
+      "task": "v20-obv",
+      "state_dir": "C:\\V20Lab\\obv\\state",
+      "token_binding": "UNCONFIGURED",
+      "account_id": "OFFLINE-v20-obv",
+      "process_name": "v20-obv-offline",
+      "log_dir": "C:\\V20Lab\\obv\\logs"
+    },
+    {
+      "robot_id": "v20-inside",
+      "strategy": "INSIDE_DAY_RELEASE",
+      "task": "v20-inside",
+      "state_dir": "C:\\V20Lab\\inside\\state",
+      "token_binding": "UNCONFIGURED",
+      "account_id": "OFFLINE-v20-inside",
+      "process_name": "v20-inside-offline",
+      "log_dir": "C:\\V20Lab\\inside\\logs"
+    }
+  ],
+  "offline_model": {
+    "model_only": true,
+    "realized_equity": "500000",
+    "available_cash": "500000",
+    "initial_margin": {
+      "LONG": "10000",
+      "SHORT": "15000"
+    }
+  }
+}

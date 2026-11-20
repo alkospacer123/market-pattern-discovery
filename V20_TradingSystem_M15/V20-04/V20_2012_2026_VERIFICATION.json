@@ -1,0 +1,105 @@
+{
+  "calculation": "PASS_OBSERVED_RESULTS_ONLY",
+  "full_early_replay": "FAIL_PARTIAL_MISSING_SOURCE_EXIT_LOCKS_SHALLOW_SI",
+  "reliable_exclusion": "FAIL_NOT_PROVEN",
+  "source_certification": "FAIL_EARLY_MIX_GRID; EARLY_OPEN_EXECUTABILITY_UNVERIFIED",
+  "unit_tests": {
+    "PASS": 48,
+    "FAIL": 0,
+    "SKIP": 0
+  },
+  "deterministic_derivative_artifacts": {
+    "status": "PASS",
+    "count": 12
+  },
+  "new_quote_trade_checks": {
+    "status": "PASS",
+    "checked": 749
+  },
+  "overlap": [
+    {
+      "strategy": "SHALLOW_PULLBACK",
+      "universe": "Si+MIX",
+      "trades": 540,
+      "net_C1_R": 124.00621399348388,
+      "parity": "PASS EXACT RECORDS"
+    },
+    {
+      "strategy": "OBV_PRESSURE",
+      "universe": "Si+MIX",
+      "trades": 310,
+      "net_C1_R": 36.78135802122584,
+      "parity": "PASS EXACT RECORDS"
+    },
+    {
+      "strategy": "INSIDE_DAY_RELEASE",
+      "universe": "Si+MIX",
+      "trades": 103,
+      "net_C1_R": 46.639383308568725,
+      "parity": "PASS EXACT RECORDS"
+    }
+  ],
+  "cli_smoke": [
+    {
+      "args": [
+        "--monitoring",
+        "--symbol",
+        "ALL",
+        "--as-of",
+        "2013-07-01"
+      ],
+      "status": "PASS",
+      "schema": "v20.monitoring.readonly.v1"
+    },
+    {
+      "args": [
+        "--monitoring",
+        "--symbol",
+        "ALL",
+        "--as-of",
+        "2026-10-23"
+      ],
+      "status": "PASS",
+      "schema": "v20.monitoring.readonly.v1"
+    },
+    {
+      "args": [
+        "--symbol",
+        "USDRUBF",
+        "--as-of",
+        "2026-07-01"
+      ],
+      "status": "PASS",
+      "schema": "v20.confirmed_current_regime.readonly.v1"
+    }
+  ],
+  "late_quote_source_hashes": {
+    "USDRUBF": "fef80630080a4e2a5e968d620b663f51acd1b7ab9d5d326a42c68cf2b80c67b8",
+    "CNYRUBF": "259298733d1528c0d917b100118896009519a9f08bdad33d4b373d9ce86f99b4",
+    "GLDRUBF": "7381d672485b5687ca2c4d92aa5960c24bb132f527589bae3c622b2dfa20a83d",
+    "IMOEXF": "a1b9fa6102a955103d61b28e81533ed19de68117e30fd84ceb53e8e617559773"
+  },
+  "late_quote_hash_check": "PASS",
+  "skipped": {
+    "old_4431_quote_outcomes": "SKIP unchanged source/code SHA receipts reused",
+    "original_late_ledger": "SKIP original absent; published reproduction1589 reused",
+    "late_replay": "SKIP unchanged1589 frozen reproduction, no needless replay",
+    "live": "SKIP no connected FINAM feed; no authorization or need for trading operations"
+  },
+  "counts": {
+    "new_closed": 731,
+    "new_censored": 18,
+    "new_unknown_open": 1,
+    "new_observed_raw": 1511,
+    "old_closed": 1004,
+    "late_closed": 1589,
+    "total_observable_closed": 3324,
+    "source_bars": 299998,
+    "contracts": 88,
+    "overlap_source_files": 40
+  },
+  "commands": [
+    "python -m V20_TradingSystem_M15.v20_runtime.monitoring_research --verify --market /path/to/forever",
+    "python -m unittest V20_TradingSystem_M15.v20_runtime.tests.test_market_monitoring V20_TradingSystem_M15.v20_runtime.tests.test_market_suitability V20_TradingSystem_M15.v20_runtime.tests.test_confirmed_market_regime -v"
+  ]
+}

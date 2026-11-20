@@ -1,0 +1,93 @@
+{
+  "schema": "v20.suitability.rotation.artifact_manifest.v1",
+  "input_head": "18ac9f466a8a67b33fa3983cf45cb18736970077",
+  "main": "6f352acfac7ebdfabba73e143c4dfea3a6e48507",
+  "calculation": "PASS",
+  "suitability": "FAIL",
+  "artifacts": {
+    "V20_TradingSystem_M15/V20-04/README_RU.md": {
+      "bytes": 29138,
+      "sha256": "4e396f36c6980ce66b6a47d2c01384e0d4a153639799533737af24b2195c89e5"
+    },
+    "V20_TradingSystem_M15/V20-04/V20_ROTATION_COMPARISON.csv": {
+      "bytes": 3839,
+      "sha256": "fb406a27c178c3d9a6315c462de709761e9e03e798cef0c3995cebca9029bd89"
+    },
+    "V20_TradingSystem_M15/V20-04/V20_SUITABILITY_ALERTS.csv": {
+      "bytes": 165616,
+      "sha256": "aeb791e4deaff798ae765336dae8b5cb5a411c2e960bc88453581e4ee8944dce"
+    },
+    "V20_TradingSystem_M15/V20-04/V20_SUITABILITY_ANNUAL.csv": {
+      "bytes": 153614,
+      "sha256": "50144458b000e12dc9d9f50ff930d10d94017898a07efce08bd4a1916ddb7874"
+    },
+    "V20_TradingSystem_M15/V20-04/V20_SUITABILITY_COMPARISON.json": {
+      "bytes": 436249,
+      "sha256": "241866ba18c911a20289bd70fdd01699051c812ff949c02224ee70c8d2833683"
+    },
+    "V20_TradingSystem_M15/V20-04/V20_SUITABILITY_DECISIONS.csv": {
+      "bytes": 3146405,
+      "sha256": "7326c58fb9e01d8f16f5135c6315e0a17f5a06462c6388221cdca5cea879c6e8"
+    },
+    "V20_TradingSystem_M15/V20-04/V20_SUITABILITY_DETECTIONS.csv": {
+      "bytes": 4944,
+      "sha256": "d2213d861a8bb707590fd79aea3610f6e0e43d930975c321d9b628d904dcdea3"
+    },
+    "V20_TradingSystem_M15/V20-04/V20_SUITABILITY_FINAL_RU.md": {
+      "bytes": 46054,
+      "sha256": "a95ccb5b2a2b7d83d22360989465c0b9a21cd1d58d3242545e1794301a615bc1"
+    },
+    "V20_TradingSystem_M15/V20-04/V20_SUITABILITY_METHODS.csv": {
+      "bytes": 75032,
+      "sha256": "d285e732b112acdbb3080c17a46763353a09963bf37dfc489e86a8a7ae1211e3"
+    },
+    "V20_TradingSystem_M15/V20-04/V20_SUITABILITY_MONTHLY.csv": {
+      "bytes": 4385522,
+      "sha256": "a9a27a2539c6f61edbd562363083a74f03358b2bb5cefb0d1219178840ae3ddc"
+    },
+    "V20_TradingSystem_M15/V20-04/V20_SUITABILITY_N4_STATES.csv": {
+      "bytes": 322388,
+      "sha256": "ac495cd7236ea31d49ec95ef57e0eb6321f4614152844fb26d64a06bd0882342"
+    },
+    "V20_TradingSystem_M15/V20-04/V20_SUITABILITY_PERIODS.csv": {
+      "bytes": 2836,
+      "sha256": "8c0f3bca41cfaf5893b12e0f0b0e92daa0d29b2403a2071f5cd02d13d7852d2d"
+    },
+    "V20_TradingSystem_M15/V20-04/V20_SUITABILITY_PROTOCOL_RU.md": {
+      "bytes": 8891,
+      "sha256": "53f52feb17cc6f16785f2aede2c47ff0a38ee19eee1404419ed36d48d7a23f5a"
+    },
+    "V20_TradingSystem_M15/V20-04/V20_SUITABILITY_REPLAY_TRADES.csv.gz": {
+      "bytes": 354306,
+      "sha256": "ae428e515a7636dc896c901911dba3dcafafddc38a275f83e2851aa17e1079e4"
+    },
+    "V20_TradingSystem_M15/V20-04/V20_SUITABILITY_SAMPLE_COVERAGE.csv": {
+      "bytes": 2424,
+      "sha256": "e8ca81c623940031ec330ca0c112e12a29665c917a72e66a87f4fa9e2ed5d877"
+    },
+    "V20_TradingSystem_M15/V20-04/V20_SUITABILITY_SNAPSHOTS.csv": {
+      "bytes": 12567,
+      "sha256": "a35a7c0dbc1051e85b42d9609f4ed7e6822655a9d6f4af56bd1d56dfa5cf0fbd"
+    },
+    "V20_TradingSystem_M15/V20-04/V20_SUITABILITY_VERIFICATION.json": {
+      "bytes": 5264,
+      "sha256": "bd6ed0dd4a61a685c2eb12f07cb3a48feb6f75bdc984d60013e1e3f8e67f53ce"
+    },
+    "V20_TradingSystem_M15/docs/TASK_TRACKER.csv": {
+      "bytes": 3122,
+      "sha256": "3d8605c31a24ccf2ea9375d29254c3202efa20ef157e242de0912b0cc02e008c"
+    },
+    "V20_TradingSystem_M15/v20_runtime/suitability_replay.py": {
+      "bytes": 8095,
+      "sha256": "419c72a04a2914da9afd740fc329ab9dcacc794a29e3c32e0e31c636ca77b4bd"
+    },
+    "V20_TradingSystem_M15/v20_runtime/suitability_research.py": {
+      "bytes": 31180,
+      "sha256": "e3aa581e653c567732f9a66353a1f8d2f3f568f7dbc2850eaa8fd181383c9220"
+    },
+    "V20_TradingSystem_M15/v20_runtime/tests/test_suitability_research.py": {
+      "bytes": 6151,
+      "sha256": "786ff0b713db68ea4859c8bc561d91a345981e8716efad67b1c82c3773a2e766"
+    }
+  }
+}

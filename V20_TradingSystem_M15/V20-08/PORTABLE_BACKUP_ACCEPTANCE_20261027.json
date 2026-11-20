@@ -1,0 +1,37 @@
+{
+  "schema": "v20.08.5.portable_backup_acceptance.v1",
+  "as_of": "2026-10-27",
+  "source": "Owner-provided Windows PowerShell stdout from URIU-PC, no remote independent ZIP read",
+  "evidence": {
+    "pinned_live_source": "PASS_4_PINNED_FILES",
+    "sqlite_snapshots": {
+      "v20-shallow": "V20_08_5_SQLITE_SNAPSHOT_PASS",
+      "v20-obv": "V20_08_5_SQLITE_SNAPSHOT_PASS",
+      "v20-inside": "V20_08_5_SQLITE_SNAPSHOT_PASS",
+      "path": "C:\\V20Lab\\backup-08\\v20-live-20261027T071839Z"
+    },
+    "copied_file_count": {
+      "documentation_and_operations": 26,
+      "v20_live_source": 18,
+      "h1_runtime_library": 71,
+      "v20_installed_live_scripts": 8
+    },
+    "archive_path": "C:\\Users\\alkos\\downloads\\V20_FULL_OFFLINE_BACKUP_20261027T071840Z.zip",
+    "archive_sha256": "6abfc449bd399f72007cea8765ca03cda1f70ad8a4e45b703cc1c598975b9ce6",
+    "stdout": "v20_portable_full_zip=PASS",
+    "secret_exclusion": "v20_portable_no_plaintext_tokens_or_dpapi=YES",
+    "live_state": "v20_portable_live_state_unmodified=YES"
+  },
+  "acceptance": "PASS_EXPORT_AND_SQLITE_BACKUP_ON_INTEL",
+  "excluded_from_evidence": [
+    "No independent restoration on second computer performed",
+    "ZIP was not uploaded or individually decompressed/read back for integrity check",
+    "Archive may be stale after any later LIVE trading activity",
+    "DPAPI secrets/FINAM tokens are deliberately excluded; new PC requires fresh binding",
+    "External encrypted off-PC copy not yet confirmed by owner",
+    "Export does not include a ready-to-run Python venv or system-level dependencies"
+  ],
+  "next_operator_action": "Copy ZIP and matching .sha256.txt onto encrypted media off the Intel host; verify matching SHA256 after transfer. Do not store unencrypted or paste ZIP into chats due to confidential trading state.",
+  "next_restoration_rule": "On a replacement PC create V20 isolated environment, keep Tasks disabled/HALTED, restore source/dependencies/SQLite, bind fresh FINAM tokens to new Windows SID, use broker GET-only reconciliation, require explicit LIVE authorization before arming; never replay intents blindly.",
+  "scope": "V20_TradingSystem_M15 only, H1 and IntradayLab M15 untouched"
+}
