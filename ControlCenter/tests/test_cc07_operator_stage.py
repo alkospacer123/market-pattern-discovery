@@ -14,6 +14,7 @@ def test_action_semantics_and_immutable_v20_operator():
     assert "e68eba0b522a08493549a5cd9ed60d27188c700c" in SCRIPT
     assert "0ea762e73b76e64255489e2bb5428c62397a6e55" in SCRIPT
     assert "4e7498d2eacf0930d0ee1bbf6343883735f3aefb" in SCRIPT
+    assert "e1de4aad7a98cdc84768c1811131c3ad079d7d90" in SCRIPT
     assert "function pin-one-of(" in SCRIPT
     assert "($shas -ccontains $hash)" in SCRIPT
     assert "pin-one-of $launcher @(" in SCRIPT

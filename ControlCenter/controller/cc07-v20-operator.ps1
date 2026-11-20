@@ -160,13 +160,14 @@ function release {
 }
 need ($env:os -ceq 'Windows_NT' -and $env:computername -ceq 'URIU-PC') 'cc07_wrong_host'
 pin $operator 'b06957ea7833daeda65296eb372890951860c008'
-# Known launcher blobs: only the pinned finam_live.py integrity reference differs.
+# Known launcher blobs: reviewed changes affect only pinned finam_live.py / finam_execution.py hashes.
 # Do not accept arbitrary V20 changes, bypass its own internal pinning, or mutate V20.
 pin-one-of $launcher @(
  '90e2171bd425015b6b7fd7f5d8e97e331e8b64cb',
  'e68eba0b522a08493549a5cd9ed60d27188c700c',
  '0ea762e73b76e64255489e2bb5428c62397a6e55',
- '4e7498d2eacf0930d0ee1bbf6343883735f3aefb'
+ '4e7498d2eacf0930d0ee1bbf6343883735f3aefb',
+ 'e1de4aad7a98cdc84768c1811131c3ad079d7d90'
 )
 $sid=[security.principal.windowsidentity]::getcurrent().user.value
 $task=get-scheduledtask -taskname $robot -taskpath '\' -erroraction stop

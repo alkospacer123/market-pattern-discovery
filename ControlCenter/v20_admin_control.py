@@ -19,7 +19,7 @@ import subprocess
 ROBOTS = ("v20-shallow", "v20-obv", "v20-inside")
 ACTIONS = ("start", "pause", "stop", "restart", "recover")
 OPERATOR = Path(r"C:\Control Center\cc07-operator\cc07-v20-operator.ps1")
-OPERATOR_BLOB = "d6133bb8551f019e429d90bfdfa30f9bb028d991"
+OPERATOR_BLOB = "10de325be0335733a248c412943f39d45bd93c62"
 RELEASE = Path(r"C:\Control Center\data\private\cc07-v20-release.json")
 GATEWAY_POLICY = Path(r"C:\Control Center\data\private\cc07-gateway-policy.json")
 HEX = re.compile(r"[a-f0-9]{32}\Z")
