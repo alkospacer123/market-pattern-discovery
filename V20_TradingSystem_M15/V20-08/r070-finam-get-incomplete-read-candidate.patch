@@ -1,0 +1,29 @@
+diff --git a/V20_TradingSystem_M15/v20_runtime/finam_live.py b/V20_TradingSystem_M15/v20_runtime/finam_live.py
+--- a/V20_TradingSystem_M15/v20_runtime/finam_live.py
++++ b/V20_TradingSystem_M15/v20_runtime/finam_live.py
+@@ -9,7 +9,7 @@
+ 
+ import argparse
+ from contextlib import closing
+-from http.client import RemoteDisconnected
++from http.client import IncompleteRead, RemoteDisconnected
+ import sqlite3
+ from types import SimpleNamespace
+ from datetime import datetime, timedelta, timezone
+@@ -103,7 +103,15 @@
+     def _request(self, method, path, payload=None, auth=True, retries=2):
+         try:
+             return super()._request(method, path, payload, auth, retries)
+-        except FinamError as exc:
++        except IncompleteRead as exc:
++            # An incomplete GET is untrusted broker data. Retry a FULL
++            # fresh read in the outer LIVE cycle; never fabricate a snapshot.
++            # Trading POST/DELETE stays fatal and is NEVER retried here.
++            if method == "GET":
++                raise V20FinamSnapshotReadRetry(
++                    "FINAM_GET_INCOMPLETE_READ") from exc
++            raise
++        except FinamError as exc:
+             # H1 refreshes JWT and repeats an authorized GET once. A second
+             # HTTP 401, or a 401 during its read-only session renewal, cannot
+             # establish broker state. Auth POST is NOT a trading POST.

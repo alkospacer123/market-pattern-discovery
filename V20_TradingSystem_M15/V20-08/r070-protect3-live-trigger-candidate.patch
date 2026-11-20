@@ -1,0 +1,50 @@
+diff --git a/V20_TradingSystem_M15/v20_runtime/finam_live.py b/V20_TradingSystem_M15/v20_runtime/finam_live.py
+--- a/V20_TradingSystem_M15/v20_runtime/finam_live.py
++++ b/V20_TradingSystem_M15/v20_runtime/finam_live.py
+@@ -507,8 +507,44 @@
+             sender.submit_frozen_exit_once(
+                 key=key, boundary=boundary, snapshot=snapshot, now=now)
+             return "FROZEN_EXIT_ACK_KEEP_STOP_UNTIL_FLAT"
+-        if due != "HOLD_UNTIL_THIRD_OBSERVED_SESSION":
+-            journal.store.put("execution_halt", "FROZEN_EXIT_OPEN_MISSED")
++        if due == "HOLD_UNTIL_THIRD_OBSERVED_SESSION":
++            # R070 staged candidate: original 100%-TP6 SLTP must first
++            # pass the current V20 broker seal, then the completed +3R M15.
++            # The first safe choice is HOLD. No response/quote means no
++            # cancellation, and an UNKNOWN replacement never auto-replays.
++            stop_payload = stop_intent.get("payload", {})
++            original_wire = stop_payload.get("wire") if isinstance(stop_payload, dict) else None
++            if (isinstance(original_wire, dict)
++                    and original_wire.get("tp_qty_measure") == "SLTP_QTY_MEASURE_PERCENT"
++                    and original_wire.get("quantity_tp") == {"value": "100"}
++                    and journal.store.get("r070_protect3:" + key) is None):
++                from .r070_linked_sltp import (
++                    prepare_r070_protect3_from_v20_readonly,
++                    stage_r070_protect3_cancel_first_once,
++                )
++                from .tp6_protect3 import TP6Protect3Unsafe
++                try:
++                    review, plan = prepare_r070_protect3_from_v20_readonly(
++                        journal=journal, reader=reader, snapshot=snapshot,
++                        entry_key=key, now=now, boundary=boundary)
++                except TP6Protect3Unsafe as exc:
++                    # The original stop remains active. A missing/stale
++                    # quote cannot authorize cancelling it.
++                    if str(exc).startswith("R070_PROTECT3_QUOTE_") or str(exc) == "R070_PROTECT3_PRICE_NO_LONGER_SAFE":
++                        return "PROTECT3_QUOTE_UNVERIFIED_KEEP_OLD_STOP"
++                    raise V20FinamBlocked("R070_PROTECT3_M15_OR_FILL_UNVERIFIED") from exc
++                except FinamError:
++                    return "PROTECT3_QUOTE_GET_FAILED_KEEP_OLD_STOP"
++                if plan is not None:
++                    new_id = stage_r070_protect3_cancel_first_once(
++                        journal=journal, reader=reader, entry_key=key,
++                        plan=plan, broker_api=reader.api, observed_at=now,
++                        authorized_live_sender=sender)
++                    if not new_id:
++                        raise V20FinamBlocked("R070_PROTECT3_NEW_STOP_ACK_MISSING")
++                    return "R070_PROTECT3_REPLACED_NEEDS_NEXT_BROKER_CHECK"
++        if due != "HOLD_UNTIL_THIRD_OBSERVED_SESSION":
++            journal.store.put("execution_halt", "FROZEN_EXIT_OPEN_MISSED")
+             raise V20FinamBlocked("V20_LIVE_FROZEN_EXIT_DEADLINE_MISSED")
+     return "BROKER_RECONCILED_PROTECTION_PASS"
+ 

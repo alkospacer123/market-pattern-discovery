@@ -367,4 +367,399 @@ jobs:
             if ($LASTEXITCODE -ne 0) { throw ('V20_H1_LIFECYCLE_PARITY_FAIL '+$case) }
           }
           Write-Output 'V20_H1_LIFECYCLE_FOUR_EXISTING_REGRESSIONS=PASS'
+          python -m unittest -v V20_TradingSystem_M15.v20_runtime.tests.test_ext2_r060 V20_TradingSystem_M15.v20_runtime.tests.test_tp6_protect3 V20_TradingSystem_M15.v20_runtime.tests.test_ext2_history_bridge V20_TradingSystem_M15.v20_runtime.tests.test_r070_candidate_entry V20_TradingSystem_M15.v20_runtime.tests.test_r070_linked_sltp V20_TradingSystem_M15.v20_runtime.tests.test_r070_v20_protection_handoff V20_TradingSystem_M15.v20_runtime.tests.test_r070_m15_checkpoint V20_TradingSystem_M15.v20_runtime.tests.test_r070_m15_candidate_state
+          if ($LASTEXITCODE -ne 0) { throw 'V20_R070_OFFLINE_CONTRACT_FAIL' }
+          Write-Output 'V20_R070_EXT2_TP6_PROTECT3_OFFLINE_CONTRACT=PASS'
           exit 0
+      - name: R070 EXT2 pre-intent candidate (ephemeral Windows only)
+        shell: pwsh
+        env:
+          PYTHONDONTWRITEBYTECODE: '1'
+        run: |
+          $ErrorActionPreference='Stop'
+          $target='V20_TradingSystem_M15/v20_runtime/finam_live.py'
+          $patch='V20_TradingSystem_M15/V20-08/r070-ext2-pre-intent-candidate.patch'
+          $pinned='b80fb9eb135f7cdcb4c78337e2b808c4d7135195'
+          if ((& git.exe hash-object -- $target).Trim() -ne $pinned) { throw 'R070_EXT2_PINNED_LIVE_CHANGED_BEFORE_TEST' }
+          & git.exe apply --check -- $patch
+          if ($LASTEXITCODE -ne 0) { throw 'R070_EXT2_PATCH_DOES_NOT_APPLY' }
+          $applied=$false
+          try {
+            & git.exe apply -- $patch
+            if ($LASTEXITCODE -ne 0) { throw 'R070_EXT2_PATCH_APPLY_FAILED' }
+            $applied=$true
+            python -m unittest -v V20_TradingSystem_M15.v20_runtime.tests.test_r070_ext2_pre_intent_staged
+            if ($LASTEXITCODE -ne 0) { throw 'R070_EXT2_PRE_INTENT_MOCK_FAILED' }
+          } finally {
+            if ($applied) {
+              & git.exe apply -R -- $patch
+              if ($LASTEXITCODE -ne 0) { throw 'R070_EXT2_PINNED_LIVE_RESTORE_FAILED' }
+            }
+          }
+          if ((& git.exe hash-object -- $target).Trim() -ne $pinned) { throw 'R070_EXT2_PINNED_LIVE_SHA_CHANGED_AFTER_TEST' }
+          Write-Output 'R070_EXT2_PRE_INTENT=PASS_RESTORED_PINNED_LIVE_NO_FINAM'
+      - name: R070 one-shot TP6 patched candidate (ephemeral Windows only)
+        shell: pwsh
+        env:
+          PYTHONDONTWRITEBYTECODE: '1'
+        run: |
+          $ErrorActionPreference='Stop'
+          $target='V20_TradingSystem_M15/v20_runtime/finam_execution.py'
+          $patch='V20_TradingSystem_M15/V20-08/r070-tp6-one-shot-candidate.patch'
+          $pinned='6b600451178b42bd4f8b2037995e7db3a9ad27c8'
+          if ((& git.exe hash-object -- $target).Trim() -ne $pinned) { throw 'R070_PINNED_EXECUTION_CHANGED_BEFORE_TEST' }
+          & git.exe apply --check -- $patch
+          if ($LASTEXITCODE -ne 0) { throw 'R070_ONE_SHOT_PATCH_DOES_NOT_APPLY' }
+          $applied=$false
+          try {
+            & git.exe apply -- $patch
+            if ($LASTEXITCODE -ne 0) { throw 'R070_PATCH_APPLY_FAILED' }
+            $applied=$true
+            python -m unittest -v V20_TradingSystem_M15.v20_runtime.tests.test_r070_tp6_one_shot_staged
+            if ($LASTEXITCODE -ne 0) { throw 'R070_ONE_SHOT_MOCK_CONTRACT_FAILED' }
+          } finally {
+            if ($applied) {
+              & git.exe apply -R -- $patch
+              if ($LASTEXITCODE -ne 0) { throw 'R070_PINNED_EXECUTION_RESTORE_FAILED' }
+            }
+          }
+          if ((& git.exe hash-object -- $target).Trim() -ne $pinned) { throw 'R070_PINNED_EXECUTION_SHA_CHANGED_AFTER_TEST' }
+          Write-Output 'R070_TP6_ONE_SHOT_CANDIDATE=PASS_RESTORED_PINNED_EXECUTION_NO_FINAM'
+
+      - name: R070 Protect3 full staged hook, stop ownership, cleanup and night (ephemeral)
+        shell: pwsh
+        env:
+          PYTHONDONTWRITEBYTECODE: '1'
+          R070_PROTECT3_PATCH_ACTIVE: '1'
+          R070_PROTECT3_FLAT_PATCH_ACTIVE: '1'
+          R070_PROTECT3_LIVE_HOOK_PATCH_ACTIVE: '1'
+          R070_PROTECT3_NIGHT_PATCH_ACTIVE: '1'
+        run: |
+          $ErrorActionPreference='Stop'
+          $live='V20_TradingSystem_M15/v20_runtime/finam_live.py'
+          $execution='V20_TradingSystem_M15/v20_runtime/finam_execution.py'
+          $livePatch='V20_TradingSystem_M15/V20-08/r070-protect3-broker-id-readonly-candidate.patch'
+          $hookPatch='V20_TradingSystem_M15/V20-08/r070-protect3-live-trigger-candidate.patch'
+          $nightPatch='V20_TradingSystem_M15/V20-08/r070-protect3-night-monitor-candidate.patch'
+          $executionPatch='V20_TradingSystem_M15/V20-08/r070-protect3-flat-cleanup-candidate.patch'
+          $liveSha='b80fb9eb135f7cdcb4c78337e2b808c4d7135195'
+          $execSha='6b600451178b42bd4f8b2037995e7db3a9ad27c8'
+          if ((& git.exe hash-object -- $live).Trim() -ne $liveSha) { throw 'R070_PROTECT3_PINNED_LIVE_SHA_BEFORE' }
+          if ((& git.exe hash-object -- $execution).Trim() -ne $execSha) { throw 'R070_PROTECT3_PINNED_EXEC_SHA_BEFORE' }
+          & git.exe apply --check -- $livePatch
+          if ($LASTEXITCODE -ne 0) { throw 'R070_PROTECT3_LIVE_PATCH_INVALID' }
+          & git.exe apply --check -- $executionPatch
+          if ($LASTEXITCODE -ne 0) { throw 'R070_PROTECT3_EXEC_PATCH_INVALID' }
+          & git.exe apply --check -- $hookPatch
+          if ($LASTEXITCODE -ne 0) { throw 'R070_PROTECT3_HOOK_PATCH_INVALID' }
+          & git.exe apply --check -- $nightPatch
+          if ($LASTEXITCODE -ne 0) { throw 'R070_PROTECT3_NIGHT_PATCH_INVALID' }
+          $liveApplied=$false
+          $hookApplied=$false
+          $nightApplied=$false
+          $execApplied=$false
+          try {
+            & git.exe apply -- $livePatch
+            if ($LASTEXITCODE -ne 0) { throw 'R070_PROTECT3_LIVE_PATCH_FAILED' }
+            $liveApplied=$true
+            & git.exe apply -- $hookPatch
+            if ($LASTEXITCODE -ne 0) { throw 'R070_PROTECT3_HOOK_PATCH_FAILED' }
+            $hookApplied=$true
+            & git.exe apply -- $nightPatch
+            if ($LASTEXITCODE -ne 0) { throw 'R070_PROTECT3_NIGHT_PATCH_FAILED' }
+            $nightApplied=$true
+            & git.exe apply -- $executionPatch
+            if ($LASTEXITCODE -ne 0) { throw 'R070_PROTECT3_EXEC_PATCH_FAILED' }
+            $execApplied=$true
+            python -m unittest -v V20_TradingSystem_M15.v20_runtime.tests.test_r070_v20_protection_handoff
+            if ($LASTEXITCODE -ne 0) { throw 'R070_PROTECT3_SUCCESSOR_AND_CLEANUP_MOCK_FAILED' }
+          } finally {
+            if ($execApplied) {
+              & git.exe apply -R -- $executionPatch
+              if ($LASTEXITCODE -ne 0) { throw 'R070_PROTECT3_EXEC_RESTORE_FAILED' }
+            }
+            if ($nightApplied) {
+              & git.exe apply -R -- $nightPatch
+              if ($LASTEXITCODE -ne 0) { throw 'R070_PROTECT3_NIGHT_RESTORE_FAILED' }
+            }
+            if ($hookApplied) {
+              & git.exe apply -R -- $hookPatch
+              if ($LASTEXITCODE -ne 0) { throw 'R070_PROTECT3_HOOK_RESTORE_FAILED' }
+            }
+            if ($liveApplied) {
+              & git.exe apply -R -- $livePatch
+              if ($LASTEXITCODE -ne 0) { throw 'R070_PROTECT3_LIVE_RESTORE_FAILED' }
+            }
+          }
+          if ((& git.exe hash-object -- $live).Trim() -ne $liveSha) { throw 'R070_PROTECT3_PINNED_LIVE_SHA_AFTER' }
+          if ((& git.exe hash-object -- $execution).Trim() -ne $execSha) { throw 'R070_PROTECT3_PINNED_EXEC_SHA_AFTER' }
+          Write-Output 'R070_PROTECT3_FULL_STAGED_HOOK_AND_NIGHT=PASS_PINNED_BOTH_RESTORED'
+
+      - name: R070 Intel CNY GET-only PowerShell syntax (no execution)
+        shell: pwsh
+        run: |
+          $ErrorActionPreference='Stop'
+          $scripts=@(
+            'V20_TradingSystem_M15/V20-08/r070-cny-intel-readonly.ps1',
+            'V20_TradingSystem_M15/V20-08/r070-20261117-prepare-full-package.ps1'
+          )
+          foreach($source in $scripts) {
+            $tokens=$null
+            $errors=$null
+            $null=[System.Management.Automation.Language.Parser]::ParseFile($source,[ref]$tokens,[ref]$errors)
+            if (@($errors).Count -ne 0) { throw ('R070_PS_SYNTAX_ERROR '+$source+' '+(($errors | ForEach-Object {$_.Message}) -join ';')) }
+          }
+          Write-Output 'R070_CNY_PHYSICAL_PS_SYNTAX=PASS_NO_EXECUTION'
+          $builder=Get-Content -LiteralPath $scripts[1] -Raw
+          foreach($hash in @(
+            'b80fb9eb135f7cdcb4c78337e2b808c4d7135195',
+            '6b600451178b42bd4f8b2037995e7db3a9ad27c8',
+            '0c25db6d1223a39bcd0a5f28eccb738ef96931ab',
+            '05dfd4d0fe5210fdd8cf7e933c556a3d439dbc6b',
+            'fabfa58e9d84553fe0c51833530cb90d89412e85'
+          )) {
+            if (-not $builder.Contains($hash)) { throw ('R070_FULL_PACKAGE_REQUIRED_PIN_MISSING_'+$hash) }
+          }
+          if ($builder.Contains('Start-ScheduledTask') -or
+              $builder.Contains('Enable-ScheduledTask') -or
+              $builder.Contains('place_order(') -or
+              $builder.Contains('Cancel-Order') -or
+              $builder.Contains('arm -robot')) {
+            throw 'R070_FULL_PACKAGE_PREPARER_LIVE_ACTION_FORBIDDEN'
+          }
+          Write-Output 'R070_FULL_RELEASE_PREPARE_PS_SYNTAX=PASS_NO_EXECUTION'
+          Write-Output 'R070_FULL_RELEASE_PREPARE_PINS_AND_NO_LIVE_ACTION=PASS'
+
+      - name: R070 FINAM incomplete GET incident 20261117 (ephemeral only)
+        shell: pwsh
+        env:
+          PYTHONDONTWRITEBYTECODE: '1'
+        run: |
+          $ErrorActionPreference='Stop'
+          $target='V20_TradingSystem_M15/v20_runtime/finam_live.py'
+          $patch='V20_TradingSystem_M15/V20-08/r070-finam-get-incomplete-read-candidate.patch'
+          $pinned='b80fb9eb135f7cdcb4c78337e2b808c4d7135195'
+          if ((& git.exe hash-object -- $target).Trim() -ne $pinned) { throw 'R070_GET_INCOMPLETE_LIVE_PIN_CHANGED' }
+          & git.exe apply --check -- $patch
+          if ($LASTEXITCODE -ne 0) { throw 'R070_GET_INCOMPLETE_PATCH_CHECK_FAILED' }
+          $applied=$false
+          try {
+            & git.exe apply -- $patch
+            if ($LASTEXITCODE -ne 0) { throw 'R070_GET_INCOMPLETE_PATCH_APPLY_FAILED' }
+            $applied=$true
+            python -m unittest -v V20_TradingSystem_M15.v20_runtime.tests.test_r070_finam_get_incomplete_read_staged
+            if ($LASTEXITCODE -ne 0) { throw 'R070_GET_INCOMPLETE_MOCK_FAILED' }
+          } finally {
+            if ($applied) {
+              & git.exe apply -R -- $patch
+              if ($LASTEXITCODE -ne 0) { throw 'R070_GET_INCOMPLETE_PATCH_RESTORE_FAILED' }
+            }
+          }
+          if ((& git.exe hash-object -- $target).Trim() -ne $pinned) { throw 'R070_GET_INCOMPLETE_LIVE_SHA_CHANGED_AFTER_TEST' }
+          Write-Output 'R070_GET_INCOMPLETE=PASS_RESTORED_PRODUCTION_PIN_NO_FINAM'
+
+      - name: R070 full bundle patch integration including 20261117 FINAM GET (ephemeral)
+        shell: pwsh
+        env:
+          PYTHONDONTWRITEBYTECODE: '1'
+          R070_PROTECT3_PATCH_ACTIVE: '1'
+          R070_PROTECT3_FLAT_PATCH_ACTIVE: '1'
+          R070_PROTECT3_LIVE_HOOK_PATCH_ACTIVE: '1'
+          R070_PROTECT3_NIGHT_PATCH_ACTIVE: '1'
+        run: |
+          $ErrorActionPreference='Stop'
+          $live='V20_TradingSystem_M15/v20_runtime/finam_live.py'
+          $execution='V20_TradingSystem_M15/v20_runtime/finam_execution.py'
+          $origLive='b80fb9eb135f7cdcb4c78337e2b808c4d7135195'
+          $origExec='6b600451178b42bd4f8b2037995e7db3a9ad27c8'
+          if ((& git.exe hash-object -- $live).Trim() -ne $origLive -or
+              (& git.exe hash-object -- $execution).Trim() -ne $origExec) {
+            throw 'R070_FULL_BUNDLE_ORIGINAL_PINS_CHANGED'
+          }
+          $patches=@(
+            'r070-tp6-one-shot-candidate.patch',
+            'r070-protect3-flat-cleanup-candidate.patch',
+            'r070-protect3-broker-id-readonly-candidate.patch',
+            'r070-protect3-live-trigger-candidate.patch',
+            'r070-protect3-night-monitor-candidate.patch',
+            'r070-ext2-pre-intent-candidate.patch',
+            'r070-finam-get-incomplete-read-candidate.patch'
+          ) | ForEach-Object { 'V20_TradingSystem_M15/V20-08/'+$_ }
+          $applied=New-Object 'System.Collections.Generic.List[string]'
+          try {
+            foreach($p in $patches) {
+              & git.exe apply --check -- $p
+              if ($LASTEXITCODE -ne 0) { throw ('R070_FULL_BUNDLE_CONFLICT_'+$p) }
+              & git.exe apply -- $p
+              if ($LASTEXITCODE -ne 0) { throw ('R070_FULL_BUNDLE_APPLY_FAILED_'+$p) }
+              $applied.Add($p)
+            }
+            python -m unittest -v V20_TradingSystem_M15.v20_runtime.tests.test_r070_ext2_pre_intent_staged V20_TradingSystem_M15.v20_runtime.tests.test_r070_tp6_one_shot_staged V20_TradingSystem_M15.v20_runtime.tests.test_r070_v20_protection_handoff V20_TradingSystem_M15.v20_runtime.tests.test_r070_finam_get_incomplete_read_staged
+            if ($LASTEXITCODE -ne 0) { throw 'R070_FULL_BUNDLE_COMBINED_MOCK_FAILED' }
+            python -m py_compile $live $execution
+            if ($LASTEXITCODE -ne 0) { throw 'R070_FULL_BUNDLE_COMPILED_INVALID' }
+            Write-Output ('R070_FULL_BUNDLE_LIVE_DERIVED_SHA=' + (& git.exe hash-object -- $live).Trim())
+            Write-Output ('R070_FULL_BUNDLE_EXEC_DERIVED_SHA=' + (& git.exe hash-object -- $execution).Trim())
+            # Build one offline package on the CI host. Intel does not need
+            # to make sixteen separate GitHub API calls.
+            $base='V20_TradingSystem_M15/'
+            $bundle=Join-Path $env:RUNNER_TEMP 'r070-full-bundle-20261117'
+            if(Test-Path -LiteralPath $bundle){throw 'R070_ARTIFACT_ALREADY_EXISTS'}
+            $staged=Join-Path $bundle 'staged'
+            $additional=@(
+              'v20_runtime/tp6_protect3.py',
+              'v20_runtime/ext2_r060.py',
+              'v20_runtime/ext2_history_bridge.py',
+              'v20_runtime/r070_candidate_entry.py',
+              'v20_runtime/r070_m15_checkpoint.py',
+              'v20_runtime/r070_m15_candidate_state.py',
+              'v20_runtime/r070_linked_sltp.py'
+            )
+            $sourceFiles=@($live,$execution)+@($additional | ForEach-Object { $base+$_ })+$patches
+            foreach($p in $sourceFiles){
+              if(-not(Test-Path -LiteralPath $p -PathType Leaf)){throw ('R070_ARTIFACT_SOURCE_MISSING_'+$p)}
+              $dst=Join-Path $staged $p
+              $dir=Split-Path -Parent $dst
+              New-Item -ItemType Directory -Path $dir -Force | Out-Null
+              Copy-Item -LiteralPath $p -Destination $dst -ErrorAction Stop
+              if ((& git.exe hash-object -- $dst).Trim() -ne (& git.exe hash-object -- $p).Trim()) {
+                throw ('R070_ARTIFACT_COPY_SHA_CHANGED_'+$p)
+              }
+            }
+            $builder='V20_TradingSystem_M15/V20-08/r070-20261117-prepare-full-package.ps1'
+            Copy-Item -LiteralPath $builder -Destination (Join-Path $bundle 'r070-20261117-prepare-full-package.ps1') -ErrorAction Stop
+            $pins=[ordered]@{}
+            foreach($p in $sourceFiles){
+              $pins[$p]=(& git.exe hash-object -- (Join-Path $staged $p)).Trim().ToLowerInvariant()
+            }
+            if ($pins[$live] -ne '0c25db6d1223a39bcd0a5f28eccb738ef96931ab' -or
+                $pins[$execution] -ne '05dfd4d0fe5210fdd8cf7e933c556a3d439dbc6b') {
+              throw 'R070_ARTIFACT_COMBINED_SHA_MISMATCH'
+            }
+            $manifest=[ordered]@{
+              schema='v20.r070.20261117.full_staged_bundle.v1'
+              status='STAGED_NOT_INSTALLED'
+              source_commit=$env:GITHUB_SHA
+              patched_live_git_sha=$pins[$live]
+              patched_execution_git_sha=$pins[$execution]
+              original_live_git_sha=$origLive
+              original_execution_git_sha=$origExec
+              files_git_sha=$pins
+              no_finam_calls=$true
+              no_live_install=$true
+              auto_arm=$false
+              readiness='BLOCKED_UNTIL_EXT2_PHYSICAL_PROOF_AND_PROTECT3_LIVE_CUTOVER'
+            }
+            $manifestText=$manifest|ConvertTo-Json -Depth 6
+            [io.file]::WriteAllText((Join-Path $bundle 'manifest.json'),$manifestText,[text.utf8encoding]::new($false))
+            Write-Output ('R070_PACKAGE_ARTIFACT_READY='+$bundle)
+          } finally {
+            $reverse=@($applied.ToArray())
+            [array]::Reverse($reverse)
+            foreach($p in $reverse) {
+              & git.exe apply -R -- $p
+              if ($LASTEXITCODE -ne 0) { throw ('R070_FULL_BUNDLE_RESTORE_FAILED_'+$p) }
+            }
+          }
+          if ((& git.exe hash-object -- $live).Trim() -ne $origLive -or
+              (& git.exe hash-object -- $execution).Trim() -ne $origExec) {
+            throw 'R070_FULL_BUNDLE_RESTORE_PINS_CHANGED'
+          }
+          Write-Output 'R070_FULL_BUNDLE=PASS_7_PATCHES_COMBINED_ORIGINAL_SHA_RESTORED_NO_FINAM'
+
+      - name: Upload R070 one-download verified offline bundle
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: r070-full-bundle-20261117
+          path: ${{ runner.temp }}/r070-full-bundle-20261117/
+          if-no-files-found: error
+          retention-days: 14
+
+      - name: Build R070 CNY physical timestamp evidence kit (no FINAM)
+        shell: pwsh
+        run: |
+          $ErrorActionPreference='Stop'
+          $dest=Join-Path $env:RUNNER_TEMP 'r070-cny-get-only-evidence'
+          New-Item -ItemType Directory -Path $dest -Force | Out-Null
+          $expected=[ordered]@{
+            'r070-cny-intel-readonly.py'='f798b1346a527249587e319c7e6e3c2b9af8adb0'
+            'r070-cny-intel-readonly.ps1'='4e9d7366567fe7d0bb9e6b0e1a5207d7742ed63f'
+          }
+          foreach($name in $expected.Keys){
+            $origin='V20_TradingSystem_M15/V20-08/'+$name
+            $text=[io.file]::ReadAllText((Resolve-Path -LiteralPath $origin).Path)
+            $text=$text.Replace("`r`n","`n")
+            $path=Join-Path $dest $name
+            [io.file]::WriteAllText($path,$text,[text.utf8encoding]::new($false))
+            $actual=(& git.exe hash-object -- $path).Trim().ToLowerInvariant()
+            if($actual -ne $expected[$name]){throw ('R070_CNY_EVIDENCE_SHA_INVALID_'+$name)}
+          }
+          $manifest=[ordered]@{
+            schema='r070.cny.timestamp_diagnostic.getonly.v2'
+            status='READONLY_DIAGNOSTIC_NOT_LIVE'
+            allowed_days='2026-11-17..2026-11-20'
+            no_trading_endpoints=$true
+            files_git_sha=$expected
+          }
+          [io.file]::WriteAllText((Join-Path $dest 'manifest.json'),($manifest|ConvertTo-Json -Depth 4),[text.utf8encoding]::new($false))
+          Write-Output 'R070_CNY_PHYSICAL_EVIDENCE_KIT=PASS_2_OF_2_PINS_NO_FINAM'
+      - name: Upload R070 CNY physical timestamp evidence kit
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: r070-cny-get-only-evidence-20261117
+          path: ${{ runner.temp }}/r070-cny-get-only-evidence/
+          if-no-files-found: error
+          retention-days: 14
+
+      - name: Checkout historical N4 price source at immutable data SHA
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          repository: alkospacer123/market-pattern-data
+          ref: f8486b446cf3d5f9f3cba6dfec32bdef8fd184c8
+          path: data-prefix-source
+          persist-credentials: false
+
+      - name: R070 pinned N4 history prefix evidence (offline, no FINAM)
+        shell: pwsh
+        run: |
+          $ErrorActionPreference='Stop'
+          $root='data-prefix-source'
+          $head=(& git.exe -C $root rev-parse HEAD).Trim().ToLowerInvariant()
+          if($head -ne 'f8486b446cf3d5f9f3cba6dfec32bdef8fd184c8'){throw 'R070_HISTORY_SOURCE_COMMIT_CHANGED'}
+          $pins=[ordered]@{
+            'USDRUBF'=@('forever/USDRUBF/USDRUBF_M15.csv','6d4f7691c1c6bfbad59b62a6f5d613a4ed1e984e')
+            'CNYRUBF'=@('forever/CNYRUBF/CNYRUBF_M15.csv','a5ff61bbdd9bb6659a0f4fea7141b04b5e8bc35e')
+            'GLDRUBF'=@('forever/GLDRUBF/GLDRUBF_M15.csv','726c9242a025e75de4d0e93a2c215cc2778b9a9a')
+            'IMOEXF'=@('forever/IMOEXF/IMOEXF_M15.csv','23d8e02920684a1a55e50b222271faaa81be5120')
+          }
+          $dir=Join-Path $env:RUNNER_TEMP 'r070-historical-prefix-public'
+          New-Item -ItemType Directory -Path $dir -Force | Out-Null
+          foreach($name in $pins.Keys) {
+            $file=Join-Path $root $pins[$name][0]
+            if(-not(Test-Path -LiteralPath $file -PathType Leaf)){throw ('R070_HIST_MISSING_'+$name)}
+            $data=[io.file]::ReadAllText((Resolve-Path -LiteralPath $file).Path)
+            $data=$data.Replace("`r`n","`n")
+            $target=Join-Path $dir ($name+'_M15_history.csv')
+            [io.file]::WriteAllText($target,$data,[text.utf8encoding]::new($false))
+            if ((& git.exe hash-object -- $target).Trim().ToLowerInvariant() -ne $pins[$name][1]) {
+              throw ('R070_HIST_BLOB_SHA_CHANGED_'+$name)
+            }
+          }
+          $manifest=[ordered]@{
+            schema='r070.n4.public_historical_source.v1'
+            mode='READONLY_NO_LIVE_NO_FINAM'
+            source_repository='alkospacer123/market-pattern-data'
+            source_commit='f8486b446cf3d5f9f3cba6dfec32bdef8fd184c8'
+            source_files_git_blob_sha=$pins
+            verified_not_yet_merged=$true
+          }
+          [io.file]::WriteAllText((Join-Path $dir 'manifest.json'),($manifest|ConvertTo-Json -Depth 6),[text.utf8encoding]::new($false))
+          Write-Output 'R070_HIST_PUBLIC_SOURCE=PASS_4_OF_4_GIT_SHA_NO_FINAM'
+
+      - name: Upload R070 pinned N4 history prefix evidence
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: r070-public-history-prefix-20261117
+          path: ${{ runner.temp }}/r070-historical-prefix-public/
+          if-no-files-found: error
+          retention-days: 14
