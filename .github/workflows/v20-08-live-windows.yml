@@ -893,7 +893,8 @@ jobs:
             'r070-protect3-night-monitor-candidate.patch',
             'r070-finam-get-incomplete-read-candidate.patch',
             'r088-hold5-after-r070-combined-candidate.patch',
-            'r088-inside-prepost-orphan-20261119.patch'
+            'r088-inside-prepost-orphan-20261119.patch',
+            'r088-protect3-main-identity-20261120.patch'
           ) | ForEach-Object {'V20_TradingSystem_M15/V20-08/'+$_}
           $done=New-Object 'System.Collections.Generic.List[string]'
           try {
@@ -906,8 +907,8 @@ jobs:
             }
             & python -m py_compile $live
             if($LASTEXITCODE -ne 0){throw 'INSIDE_PATCH_SYNTAX_INVALID'}
-            & python -m unittest -q V20_TradingSystem_M15.v20_runtime.tests.test_r088_prepost_all3
-            if($LASTEXITCODE -ne 0){throw 'R088_ALL3_PREPOST_MOCK_FAILED'}
+            & python -m unittest -q V20_TradingSystem_M15.v20_runtime.tests.test_r088_prepost_all3 V20_TradingSystem_M15.v20_runtime.tests.test_r088_protect3_identity
+            if($LASTEXITCODE -ne 0){throw 'R088_ALL3_PROTECT3_AND_PREPOST_MOCK_FAILED'}
             $src=Get-Content -LiteralPath $live -Raw
             foreach($required in @('def _resolve_never_posted_entry','PREPARED_ONLY_NO_POST',
               'journal.store.transition_intent(key, "CANCELLED")','journal.store.get("live_post:" + key) is not None',
@@ -915,8 +916,8 @@ jobs:
               'PREPOST_ABORT_NO_FINAM_ORDER')){
               if(-not $src.Contains($required)){throw ('INSIDE_RECOVERY_PROOF_MISSING_'+$required)}
             }
-            Write-Output ('R088_ALL3_PREPOST_PATCHED_LIVE_SHA='+(& git.exe hash-object -- $live).Trim())
-            Write-Output 'R088_ALL3_PREPOST_FIX=PASS_SYNTAX_SAFE_NO_POST_BROKER_SCOPE'
+            Write-Output ('R088_ALL3_PROTECT3_PREPOST_PATCHED_LIVE_SHA='+(& git.exe hash-object -- $live).Trim())
+            Write-Output 'R088_ALL3_PROTECT3_PREPOST_FIX=PASS_NO_FINAM_CLASS_IDENTITY_AND_UNKNOWN_POST_SAFETY'
           } finally {
             $rev=@($done.ToArray())
             [array]::Reverse($rev)
