@@ -928,7 +928,7 @@ jobs:
           }
           if(((& git.exe hash-object -- $live).Trim()) -ne $base){throw 'INSIDE_BASE_NOT_RESTORED'}
 
-      - name: R088 all-three guarded incident installer syntax (no LIVE execution)
+      - name: R088 all-three guarded PREPOST + Protect3 installer syntax (no LIVE execution)
         shell: pwsh
         run: |
           $ErrorActionPreference='Stop'
@@ -943,13 +943,15 @@ jobs:
           $src=Get-Content -LiteralPath $file -Raw
           foreach($proof in @(
             "0b6b23e46b1e63a0afafe88d91cec52d7e19efb9",
+            "56f03cf0be39a357c2e22ba0ecd5bdc0861e7589",
+            "5d30270d3936fb52f58a61aa3abbf070d7df6b57",
             "54ae8e1262482f4ecc80d202c6e9063cf0d6e402",
             "c92c8dac3876f1d402e08f4891f3da2c8d66a6fe",
             "V20_BROKER_FLAT_",
             "V20_OPERATOR_HALT_ALL_FAILED",
             "V20_SQLITE_BACKUP_3_FAILED",
             "V20_AUTO_ROLLBACK=PASS_ORIGINAL_3_RUNNING_HALTED",
-            "V20_ALL3_PREPOST_FIX=PASS_3_RUNNING_HALTED_FRESH_CYCLES",
+            "V20_ALL3_PREPOST_PROTECT3_FIX=PASS_3_RUNNING_HALTED_FRESH_CYCLES",
             "V20_ALL3_NO_NEW_ORDERS_NO_AUTO_ARM=YES"
           )){
             if(-not $src.Contains($proof)){throw ('V20_INSTALLER_PIN_OR_GUARD_MISSING_'+$proof)}
