@@ -138,3 +138,18 @@
 **R7-B PASS требует отдельно:** независимой копии на носителе с проверенным SHA, сохранения полного актуального `Git history/refs/tags`, экспорта GitHub `PR/Issues/CI` (на момент проверки API сообщает 1163 workflow runs), проверки Git LFS/внешних зависимостей при наличии и решения оператора. Созданный скриптом Git-only отчёт намеренно оставляет `r7_checkpoint_status=PARTIAL_GIT_ONLY_NOT_FINAL_RECOVERY`. Он не заменяет финальные R5/R6 после Kimi.
 
 **Действия с source:** `NO_DELETIONS / NO_MERGE / NO_LIVE_CHANGE`. `R7_A_DEPENDENCY_CLOSURE=NOT_VERIFIED`; `R7_B_EXTERNAL_CHECKPOINT=NOT_VERIFIED`; `R7_G_CLEANUP=BLOCKED`.
+
+
+## R7-Б — доказанное восстановление Git bundle на Intel (operator evidence 20.11.2026)
+
+**Метка:** \`R7_B_INTEL_BUNDLE_COLD_GIT_RESTORE_PASS_20261120\`. Получена оригинальная PowerShell-выгрузка оператора (\`1.txt\`, 1191 строк; не публиковать целиком из-за многословного перечня refs).
+
+- **Исходный mirror:** \`D:\TradingSystemsR7\discovery-checkpoint-20261120\market-pattern-discovery.git\`, ранее \`git fsck --full --strict\` вернул \`exit=0\`, refs=1174, \`main=f15d565755b996252081ed49ed5a094ee1e8d820\`.
+- **Независимый от mirror переносной Git bundle:** \`D:\TradingSystemsR7\discovery-checkpoint-20261120\market-pattern-discovery.bundle\`.
+- \`bundle_bytes=439668305\`, \`SHA256=09C596CF5E8268256AD4511DE5F28C5E8CA8A823F62867FC9ECF441534D15527\`; \`git bundle verify\` → \`is okay\`, \`complete history\`.
+- Bundle сообщает **1175 refs** (включая символический \`HEAD\`), а \`git for-each-ref\` в исходном и восстановленном bare repo сообщает **1174 refs**; это корректно разные виды подсчёта, а не потеря одного ref.
+- **Пробное восстановление из bundle:** \`D:\TradingSystemsR7\discovery-checkpoint-20261120\market-pattern-discovery-verify.git\`, отдельный \`git clone --mirror\` из bundle, \`git fsck --full --strict\` закончил успешно. \`original_refs=1174\`, \`restored_refs=1174\`, \`ref_differences=0\`, \`restored_main=f15d565755b996252081ed49ed5a094ee1e8d820\`, \`git_bundle_restore=PASS\`.
+- **Что доказано:** соответствие main и всех refs и самостоятельная целостность полного Git-объектного хранилища после восстановления из bundle; ни GitHub, ни рабочий main, ни LIVE не модифицировались.
+- **Что ещё НЕ доказано:** физическая независимость диска \`D:\` от Intel/основного SSD, хранение второй копии вне компьютера, экспорт PR/Issues/CI metadata, Git LFS при наличии, воспроизводимость зависимостей и запуск offline регрессий, зависимостный скан полного main. Это предварительный **R7-Б Git-only checkpoint**, НЕ финальное Disaster Recovery и пока НЕ разрешение на удаление.
+- **Следующий gate:** создать disposable \`market-pattern-discovery-scan-checkout\` из bundle на отдельном месте и исполнить read-only \`r7_dependency_scan.py --expected-head f15d565...\`, сохранить \`dependency-report.json\`; по результатам классифицировать защищённые ссылки и skipped файлы.
+
