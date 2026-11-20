@@ -5,6 +5,8 @@ Creates a NEW destination folder containing:
   <repo>.git/           -- full mirrored refs and Git object store
   <repo>.bundle         -- independently SHA256-verifiable Git bundle
   <repo>-verify.git/    -- isolated restore proof from bundle
+  <repo>-scan-checkout/ -- isolated restored working tree for dependency scan
+  dependency-report.json
   checkpoint-report.json
 
 Never reads FINAM credentials, never executes trading code, never modifies
@@ -101,6 +103,16 @@ def checkpoint(source: str, destination: Path, expected_main: str,
         "--format=%(refname)%09%(objectname)").splitlines()]
     if refs != restored_refs:
         raise ValueError("bundle restore ref list differs from mirror; checkpoint INVALID")
+    # Run the evidence scan against the isolated worktree, NEVER production roots.
+    checkout = destination / (repo_basename + "-scan-checkout")
+    run_git("clone", "--quiet", "--branch", "main", "--", str(bundle), str(checkout),
+            timeout=1800)
+    from r7_dependency_scan import scan
+    dependency = scan(checkout, expected_head=expected_main)
+    dependency_path = destination / "dependency-report.json"
+    dependency_path.write_text(
+        json.dumps(dependency, ensure_ascii=False, indent=2, sort_keys=True) + "\n",
+        encoding="utf-8")
     report = {
         "schema": "r7-git-checkpoint/v1",
         "repo_name": repo_basename,
@@ -114,6 +126,13 @@ def checkpoint(source: str, destination: Path, expected_main: str,
         "bundle_file": bundle.name,
         "bundle_bytes": bundle.stat().st_size,
         "bundle_sha256": sha256_file(bundle),
+        "dependency_report_file": dependency_path.name,
+        "dependency_report_sha256": sha256_file(dependency_path),
+        "dependency_text_files_scanned": dependency["text_files_scanned"],
+        "dependency_legacy_bundle_tracked": dependency["legacy_bundle_tracked"],
+        "dependency_reference_hits_by_scope": dependency["reference_hits_by_scope"],
+        "dependency_skipped_count": len(dependency["skipped"]),
+        "dependency_closure": "NOT_PROVEN_LITERAL_SCAN_ONLY",
         "independent_media_copy": "NOT_VERIFIED",
         "github_pr_issues_ci_metadata_export": "NOT_INCLUDED",
         "git_lfs_external_objects": "NOT_VERIFIED",
