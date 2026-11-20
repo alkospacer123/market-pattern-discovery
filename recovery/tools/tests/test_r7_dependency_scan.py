@@ -6,7 +6,7 @@ import tempfile
 import unittest
 
 sys.path.insert(0, str(pathlib.Path(__file__).parent.parent))
-from r7_dependency_scan import scan, SCHEMA
+from r7_dependency_scan import scan, SCHEMA, REF_PATTERNS, main
 
 
 def git(repo, *args):
@@ -43,6 +43,26 @@ class TestScanner(unittest.TestCase):
         self.assertGreater(r["reference_hits_by_scope"]["protected_or_entrypoint"], 0)
         self.assertEqual(r["verdict"], "LITERAL_SCAN_ONLY_NOT_DEPENDENCY_CLOSURE")
         self.assertFalse((self.root / "report.json").exists())
+
+    def test_bbw_pattern_matches_exact_package(self):
+        pattern = dict(REF_PATTERNS)["package:bbw_system"]
+        self.assertIsNotNone(pattern.search("bbw_system.cli:main"))
+        self.assertIsNotNone(pattern.search("from bbw_system.engine import X"))
+        self.assertIsNone(pattern.search("bw_system.cli:main"))
+        self.assertIsNone(pattern.search("foo_bbw_system_bar"))
+
+    def test_report_sha256_matches_disk_bytes(self):
+        import contextlib
+        import hashlib
+        import io
+        import json
+        out = self.root.parent / "r7-report-outside.json"
+        with contextlib.redirect_stdout(io.StringIO()) as cap:
+            code = main(["--repo", str(self.root), "--output", str(out)])
+        self.assertEqual(code, 0)
+        printed = json.loads(cap.getvalue())
+        self.assertEqual(printed["sha256"], hashlib.sha256(out.read_bytes()).hexdigest())
+        out.unlink()
 
     def test_reject_mismatch(self):
         with self.assertRaisesRegex(ValueError, "HEAD mismatch"):
