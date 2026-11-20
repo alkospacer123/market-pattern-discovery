@@ -98,6 +98,9 @@ def scan(root: pathlib.Path, *, expected_head: str | None = None,
     if expected_head and expected_head.lower() != head.lower():
         raise ValueError(f"HEAD mismatch: expected {expected_head}, found {head}")
     status = git(root, "status", "--porcelain", "--untracked-files=no")
+    # Staged or unstaged tracked edits invalidate attribution to HEAD blobs.
+    if status:
+        raise ValueError("tracked Git checkout is dirty; scan a clean, disposable checkout")
     tree = git(root, "rev-parse", "HEAD^{tree}").decode().strip()
     files = tracked_index(root)
     matches: list[dict] = []
