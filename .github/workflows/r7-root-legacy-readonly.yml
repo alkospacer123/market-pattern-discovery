@@ -19,7 +19,7 @@ jobs:
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # SHA pinned
         with:
           ref: ${{ github.event.pull_request.head.sha }}
-          fetch-depth: 2
+          fetch-depth: 16
           filter: blob:none
           persist-credentials: false
           sparse-checkout: |

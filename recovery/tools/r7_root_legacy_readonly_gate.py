@@ -124,8 +124,8 @@ def run():
     ap.add_argument("--output",required=True)
     args=ap.parse_args()
     assert git("rev-parse","HEAD")==args.expect_head,"HEAD_SHA_CHANGED"
-    assert git("rev-parse","HEAD^")==ARCHIVE,"ARCHIVE_PARENT_CHANGED"
-    old,head=tree("HEAD^"),tree("HEAD")
+    git("merge-base","--is-ancestor",ARCHIVE,"HEAD") # pinned immutable ancestor, not HEAD^
+    old,head=tree(ARCHIVE),tree("HEAD")
     removed=set(old)-set(head)
     added=set(head)-set(old)
     modified={p for p in set(old)&set(head) if old[p]!=head[p]}
@@ -136,13 +136,13 @@ def run():
     assert modified==MODIFIED,"MODIFIED_SCOPE_CHANGED:"+str(modified^MODIFIED)
     assert all(sum(p.startswith(root+"/") for p in removed)==count for root,count in ROOTS.items()),"ROOT_COUNTS_CHANGED"
     for root in PROTECTED:
-        assert git("rev-parse","HEAD^:"+root)==git("rev-parse","HEAD:"+root),"PROTECTED_CHANGED:"+root
+        assert git("rev-parse",ARCHIVE+":"+root)==git("rev-parse","HEAD:"+root),"PROTECTED_CHANGED:"+root
     original_ci=[p for p in old if p.startswith(".github/workflows/")]
     assert all(head.get(p)==old[p] for p in original_ci),"ORIGINAL_CI_CHANGED"
     assert old["research_domains.md"]!=head["research_domains.md"],"LEGACY_POINTER_NOT_REPLACED"
     scan=source_scan(old,head)
     report={"schema":"r7-root-legacy-readonly-gate-v1",
-      "head":args.expect_head,"archive_parent":ARCHIVE,
+      "head":args.expect_head,"archive_anchor":ARCHIVE,
       "archive_equal_removed_blobs":len(removed),
       "source_files":len(old),"candidate_files":len(head),
       "deleted":len(removed),"modified":len(modified),"added":len(added),
