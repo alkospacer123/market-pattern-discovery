@@ -206,3 +206,13 @@ Decision ID: R7_FULL_MAIN_REVIEW_ARCHIVE_BRANCH_DECISION_20261121. Аудит р
 8. Phase II: три базы знаний Kimi Chat + Kimi Code, проверенный источник, экзамен и GPT↔Kimi handoff. Phase III: независимый Recovery и cold restore строго после Phase II.
 
 Текущий статус: archive branch created SHA_MATCH BUT UNPROTECTED, R7-A-V2 expected, R7-C not started, R7-E delete PR not started, main/LIVE untouched.
+
+## 21.11.2026 — V2 dependency scan: физический отчёт принят и проверен
+
+Evidence: R7_V2_USER_REPORT_VERIFIED_20261121. User ran isolated scanner with head f15d565755b996252081ed49ed5a094ee1e8d820. Actual uploaded file SHA256 = f2bb849da4035042a7209665b9a133fb3652fc20927a0534f0be989aa3f9a16a; stdout SHA MATCH; tracked_tree_modified=false; tree_sha=44a5fef98dd8a3b6bc3e6d172f64fafddac5df4b.
+
+- 18 439 tracked; 16 828 text files scanned; 1 012 skipped >2MB (996 CSV, 14 JSON, 1 TXT, 1 MD). Exactly 331 candidate old-root tracked blobs; no claim they can be deleted.
+- 1 979 line-reference hits total: protected_or_entrypoint 1 490, candidate_legacy_bundle 454, other 35. These are **textual lines**, not distinct imports nor proof of runtime use.
+- 588 matches for exact package `bbw_system`, of which 491 are from protected_or_entrypoint; 97 from candidate_legacy_bundle. In protected scope 491 hits span only 28 files and are dominated by six historical IntradayLab JSON hash/scope snapshot manifests with 78 lines each. No confirmed live Python import of `bbw_system` identified in this literal report; absence of literal match is NOT dependency closure.
+- Specifically 6 protected Python match lines require further inspection: IntradayLab/optimization_registry/audit_registry.py:16, build_registry.py:49,318 refer to historical `market_pattern_discovery` references; TradingSystemLab/stage8_robot/signal_execution_diagnostic.py:22 and tests/replay_stop_tick_grid.py:19,64 refer to audit_only/stop_tick_grid_20261012. TRL reports reference reusable src/market_pattern_discovery/backtest + validation. ControlCenter/ci/protected-main-tree.json contains historical source SHA references.
+- **Decision:** V2_SCAN_REPORT=PASS_SHA_AND_READONLY; DEPENDENCY_CLOSURE=NOT_VERIFIED; DELETIONS=BLOCKED. Advance to whole main Git-tree metadata inventory 18 439/18 439, then static owner/runtime/CI/provenance closure and isolated regression tests. Do not publish raw report unless filename/privacy review permits.
