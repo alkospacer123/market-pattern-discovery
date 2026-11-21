@@ -37,7 +37,7 @@ jobs:
         with:
           ref: ${{ github.event.pull_request.head.sha }}
           persist-credentials: false
-          fetch-depth: 3
+          fetch-depth: 4
           filter: blob:none
           sparse-checkout: |
             /.github/workflows/
@@ -90,8 +90,9 @@ jobs:
               return git('rev-parse', name).decode().strip()
 
           assert exact('HEAD') == os.environ['R7_PR_SHA'], 'UNEXPECTED_PR_HEAD'
-          assert exact('HEAD^') == DELETION_COMMIT, 'DELETE_PARENT_MOVED'
-          assert exact('HEAD^^') == PIN, 'ORIGINAL_MAIN_PIN_MOVED'
+          assert exact('HEAD^') == '695da3a7cd75538a56d8e77a957e81ab99a35079', 'PR_WORKFLOW_PARENT_MOVED'
+          assert exact('HEAD^^') == DELETION_COMMIT, 'DELETE_GRANDPARENT_MOVED'
+          assert exact('HEAD^^^') == PIN, 'ORIGINAL_MAIN_PIN_MOVED'
           assert exact('HEAD^{tree}') != DELETION_TREE, 'CI_WORKFLOW_NOT_COMMITTED'
           assert exact(DELETION_COMMIT + '^{tree}') == DELETION_TREE, 'VERIFIED_DELETE_TREE_MOVED'
           assert exact('HEAD:ControlCenter') == CC_TREE, 'CONTROL_CENTER_TREE_CHANGED'
@@ -151,3 +152,113 @@ jobs:
               assert source.read_bytes() == payload, 'TEST_SOURCE_MUTATED'
           print('R7_NATIVE_OFFLINE_JOURNAL_SYMLINK=PASS', 'os='+sys.platform)
           PY
+
+  cc03-native-package-acceptance:
+    name: Frozen CC-03 native suite + explicit historic scope exception
+    if: github.event.pull_request.base.ref == 'main'
+    needs: immutable-tree-and-symlink
+    runs-on: windows-2022
+    timeout-minutes: 30
+    defaults:
+      run:
+        shell: pwsh
+        working-directory: ControlCenter
+    steps:
+      - name: Checkout unchanged CC-03 package at exact R7 PR head
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        env:
+          GIT_CONFIG_COUNT: '1'
+          GIT_CONFIG_KEY_0: core.autocrlf
+          GIT_CONFIG_VALUE_0: 'false'
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          persist-credentials: false
+          fetch-depth: 1
+          sparse-checkout: |
+            /ControlCenter/
+          sparse-checkout-cone-mode: false
+      - name: Exact Windows CPython 3.12.10
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
+        with:
+          python-version: '3.12.10'
+          architecture: x64
+      - name: Install original CC-03 hashed CI wheels in hosted RUNNER_TEMP
+        run: |
+          python -m venv "$env:RUNNER_TEMP\cc03-python"
+          if ($LASTEXITCODE -ne 0) { throw 'R7_CC_VENV_FAILED' }
+          & "$env:RUNNER_TEMP\cc03-python\Scripts\python.exe" -m pip install --require-hashes --only-binary=:all: --no-deps -r requirements-windows-ci.lock
+          if ($LASTEXITCODE -ne 0) { throw 'R7_CC_HASHED_WHEEL_INSTALL_FAILED' }
+      - name: Unmodified complete native acceptance, inspect every actual case
+        run: |
+          $ErrorActionPreference='Continue'
+          $python="$env:RUNNER_TEMP\cc03-python\Scripts\python.exe"
+          & $python -B ci/windows_acceptance.py
+          $acceptanceExit=$LASTEXITCODE
+          Write-Output "R7_CC03_ORIGINAL_ACCEPTANCE_EXIT=$acceptanceExit"
+          if ($acceptanceExit -ne 1) { throw "R7_CC03_UNEXPECTED_FULL_ACCEPTANCE_EXIT=$acceptanceExit" }
+          $ErrorActionPreference='Stop'
+          $check=@'
+          import hashlib, json, os
+          from pathlib import Path
+          import subprocess
+          import xml.etree.ElementTree as ET
+
+          root=Path(os.environ['RUNNER_TEMP']) / 'cc03-evidence'
+          results=json.loads((root/'results.json').read_text(encoding='utf-8'))
+          expected={
+              'scope-audit','host','windows-reader','windows-transport','cc03-source',
+              'os-observer','intel-preflight','manual-os','full-suite','manifest',
+              'pip-check','pip-freeze','powershell-preview','powershell-rehearsal',
+              'streamlit-click','pythoncore-provision',
+          }
+          assert set(results)==expected, 'R7_CC_RESULTS_MISSING_OR_EXTRA'
+          scope=results['scope-audit']
+          assert scope['exit_code']!=0, 'R7_CC_HISTORIC_SCOPE_MUST_FAIL'
+          log=(root/'scope-audit.log').read_text(encoding='utf-8',errors='replace')
+          assert 'CHANGED_PATH_OUTSIDE_CONTROLCENTER' in log, 'R7_CC_UNKNOWN_SCOPE_FAILURE'
+          assert 'AssertionError' in log, 'R7_CC_SCOPE_UNEXPECTED_ERROR_KIND'
+          for name,item in results.items():
+              if name=='scope-audit':
+                  continue
+              assert item['exit_code']==0, 'R7_CC_NATIVE_COMMAND_FAILED:'+name+':'+repr(item)
+              assert not item.get('missing_junit'), 'R7_CC_MISSING_JUNIT:'+name
+              assert not item.get('native_incomplete'), 'R7_CC_NATIVE_INCOMPLETE:'+name
+              assert item.get('failed',0)==0, 'R7_CC_CASE_FAILURE:'+name
+          for name in ('windows-reader','windows-transport','cc03-source','os-observer',
+                       'intel-preflight','manual-os','full-suite'):
+              xml=root/(name+'.xml')
+              assert xml.is_file(), 'R7_CC_JUNIT_MISSING:'+name
+              cases=list(ET.parse(xml).iter('testcase'))
+              assert cases, 'R7_CC_NO_CASES:'+name
+              assert not any(c.find('failure') is not None or c.find('error') is not None for c in cases), 'R7_CC_JUNIT_FAILED:'+name
+              for case in cases:
+                  skip=case.find('skipped')
+                  if skip is not None:
+                      assert (skip.get('message') or '').startswith('POSIX descriptor fault injection;'), 'R7_CC_UNACCEPTED_SKIP:'+name
+          for name in ('pythoncore-provision','powershell-rehearsal','streamlit-click','manifest'):
+              assert results[name]['exit_code']==0, 'R7_CC_NATURAL_ACCEPTANCE_NOT_COMPLETE:'+name
+          manifest = json.loads(Path('deployment/manifest.json').read_text(encoding='utf-8'))
+          assert len(manifest['files']) == 162, 'R7_CC_FROZEN_MANIFEST_COUNT_MOVED'
+          assert subprocess.check_output(['git','rev-parse','HEAD:ControlCenter'],text=True).strip()=='8052938c83a27b2367309052d455d74d9341df09', 'R7_CC_PACKAGE_TREE_MOVED'
+          inventory = json.loads((root/'ARTIFACT_SHA256.json').read_text(encoding='utf-8'))
+          assert len(inventory)>10, 'R7_CC_EVIDENCE_TOO_SMALL'
+          for record in inventory:
+              data=(root/record['path']).read_bytes()
+              assert len(data)==record['size'] and hashlib.sha256(data).hexdigest()==record['sha256'], 'R7_CC_EVIDENCE_HASH_MISMATCH:'+record['path']
+          acceptance=json.loads((root/'acceptance.json').read_text(encoding='utf-8'))
+          assert acceptance['classification']=='CC03_WINDOWS_NATIVE_NEEDS_FIX', 'R7_CC_HISTORICAL_SCOPE_NOT_REPORTED'
+          print('R7_CC03_FROZEN_PACKAGE_AND_NATIVE_NON_SCOPE=PASS')
+          print('R7_CC03_HISTORICAL_SCOPE=EXPECTED_FAIL_STILL_OPEN')
+          print('R7_CC03_UNCHANGED_MANIFEST=PASS_162')
+          print('R7_CC03_NON_SCOPE_COMMANDS=PASS_15_OF_15')
+          '@
+          $check | & $python -B -
+          if ($LASTEXITCODE -ne 0) { throw 'R7_CC03_NATIVE_EVIDENCE_VERIFY_FAILED' }
+      - name: Retain unmodified native acceptance evidence
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: r7-cc03-native-original-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/cc03-evidence/
+          if-no-files-found: error
+          retention-days: 30
