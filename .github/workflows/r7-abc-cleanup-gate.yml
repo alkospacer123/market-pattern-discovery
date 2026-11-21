@@ -68,7 +68,7 @@ jobs:
           import sys
 
           PIN='f15d565755b996252081ed49ed5a094ee1e8d820'
-          EXPECTED_PARENT='a35e056d5f2d8c5202241b78a7702ec54e2a3419'
+          EXPECTED_PARENT='a2184a2646a6a48597116175b5918d97188128f2'
           CI_FILE='.github/workflows/r7-abc-cleanup-gate.yml'
           CC_FILE='.github/workflows/controlcenter-cc03-windows-native.yml'
           CC_BLOB='ebf5b976a9f3857728369b6813512c0e00f2399d'
@@ -465,6 +465,8 @@ jobs:
           persist-credentials: false
           sparse-checkout: |
             /V20_TradingSystem_M15/
+            /TradingSystemLab/stage8_robot/
+            /TradingSystemLab/authority_hashing.py
           sparse-checkout-cone-mode: false
       - name: Pinned Windows Python 3.12.10
         uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # pinned v5
@@ -553,6 +555,7 @@ jobs:
           filter: blob:none
           sparse-checkout: |
             /TradingSystemLab/stage8_robot/
+            /TradingSystemLab/authority_hashing.py
             /TradingSystemLab/core/
             /IntradayLab/core/
             /IntradayLab/tools/
