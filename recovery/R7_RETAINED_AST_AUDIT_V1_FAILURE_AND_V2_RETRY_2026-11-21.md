@@ -14,3 +14,11 @@
 - **Не отменяет** изоляционных offline регрессий V20/CC/TRL/H1/M15, исторической A/B/C воспроизводимости, динамических/внешних потребителей, 15 oversized текстовых и бинарных исследований. Нельзя выполнять реальный `git rm`, Git merge или воздействовать на LIVE/FINAM.
 
 Git archive branch `archive/pre-r7-cleanup` protected under ruleset #27793383; separate USB Seagate D: Git bundle SHA verified PASS. Главное ограничение R7: cleanup Merge только после проверенного source closure и отдельного разрешения оператора.
+
+## 21.11.2026 — фактический V2 Git-blob scan на Intel, отчет оператора
+
+Evidence key: R7_RETAINED_STATIC_V2_OPERATOR_STDOUT_20261121. Пользователь выполнил V2 на изолированной копии `D:\TradingSystemsR7\discovery-checkpoint-20261120\market-pattern-discovery-scan-checkout`. Вывод программы: 6,948 retained; 3,751 immutable Git blobs text_scanned; 1,322 Python AST parsed; 0 read errors, 0 AST parse errors, 0 direct A/B/C imports, 0 candidate code refs; 40 generic dynamic import/exec/eval hotspot files. Verdict `STATIC_GIT_BLOB_ONLY_NOT_DEPENDENCY_CLOSURE_NO_DELETE_AUTHORIZATION`; shell `R7_STATIC_V2=REPORT_CREATED`. SHA256 reported by Windows **95526ac4716dc6f19da888ad57e34bc8e89840a081fd23f252ca177689075994**.
+
+**Evidence limitation:** screenshot/stdout only; original `r7-retained-static-audit-v2.json` NOT YET uploaded for independent SHA verification and inspection of all 40 paths/sites. Do not interpret `0` literal matches as dynamic closure. There are skipped unselected extensions and 15 oversized text blobs. Old V1 bad results remain invalid.
+
+**Next decision:** upload/inspect full V2 JSON, categorize 40 by concrete path/function/argument and classify any dynamic candidate reachability; then safe disposable reduced-tree regression of protected V20/CC/TRL/H1/M15 and original A/B/C historical replay. Merging a cleanup PR and real deletion are still blocked.
