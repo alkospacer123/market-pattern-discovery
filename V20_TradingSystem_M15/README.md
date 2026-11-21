@@ -1,3 +1,5 @@
+> **Актуально для Kimi с 21.11.2026:** [паспорт V20](../recovery/PROJECT_PASSPORT_V20.md), [R088 release](V20-08/LIVE_RELEASE_R088_20261120_RU.md), [проектный AGENTS](AGENTS.md). Старые разделы ниже — исторические свидетельства; не авторизуют LIVE.
+
 # V20_TradingSystem_M15 — V20-04: три независимых робота
 
 > **АКТУАЛЬНО 20.11.2026 (V20 LIVE):** базовые Shallow/OBV/Inside и R088 без EXT2 фактически установлены на Intel; последний подтверждённый результат после установки — `PASS_3_RUNNING_HALTED_FRESH_CYCLES`, а восстановление ARMED через Control Center ещё не подтверждено. Заморожены M15/N4/NEXT_OPEN, SL 2×ATR14, TP6, Protect3, HOLD5, риск 1,5%/6%; EXT2 отключён. **Текущий производственный паспорт:** [V20-08/LIVE_RELEASE_R088_20261120_RU.md](V20-08/LIVE_RELEASE_R088_20261120_RU.md). Исторические ниже слова «V20-04 IN PROGRESS / LIVE OFF» и TIME3 описывают прежний этап, а не текущую эксплуатацию.
