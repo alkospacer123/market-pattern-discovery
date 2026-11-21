@@ -188,3 +188,21 @@
 **Дефект V1:** regex \`r"\bbw_system\b"\` фактически ищет \`bw_system\` после word boundary, а не \`bbw_system\`; в отчёте V1 отсутствует \`package:bbw_system\` даже в root \`pyproject.toml\`, где такие ссылки точно есть. Исправлено строгим bounded pattern \`(?<![A-Za-z0-9_])bbw_system(?![A-Za-z0-9_])\`; добавлены два теста на точный match и SHA физического файла. Всего scanner+checkpoint synthetic tests **10/10 PASS**. Поэтому V1 — **не финальная скан-метрика**; нужен \`dependency-report-v2.json\` с исправленным сканером, прежде чем одобрять cleanup.
 
 **Действия:** Не удалять \`audit_only/\`; не переносить в public archive исторические файлы без content/privacy контроля; не изменять TRL/H1/M15/CC snapshots; не делать Merge/LIVE. R7-D grouped-deletion PR разрешать только после triage реального V2 + protected reference rewrite/compat tests и проверки копии на независимом носителе.
+
+## 21.11.2026 — полная очистка main и историческая ветка
+
+Decision ID: R7_FULL_MAIN_REVIEW_ARCHIVE_BRANCH_DECISION_20261121. Аудит расширен с 331 legacy files на все 18 439 tracked paths исходного main; задача — активные и воспроизводимые V20/CC/TRL и необходимые H1/M15 зависимости, методологии, минимальный CI.
+
+**Архитектура:** Один текущий репозиторий, архивная ветка archive/pre-r7-cleanup на SHA f15d565755b996252081ed49ed5a094ee1e8d820, branch status SHA_MATCH; main тот же SHA. GitHub REST protected=false: требуется защита ветки. Ветка не является независимым backup. market-pattern-data не затрагивать. Большой каталог archive/ в main не создавать: только компактный индекс/ссылки при необходимости.
+
+**Gates:**
+1. R7-0: доказанная сохранность Git bundle и cold restore (PASS на Intel); подтвердить физический внешний носитель и защиту archive branch; PR/Issues/CI metadata и Git LFS при наличии проверить перед потенциально необратимой очисткой.
+2. R7-A-V2: повторный скан isolated checkout исправленным scanner (точный bbw_system, SHA physical bytes), загрузка dependency-report-v2.json; V1 не доказывает закрытие зависимостей.
+3. R7-C: whole-repo manifest для каждого tracked пути/sha/mode/размера/назначения; анализ runtime imports, subprocess, PowerShell, workflows, tests, configs, manifests, CLI, frozen research, документации. V1 1012 size-skipped файлов отдельно классифицировать (без исполнения LIVE).
+4. R7-D: классифицировать поддеревья KEEP_ACTIVE, KEEP_PROVENANCE, MIGRATE_TEST_FIRST, REMOVE_FROM_MAIN_AFTER_PROOF, HOLD_UNKNOWN; H1/M15/TRL/CC/V20 ссылки на старые пути требуют точной проверки и регрессионных тестов.
+5. R7-E: одна согласованная отдельная cleanup branch/PR с физическим удалением доказанно ненужных больших блоков из main; не сотни косметических PR, не rewrite истории Git, не гигантская папка archive/ в main.
+6. R7-F: offline тесты, сверка SHA и protected inventory, импортов/путей/исторического provenance в disposable checkout. FAIL = HOLD, устранить сбой до Merge.
+7. R7-G: guarded Merge только при всех PASS и отдельном подтверждении оператора; main SHA/tree verify; LIVE/FINAM/Windows Task/реальная торговля вне области уборки.
+8. Phase II: три базы знаний Kimi Chat + Kimi Code, проверенный источник, экзамен и GPT↔Kimi handoff. Phase III: независимый Recovery и cold restore строго после Phase II.
+
+Текущий статус: archive branch created SHA_MATCH BUT UNPROTECTED, R7-A-V2 expected, R7-C not started, R7-E delete PR not started, main/LIVE untouched.
