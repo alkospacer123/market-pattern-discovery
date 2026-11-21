@@ -123,14 +123,54 @@ jobs:
           PY
       - name: Install test-only pinned dependencies outside original live machines
         run: python -m pip install --disable-pip-version-check pytest==8.4.2 numpy==2.2.6 pandas==2.3.3 jsonschema==4.25.1 tabulate==0.9.0
-      - name: Run only selected originally archived synthetic research tests
+      - name: Reproduce full selected original tests and classify exactly one pre-existing historical failure
+        shell: bash
         run: |
+          set -o pipefail
+          set +e
           python -B -m pytest -q -p no:cacheprovider \
             tests/test_backtest_engine.py \
             tests/test_validation_engine.py \
-            tests/test_research_cells.py
+            tests/test_research_cells.py \
+            --junitxml="$RUNNER_TEMP/legacy-replay.xml" \
+            2>&1 | tee "$RUNNER_TEMP/legacy-replay.log"
+          rc=${PIPESTATUS[0]}
+          set -e
+          python - "$rc" "$RUNNER_TEMP/legacy-replay.xml" <<'PY'
+          import sys
+          import xml.etree.ElementTree as ET
+          rc=int(sys.argv[1])
+          root=ET.parse(sys.argv[2]).getroot()
+          cases=list(root.iter('testcase'))
+          failures=[x for x in cases if x.find('failure') is not None]
+          errors=[x for x in cases if x.find('error') is not None]
+          skips=[x for x in cases if x.find('skipped') is not None]
+          assert rc==1, 'ARCHIVE_ORIGINAL_TEST_EXIT_CHANGED'
+          assert len(cases)==46, 'ARCHIVE_TEST_CASE_COUNT_CHANGED'
+          assert len(failures)==1 and not errors and not skips, 'ARCHIVE_FAILURE_SET_CHANGED'
+          case=failures[0]
+          assert case.get('name')=='test_all_deterministic_acceptance_outcomes', 'UNEXPECTED_ARCHIVE_FAILURE_CASE'
+          assert 'test_validation_engine' in (case.get('classname') or ''), 'UNEXPECTED_ARCHIVE_FAILURE_SUITE'
+          failure=case.find('failure')
+          message=(failure.get('message') or '')+' '+(failure.text or '')
+          assert 'INSUFFICIENT_DATA' in message and 'REJECTED' in message, 'ARCHIVE_FAILURE_REASON_CHANGED'
+          print('R7_ARCHIVE_ORIGINAL_PYTEST_EXIT=1 (UNMODIFIED HISTORIC FAIL)')
+          print('R7_ARCHIVE_TESTS_PASS=45 FAIL=1 ERRORS=0 SKIPS=0')
+          print('R7_ARCHIVE_KNOWN_FAILURE=test_validation_engine::test_all_deterministic_acceptance_outcomes')
+          print('R7_ARCHIVE_BASELINE_CLASSIFICATION=KNOWN_HISTORIC_FAIL_NOT_ALL_TESTS_PASS')
+          print('R7_ARCHIVE_FORensic_GATE=PASS_ONLY_IF_EXACT_FINGERPRINT')
+          PY
           git diff --exit-code -- src tests config schemas research results evidence scripts pyproject.toml
-          echo 'R7_ARCHIVE_SELECTED_REPLAY_PASS_NOT_FULL_RESEARCH_REPRODUCTION'
+      - name: Preserve original legacy test failure evidence with disclosed scope
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # pinned v4
+        with:
+          name: r7-archive-legacy-evidence-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            ${{ runner.temp }}/legacy-replay.xml
+            ${{ runner.temp }}/legacy-replay.log
+          if-no-files-found: error
+          retention-days: 30
 
   cc03-windows-native-symlink:
     name: R7 CC03 pinned original Windows symlink refusal (isolated fixture)
