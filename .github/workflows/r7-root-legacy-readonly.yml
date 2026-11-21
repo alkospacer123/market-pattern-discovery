@@ -230,3 +230,164 @@ jobs:
           print('R7_CC03_FULL_NATIVE_PACKAGE_ACCEPTANCE=NOT_TESTED')
           '@ | python -B -
           if ($LASTEXITCODE -ne 0) { throw 'R7_CC03_NATIVE_SYMLINK_TEST_FAILED' }
+
+  r7-s-v20-r088-no-ext2:
+    name: R7-586 V20 R088 staged offline 13 cases, reversible
+    if: github.event.pull_request.number == 586
+    needs: root-legacy-readonly
+    runs-on: windows-2022
+    timeout-minutes: 20
+    env:
+      PYTHONDONTWRITEBYTECODE: '1'
+      EXPECTED_HEAD: ${{ github.event.pull_request.head.sha }}
+    steps:
+      - name: Exact PR candidate V20-only checkout
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # pinned v4
+        env:
+          GIT_CONFIG_COUNT: '1'
+          GIT_CONFIG_KEY_0: core.autocrlf
+          GIT_CONFIG_VALUE_0: 'false'
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 2
+          filter: blob:none
+          persist-credentials: false
+          sparse-checkout: |
+            /V20_TradingSystem_M15/
+            /TradingSystemLab/stage8_robot/
+            /TradingSystemLab/authority_hashing.py
+            /TradingSystemLab/core/
+          sparse-checkout-cone-mode: false
+      - name: Pinned Windows Python 3.12.10
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # pinned v5
+        with:
+          python-version: '3.12.10'
+          architecture: x64
+      - name: Original V20 offline test numerical packages
+        shell: pwsh
+        run: |
+          python -m pip install --disable-pip-version-check numpy==2.2.6 pandas==2.3.3 tzdata==2025.2
+          if ($LASTEXITCODE -ne 0) { throw 'R7_S_NUMERICAL_INSTALL_FAILED' }
+      - name: Verify patched R088 offline 13 cases, no EXT2 or live, reverse every patch
+        shell: pwsh
+        run: |
+          $ErrorActionPreference='Stop'
+          if ($env:GITHUB_ACTIONS -ne 'true' -or ((& git.exe rev-parse HEAD).Trim()) -ne $env:EXPECTED_HEAD) { throw 'R7_S_WRONG_HOSTED_HEAD' }
+          if ((& git.exe rev-parse 'HEAD:V20_TradingSystem_M15').Trim() -ne '08e4b1ff98f8599f662ee8724c2d11cea03d85d3') { throw 'R7_S_V20_TREE_MOVED' }
+          $live='V20_TradingSystem_M15/v20_runtime/finam_live.py'
+          $execution='V20_TradingSystem_M15/v20_runtime/finam_execution.py'
+          $origLive='b80fb9eb135f7cdcb4c78337e2b808c4d7135195'
+          $origExec='6b600451178b42bd4f8b2037995e7db3a9ad27c8'
+          if ((& git.exe hash-object -- $live).Trim() -ne $origLive -or (& git.exe hash-object -- $execution).Trim() -ne $origExec) { throw 'R7_S_FROZEN_BASE_BLOBS_CHANGED' }
+          $names=@(
+            'r070-tp6-one-shot-candidate.patch',
+            'r070-protect3-flat-cleanup-candidate.patch',
+            'r070-protect3-broker-id-readonly-candidate.patch',
+            'r070-protect3-live-trigger-candidate.patch',
+            'r070-protect3-night-monitor-candidate.patch',
+            'r070-finam-get-incomplete-read-candidate.patch',
+            'r088-hold5-after-r070-combined-candidate.patch',
+            'r088-inside-prepost-orphan-20261119.patch',
+            'r088-protect3-main-identity-20261120.patch'
+          )
+          $applied=New-Object 'System.Collections.Generic.List[string]'
+          try {
+            foreach ($name in $names) {
+              $p='V20_TradingSystem_M15/V20-08/'+$name
+              & git.exe apply --check -- $p
+              if ($LASTEXITCODE -ne 0) { throw ('R7_S_PATCH_CONFLICT_'+$name) }
+              & git.exe apply -- $p
+              if ($LASTEXITCODE -ne 0) { throw ('R7_S_PATCH_APPLY_FAILED_'+$name) }
+              $applied.Add($p)
+            }
+            $src=Get-Content -LiteralPath $live -Raw
+            foreach ($forbidden in @('admit_r070_frozen_draft_pre_intent','configure_r088_ext2_live_source','r070_verified_history_refresh','r088-moex-calendar.json')) {
+              if ($src.Contains($forbidden)) { throw ('R7_S_EXT2_OR_CALENDAR_HOOK_'+$forbidden) }
+            }
+            & python -B -m unittest -q V20_TradingSystem_M15.v20_runtime.tests.test_r088_hold5_offline V20_TradingSystem_M15.v20_runtime.tests.test_r088_prepost_all3 V20_TradingSystem_M15.v20_runtime.tests.test_r088_protect3_identity
+            if ($LASTEXITCODE -ne 0) { throw 'R7_S_R088_TESTS_FAILED' }
+            & python -B -m py_compile $live $execution
+            if ($LASTEXITCODE -ne 0) { throw 'R7_S_WORKER_SYNTAX_FAILED' }
+            Write-Output ('R7_S_R088_STAGED_LIVE_BLOB='+(& git.exe hash-object -- $live).Trim())
+            Write-Output ('R7_S_R088_STAGED_EXEC_BLOB='+(& git.exe hash-object -- $execution).Trim())
+            Write-Output 'R7_S_R088_NO_EXT2_STAGED=PASS_NO_FINAM_NO_LIVE'
+          }
+          finally {
+            $reverse=@($applied.ToArray())
+            [array]::Reverse($reverse)
+            foreach ($p in $reverse) {
+              & git.exe apply -R -- $p
+              if ($LASTEXITCODE -ne 0) { throw ('R7_S_RESTORE_FAILED_'+$p) }
+            }
+          }
+          if ((& git.exe hash-object -- $live).Trim() -ne $origLive -or (& git.exe hash-object -- $execution).Trim() -ne $origExec) { throw 'R7_S_FROZEN_BLOBS_NOT_RESTORED' }
+          & git.exe diff --exit-code -- $live $execution
+          if ($LASTEXITCODE -ne 0) { throw 'R7_S_WORKTREE_DIRTY_AFTER_RESTORE' }
+          Write-Output 'R7_S_R088_FROZEN_RESTORE=PASS'
+
+  r7-s-h1-m15-trl-selected-offline:
+    name: R7-586 H1 M15 offline + TRL pinned authority (partial)
+    if: github.event.pull_request.number == 586
+    needs: root-legacy-readonly
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    env:
+      PYTHONDONTWRITEBYTECODE: '1'
+      PYTEST_DISABLE_PLUGIN_AUTOLOAD: '1'
+      EXPECTED_HEAD: ${{ github.event.pull_request.head.sha }}
+    steps:
+      - name: Immutable sparse checkout of retained H1 M15 TRL sources
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # pinned v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          persist-credentials: false
+          fetch-depth: 2
+          filter: blob:none
+          sparse-checkout: |
+            /TradingSystemLab/stage8_robot/
+            /TradingSystemLab/authority_hashing.py
+            /TradingSystemLab/core/
+            /IntradayLab/core/
+            /IntradayLab/tools/
+            /IntradayLab/config/
+            /IntradayLab/tests/test_net_c1_execution.py
+            /IntradayLab/tests/test_m5_clock_confirmation.py
+            /IntradayLab/tests/test_causal_mtf.py
+            /TradingResearchLab/
+          sparse-checkout-cone-mode: false
+      - name: Pinned offline Python
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # pinned v5
+        with:
+          python-version: '3.12.10'
+      - name: Pinned test dependencies
+        run: python -m pip install --disable-pip-version-check pytest==8.4.2 numpy==2.2.6 pandas==2.3.3
+      - name: Exact H1 M15 TRL Git SHA and TRL authority links
+        run: |
+          python -B - <<'PY'
+          import os,re,subprocess
+          from pathlib import Path
+          def git(*a): return subprocess.check_output(['git',*a],text=True).strip()
+          assert git('rev-parse','HEAD')==os.environ['EXPECTED_HEAD'],'R7_S_WRONG_HEAD'
+          roots={'TradingSystemLab':'08722b448d9b14201284e4dab83693e960a290b2',
+                 'IntradayLab':'d6b686bcdcbd54eca9d1d25c160fecd5bfd82407',
+                 'TradingResearchLab':'a5764c5e693f43cbb09469badf26c8dbe3fd3fa9'}
+          for k,v in roots.items(): assert git('rev-parse','HEAD:'+k)==v,'R7_S_TREE_MOVED_'+k
+          doc=Path('TradingResearchLab/reports/TRL-NOV-2026-KIMI-START-HERE.md')
+          body=doc.read_text(encoding='utf-8')
+          assert all(x in body for x in ('60/30/45','TP6 + Protect3 + HOLD5','без EXT2','не разрешение управлять LIVE')),'TRL_AUTHORITY_CHANGED'
+          for link in re.findall(r'\]\(([^)]+)\)',body):
+              if link.startswith(('https://','http://','#','mailto:')): continue
+              path=(doc.parent/link.split('#')[0]).resolve()
+              assert path.is_file() and path.is_relative_to(Path.cwd()),'TRL_LINK_MISSING:'+link
+          print('R7_S_PROTECTED_H1_M15_TRL_TREE_SHAS=PASS')
+          print('R7_S_TRL_KIMI_AUTHORITY_LINKS=PASS')
+          PY
+      - name: Synthetic offline H1 safety and M15 causal tests (not full suite)
+        run: |
+          python -B -m pytest -q -p no:cacheprovider \
+            TradingSystemLab/stage8_robot/tests/test_trading_safety_gate.py \
+            IntradayLab/tests/test_net_c1_execution.py \
+            IntradayLab/tests/test_m5_clock_confirmation.py \
+            IntradayLab/tests/test_causal_mtf.py
+          echo 'R7_S_SELECTED_H1_M15=PASS_NOT_FULL_SUITE'
+
