@@ -1,53 +1,69 @@
-# Trading Systems — Roadmap R7 simplified / 20.11.2026
+# Trading Systems — Roadmap R7 / Kimi / Recovery, редакция 21.11.2026
 
-**Статус:** план и доказательные границы на 20.11.2026; снимок времени, не онлайн-телеметрия. **Цель:** три восстановимые системы и два равных ИИ. Утверждённый порядок **R0 → R4 → защитный снимок → R7 → R1 → R2 → R3 → R5 → R6 → R8**. При подготовке допустима read-only параллельность; необратимые действия только после gate и отдельного разрешения оператора.
+**Итоговая последовательность:** Этап I — реальная проверенная очистка `market-pattern-discovery/main` → Этап II — полная адаптация Kimi Chat + Kimi Code с экзаменом и handoff → Этап III — независимый Recovery и реальный cold restore без Intel/GitHub/ИИ. Ранее выполненные R0/R4 и Merge #567/#568/#570/#572–#579 не повторять. Никаких LIVE-изменений без нового отдельного разрешения оператора.
 
-## Утверждённая структура
+## Архитектурное решение 21.11.2026
+- **MAIN:** `alkospacer123/market-pattern-discovery`; сохранение V20, ControlCenter, TradingResearchLab, recovery, необходимых TradingSystemLab/H1 и IntradayLab/M15, .github/CI, методов, исходников и provenance. Устаревший код и десятки тысяч архивных артефактов удалять **из текущего дерева**, но не из Git history.
+- **HISTORY:** ветка `archive/pre-r7-cleanup` создана на `f15d565755b996252081ed49ed5a094ee1e8d820` (точное совпадение с main). Защита ветки GitHub пока **OFF**. Эта ветка — снимок до чистки, не независимый backup. Огромный каталог `archive/` в main не создавать.
+- **EXISTING SEPARATE ARCHIVE:** `alkospacer123/market-pattern-archive` существует (создан 20.11, основной commit/tree `8d4027c8d53625dfe7780cb7ccfdc354d51b25ba`); в нём есть `historical-prs/`, каталоги и как минимум 19 исторических исходников из закрытых PR. **Не удалять.** Сначала сверить уникальность blobs, refs/PR provenance, privacy и Draft #5. Позже можно выбрать сохранить архив как read-only или объединить уникальное в историю, но только по отдельному решению оператора.
+- **DATA:** `market-pattern-data` неизменен; новый GitHub аккаунт, Organization и три кодовых репозитория не создавать.
 
-- **MAIN:** [market-pattern-discovery](https://github.com/alkospacer123/market-pattern-discovery), единый monorepo с `V20_TradingSystem_M15/` (ACTIVE), `ControlCenter/` (ACTIVE), `TradingResearchLab/` (RESEARCH), `recovery/` (KNOWLEDGE), `TradingSystemLab/` (LEGACY H1 + V20 dependency), `IntradayLab/` (LEGACY M15 + V20 dependency). Остальные корневые каталоги сохраняются до проверки.
-- **ARCHIVE:** [market-pattern-archive](https://github.com/alkospacer123/market-pattern-archive) — отдельный **публичный** исторический архив, строго без секретов. Текущий архивный `main=84843e695ad996e89aa13675cd51d06d529b7ecc`.
-- **DATA:** [market-pattern-data](https://github.com/alkospacer123/market-pattern-data) — отдельно, без переноса.
-- **Kimi:** три отдельных проекта знаний **используют один MAIN**, не создавать три отдельных GitHub. Инструкция: [PROJECT_INSTRUCTIONS_CURRENT_2026-11-20.md](PROJECT_INSTRUCTIONS_CURRENT_2026-11-20.md) и [KIMI_REPOSITORY_BOUNDARIES_2026-11-20.md](KIMI_REPOSITORY_BOUNDARIES_2026-11-20.md).
-- Вся история `market-pattern-discovery` должна остаться доступна; `market-pattern-autonomous-engine` удалён оператором, независимый его backup не подтверждён.
+## Этап I — R7. Полная проверка и реальная очистка
 
-## Результат к этому моменту
+### R7-0. Сохранность и точка отката [PARTIAL PASS]
+**Уже выполнено:** исходный main `f15d565755b996252081ed49ed5a094ee1e8d820` совпадал с mirror и с созданной archive branch; Git mirror fsck PASS; Git bundle `439668305 bytes`, SHA256 `09C596CF5E8268256AD4511DE5F28C5E8CA8A823F62867FC9ECF441534D15527`, проверен standalone восстановлением, fsck PASS, **1174/1174 refs, diff=0**. Git history не переписана, main не менялся.
+**Осталось до удаления:** включить protection/no force push/no deletion для `archive/pre-r7-cleanup` (текущий protected=false); физическая вторая проверенная копия вне основного Intel/SSD; сохранение metadata GitHub PR/Issues/CI и LFS/артефактов при наличии; отдельная оценка существующего `market-pattern-archive` и его незавершённого PR #5. Это промежуточный checkpoint, не финальные R5/R6.
+**Gate:** R7_DESTRUCTIVE=BLOCKED пока любой из перечисленных контрольных пунктов без доказательства. Нет необходимости перекачивать существующий bundle.
 
-| Факт | Свидетельство | Статус |
-|---|---|---|
-| В рабочем `main` объединены 9 V20/CC/TRL PR, #571 Recovery и #578 Kimi/R7 | `main=aea99cd322085c6c9e87f74248a9eb7026447911`; PR истории | **MAIN CHECKED**, не LIVE |
-| 10 исторических Draft закрыты без Merge | #540/#544/#557/#559/#560/#561/#562/#563/#564/#566, локальные архивные refs 10/10 | **CLOSED**, ветки сохранены |
-| Архивные PR #1 и #2 Squash Merged | архивный `main=84843e695ad996e89aa13675cd51d06d529b7ecc` | **MERGED**, без удаления источников |
-| Исторические материалы в архиве | 8 отдельных отчётов из #540/#557/#559/#560/#562/#563/#564/#566; Git blob SHA MATCH, два manifests | **8 REPORTS VERIFIED**, полнота 10 PR — **NO** |
-| `#544` и `#561` | только исходные GitHub PR и ссылки в каталоге | **INDEXED, NOT COPIED** |
-| V20 R088 | паспорт/patch stack, 20.11 Task Running/HALTED 3/3 | **INSTALLED EVIDENCE**, fresh LIVE/ARMED UNKNOWN |
-| Control Center | HTTP 200, три installed blob SHA MATCH 3/3 на Intel | **PARTIAL INSTALLED**, broker truth UNKNOWN |
-| TRL финальный выбор | ноябрьский closeout, manifest ZIP/XLSX | **RESEARCH DECISION**, бинарные originals и repeatability не полностью verified |
-| ZIP исходников после #571 | SHA256 `36D387EB106F13E2EC6CA7DF6F3D2BA59204DDEAC3216A46CCFABFEB8F48C329`, SSD sha PASS | **FILE COPY PASS**, snapshot до #578, без Git history |
-| Полный Git mirror после #578 / PR Issues CI / холодный restore | ещё нет независимого доказательства | **NOT_VERIFIED / NOT_TESTED** |
+### R7-A. Исправленный скан старой root-платформы [V2 PASS; DEPENDENCY CLOSURE OPEN]
+- Из isolated checkout получен `dependency-report.json`: `HEAD=f15d565...`, 18 439 tracked, 16 828 scanned, 331 legacy bundle; 1 012 файла >2MB пропущены; 1 325 protected hits, V1 verdict `LITERAL_SCAN_ONLY_NOT_DEPENDENCY_CLOSURE`. Это скан упоминаний, не доказательство отсутствия runtime зависимости.
+- Найдены подтверждённые связи: H1 диагностические Python скрипты → `audit_only/stop_tick_grid_20261012`, TRL отчёты → общие `src/market_pattern_discovery/backtest/` + `validation/`, M15 registry → старые paths, CC protected-main-tree.json → исторические root-sha.
+- Исправлены regex точного package `bbw_system` и Windows CRLF/SHA256; synthetic tests scanner+checkpoint **10/10 PASS**. Новая версия сканера в #581.
+**V2 принят 21.11:** локальный и загруженный JSON SHA256 `f2bb849da4035042a7209665b9a133fb3652fc20927a0534f0be989aa3f9a16a` совпали; HEAD и unchanged-tree PASS; 1 979 total textual references, 1 490 protected, включая 588 `bbw_system` упоминаний (491 в protected). Большая часть BBW protected относится к историческим M15 JSON-манифестам, не к исполняемым импортам. Следующий шаг — R7-B whole-main inventory. Не удалять источники по количеству matches.
 
-## Этапы, задачи и контрольные условия
+### R7-B. Полная инвентаризация всех 18 439 tracked файлов [METADATA PASS; DEPENDENCIES OPEN]
+**Цель:** не ограничиваться 331 файлом. Создать детерминированный `whole-main-inventory.json` / summary на SHA с для каждого файла: path, blob SHA, mode, bytes, owner, purpose, date/provenance/refs, исполняемый или документ/данные, privacy, links/dependencies, предлагаемый класс.
+**Техника:** Git ls-files/trees, статический импорт Python/PowerShell/shell/JS, subprocess/importlib, entrypoints, GitHub Actions/workflows, test imports, configs, includes/manifests, dynamic path assembly, symlinks, frozen source paths. Для 1 012 skipped oversized файлов — отдельное безопасное потоковое чтение нужных JSON/MD и регистрация CSV/бинарных доказательств без запуска или доступа к FINAM. Секреты не публиковать, содержимое подозрительных файлов не включать целиком в отчёт.
+**Gate:** 18 439/18 439 учтено по Git metadata: JSON SHA256 `f3868a4359662bf33804a50847288391a3336753b21e115b985b8f9a63853865`, 6,023,678,455 логических bytes. 14 213 файлов и 5.842 GB — IntradayLab. Три старых optimization results A/B/C = 11 425 файлов, 4.155 GB (68.98% дерева): PRIORITY FOR STATIC CROSSROOT AND REPRODUCIBILITY REVIEW, NOT DELETION APPROVAL. Бинарные/CSV/large JSON присутствуют в manifest, но их семантика и исполняемые вызовы не проверены; dependency closure OPEN.
 
-| Этап | Состояние / следующее действие | PASS-критерий | Ключевой риск и откат |
-|---|---|---|---|
-| **R0 Inventory** | Большая часть выполнена: PR, каталоги, SHA; дополнять только новые исходники и пробелы | Полный реестр обязательных материалов, уникальных исходников, SHA, оригиналов ZIP/XLSX, недостающих артефактов | Не считать индекс доказательством сохранения; первоисточники не трогать |
-| **R4 Finalization** | 9 профильных Merge + #571/#578 завершены; оставить неизвестные LIVE поля UNKNOWN | Закреплена база MAIN; INSTALLED и LIVE различены, дефекты и границы зафиксированы | Git Merge не включает торговлю; новых LIVE действий без отдельного разрешения |
-| **Контрольный снимок** | ZIP+SSD PASS, старое Git mirror PASS; **полный свежий Git mirror и PR/Issues/CI ещё не PASS** | Защищённый независимый комплект текущей истории/refs и критичных материалов, SHA, доступность, проверяемый откат | До этого не удалять/переписывать исходную историю; не заменять R5/R6 |
-| **R7 GitHub Reorganization** | Упрощённая архитектура утверждена; архив создан; две архивные партии merged, 8 отдельных файлов; H1/M15 остаются | Карта ACTIVE/RESEARCH/LEGACY и Kimi, корректный архивный provenance, сохранение необходимых импортов и доступность оригиналов, приватность публичного архива | Любые удаления — отдельный PR и approval только после архивных копий и offline-тестов |
-| **R1 Knowledge Transfer** | R1.1 индекс подготовлен, но доступ Kimi ещё не проверен; R1.2–R1.6 впереди | Для V20/CC/TRL Kimi находит code, SHA, CI, исходные результаты; отвечает на экзамене и передаёт безопасную задачу | Исторический H1/M15/CC-03 не равен LIVE; не загружать хаотичные Draft |
-| **R2 Kimi Integration** | Не начато: три проекта Chat и отдельный Code, права и аудит | Отдельные Kimi Code GitHub branch/PR/CI, независимые review, reauth, без LIVE прав | Изолированные копии и раздельные токены, без передачи FINAM |
-| **R3 Joint Development** | Не начато | Совместная безрисковая offline задача, тесты, взаимное review и handoff, Merge только оператор | Не запускать конкурирующие LIVE |
-| **R5 Final Backup** | **В самом конце** после адаптации/фиксов | Код, Git, Issues/PR/CI, configs, dependencies, SQLite, журналы, TRL originals, индекс чатов и зашифрованные независимые копии | SHA256 не равно restore, FINAM/DPAPI по отдельной процедуре |
-| **R6 Restore Test** | После R5 | Изолированно восстановить все 3 системы и знания **без Intel/основного SSD/GitHub**, выполнить безопасные тесты, без торгов | FAIL любого критичного восстановления → исправление и повтор |
-| **R8 Acceptance** | Последний | Датированные PASS/FAIL, риски, права GPT/Kimi, артефакты и письменное решение оператора | Неполный факт не маскировать PASS |
+### R7-C. Карта назначения, зависимостей и архивных решений [PENDING]
+Для каждого подсистемного блока: `KEEP_ACTIVE`, `KEEP_PROVENANCE`, `MIGRATE_TEST_FIRST`, `REMOVE_FROM_MAIN_AFTER_PROOF`, `HOLD_UNKNOWN`. UNKNOWN → KEEP до доказательства, историческая ссылка ≠ исполняемая зависимость, но является provenance.
+Особый список: V20 три робота и девять патчей R088, старые V20-01–07, CC-03/CC-07, H1/M15 общие исходники, `audit_only` H1 scripts, TRL backtest/validation, отклонённые стратегии, frozen сигналы, текущие тесты, старые большие результаты и источники вне GitHub. Проверить remote CI/Tests и локальные deps отдельно.
+**Gate:** таблица `path → callers/imports/runtime/CI/research/provenance/privacy → action → exact SHA → required regression → rollback`, ни одного необоснованного удаления.
 
-## Очередь действий — без повторной инвентаризации
+**R7-C decision 21.11 / A+B+C impact PASS**: JSON SHA256 `dbf18a8c07a3397b98a48f7184c7f1710f609d3c0840246425eb3726287692a2` PASS; статическая проверка замкнула буквальные имена шести деревьев внутри IntradayLab, единственная внешняя ссылка — WF `BASE_TREE_INVENTORY.txt` (11 491 исторических строк). Ровно **11 491 файлов / 4 159 859 038 логических байт** кода+результатов A/B/C — единый *кандидат*, при выводе в main осталось бы 6 948 файлов / 1 863 819 417 байт. Создан точный проверочный manifest с SHA каждого Git blob (отдельный ZIP SHA256 `528223949d3bbbcbf0f3ad2e66753d03f6075afed2626f75d140a1b60d30dc18`). **NO DELETE:** незакрыты dynamic dependencies, offline historic replay, внешний backup/protection и операторское разрешение. Дальше: закрыть protection/secondary copy, провести targeted source/CI + offline isolated proof, затем ОДИН существенный cleanup PR.
 
-**R7-А — доказательная архивация:** документы уже перенесены частично, поэтому расширять по семействам доказательств (отчёт + код + метод + манифест + данные/ссылки), начиная с исторических #544/#561 и оригиналов #557/#564, без bulk copy и без секретов. Отдельный публичный архив — не место для FINAM/DPAPI/приватных SQLite.
 
-**R7-Б — карта зависимостей и очистка:** `TradingSystemLab.stage8_robot` и `IntradayLab.core` импортируются действующим V20. Прежде чем предлагать удалить отдельный `audit_only/`, `BBW/`, `src/`, старый CC-03, H1/M15 файл — проверить imports, configs, Windows CI и offline regressions. Сначала copy + same SHA, затем restore/source trace и отдельный PR удаления. Если нет подтверждения — **оставить**.
 
-**R7-В — Kimi вход:** после принятой документации и достаточного R7 gate начать R1.1–R1.6 на проверенных материалах. Три проекта Kimi, один источник GitHub, доступ к архиву как ARCHIVE. Любой PASS экзамена требует фактического доступа и воспроизведения.
+**Контроль R7-C от 21.11:** Crossroot scan PASS по SHA256 `76f49a188dfb3e27590c247d06338e6504af020d25b225ccd724944d08c4f8a4`, 21 matching files / 29 308 lines; 14 внешних файлов **все внутри IntradayLab**, из них 6 кодовых; динамические зависимости не закрыты. Пограничная проверка исходников показала: `optimization_b_high_low_cluster_2023_v1/protected_file_sha256.json` перечисляет все 1 174 файла A results; C manifest перечисляет все 1 174 A + все 7 053 B results. А/B/C validators и protected_check исходно запрещают удаление preexisting в современных checkout; B использует git remote/fetch и сам по себе не является air-gapped тестом. **Решение: удалять только большие результаты A/B/C без их frozen исследовательских комплексов нельзя.** Проверить полный вывод целиком (source+results+tests) из main при сохранении первичного replay в архивной ветке; до доказательства отсутствия вызовов из V20/CC/TRL/H1/M15 — HOLD. Ограничение branch protection / secondary medium сохраняется.
 
-**Откат:** у архивной копии остаются оригинальные Git SHA и ветки, у основного repo — неизменённый исходник и старый ZIP на SSD. Этого достаточно для возврата одиночного документа, но **недостаточно** для объявленного PASS полного восстановления. Не выполнять опасное удаление без нового полноценного защитного снимка.
 
-**Ни GitHub, ни ChatGPT/Kimi Chat не являются единственным владельцем знаний. Единственный оператор — пользователь.**
+### R7-D. Safe cleanup candidate: один согласованный PR [PENDING]
+- На отдельной рабочей ветке от заново сверенного main собрать **один связный cleanup PR** с действительным удалением установленных исторических комплексов из main. Не плодить десятки одиночных архивных PR и не создавать огромный archive/ внутри main. Сохранить clean navigation, необходимые исходники и исследовательскую воспроизводимость. Не переписывать историю, branches/tags/PR.
+- Действующие целевые деревья защищены: `V20_TradingSystem_M15`, `ControlCenter`, `TradingResearchLab`, `TradingSystemLab` (не весь каталог неприкосновенен, но любое изменение доказано безопасным), `IntradayLab`, `recovery`, `.github`. Файл, который нужен старым офлайн-тестам или воспроизводимому TRL, нельзя удалить без проверенной замены.
+- Допустимо исправить документооборот/ссылки/инструкции только при объективной необходимости. Риски live deployment/FINAM/DPAPI исключены. Draft #580/581/582 необходимо согласовать; документационные PR не заменяют cleanup.
+
+### R7-E. Независимые offline регрессии + gate Merge [PENDING]
+**До/после:** сохранить и сравнить manifest SHA защищённых исходников, V20 offline tests, CC exporters/operator dry-run только без запусков на рабочих счетах, TRL research reproductions, H1/M15 imports и source provenance, CI/workflow path validity, Python/PowerShell import/test collection. Проверить не только PASS, но и прежние baseline/known FAIL; не требовать незаконного/live network результата.
+**PASS:** нет неожиданного изменения сигналов/рисков/FINAM/SLTP/Windows Tasks, защищённые SHA сохраняются либо обоснованный diff+tests, все обязательные тесты PASS, источник восстановим из archive branch/bundle, оператор отдельно разрешил Merge. **FAIL:** НЕ Merge, вернуться к исходному кандидату и выяснить причину.
+
+### R7-F. Merge и верификация чистого main [PENDING]
+Merge только после полного R7-0 и R7-E и отдельного явного согласия. Убедиться, что рабочий main реально сократился по files/roles, нет ложных источников для Kimi, история/ref/archived SHA доступны и восстановимы; отдельный отчёт о сокращении `before/after` с исходным `main`. Если cleanup оказался только README — R7_FAIL.
+
+## Этап II — Kimi Chat + Kimi Code [AFTER R7]
+Три логических проекта знаний из **одного проверенного рабочего GitHub**, а не три отдельных GitHub: **V20**, **Control Center**, **Trading Research Lab**. Отдельный доступ к архивной ветке только как `ARCHIVE`, не как SOURCE-OF-LIVE. Каждому — START_HERE, frozen/approved rules, branches/SHA, тесты, history/negative results, unknown gaps, no-LIVE contract.
+- **R1.1** общая архитектура и первоисточники → **R1.2** V20 + nine-patch R088 → **R1.3** CC/CC-07/read-only boundary → **R1.4** TRL, datasets, TRUE OOS → **R1.5** практический экзамен с проверкой SHA, исходников, offline tests и безопасности → **R1.6** handoff GPT↔Kimi на незавершённой разрешённой задаче.
+- **R2** Kimi Code: индивидуальные доступы, branch/PR/CI, audit/review, без FINAM/LIVE; **R3** совместная offline задача, независимая проверка и передача результата. Draft #580 — подготовительные материалы, не доказательство экзамена.
+**Gate:** никакого права объявлять систему действующей по одному GitHub; доказать настоящий доступ Kimi Chat отдельно от Kimi Code, тесты и содержательный handoff.
+
+## Этап III — Recovery 10–30 лет [СТРОГО ПОСЛЕ KIMI]
+- **R5 Backup:** Git mirrors всех нужных refs, PR/Issues/CI, код V20/CC/TRL/H1/M15 deps, 9 патчей, окружения, воспроизводимые TRL ZIP/XLSX/котировки, принятие/отклонение решений, приватные SQLite/журналы, знания и хронология, инструменты развёртывания. Секреты/DPAPI приватно и с отдельной процедурой перевыпуска. 2 физически независимых защищённых носителя, manifests+SHA.
+- **R6 Cold restore:** отдельная машина/ОС без Intel/основного SSD/GitHub/ChatGPT/Kimi, полный запуск офлайн-тестов и восстановление читаемых знаний; без брокерских POST/реальной торговли. FAIL исправить, повторить тест.
+- **R8 Приёмка:** отчёты SHA/PASS/FAIL, сценарии отката, долгосрочный lifecycle, права, допущения, обслуживание и письменное решение владельца.
+
+## Контроль рисков и ближайшие действия
+1. **Сейчас:** V2 scan SHA PASS, dependency closure ещё OPEN; запустить isolated Git-only whole-main inventory и разобрать JSON; параллельно safe readonly аудит архива.
+2. **Выполнено:** whole-main-inventory 18 439/18 439, файл загружен и SHA совпал. **Следующее:** Git-only literal source/config/document links к трём крупнейшим IntradayLab/results optimization A/B/C, затем динамические пути, исследовательская воспроизводимость, CI, tests и protected deps.
+3. Подтвердить second copy и archive protection, плюс полноту внешнего metadata до destructive merge.
+4. Один cleanup PR, полный offline validation, операторский Merge, затем Kimi и лишь потом итоговый Recovery.
+**СТОП:** отсутствие доказанного бэкапа, защищённой исторической ветки, source provenance или регрессий = никакого удаления. Единственный оператор — пользователь. MAIN/INSTALLED/LIVE/RESEARCH/ARCHIVE/RECON не смешивать.
