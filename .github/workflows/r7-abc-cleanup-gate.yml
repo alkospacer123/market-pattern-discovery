@@ -1,0 +1,665 @@
+name: Main Admission offline gate and R7 historical cleanup
+
+# Universal admission check has no path filter and is safe to require.
+# Historical R7 exact-deletion jobs run only on the approved Draft PR #583.
+on:
+  pull_request:
+  push:
+    branches: [main]
+  merge_group:
+
+permissions:
+  contents: read
+
+jobs:
+  immutable-tree-and-symlink:
+    if: github.event_name == 'pull_request' && github.event.pull_request.number == 583 && github.event.pull_request.base.ref == 'main'
+    name: Exact Git scope + native symlink (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-24.04, windows-2022]
+    env:
+      PYTHONDONTWRITEBYTECODE: '1'
+      R7_PR_SHA: ${{ github.event.pull_request.head.sha }}
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - name: Immutable PR head and shallow tree objects only
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4, SHA-pinned
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          persist-credentials: false
+          fetch-depth: 12
+          filter: blob:none
+          sparse-checkout: |
+            /.github/workflows/
+            /ControlCenter/controller/
+          sparse-checkout-cone-mode: false
+      - name: Python 3.12.10
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5, SHA-pinned
+        with:
+          python-version: '3.12.10'
+      - name: Check unified A/B/C + BBW exact scope, CC identity and real symlink denial
+        run: |
+          python -B - <<'PY'
+          from __future__ import annotations
+          import collections
+          import hashlib
+          import os
+          import subprocess
+          from pathlib import Path
+          import tempfile
+          import sys
+
+          PIN='f15d565755b996252081ed49ed5a094ee1e8d820'
+          EXPECTED_PARENT='8357d2fe9f6e9175784ad24c6024848f0548abab'
+          CI_FILE='.github/workflows/r7-abc-cleanup-gate.yml'
+          CC_FILE='.github/workflows/controlcenter-cc03-windows-native.yml'
+          CC_BLOB='ebf5b976a9f3857728369b6813512c0e00f2399d'
+          PYPROJECT='pyproject.toml'
+          PY_BLOB='680df2df155f5bcc99eb9b3268e7fec82c947891'
+          BBW_RECORDS_SHA_NO_SIZE='93d7a21eea228862e13e7ebb1ae89e54d0c0a65ae22139b72628cc985ec17a1b'
+          ABC={'IntradayLab/optimization_a_2023_v1/':19,
+               'IntradayLab/optimization_b_high_low_cluster_2023_v1/':23,
+               'IntradayLab/optimization_c_return_retest_rejection_2023_v1/':24,
+               'IntradayLab/results/optimization_a_equal_high_low_2023_v1/':1174,
+               'IntradayLab/results/optimization_b_high_low_cluster_2023_v1/':7053,
+               'IntradayLab/results/optimization_c_return_retest_rejection_2023_v1/':3198}
+          PROTECTED={
+           'V20_TradingSystem_M15':'1581c596cb30760a27e2412c57da815c7b2e5091',
+           'ControlCenter':'8052938c83a27b2367309052d455d74d9341df09',
+           'TradingResearchLab':'2a97da0d42690e1ecb599c6f7062215b787ceca6',
+           'TradingSystemLab':'d27ac7153a4d25455112c1a6673d2b37a1784f43',
+           'IntradayLab':'2f39342d4a9090c7315daabff39cdfa2e629c170',
+           'recovery':'6d9b791110c719242d50ae8630fb5bd48baa7560'}
+
+          def git(*args):
+              return subprocess.check_output(('git',)+args,stderr=subprocess.PIPE)
+
+          def rev(name):return git('rev-parse',name).decode().strip()
+
+          def tree(ref):
+              out={}
+              for item in git('ls-tree','--full-tree','-r','-z',ref).split(b'\0'):
+                  if not item:continue
+                  info,path=item.split(b'\t',1)
+                  a=info.decode('ascii').split()
+                  assert len(a)==3 and a[1]=='blob', 'NON_BLOB_IN_TREE'
+                  p=path.decode('utf-8')
+                  assert p not in out,'DUPLICATE_PATH'
+                  out[p]=(a[0],a[2])
+              return out
+
+          def classify(base,head):
+              # SHA pinned immutable base ensures both path set and original file blobs.
+              assert len(base)==18439,'BASE_FILE_COUNT'
+              removed=set(base)-set(head)
+              added=set(head)-set(base)
+              changed={p for p in base.keys() & head.keys() if base[p]!=head[p]}
+              assert added=={CI_FILE},'ADDED_SCOPE:'+str(sorted(added)[:8])
+              assert changed=={CC_FILE,PYPROJECT},'MODIFIED_SCOPE:'+str(sorted(changed)[:8])
+              assert head[CC_FILE][1]==CC_BLOB,'CC_SEALED_BLOB_CHANGED'
+              assert head[PYPROJECT][1]==PY_BLOB,'MPD_PYPROJECT_BLOB_CHANGED'
+              abc=collections.Counter()
+              bbw=[]
+              for path in removed:
+                  matching=[prefix for prefix in ABC if path.startswith(prefix)]
+                  if matching:
+                      assert len(matching)==1,'AMBIGUOUS_ABC_PATH'
+                      abc[matching[0]]+=1
+                      continue
+                  bbw.append(path)
+              assert dict(abc)==ABC,'ABC_COMPLETE_SET_CHANGED:'+str(dict(abc))
+              assert len(bbw)==103 and len(removed)==11594,'BBW_OR_TOTAL_COUNT'
+              # SHA of all 103 original path/mode/GitBlob entries. No -l/cat-file on
+              # 18,439 paths: this is SAFE for GitHub partial checkout filter:blob:none.
+              # Git blob SHA already binds the content and its size cryptographically.
+              canon=''.join(f'{p}\t{base[p][0]}\t{base[p][1]}\n' for p in sorted(bbw))
+              assert hashlib.sha256(canon.encode('utf-8')).hexdigest()==BBW_RECORDS_SHA_NO_SIZE, 'EXACT_BBW_SET_CHANGED'
+              assert len(head)==6846,'FINAL_TRACKED_COUNT'
+              assert len(base.keys()&head.keys())==6845,'ORIGINAL_PATHS_RETAINED'
+              assert len(base.keys()&head.keys())-len(changed)==6843,'ORIGINAL_UNCHANGED_COUNT'
+              return {'deleted_abc':sum(abc.values()),'deleted_bbw':len(bbw),
+                      'removed':len(removed),'retained_original':6845,
+                      'original_unchanged':6843,'new_workflow_only':1,'modified':2}
+
+          def main():
+              assert os.environ.get('GITHUB_ACTIONS')=='true','ONLY_HOSTED_GITHUB_ACTIONS'
+              wanted=os.environ['R7_PR_SHA']
+              assert rev('HEAD')==wanted,'PR_HEAD_SHA_CHANGED'
+              # Contract for exactly one future additional candidate commit atop #583.
+              assert rev('HEAD^')==EXPECTED_PARENT,'PARENT_NOT_VERIFIED_PR583_HEAD'
+              assert rev('HEAD:'+CC_FILE)==CC_BLOB,'CC_BLOB_CHANGED'
+              assert rev('HEAD:'+PYPROJECT)==PY_BLOB,'PYPROJECT_BLOB_CHANGED'
+              base,head=tree(PIN),tree('HEAD')
+              result=classify(base,head)
+              for path,sha in PROTECTED.items():
+                  assert rev('HEAD:'+path)==sha,'PROTECTED_SUBTREE_CHANGED:'+path
+              print('R7_Q_PROPOSED_CI_SCOPE=PASS', result)
+              print('R7_Q_FULL_SUITE_LIVE_FINAM_RECOVERY=NOT_VERIFIED_BY_THIS_CHECK')
+
+          if __name__=='__main__':main()
+
+          # Only disposable files in hosted runner temp; never source DBs or LIVE.
+          from ControlCenter.controller.v20_offline_journal import OfflineJournal, DB_NAME
+          with tempfile.TemporaryDirectory(prefix='r7-symlink-', dir=os.environ['RUNNER_TEMP']) as scratch:
+              root = Path(scratch)
+              source = root / 'fixture.sqlite3'
+              payload = b'R7_SYMLINK_FIXTURE_ONLY_NOT_A_REAL_DB'
+              source.write_bytes(payload)
+              journal = root / 'journal'
+              journal.mkdir()
+              link = journal / DB_NAME
+              try:
+                  link.symlink_to(source)
+              except (OSError, NotImplementedError) as exc:
+                  raise RuntimeError('HOLD_NATIVE_SYMLINK_CREATE:' + repr(exc)) from exc
+              assert link.is_symlink(), 'SYMLINK_NOT_CREATED'
+              try:
+                  OfflineJournal(journal)
+              except ValueError as exc:
+                  assert str(exc) == 'CC07_AUDIT_SYMLINK_FORBIDDEN', 'WRONG_JOURNAL_REFUSAL:' + str(exc)
+              else:
+                  raise AssertionError('JOURNAL_ACCEPTED_SYMLINK')
+              assert source.read_bytes() == payload, 'SYMLINK_TARGET_MUTATED'
+              realdir = root / 'real-dir'
+              realdir.mkdir()
+              linkdir = root / 'linked-dir'
+              try:
+                  linkdir.symlink_to(realdir, target_is_directory=True)
+              except (OSError, NotImplementedError) as exc:
+                  raise RuntimeError('HOLD_NATIVE_DIRECTORY_SYMLINK_CREATE:' + repr(exc)) from exc
+              assert linkdir.is_symlink(), 'DIRECTORY_SYMLINK_NOT_CREATED'
+              try:
+                  OfflineJournal(linkdir)
+              except ValueError as exc:
+                  assert str(exc) == 'CC07_AUDIT_DIRECTORY_INVALID', 'WRONG_DIRECTORY_REFUSAL:' + str(exc)
+              else:
+                  raise AssertionError('JOURNAL_ACCEPTED_DIRECTORY_SYMLINK')
+              assert source.read_bytes() == payload, 'TEST_SOURCE_MUTATED'
+          print('R7_NATIVE_OFFLINE_JOURNAL_SYMLINK=PASS', 'os='+sys.platform)
+          PY
+
+  cc03-native-package-acceptance:
+    name: Frozen CC-03 native suite + explicit historic scope exception
+    if: github.event_name == 'pull_request' && github.event.pull_request.number == 583 && github.event.pull_request.base.ref == 'main'
+    needs: immutable-tree-and-symlink
+    runs-on: windows-2022
+    timeout-minutes: 30
+    defaults:
+      run:
+        shell: pwsh
+        working-directory: ControlCenter
+    steps:
+      - name: Checkout unchanged CC-03 package at exact R7 PR head
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        env:
+          GIT_CONFIG_COUNT: '1'
+          GIT_CONFIG_KEY_0: core.autocrlf
+          GIT_CONFIG_VALUE_0: 'false'
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          persist-credentials: false
+          fetch-depth: 1
+          sparse-checkout: |
+            /ControlCenter/
+          sparse-checkout-cone-mode: false
+      - name: Exact Windows CPython 3.12.10
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
+        with:
+          python-version: '3.12.10'
+          architecture: x64
+      - name: Install original CC-03 hashed CI wheels in hosted RUNNER_TEMP
+        run: |
+          python -m venv "$env:RUNNER_TEMP\cc03-python"
+          if ($LASTEXITCODE -ne 0) { throw 'R7_CC_VENV_FAILED' }
+          & "$env:RUNNER_TEMP\cc03-python\Scripts\python.exe" -m pip install --require-hashes --only-binary=:all: --no-deps -r requirements-windows-ci.lock
+          if ($LASTEXITCODE -ne 0) { throw 'R7_CC_HASHED_WHEEL_INSTALL_FAILED' }
+      - name: Unmodified complete native acceptance, inspect every actual case
+        run: |
+          $ErrorActionPreference='Continue'
+          $python="$env:RUNNER_TEMP\cc03-python\Scripts\python.exe"
+          & $python -B ci/windows_acceptance.py
+          $acceptanceExit=$LASTEXITCODE
+          Write-Output "R7_CC03_ORIGINAL_ACCEPTANCE_EXIT=$acceptanceExit"
+          if ($acceptanceExit -ne 1) { throw "R7_CC03_UNEXPECTED_FULL_ACCEPTANCE_EXIT=$acceptanceExit" }
+          $ErrorActionPreference='Stop'
+          $check=@'
+          import hashlib, json, os
+          from pathlib import Path
+          import subprocess
+          import xml.etree.ElementTree as ET
+
+          root=Path(os.environ['RUNNER_TEMP']) / 'cc03-evidence'
+          results=json.loads((root/'results.json').read_text(encoding='utf-8'))
+          expected={
+              'scope-audit','host','windows-reader','windows-transport','cc03-source',
+              'os-observer','intel-preflight','manual-os','full-suite','manifest',
+              'pip-check','pip-freeze','powershell-preview','powershell-rehearsal',
+              'streamlit-click','pythoncore-provision',
+          }
+          assert set(results)==expected, 'R7_CC_RESULTS_MISSING_OR_EXTRA'
+          scope=results['scope-audit']
+          assert scope['exit_code']!=0, 'R7_CC_HISTORIC_SCOPE_MUST_FAIL'
+          log=(root/'scope-audit.log').read_text(encoding='utf-8',errors='replace')
+          assert 'CHANGED_PATH_OUTSIDE_CONTROLCENTER' in log, 'R7_CC_UNKNOWN_SCOPE_FAILURE'
+          assert 'AssertionError' in log, 'R7_CC_SCOPE_UNEXPECTED_ERROR_KIND'
+          for name,item in results.items():
+              if name=='scope-audit':
+                  continue
+              assert item['exit_code']==0, 'R7_CC_NATIVE_COMMAND_FAILED:'+name+':'+repr(item)
+              assert not item.get('missing_junit'), 'R7_CC_MISSING_JUNIT:'+name
+              assert not item.get('native_incomplete'), 'R7_CC_NATIVE_INCOMPLETE:'+name
+              assert item.get('failed',0)==0, 'R7_CC_CASE_FAILURE:'+name
+          for name in ('windows-reader','windows-transport','cc03-source','os-observer',
+                       'intel-preflight','manual-os','full-suite'):
+              xml=root/(name+'.xml')
+              assert xml.is_file(), 'R7_CC_JUNIT_MISSING:'+name
+              cases=list(ET.parse(xml).iter('testcase'))
+              assert cases, 'R7_CC_NO_CASES:'+name
+              assert not any(c.find('failure') is not None or c.find('error') is not None for c in cases), 'R7_CC_JUNIT_FAILED:'+name
+              for case in cases:
+                  skip=case.find('skipped')
+                  if skip is not None:
+                      assert (skip.get('message') or '').startswith('POSIX descriptor fault injection;'), 'R7_CC_UNACCEPTED_SKIP:'+name
+          for name in ('pythoncore-provision','powershell-rehearsal','streamlit-click','manifest'):
+              assert results[name]['exit_code']==0, 'R7_CC_NATURAL_ACCEPTANCE_NOT_COMPLETE:'+name
+          manifest = json.loads(Path('deployment/manifest.json').read_text(encoding='utf-8'))
+          assert len(manifest['files']) == 162, 'R7_CC_FROZEN_MANIFEST_COUNT_MOVED'
+          assert subprocess.check_output(['git','rev-parse','HEAD:ControlCenter'],text=True).strip()=='8052938c83a27b2367309052d455d74d9341df09', 'R7_CC_PACKAGE_TREE_MOVED'
+          inventory = json.loads((root/'ARTIFACT_SHA256.json').read_text(encoding='utf-8'))
+          assert len(inventory)>10, 'R7_CC_EVIDENCE_TOO_SMALL'
+          for record in inventory:
+              data=(root/record['path']).read_bytes()
+              assert len(data)==record['size'] and hashlib.sha256(data).hexdigest()==record['sha256'], 'R7_CC_EVIDENCE_HASH_MISMATCH:'+record['path']
+          acceptance=json.loads((root/'acceptance.json').read_text(encoding='utf-8'))
+          assert acceptance['classification']=='CC03_WINDOWS_NATIVE_NEEDS_FIX', 'R7_CC_HISTORICAL_SCOPE_NOT_REPORTED'
+          print('R7_CC03_FROZEN_PACKAGE_AND_NATIVE_NON_SCOPE=PASS')
+          print('R7_CC03_HISTORICAL_SCOPE=EXPECTED_FAIL_STILL_OPEN')
+          print('R7_CC03_UNCHANGED_MANIFEST=PASS_162')
+          print('R7_CC03_NON_SCOPE_COMMANDS=PASS_15_OF_15')
+          '@
+          $check | & $python -B -
+          if ($LASTEXITCODE -ne 0) { throw 'R7_CC03_NATIVE_EVIDENCE_VERIFY_FAILED' }
+      - name: Retain unmodified native acceptance evidence
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: r7-cc03-native-original-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/cc03-evidence/
+          if-no-files-found: error
+          retention-days: 30
+
+  r7-archived-2023-original-data:
+    name: Pinned M5 2023 source SHA256 + historical A/B/C inventory
+    if: github.event_name == 'pull_request' && github.event.pull_request.number == 583 && github.event.pull_request.base.ref == 'main'
+    needs: immutable-tree-and-symlink
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - name: Checkout exact R7 candidate with only retained historic inventory
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4, SHA pinned
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          persist-credentials: false
+          fetch-depth: 9
+          filter: blob:none
+          sparse-checkout: |
+            /IntradayLab/t3_m15_a6_s1_walk_forward_2025_v1/BASE_TREE_INVENTORY.txt
+          sparse-checkout-cone-mode: false
+      - name: Checkout separate original public M5 data commit (no secrets)
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4, SHA pinned
+        with:
+          repository: alkospacer123/market-pattern-data
+          ref: f8486b446cf3d5f9f3cba6dfec32bdef8fd184c8
+          path: original-m5-data
+          fetch-depth: 1
+          filter: blob:none
+          persist-credentials: false
+          sparse-checkout: |
+            /forever/USDRUBF/USDRUBF_M5.csv
+            /forever/CNYRUBF/CNYRUBF_M5.csv
+          sparse-checkout-cone-mode: false
+      - name: Verify immutable A/B/C 2023 raw prefixes and historic Git inventory
+        env:
+          R7_CANDIDATE_SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          python3 -B - <<'PY'
+          import collections
+          import hashlib
+          import json
+          import os
+          from pathlib import Path
+          import re
+          import subprocess
+
+          BASE = 'f15d565755b996252081ed49ed5a094ee1e8d820'
+          DATA = 'f8486b446cf3d5f9f3cba6dfec32bdef8fd184c8'
+          WHERE = Path('original-m5-data')
+          roots = {
+              'IntradayLab/optimization_a_2023_v1/': (19, 'fb1f882623d996835f3ff4519b93f40e9a154da3'),
+              'IntradayLab/optimization_b_high_low_cluster_2023_v1/': (23, '700f96fd1318ad28d939785f6b6eab5bfdb1f87a'),
+              'IntradayLab/optimization_c_return_retest_rejection_2023_v1/': (24, '3d0347b599643e0243f498330b62972761798863'),
+              'IntradayLab/results/optimization_a_equal_high_low_2023_v1/': (1174, 'dceef112bf1259e2c4bfe2b16fe5ab2048e6b264'),
+              'IntradayLab/results/optimization_b_high_low_cluster_2023_v1/': (7053, '0849d085bd78eab929d0589efb8392eaf82da93a'),
+              'IntradayLab/results/optimization_c_return_retest_rejection_2023_v1/': (3198, 'cf4c474b34f41b0e3f80251645675b42c2ec4eef'),
+          }
+          inputs = {
+              'USDRUBF': {'blob':'2b621e1c0aa9a84838d95d4c139257889b6f825e',
+                          'whole':8871133, 'prefix':2342431, 'rows':42576,
+                          'sha256':'047de8fbc74fbe98028cd236b67bf11823b4e6b9f79a6488113a1d0f43947e1d'},
+              'CNYRUBF': {'blob':'01d667868daaa5610cc8794bf90fe0f276e33686',
+                          'whole':8295947, 'prefix':2212189, 'rows':39362,
+                          'sha256':'42e30caf28909da46226cd2e163739f1c97d00a3a80780d0f2550a05884c9bc9'},
+          }
+          studies = [
+              ('IntradayLab/optimization_a_2023_v1','IntradayLab/results/optimization_a_equal_high_low_2023_v1',('USDRUBF','CNYRUBF'),144),
+              ('IntradayLab/optimization_b_high_low_cluster_2023_v1','IntradayLab/results/optimization_b_high_low_cluster_2023_v1',('USDRUBF','CNYRUBF'),585),
+              ('IntradayLab/optimization_c_return_retest_rejection_2023_v1','IntradayLab/results/optimization_c_return_retest_rejection_2023_v1',('USDRUBF',),288),
+          ]
+          def git(*args, cwd='.'):
+              return subprocess.check_output(['git','-C',str(cwd),*args], stderr=subprocess.PIPE).decode().strip()
+          def old_json(path):
+              return json.loads(git('show',BASE+':'+path))
+          assert git('rev-parse','HEAD') == os.environ['R7_CANDIDATE_SHA'], 'WRONG_R7_HEAD'
+          assert git('rev-parse','HEAD',cwd=WHERE) == DATA, 'WRONG_PUBLIC_DATA_COMMIT'
+          for prefix,(count,pinned_tree) in roots.items():
+              assert git('rev-parse',BASE+':'+prefix.rstrip('/')) == pinned_tree, 'R7_HISTORIC_SUBTREE_MISSING:'+prefix
+          print('R7_HISTORIC_ARCHIVE_SIX_TREE_SHA=PASS')
+
+          for symbol, claim in inputs.items():
+              path=WHERE/'forever'/symbol/(symbol+'_M5.csv')
+              assert path.is_file(), 'R7_M5_MISSING:'+symbol
+              assert path.stat().st_size==claim['whole'], 'R7_M5_SIZE:'+symbol
+              assert git('hash-object','--',f'forever/{symbol}/{symbol}_M5.csv',cwd=WHERE)==claim['blob'], 'R7_M5_GIT_BLOB:'+symbol
+              with path.open('rb',buffering=0) as f:
+                  prefix=f.read(claim['prefix'])
+              assert len(prefix)==claim['prefix'], 'R7_M5_SHORT_PREFIX:'+symbol
+              assert hashlib.sha256(prefix).hexdigest()==claim['sha256'], 'R7_M5_PREFIX_SHA256:'+symbol
+              assert len(prefix.splitlines())==claim['rows']+1, 'R7_M5_PREFIX_BAR_COUNT:'+symbol
+              print('R7_M5_2023_PREFIX_SHA256=PASS',symbol,
+                    'bytes='+str(claim['prefix']), 'rows='+str(claim['rows']))
+          print('R7_M5_SOURCE_BLOB_AND_PREFIX=PASS_2_OF_2')
+
+          for source,result,symbols,evals in studies:
+              commits=old_json(source+'/source_commitments.json')
+              provenance=old_json(result+'/input_provenance.json')
+              audit=old_json(result+'/audit.json')
+              assert commits['source_sha']==DATA and provenance['source_sha']==DATA, 'R7_FREEZE_WRONG_SOURCE:'+source
+              assert audit['status']=='PASS' and audit['evaluations']==evals, 'R7_OLD_AUDIT_NOT_PASS:'+source
+              assert audit['selection']=='NO QUALIFYING OPTIMIZATION CANDIDATE', 'R7_OLD_STUDY_NOT_NEGATIVE:'+source
+              assert set(commits['input_commitments'])==set(symbols), 'R7_OLD_SOURCE_INSTRUMENT_MISMATCH:'+source
+              assert set(provenance['verified_prefixes'])==set(symbols), 'R7_OLD_RESULT_INSTRUMENT_MISMATCH:'+source
+              for sym in symbols:
+                  expected=inputs[sym]
+                  source_claim=commits['input_commitments'][sym]
+                  prov=provenance['verified_prefixes'][sym]
+                  for obj in (source_claim,prov):
+                      assert obj['blob']==expected['blob'], 'R7_SOURCE_BLOB_MISMATCH:'+sym
+                      assert obj['prefix_bytes']==expected['prefix'], 'R7_SOURCE_PREFIX_BYTES_MISMATCH:'+sym
+                      assert obj['prefix_sha256']==expected['sha256'], 'R7_SOURCE_PREFIX_HASH_MISMATCH:'+sym
+                      assert obj['rows_2023']==expected['rows'], 'R7_SOURCE_ROWS_MISMATCH:'+sym
+              print('R7_HISTORIC_FREEZE_AND_RESULT_PROVENANCE=PASS',source.rsplit('/',1)[-1], 'evaluations='+str(evals))
+          print('R7_HISTORIC_AUDIT_CLAIMS_MATCH_SOURCE=PASS_3_OF_3')
+
+          inventory_path=Path('IntradayLab/t3_m15_a6_s1_walk_forward_2025_v1/BASE_TREE_INVENTORY.txt')
+          assert git('rev-parse','HEAD:IntradayLab/t3_m15_a6_s1_walk_forward_2025_v1/BASE_TREE_INVENTORY.txt')=='8e79633623759cc33819bf060ad56d2771b5e1ed', 'R7_HISTORIC_INVENTORY_MUTATED'
+          counts=collections.Counter()
+          paths=set()
+          pattern=re.compile(r'^100644 blob [0-9a-f]{40}\t(.+)$')
+          for line in inventory_path.read_text(encoding='utf-8').splitlines():
+              if not any(path in line for path in roots):
+                  continue
+              match=pattern.fullmatch(line)
+              assert match, 'R7_INVENTORY_MALFORMED_LINE'
+              name=match.group(1)
+              assert name not in paths, 'R7_INVENTORY_DUPLICATE_PATH'
+              matches=[prefix for prefix in roots if name.startswith(prefix)]
+              assert len(matches)==1, 'R7_INVENTORY_UNEXPECTED_PATH:'+name
+              paths.add(name)
+              counts[matches[0]]+=1
+          assert len(paths)==11491, 'R7_INVENTORY_REFERENCE_COUNT'
+          assert dict(counts)=={k:v[0] for k,v in roots.items()}, 'R7_INVENTORY_PER_TREE_COUNTS'
+          print('R7_HISTORIC_INVENTORY_11491=PASS', 'source_files=1', 'exec_import_matches=0_for_six_exact_names')
+          PY
+
+  r7-s-v20-r088-no-ext2:
+    name: R7-S V20 R088 TP6 Protect3 HOLD5 no-EXT2 staged offline
+    if: github.event_name == 'pull_request' && github.event.pull_request.number == 583 && github.event.pull_request.base.ref == 'main'
+    needs: immutable-tree-and-symlink
+    runs-on: windows-2022
+    timeout-minutes: 20
+    env:
+      PYTHONDONTWRITEBYTECODE: '1'
+      EXPECTED_HEAD: ${{ github.event.pull_request.head.sha }}
+    steps:
+      - name: Exact PR candidate V20-only checkout
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # pinned v4
+        env:
+          GIT_CONFIG_COUNT: '1'
+          GIT_CONFIG_KEY_0: core.autocrlf
+          GIT_CONFIG_VALUE_0: 'false'
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 2
+          filter: blob:none
+          persist-credentials: false
+          sparse-checkout: |
+            /V20_TradingSystem_M15/
+            /TradingSystemLab/stage8_robot/
+            /TradingSystemLab/authority_hashing.py
+            /TradingSystemLab/core/
+          sparse-checkout-cone-mode: false
+      - name: Pinned Windows Python 3.12.10
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # pinned v5
+        with:
+          python-version: '3.12.10'
+          architecture: x64
+      - name: Original V20 offline test numerical packages
+        shell: pwsh
+        run: |
+          python -m pip install --disable-pip-version-check numpy==2.2.6 pandas==2.3.3 tzdata==2025.2
+          if ($LASTEXITCODE -ne 0) { throw 'R7_S_NUMERICAL_INSTALL_FAILED' }
+      - name: Verify patched R088 offline 13 cases, no EXT2 or live, reverse every patch
+        shell: pwsh
+        run: |
+          $ErrorActionPreference='Stop'
+          if ($env:GITHUB_ACTIONS -ne 'true' -or ((& git.exe rev-parse HEAD).Trim()) -ne $env:EXPECTED_HEAD) { throw 'R7_S_WRONG_HOSTED_HEAD' }
+          if ((& git.exe rev-parse 'HEAD:V20_TradingSystem_M15').Trim() -ne '1581c596cb30760a27e2412c57da815c7b2e5091') { throw 'R7_S_V20_TREE_MOVED' }
+          $live='V20_TradingSystem_M15/v20_runtime/finam_live.py'
+          $execution='V20_TradingSystem_M15/v20_runtime/finam_execution.py'
+          $origLive='b80fb9eb135f7cdcb4c78337e2b808c4d7135195'
+          $origExec='6b600451178b42bd4f8b2037995e7db3a9ad27c8'
+          if ((& git.exe hash-object -- $live).Trim() -ne $origLive -or (& git.exe hash-object -- $execution).Trim() -ne $origExec) { throw 'R7_S_FROZEN_BASE_BLOBS_CHANGED' }
+          $names=@(
+            'r070-tp6-one-shot-candidate.patch',
+            'r070-protect3-flat-cleanup-candidate.patch',
+            'r070-protect3-broker-id-readonly-candidate.patch',
+            'r070-protect3-live-trigger-candidate.patch',
+            'r070-protect3-night-monitor-candidate.patch',
+            'r070-finam-get-incomplete-read-candidate.patch',
+            'r088-hold5-after-r070-combined-candidate.patch',
+            'r088-inside-prepost-orphan-20261119.patch',
+            'r088-protect3-main-identity-20261120.patch'
+          )
+          $applied=New-Object 'System.Collections.Generic.List[string]'
+          try {
+            foreach ($name in $names) {
+              $p='V20_TradingSystem_M15/V20-08/'+$name
+              & git.exe apply --check -- $p
+              if ($LASTEXITCODE -ne 0) { throw ('R7_S_PATCH_CONFLICT_'+$name) }
+              & git.exe apply -- $p
+              if ($LASTEXITCODE -ne 0) { throw ('R7_S_PATCH_APPLY_FAILED_'+$name) }
+              $applied.Add($p)
+            }
+            $src=Get-Content -LiteralPath $live -Raw
+            foreach ($forbidden in @('admit_r070_frozen_draft_pre_intent','configure_r088_ext2_live_source','r070_verified_history_refresh','r088-moex-calendar.json')) {
+              if ($src.Contains($forbidden)) { throw ('R7_S_EXT2_OR_CALENDAR_HOOK_'+$forbidden) }
+            }
+            & python -B -m unittest -q V20_TradingSystem_M15.v20_runtime.tests.test_r088_hold5_offline V20_TradingSystem_M15.v20_runtime.tests.test_r088_prepost_all3 V20_TradingSystem_M15.v20_runtime.tests.test_r088_protect3_identity
+            if ($LASTEXITCODE -ne 0) { throw 'R7_S_R088_TESTS_FAILED' }
+            & python -B -m py_compile $live $execution
+            if ($LASTEXITCODE -ne 0) { throw 'R7_S_WORKER_SYNTAX_FAILED' }
+            Write-Output ('R7_S_R088_STAGED_LIVE_BLOB='+(& git.exe hash-object -- $live).Trim())
+            Write-Output ('R7_S_R088_STAGED_EXEC_BLOB='+(& git.exe hash-object -- $execution).Trim())
+            Write-Output 'R7_S_R088_NO_EXT2_STAGED=PASS_NO_FINAM_NO_LIVE'
+          }
+          finally {
+            $reverse=@($applied.ToArray())
+            [array]::Reverse($reverse)
+            foreach ($p in $reverse) {
+              & git.exe apply -R -- $p
+              if ($LASTEXITCODE -ne 0) { throw ('R7_S_RESTORE_FAILED_'+$p) }
+            }
+          }
+          if ((& git.exe hash-object -- $live).Trim() -ne $origLive -or (& git.exe hash-object -- $execution).Trim() -ne $origExec) { throw 'R7_S_FROZEN_BLOBS_NOT_RESTORED' }
+          & git.exe diff --exit-code -- $live $execution
+          if ($LASTEXITCODE -ne 0) { throw 'R7_S_WORKTREE_DIRTY_AFTER_RESTORE' }
+          Write-Output 'R7_S_R088_FROZEN_RESTORE=PASS'
+
+  r7-s-h1-m15-trl-selected-offline:
+    name: R7-S H1 M15 selected regressions + TRL authority (partial)
+    if: github.event_name == 'pull_request' && github.event.pull_request.number == 583 && github.event.pull_request.base.ref == 'main'
+    needs: immutable-tree-and-symlink
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    env:
+      PYTHONDONTWRITEBYTECODE: '1'
+      PYTEST_DISABLE_PLUGIN_AUTOLOAD: '1'
+      EXPECTED_HEAD: ${{ github.event.pull_request.head.sha }}
+    steps:
+      - name: Immutable sparse checkout of retained H1 M15 TRL sources
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # pinned v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          persist-credentials: false
+          fetch-depth: 2
+          filter: blob:none
+          sparse-checkout: |
+            /TradingSystemLab/stage8_robot/
+            /TradingSystemLab/authority_hashing.py
+            /TradingSystemLab/core/
+            /IntradayLab/core/
+            /IntradayLab/tools/
+            /IntradayLab/config/
+            /IntradayLab/tests/test_net_c1_execution.py
+            /IntradayLab/tests/test_m5_clock_confirmation.py
+            /IntradayLab/tests/test_causal_mtf.py
+            /TradingResearchLab/
+          sparse-checkout-cone-mode: false
+      - name: Pinned offline Python
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # pinned v5
+        with:
+          python-version: '3.12.10'
+      - name: Pinned test dependencies
+        run: python -m pip install --disable-pip-version-check pytest==8.4.2 numpy==2.2.6 pandas==2.3.3
+      - name: Exact H1 M15 TRL Git SHA and TRL authority links
+        run: |
+          python -B - <<'PY'
+          import os,re,subprocess
+          from pathlib import Path
+          def git(*a): return subprocess.check_output(['git',*a],text=True).strip()
+          assert git('rev-parse','HEAD')==os.environ['EXPECTED_HEAD'],'R7_S_WRONG_HEAD'
+          roots={'TradingSystemLab':'d27ac7153a4d25455112c1a6673d2b37a1784f43',
+                 'IntradayLab':'2f39342d4a9090c7315daabff39cdfa2e629c170',
+                 'TradingResearchLab':'2a97da0d42690e1ecb599c6f7062215b787ceca6'}
+          for k,v in roots.items(): assert git('rev-parse','HEAD:'+k)==v,'R7_S_TREE_MOVED_'+k
+          doc=Path('TradingResearchLab/reports/TRL-NOV-2026-KIMI-START-HERE.md')
+          body=doc.read_text(encoding='utf-8')
+          assert all(x in body for x in ('60/30/45','TP6 + Protect3 + HOLD5','без EXT2','не разрешение управлять LIVE')),'TRL_AUTHORITY_CHANGED'
+          for link in re.findall(r'\]\(([^)]+)\)',body):
+              if link.startswith(('https://','http://','#','mailto:')): continue
+              path=(doc.parent/link.split('#')[0]).resolve()
+              assert path.is_file() and path.is_relative_to(Path.cwd()),'TRL_LINK_MISSING:'+link
+          print('R7_S_PROTECTED_H1_M15_TRL_TREE_SHAS=PASS')
+          print('R7_S_TRL_KIMI_AUTHORITY_LINKS=PASS')
+          PY
+      - name: Synthetic offline H1 safety and M15 causal tests (not full suite)
+        run: |
+          python -B -m pytest -q -p no:cacheprovider \
+            TradingSystemLab/stage8_robot/tests/test_trading_safety_gate.py \
+            IntradayLab/tests/test_net_c1_execution.py \
+            IntradayLab/tests/test_m5_clock_confirmation.py \
+            IntradayLab/tests/test_causal_mtf.py
+          echo 'R7_S_SELECTED_H1_M15=PASS_NOT_FULL_SUITE'
+
+  main-admission-offline:
+    name: Main Admission - protected offline baseline
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    env:
+      PYTHONDONTWRITEBYTECODE: '1'
+      PYTEST_DISABLE_PLUGIN_AUTOLOAD: '1'
+      PYTHONPATH: ${{ github.workspace }}:${{ github.workspace }}/ControlCenter
+      V20_LIVE_AUTHORIZED: 'no'
+      M15_LIVE_AUTHORIZED: 'no'
+    steps:
+      - name: Checkout retained offline sources with no persisted credentials
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # pinned v4
+        with:
+          persist-credentials: false
+          fetch-depth: 1
+          filter: blob:none
+          sparse-checkout: |
+            /TradingSystemLab/stage8_robot/
+            /TradingSystemLab/authority_hashing.py
+            /TradingSystemLab/core/
+            /IntradayLab/core/
+            /IntradayLab/tools/
+            /IntradayLab/config/
+            /IntradayLab/tests/test_net_c1_execution.py
+            /IntradayLab/tests/test_m5_clock_confirmation.py
+            /IntradayLab/tests/test_causal_mtf.py
+            /V20_TradingSystem_M15/v20_runtime/
+            /ControlCenter/controller/
+            /ControlCenter/tests/test_v20_offline_journal.py
+            /TradingResearchLab/
+          sparse-checkout-cone-mode: false
+      - name: Pinned offline Python
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # pinned v5
+        with:
+          python-version: '3.12.10'
+      - name: Install test-only numerical packages
+        run: python -m pip install --disable-pip-version-check pytest==8.4.2 numpy==2.2.6 pandas==2.3.3 tzdata==2025.2
+      - name: Static parse of V20 CC H1 and TRL handoff links
+        run: |
+          python -B - <<'PY'
+          from pathlib import Path
+          import re
+          roots=('V20_TradingSystem_M15/v20_runtime','ControlCenter/controller','TradingSystemLab/stage8_robot')
+          count=0
+          for root in roots:
+              p=Path(root)
+              assert p.is_dir(),'RETAINED_RUNTIME_MISSING:'+root
+              for f in p.rglob('*.py'):
+                  compile(f.read_bytes(),str(f),'exec',dont_inherit=True)
+                  count+=1
+          assert count>=50,'INSUFFICIENT_RUNTIME_PYTHON_SCOPE'
+          doc=Path('TradingResearchLab/reports/TRL-NOV-2026-KIMI-START-HERE.md')
+          content=doc.read_text(encoding='utf-8')
+          assert all(x in content for x in ('60/30/45','TP6 + Protect3 + HOLD5','без EXT2','не разрешение управлять LIVE')),'TRL_CURRENT_AUTHORITY_MISSING'
+          for link in re.findall(r'\]\(([^)]+)\)',content):
+              if link.startswith(('https://','http://','#','mailto:')): continue
+              target=(doc.parent/link.split('#')[0]).resolve()
+              assert target.is_file() and target.is_relative_to(Path.cwd()),'TRL_HANDOFF_LINK_MISSING:'+link
+          print('MAIN_ADMISSION_PYTHON_STATIC=PASS',count)
+          print('MAIN_ADMISSION_TRL_AUTHORITY=PASS')
+          PY
+      - name: Selected synthetic offline safety, timing and CC tests
+        run: |
+          python -B -m pytest -q -p no:cacheprovider \
+            TradingSystemLab/stage8_robot/tests/test_trading_safety_gate.py \
+            IntradayLab/tests/test_net_c1_execution.py \
+            IntradayLab/tests/test_m5_clock_confirmation.py \
+            IntradayLab/tests/test_causal_mtf.py \
+            V20_TradingSystem_M15/v20_runtime/tests/test_account_risk.py \
+            V20_TradingSystem_M15/v20_runtime/tests/test_offline_planner.py \
+            ControlCenter/tests/test_v20_offline_journal.py
+          echo 'MAIN_ADMISSION_SELECTED_OFFLINE=PASS_NOT_FULL_RELEASE'

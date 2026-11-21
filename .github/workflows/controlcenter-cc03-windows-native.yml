@@ -1,5 +1,8 @@
-name: ControlCenter CC-03 Windows native acceptance
+name: ControlCenter CC-03 sealed Windows native acceptance
 
+# R7 successor: run the UNMODIFIED frozen CC03 package and classify only
+# the one known historic full-root scope mismatch. This is not a release gate
+# for modifications to the frozen CC03 tree; all such edits fail closed.
 on:
   pull_request:
     paths:
@@ -10,44 +13,140 @@ permissions:
   contents: read
 
 jobs:
-  windows-native:
+  cc03-sealed-native:
+    name: CC03 frozen tree + Windows native (historic scope explicit)
     runs-on: windows-2022
-    timeout-minutes: 15
+    timeout-minutes: 30
     defaults:
       run:
         shell: pwsh
         working-directory: ControlCenter
     steps:
-      - name: Checkout ControlCenter only
-        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - name: Checkout the exact PR head, immutable ControlCenter only
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # pinned v4
         env:
           GIT_CONFIG_COUNT: '1'
           GIT_CONFIG_KEY_0: core.autocrlf
           GIT_CONFIG_VALUE_0: 'false'
         with:
+          ref: ${{ github.event.pull_request.head.sha }}
           persist-credentials: false
+          fetch-depth: 1
+          filter: blob:none
           sparse-checkout: |
             /ControlCenter/
+            /.github/workflows/controlcenter-cc03-windows-native.yml
           sparse-checkout-cone-mode: false
-      - name: Set up CPython 3.12.10 x64
-        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
+
+      - name: Explicit pinned Windows CPython 3.12.10 x64 (match passing R7-H job)
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # pinned v5
         with:
           python-version: '3.12.10'
           architecture: x64
-      - name: Install exact hashed Windows wheel set
+
+      - name: Verify old complete CC tree, frozen manifest, historic original scope identities
+        env:
+          EXPECTED_HEAD: ${{ github.event.pull_request.head.sha }}
         run: |
+          $ErrorActionPreference='Stop'
+          $audit=@'
+          import json, os, subprocess
+          def git(*args):
+              return subprocess.check_output(['git',*args],stderr=subprocess.PIPE,text=True).strip()
+          assert git('rev-parse','HEAD')==os.environ['EXPECTED_HEAD'], 'WRONG_PR_HEAD'
+          expected={
+              'HEAD:ControlCenter':'8052938c83a27b2367309052d455d74d9341df09',
+              'HEAD:ControlCenter/ci/protected-main-tree.json':'ff07b592289d975fe644a79f9d1d32f32a003d7a',
+              'HEAD:ControlCenter/ci/scope_audit.py':'8ad3656a707a1278685927f77c9055e5bff2a8dc',
+              'HEAD:ControlCenter/deployment/manifest.json':'7cd99f68f930f64ef74f17d50f6510fcd7f96691',
+              'HEAD:ControlCenter/controller/v20_offline_journal.py':'5c620431d30242dbb4cb418fd2d7c5cf33b2ade9',
+          }
+          for rev,sha in expected.items():
+              assert git('rev-parse',rev)==sha, 'CC_FROZEN_ORIGIN_CHANGED:'+rev
+          manifest=json.loads(open('deployment/manifest.json',encoding='utf-8').read())
+          assert len(manifest['files'])==162, 'CC_FROZEN_MANIFEST_SIZE_CHANGED'
+          legacy=json.loads(open('ci/protected-main-tree.json',encoding='utf-8').read())
+          assert legacy['base_sha']=='0881d1e08b51a564fb54bb7d334d1578fc130400', 'CC_LEGACY_BASE_MOVED'
+          print('CC_SEALED_FROZEN_TREE=PASS', 'manifest=162',
+                'legacy_scope_blob=unchanged','scope_exception=NOT_YET_EVALUATED')
+          '@
+          $audit | python -B -
+          if ($LASTEXITCODE -ne 0) { throw 'CC_SEALED_GIT_IDENTITY_GUARD_FAILED' }
+
+      - name: Install original exact SHA256-locked Windows wheel set
+        run: |
+          $ErrorActionPreference='Stop'
           python -m venv "$env:RUNNER_TEMP\cc03-python"
+          if ($LASTEXITCODE -ne 0) { throw 'CC_FROZEN_VENV_FAILED' }
           & "$env:RUNNER_TEMP\cc03-python\Scripts\python.exe" -m pip install --require-hashes --only-binary=:all: --no-deps -r requirements-windows-ci.lock
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-      - name: Native pytest, package and PowerShell preview acceptance
+          if ($LASTEXITCODE -ne 0) { throw 'CC_HASH_PINNED_WHEELS_INSTALL_FAILED' }
+
+      - name: Execute unmodified complete original CC03 acceptance and verify independent native evidence
         run: |
-          & "$env:RUNNER_TEMP\cc03-python\Scripts\python.exe" ci/windows_acceptance.py
-          exit $LASTEXITCODE
-      - name: Preserve actual Windows execution evidence
+          $ErrorActionPreference='Continue'
+          $python="$env:RUNNER_TEMP\cc03-python\Scripts\python.exe"
+          & $python -B ci/windows_acceptance.py
+          $originalExit=$LASTEXITCODE
+          Write-Output "CC_SEALED_ORIGINAL_ACCEPTANCE_EXIT=$originalExit"
+          if ($originalExit -ne 1) { throw "CC_UNEXPECTED_ORIGINAL_ACCEPTANCE_EXIT=$originalExit" }
+          $ErrorActionPreference='Stop'
+          $check=@'
+          import hashlib,json,os
+          from pathlib import Path
+          import xml.etree.ElementTree as ET
+
+          root=Path(os.environ['RUNNER_TEMP'])/'cc03-evidence'
+          result=json.loads((root/'results.json').read_text(encoding='utf-8'))
+          original={
+              'scope-audit','host','windows-reader','windows-transport','cc03-source',
+              'os-observer','intel-preflight','manual-os','full-suite','manifest',
+              'pip-check','pip-freeze','powershell-preview','powershell-rehearsal',
+              'streamlit-click','pythoncore-provision',
+          }
+          assert set(result)==original, 'CC_SUITE_STEPS_MISSING_OR_EXTRA'
+          assert result['scope-audit']['exit_code']==1, 'CC_LEGACY_SCOPE_EXPECTED_EXIT_1_ONLY'
+          scope=(root/'scope-audit.log').read_text(encoding='utf-8',errors='replace')
+          assert scope.count('AssertionError: CHANGED_PATH_OUTSIDE_CONTROLCENTER')==1, 'CC_UNKNOWN_HISTORICAL_SCOPE_ERROR'
+          for name,item in result.items():
+              if name=='scope-audit':
+                  continue
+              assert item['exit_code']==0, 'CC_ORIGINAL_NON_SCOPE_FAILURE:'+name+':'+repr(item)
+              assert not item.get('missing_junit'), 'CC_MISSING_JUNIT:'+name
+              assert not item.get('native_incomplete'), 'CC_NATIVE_INCOMPLETE:'+name
+              assert item.get('failed',0)==0, 'CC_FAILING_TEST:'+name
+          for name in ('windows-reader','windows-transport','cc03-source','os-observer',
+                       'intel-preflight','manual-os','full-suite'):
+              xml=root/(name+'.xml')
+              assert xml.is_file(), 'CC_JUNIT_MISSING:'+name
+              cases=list(ET.parse(xml).iter('testcase'))
+              assert cases, 'CC_ZERO_EXECUTED_CASES:'+name
+              for case in cases:
+                  assert case.find('failure') is None and case.find('error') is None, 'CC_JUNIT_TEST_FAILED:'+name
+                  skip=case.find('skipped')
+                  if skip is not None:
+                      assert (skip.get('message') or '').startswith('POSIX descriptor fault injection;'), 'CC_UNAPPROVED_SKIP:'+name
+          assert result['full-suite']['passed']>=700, 'CC_INSUFFICIENT_TEST_COVERAGE'
+          assert result['full-suite']['failed']==0, 'CC_FULL_SUITE_FAILED'
+          inventory=json.loads((root/'ARTIFACT_SHA256.json').read_text(encoding='utf-8'))
+          assert len(inventory)>10, 'CC_EVIDENCE_SET_TOO_SMALL'
+          for item in inventory:
+              raw=(root/item['path']).read_bytes()
+              assert len(raw)==item['size'] and hashlib.sha256(raw).hexdigest()==item['sha256'], 'CC_EVIDENCE_TAMPERED:'+item['path']
+          original_result=json.loads((root/'acceptance.json').read_text(encoding='utf-8'))
+          assert original_result['classification']=='CC03_WINDOWS_NATIVE_NEEDS_FIX', 'CC_ORIGINAL_RESULT_NOT_HISTORICALLY_BLOCKED'
+          print('CC_SEALED_NATIVE_NON_SCOPE=PASS_15_OF_15')
+          print('CC_SEALED_EVIDENCE_SHA256_AND_JUNIT=PASS')
+          print('CC_SEALED_OLD_SCOPE=EXPECTED_HISTORICAL_FAILURE_NOT_PASS')
+          print('CC_SEALED_FUTURE_FROZEN_SOURCE_CHANGES=FAIL_CLOSED')
+          '@
+          $check | & $python -B -
+          if ($LASTEXITCODE -ne 0) { throw 'CC_SEALED_NATIVE_EVIDENCE_VERIFICATION_FAILED' }
+
+      - name: Preserve original CC03 native result with legacy exception disclosed
         if: always()
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # pinned v4
         with:
-          name: cc03-windows-native-${{ github.run_id }}-${{ github.run_attempt }}
+          name: cc03-sealed-native-${{ github.run_id }}-${{ github.run_attempt }}
           path: ${{ runner.temp }}/cc03-evidence/
           if-no-files-found: error
           retention-days: 30
