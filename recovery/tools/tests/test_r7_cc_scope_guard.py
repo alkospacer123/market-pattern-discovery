@@ -5,7 +5,7 @@ import subprocess
 import tempfile
 import unittest
 
-SOURCE = Path(__file__).with_name('r7_cc_scope_guard.py')
+SOURCE = Path(__file__).resolve().parents[1] / 'r7_cc_scope_guard.py'
 spec = importlib.util.spec_from_file_location('guard', SOURCE)
 guard = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(guard)
