@@ -15,11 +15,11 @@
 **Осталось до удаления:** включить protection/no force push/no deletion для `archive/pre-r7-cleanup` (текущий protected=false); физическая вторая проверенная копия вне основного Intel/SSD; сохранение metadata GitHub PR/Issues/CI и LFS/артефактов при наличии; отдельная оценка существующего `market-pattern-archive` и его незавершённого PR #5. Это промежуточный checkpoint, не финальные R5/R6.
 **Gate:** R7_DESTRUCTIVE=BLOCKED пока любой из перечисленных контрольных пунктов без доказательства. Нет необходимости перекачивать существующий bundle.
 
-### R7-A. Исправленный скан старой root-платформы [IN PROGRESS]
+### R7-A. Исправленный скан старой root-платформы [V2 PASS; DEPENDENCY CLOSURE OPEN]
 - Из isolated checkout получен `dependency-report.json`: `HEAD=f15d565...`, 18 439 tracked, 16 828 scanned, 331 legacy bundle; 1 012 файла >2MB пропущены; 1 325 protected hits, V1 verdict `LITERAL_SCAN_ONLY_NOT_DEPENDENCY_CLOSURE`. Это скан упоминаний, не доказательство отсутствия runtime зависимости.
 - Найдены подтверждённые связи: H1 диагностические Python скрипты → `audit_only/stop_tick_grid_20261012`, TRL отчёты → общие `src/market_pattern_discovery/backtest/` + `validation/`, M15 registry → старые paths, CC protected-main-tree.json → исторические root-sha.
 - Исправлены regex точного package `bbw_system` и Windows CRLF/SHA256; synthetic tests scanner+checkpoint **10/10 PASS**. Новая версия сканера в #581.
-**Следующий шаг:** получить от оператора и разобрать `dependency-report-v2.json` в существующем isolated checkout, сверить HEAD и физический SHA. Если в Windows command Git env не совпадает — остановка без затрагивания LIVE. Не удалять источники по количеству matches.
+**V2 принят 21.11:** локальный и загруженный JSON SHA256 `f2bb849da4035042a7209665b9a133fb3652fc20927a0534f0be989aa3f9a16a` совпали; HEAD и unchanged-tree PASS; 1 979 total textual references, 1 490 protected, включая 588 `bbw_system` упоминаний (491 в protected). Большая часть BBW protected относится к историческим M15 JSON-манифестам, не к исполняемым импортам. Следующий шаг — R7-B whole-main inventory. Не удалять источники по количеству matches.
 
 ### R7-B. Полная инвентаризация всех 18 439 tracked файлов [NOT STARTED]
 **Цель:** не ограничиваться 331 файлом. Создать детерминированный `whole-main-inventory.json` / summary на SHA с для каждого файла: path, blob SHA, mode, bytes, owner, purpose, date/provenance/refs, исполняемый или документ/данные, privacy, links/dependencies, предлагаемый класс.
@@ -55,7 +55,7 @@ Merge только после полного R7-0 и R7-E и отдельног�
 - **R8 Приёмка:** отчёты SHA/PASS/FAIL, сценарии отката, долгосрочный lifecycle, права, допущения, обслуживание и письменное решение владельца.
 
 ## Контроль рисков и ближайшие действия
-1. **Сейчас:** завершить V2 dependency scan (задача выполняется у оператора) и разобрать JSON; параллельно безопасный Git-readonly анализ структуры и существующего архивного репозитория.
+1. **Сейчас:** V2 scan SHA PASS, dependency closure ещё OPEN; запустить isolated Git-only whole-main inventory и разобрать JSON; параллельно safe readonly аудит архива.
 2. Затем разработать whole-main-inventory 18 439/18 439, выявить крупные исторические комплексы и уже доказанные защищённые зависимости.
 3. Подтвердить second copy и archive protection, плюс полноту внешнего metadata до destructive merge.
 4. Один cleanup PR, полный offline validation, операторский Merge, затем Kimi и лишь потом итоговый Recovery.
