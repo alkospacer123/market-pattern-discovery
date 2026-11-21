@@ -50,7 +50,7 @@
 ### Статические и аппаратно-независимые проверки
 
 - [Main Admission на HEAD `6a24f38fab8e495e8f0e2a61bd121e4e5117aadc`](https://github.com/alkospacer123/market-pattern-discovery/actions/runs/44951308427) — **SUCCESS**, только selected offline baseline, не полный релиз.
-- [R7 Root Legacy Gate на том же HEAD](https://github.com/alkospacer123/market-pattern-discovery/actions/runs/44951308441) — scope/link/AST **PASS**: 233 удаления, 3 добавления, 6 документальных замен, 2 045 текстовых файлов, 1 266 внутренних Markdown-ссылок, 0 новых missing, 0 прямых импортов старого root ядра, 0 skipped eligible text. **Весь workflow остаётся FAILURE из-за отдельного исторического теста**; это не следует маскировать.
+- [R7 Root Legacy Gate на том же HEAD](https://github.com/alkospacer123/market-pattern-discovery/actions/runs/44951308441) — scope/link/AST **PASS**: 233 удаления, 3 добавления на прежнем audited HEAD, 6 документальных замен, 2 045 текстовых файлов, 1 266 внутренних Markdown-ссылок, 0 новых missing, 0 прямых импортов старого root ядра, 0 skipped eligible text. **Весь workflow остаётся FAILURE из-за отдельного исторического теста**; это не следует маскировать.
 - Динамические вызовы с точным file/line: **80 всего**, 61 literal и 19 computed: CC=1, IntradayLab=11, V20=7 computed, TradingSystemLab=0 computed. В просмотренных выражениях — локальные CC importlist, IntradayLab tools/audit, V20-owned research AST и временные research modules, **не наблюдаются прямые переходы к удалённому `market_pattern_discovery`**. Это не закрывает внешние вызовы или непрямую runtime reachability.
 - Отдельный защищённый [Windows-native CC03 symlink gate](https://github.com/alkospacer123/market-pattern-discovery/actions/runs/44951308441) — **PASS**: file/directory symlinks отказаны, sealed CC Git tree SHA неизменен, только временные synthetic fixtures. Старый **full native CC03** с проверкой entire-root `ControlCenter/ci/scope_audit.py` не принят и не отключён.
 
@@ -67,3 +67,10 @@
 - После приёмки #585 перенаправить #586 на `main`, выполнить итоговые exact-head CI/checkout/hash/diff/rollback проверки; требуется явное разрешение пользователя для Merge.
 
 **ИТОГ: DRAFT / PARTIAL_ARCHIVE_VALIDATED / HISTORICAL_TEST_FAIL_PRESERVED / NATIVE_SYMLINK_PASS / MAIN_UNCHANGED / NO_MERGE.**
+
+## 22.11 — расширение полного native CC03 без изменения frozen ControlCenter
+
+- В этом же PR (без нового PR) добавлен `.github/workflows/r7-cc03-full-native.yml`, производный от исходного зафиксированного `main:.github/workflows/controlcenter-cc03-windows-native.yml` (исходный Git blob `ebf5b976a9f3857728369b6813512c0e00f2399d`). Реально вызывается **оригинальный** `ControlCenter/ci/windows_acceptance.py` на GitHub-hosted Windows, строго только для PR #586.
+- Новая проверка требует полного frozen SHA `ControlCenter`, оригинального frozen `scope_audit.py`, всех 16 исходных тестовых этапов, неповреждённых SHA256/JUnit evidence, полного набора тестов (не менее 700 PASS), и единственного **явно обозначенного** ожидаемого исторического scope failure. Ни оригинальный scope-guard, ни frozen manifest не изменяются и не выключаются.
+- Это дополнительный review/CI gate на exact HEAD: до результата workflow **FULL_CC03_NOT_VERIFIED**. Если какой-то иной тест или provenance изменён — FAIL. Отдельная политика разрешённых root изменений уже проверяется в независимом R7-сканере, но не считается заменой оригинального frozen CC03.
+- После добавления workflow scope: **233 удалённых**, `research_domains.md` — совместимый archive pointer, изменённые markdown и 4 добавления (root gate + full native CC workflow + scanner + gate doc). Никаких изменений старых workflow или protected project trees.

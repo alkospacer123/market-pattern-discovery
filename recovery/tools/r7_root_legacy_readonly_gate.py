@@ -25,7 +25,8 @@ MODIFIED = {"README.md","AGENTS.md","ROADMAP.md","research_domains.md",
  "recovery/LEGACY_DEPENDENCIES_AND_RETENTION.md"}
 ADDED = {"recovery/R7_ROOT_LEGACY_EXTRACTION_GATE_2026-11-22.md",
  "recovery/tools/r7_root_legacy_readonly_gate.py",
- ".github/workflows/r7-root-legacy-readonly.yml"}
+ ".github/workflows/r7-root-legacy-readonly.yml",
+ ".github/workflows/r7-cc03-full-native.yml"}
 PROTECTED = ("V20_TradingSystem_M15","ControlCenter","TradingResearchLab",
  "TradingSystemLab","IntradayLab","audit_only")
 TEXT = {".md",".py",".ps1",".psm1",".psd1",".toml",".yml",".yaml"}
