@@ -8,7 +8,7 @@ data, hypotheses, parameters, validation evidence, or conclusions.
 | Domain | Purpose | Canonical documentation | Result location |
 | --- | --- | --- | --- |
 | Trading System Lab | Evaluate the separately defined T1–T3 and R1–R3 trading systems and their portfolio behavior. | [`TradingSystemLab/README.md`](TradingSystemLab/README.md) | `TradingSystemLab/results/` |
-| BBW | Discover and validate causal market patterns and maintain the independent BBW baseline workflow. | [`BBW/README.md`](BBW/README.md) | `results/` and explicitly configured external output roots |
+| BBW | Discover and validate causal market patterns and maintain the independent BBW baseline workflow. | [`BBW/README.md` (исторический исходник до #583)](https://github.com/alkospacer123/market-pattern-discovery/blob/f15d565755b996252081ed49ed5a094ee1e8d820/BBW/README.md) | `results/` and explicitly configured external output roots |
 
 ## Repository-wide invariants
 
