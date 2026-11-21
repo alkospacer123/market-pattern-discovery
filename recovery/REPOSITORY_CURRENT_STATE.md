@@ -13,13 +13,13 @@
 | Корень legacy | `src/` 86, `tests/` 50, `docs/` 34, `audit_only/` 16, plus конфиги, схемы и отчёты — удаление без dependency gate нельзя |
 | PR #584 | 21.11 оказался merged с одной строкой README «АКТУАЛИЗИРОВАТЬ ОПИСАНИЕ ПРОЕКТА»; эта новая ветка предлагает содержательную замену, не прямой push |
 | GitHub CI | `Protect main` active, обязательный `Main Admission - protected offline baseline` с strict up-to-date, это частичный offline gate, не LIVE |
-| Archive | Публичный `market-pattern-archive/main=8d4027c8d53625dfe7780cb7ccfdc354d51b25ba`: 26 файлов, 19 исторических оригиналов, не полный архив. Draft #5 с 16 STOP/TICK GRID не merged |
+| Archive | Публичный `market-pattern-archive/main=8d4027c8d53625dfe7780cb7ccfdc354d51b25ba`: 26 файлов, 19 исторических оригиналов, **0/19 blob SHA есть в текущем рабочем main** (проверено дерево 21.11); не полный архив. Draft #5 с 16 STOP/TICK GRID не merged. **Сохранить** до финальной независимой проверки Recovery |
 
 ## Открытые PR на момент среза
 
 - [#580](https://github.com/alkospacer123/market-pattern-discovery/pull/580) — подготовка V20 R088 deep-dive и экзамена Kimi, обновить относительно нового main перед Merge; уникальная информация сохраняется.
 - [#581](https://github.com/alkospacer123/market-pattern-discovery/pull/581) — устаревший roadmap R7, **но уникальные офлайн инструменты**; без проверки не закрывать/не терять.
-- [#582](https://github.com/alkospacer123/market-pattern-discovery/pull/582) — датированная карта архива, не текущая инструкция; не Merge as-is.
+- [#582](https://github.com/alkospacer123/market-pattern-discovery/pull/582) — **закрыт без Merge 21.11**, сохранив ветку и исходный двухфайловый исторический снимок; это не текущая инструкция.
 
 ## Не подтверждено
 

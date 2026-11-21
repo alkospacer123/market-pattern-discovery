@@ -1,3 +1,4 @@
+> **Исторический контракт старой платформы Market Pattern Discovery (срез 21.11.2026).** Этот документ сохраняет разделение двух прежних research domains и их собственный `2025 locked TRUE OOS` для воспроизведения *тех* замороженных экспериментов. Он **не** является текущей общей инструкцией V20 / Control Center / Trading Research Lab. Для них читать [корневой AGENTS](AGENTS.md), [README](README.md), [паспорт TRL](recovery/PROJECT_PASSPORT_TRL.md). TRL и V20 уже изучали 2025, поэтому нельзя вновь объявлять его untouched TRUE OOS.
 # Research domain isolation
 
 This repository contains two independent research domains. Their coexistence in
