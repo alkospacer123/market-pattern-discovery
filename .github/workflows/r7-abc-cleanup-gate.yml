@@ -11,6 +11,14 @@ on:
       - 'IntradayLab/results/optimization_b_high_low_cluster_2023_v1/**'
       - 'IntradayLab/results/optimization_c_return_retest_rejection_2023_v1/**'
       - '.github/workflows/r7-abc-cleanup-gate.yml'
+      - 'BBW/**'
+      - 'bbw_system/**'
+      - 'src/bbw_system/**'
+      - 'tests/test_bbw_*.py'
+      - 'config/bbw*.json'
+      - 'evidence/BBW_*.md'
+      - 'results/candidate_baseline/**'
+      - 'pyproject.toml'
 
 permissions:
   contents: read
@@ -37,7 +45,7 @@ jobs:
         with:
           ref: ${{ github.event.pull_request.head.sha }}
           persist-credentials: false
-          fetch-depth: 9
+          fetch-depth: 12
           filter: blob:none
           sparse-checkout: |
             /.github/workflows/
@@ -47,79 +55,106 @@ jobs:
         uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5, SHA-pinned
         with:
           python-version: '3.12.10'
-      - name: Check exact A/B/C removals, CC source identity and real symlink denial
+      - name: Check unified A/B/C + BBW exact scope, CC identity and real symlink denial
         run: |
           python -B - <<'PY'
+          from __future__ import annotations
           import collections
+          import hashlib
           import os
-          from pathlib import Path
           import subprocess
+          from pathlib import Path
           import tempfile
           import sys
 
-          PIN = 'f15d565755b996252081ed49ed5a094ee1e8d820'
-          DELETION_COMMIT = '20e5e0f23adbf9422c3dd8e6d1290bcd90340560'
-          DELETION_TREE = '47a8bc791f13601530d1046bfe3cb87683fd1632'
-          CI_FILE = '.github/workflows/r7-abc-cleanup-gate.yml'
-          CC_SEALED_FILE = '.github/workflows/controlcenter-cc03-windows-native.yml'
-          CC_SEALED_BLOB = 'ebf5b976a9f3857728369b6813512c0e00f2399d'
-          CC_TREE = '8052938c83a27b2367309052d455d74d9341df09'
-          JOURNAL_BLOB = '5c620431d30242dbb4cb418fd2d7c5cf33b2ade9'
-          EXPECTED = {
-              'IntradayLab/optimization_a_2023_v1/': 19,
-              'IntradayLab/optimization_b_high_low_cluster_2023_v1/': 23,
-              'IntradayLab/optimization_c_return_retest_rejection_2023_v1/': 24,
-              'IntradayLab/results/optimization_a_equal_high_low_2023_v1/': 1174,
-              'IntradayLab/results/optimization_b_high_low_cluster_2023_v1/': 7053,
-              'IntradayLab/results/optimization_c_return_retest_rejection_2023_v1/': 3198,
-          }
+          PIN='f15d565755b996252081ed49ed5a094ee1e8d820'
+          EXPECTED_PARENT='b27c93b9369cf869ca32a871a3f78561a4fa06af'
+          CI_FILE='.github/workflows/r7-abc-cleanup-gate.yml'
+          CC_FILE='.github/workflows/controlcenter-cc03-windows-native.yml'
+          CC_BLOB='ebf5b976a9f3857728369b6813512c0e00f2399d'
+          PYPROJECT='pyproject.toml'
+          PY_BLOB='680df2df155f5bcc99eb9b3268e7fec82c947891'
+          BBW_RECORDS_SHA_NO_SIZE='93d7a21eea228862e13e7ebb1ae89e54d0c0a65ae22139b72628cc985ec17a1b'
+          ABC={'IntradayLab/optimization_a_2023_v1/':19,
+               'IntradayLab/optimization_b_high_low_cluster_2023_v1/':23,
+               'IntradayLab/optimization_c_return_retest_rejection_2023_v1/':24,
+               'IntradayLab/results/optimization_a_equal_high_low_2023_v1/':1174,
+               'IntradayLab/results/optimization_b_high_low_cluster_2023_v1/':7053,
+               'IntradayLab/results/optimization_c_return_retest_rejection_2023_v1/':3198}
+          PROTECTED={
+           'V20_TradingSystem_M15':'1581c596cb30760a27e2412c57da815c7b2e5091',
+           'ControlCenter':'8052938c83a27b2367309052d455d74d9341df09',
+           'TradingResearchLab':'2a97da0d42690e1ecb599c6f7062215b787ceca6',
+           'TradingSystemLab':'d27ac7153a4d25455112c1a6673d2b37a1784f43',
+           'IntradayLab':'2f39342d4a9090c7315daabff39cdfa2e629c170',
+           'recovery':'6d9b791110c719242d50ae8630fb5bd48baa7560'}
 
           def git(*args):
-              return subprocess.check_output(['git', *args], stderr=subprocess.PIPE)
+              return subprocess.check_output(('git',)+args,stderr=subprocess.PIPE)
 
-          def tree(rev):
-              files = {}
-              for line in git('ls-tree', '--full-tree', '-r', '-z', rev).split(b'\0'):
-                  if not line:
+          def rev(name):return git('rev-parse',name).decode().strip()
+
+          def tree(ref):
+              out={}
+              for item in git('ls-tree','--full-tree','-r','-z',ref).split(b'\0'):
+                  if not item:continue
+                  info,path=item.split(b'\t',1)
+                  a=info.decode('ascii').split()
+                  assert len(a)==3 and a[1]=='blob', 'NON_BLOB_IN_TREE'
+                  p=path.decode('utf-8')
+                  assert p not in out,'DUPLICATE_PATH'
+                  out[p]=(a[0],a[2])
+              return out
+
+          def classify(base,head):
+              # SHA pinned immutable base ensures both path set and original file blobs.
+              assert len(base)==18439,'BASE_FILE_COUNT'
+              removed=set(base)-set(head)
+              added=set(head)-set(base)
+              changed={p for p in base.keys() & head.keys() if base[p]!=head[p]}
+              assert added=={CI_FILE},'ADDED_SCOPE:'+str(sorted(added)[:8])
+              assert changed=={CC_FILE,PYPROJECT},'MODIFIED_SCOPE:'+str(sorted(changed)[:8])
+              assert head[CC_FILE][1]==CC_BLOB,'CC_SEALED_BLOB_CHANGED'
+              assert head[PYPROJECT][1]==PY_BLOB,'MPD_PYPROJECT_BLOB_CHANGED'
+              abc=collections.Counter()
+              bbw=[]
+              for path in removed:
+                  matching=[prefix for prefix in ABC if path.startswith(prefix)]
+                  if matching:
+                      assert len(matching)==1,'AMBIGUOUS_ABC_PATH'
+                      abc[matching[0]]+=1
                       continue
-                  metadata, name = line.split(b'\t', 1)
-                  if name in files:
-                      raise RuntimeError('DUPLICATE_GIT_TREE_PATH')
-                  files[name] = metadata
-              return files
+                  bbw.append(path)
+              assert dict(abc)==ABC,'ABC_COMPLETE_SET_CHANGED:'+str(dict(abc))
+              assert len(bbw)==103 and len(removed)==11594,'BBW_OR_TOTAL_COUNT'
+              # SHA of all 103 original path/mode/GitBlob entries. No -l/cat-file on
+              # 18,439 paths: this is SAFE for GitHub partial checkout filter:blob:none.
+              # Git blob SHA already binds the content and its size cryptographically.
+              canon=''.join(f'{p}\t{base[p][0]}\t{base[p][1]}\n' for p in sorted(bbw))
+              assert hashlib.sha256(canon.encode('utf-8')).hexdigest()==BBW_RECORDS_SHA_NO_SIZE, 'EXACT_BBW_SET_CHANGED'
+              assert len(head)==6846,'FINAL_TRACKED_COUNT'
+              assert len(base.keys()&head.keys())==6845,'ORIGINAL_PATHS_RETAINED'
+              assert len(base.keys()&head.keys())-len(changed)==6843,'ORIGINAL_UNCHANGED_COUNT'
+              return {'deleted_abc':sum(abc.values()),'deleted_bbw':len(bbw),
+                      'removed':len(removed),'retained_original':6845,
+                      'original_unchanged':6843,'new_workflow_only':1,'modified':2}
 
-          def exact(name):
-              return git('rev-parse', name).decode().strip()
+          def main():
+              assert os.environ.get('GITHUB_ACTIONS')=='true','ONLY_HOSTED_GITHUB_ACTIONS'
+              wanted=os.environ['R7_PR_SHA']
+              assert rev('HEAD')==wanted,'PR_HEAD_SHA_CHANGED'
+              # Contract for exactly one future additional candidate commit atop #583.
+              assert rev('HEAD^')==EXPECTED_PARENT,'PARENT_NOT_VERIFIED_PR583_HEAD'
+              assert rev('HEAD:'+CC_FILE)==CC_BLOB,'CC_BLOB_CHANGED'
+              assert rev('HEAD:'+PYPROJECT)==PY_BLOB,'PYPROJECT_BLOB_CHANGED'
+              base,head=tree(PIN),tree('HEAD')
+              result=classify(base,head)
+              for path,sha in PROTECTED.items():
+                  assert rev('HEAD:'+path)==sha,'PROTECTED_SUBTREE_CHANGED:'+path
+              print('R7_Q_PROPOSED_CI_SCOPE=PASS', result)
+              print('R7_Q_FULL_SUITE_LIVE_FINAM_RECOVERY=NOT_VERIFIED_BY_THIS_CHECK')
 
-          assert exact('HEAD') == os.environ['R7_PR_SHA'], 'UNEXPECTED_PR_HEAD'
-          assert exact('HEAD^') == '05861bc4a2a2d985d555582b0426421c62c77587', 'CC_PYTHON_FIX_PARENT_MOVED'
-          assert exact('HEAD^^') == '8f6304775b7c298836cd6ad6828fc0c7b8e46ba1', 'R7_L_INITIAL_CI_PARENT_MOVED'
-          assert exact('HEAD^^^') == '2adf2a2c186c223fe2b709da9d11e3319f187a85', 'CC_CI_SEAL_PARENT_MOVED'
-          assert exact('HEAD^^^^') == 'c57bad6d151d2c9621c2d9a732edcdde653f1377', 'R7_K_CI_PARENT_MOVED'
-          assert exact('HEAD^^^^^') == '9add3b972c1923fa2ccb563cc219a5c43c7f336c', 'R7_H_CI_PARENT_MOVED'
-          assert exact('HEAD^^^^^^') == '695da3a7cd75538a56d8e77a957e81ab99a35079', 'R7_G_CI_PARENT_MOVED'
-          assert exact('HEAD^^^^^^^') == DELETION_COMMIT, 'DELETE_ANCESTOR_MOVED'
-          assert exact('HEAD^^^^^^^^') == PIN, 'ORIGINAL_MAIN_PIN_MOVED'
-          assert exact('HEAD^{tree}') != DELETION_TREE, 'CI_WORKFLOW_NOT_COMMITTED'
-          assert exact(DELETION_COMMIT + '^{tree}') == DELETION_TREE, 'VERIFIED_DELETE_TREE_MOVED'
-          assert exact('HEAD:ControlCenter') == CC_TREE, 'CONTROL_CENTER_TREE_CHANGED'
-          assert exact('HEAD:ControlCenter/controller/v20_offline_journal.py') == JOURNAL_BLOB, 'JOURNAL_BLOB_CHANGED'
-          a, b = tree(PIN), tree('HEAD')
-          removed, added = set(a) - set(b), set(b) - set(a)
-          modified = {x for x in a.keys() & b.keys() if a[x] != b[x]}
-          assert added == {CI_FILE.encode()}, 'EXTRA_ADDITIONS:' + str(sorted(added)[:8])
-          assert modified == {CC_SEALED_FILE.encode()}, 'UNAUTHORIZED_OR_MISSING_MODIFICATION:' + str(sorted(modified)[:8])
-          assert exact('HEAD:'+CC_SEALED_FILE) == CC_SEALED_BLOB, 'CC_SEALED_WORKFLOW_MUTATED'
-          counts = collections.Counter()
-          for name in removed:
-              decoded = name.decode('utf-8', 'surrogateescape')
-              labels = [key for key in EXPECTED if decoded.startswith(key)]
-              assert len(labels) == 1, 'UNAUTHORIZED_DELETE:' + decoded
-              counts[labels[0]] += 1
-          assert dict(counts) == EXPECTED, 'WRONG_DELETION_COUNTS:' + repr(dict(counts))
-          assert len(removed) == 11491, 'WRONG_DELETE_TOTAL'
-          assert len(b) == 6949, 'WRONG_RETAINED_COUNT'
-          print('R7_GIT_SCOPE=PASS', 'deleted=11491', 'original_retained_paths=6948', 'original_unchanged_blobs=6947', 'ci_only_additions=1', 'cc_sealed_workflow_modifications=1')
+          if __name__=='__main__':main()
 
           # Only disposable files in hosted runner temp; never source DBs or LIVE.
           from ControlCenter.controller.v20_offline_journal import OfflineJournal, DB_NAME
