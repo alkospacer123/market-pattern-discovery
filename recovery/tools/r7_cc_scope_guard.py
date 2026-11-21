@@ -104,7 +104,7 @@ def audit(repo, phase):
     repo = Path(repo)
     if phase not in ('baseline', 'cleanup'):
         raise ScopeFailure('INVALID_PHASE')
-    if git(repo, 'rev-parse', '--show-toplevel').decode().strip() != str(repo.resolve()):
+    if Path(git(repo, 'rev-parse', '--show-toplevel').decode().strip()).resolve() != repo.resolve():
         raise ScopeFailure('ROOT_MUST_BE_GIT_TOPLEVEL')
     original = read_historical_baseline(repo)
     anchor_root = git_tree(repo, PIN)
