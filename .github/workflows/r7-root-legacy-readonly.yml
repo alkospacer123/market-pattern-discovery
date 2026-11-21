@@ -1,0 +1,52 @@
+name: R7 root legacy static preservation and broken-link gate
+on:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  root-legacy-readonly:
+    name: R7 root legacy immutable scope + static links/imports
+    if: github.event.pull_request.number == 586
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    env:
+      EXPECT_HEAD: ${{ github.event.pull_request.head.sha }}
+      PYTHONDONTWRITEBYTECODE: '1'
+    steps:
+      - name: Checkout only text source, without tokens in checkout or full data blobs
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # SHA pinned
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 2
+          filter: blob:none
+          persist-credentials: false
+          sparse-checkout: |
+            /*.md
+            /**/*.md
+            /**/*.py
+            /**/*.ps1
+            /**/*.psm1
+            /**/*.psd1
+            /**/*.toml
+            /**/*.yml
+            /**/*.yaml
+          sparse-checkout-cone-mode: false
+      - name: Exact immutable tree diff, source static import and link check
+        run: |
+          python3 -B recovery/tools/r7_root_legacy_readonly_gate.py --expect-head "$EXPECT_HEAD" --output "$RUNNER_TEMP/r7-root-legacy.json"
+      - name: Report failures and scope without source content
+        if: always()
+        run: |
+          if [ -f "$RUNNER_TEMP/r7-root-legacy.json" ]; then
+            python3 - "$RUNNER_TEMP/r7-root-legacy.json" <<'PY'
+          import json,sys
+          r=json.load(open(sys.argv[1],encoding='utf-8'))
+          s=r['scan']
+          print('R7_LINK_BREAKS',s['newly_broken'][:40])
+          print('R7_IMPORTS',s['legacy_imports'][:40])
+          print('R7_OMISSIONS',s['omissions'][:40])
+          print('R7_SCOPE',r['deleted'],r['added'],r['modified'])
+          PY
+          fi
