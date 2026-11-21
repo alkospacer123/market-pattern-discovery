@@ -21,10 +21,10 @@
 - Исправлены regex точного package `bbw_system` и Windows CRLF/SHA256; synthetic tests scanner+checkpoint **10/10 PASS**. Новая версия сканера в #581.
 **V2 принят 21.11:** локальный и загруженный JSON SHA256 `f2bb849da4035042a7209665b9a133fb3652fc20927a0534f0be989aa3f9a16a` совпали; HEAD и unchanged-tree PASS; 1 979 total textual references, 1 490 protected, включая 588 `bbw_system` упоминаний (491 в protected). Большая часть BBW protected относится к историческим M15 JSON-манифестам, не к исполняемым импортам. Следующий шаг — R7-B whole-main inventory. Не удалять источники по количеству matches.
 
-### R7-B. Полная инвентаризация всех 18 439 tracked файлов [NOT STARTED]
+### R7-B. Полная инвентаризация всех 18 439 tracked файлов [METADATA PASS; DEPENDENCIES OPEN]
 **Цель:** не ограничиваться 331 файлом. Создать детерминированный `whole-main-inventory.json` / summary на SHA с для каждого файла: path, blob SHA, mode, bytes, owner, purpose, date/provenance/refs, исполняемый или документ/данные, privacy, links/dependencies, предлагаемый класс.
 **Техника:** Git ls-files/trees, статический импорт Python/PowerShell/shell/JS, subprocess/importlib, entrypoints, GitHub Actions/workflows, test imports, configs, includes/manifests, dynamic path assembly, symlinks, frozen source paths. Для 1 012 skipped oversized файлов — отдельное безопасное потоковое чтение нужных JSON/MD и регистрация CSV/бинарных доказательств без запуска или доступа к FINAM. Секреты не публиковать, содержимое подозрительных файлов не включать целиком в отчёт.
-**Gate:** 18 439/18 439 covered (каждый файл учтён, в том числе skipped/binary с явным reason). Не требовать чтения всех котировок как текста; выборочно проверять воспроизводимость источников.
+**Gate:** 18 439/18 439 учтено по Git metadata: JSON SHA256 `f3868a4359662bf33804a50847288391a3336753b21e115b985b8f9a63853865`, 6,023,678,455 логических bytes. 14 213 файлов и 5.842 GB — IntradayLab. Три старых optimization results A/B/C = 11 425 файлов, 4.155 GB (68.98% дерева): PRIORITY FOR STATIC CROSSROOT AND REPRODUCIBILITY REVIEW, NOT DELETION APPROVAL. Бинарные/CSV/large JSON присутствуют в manifest, но их семантика и исполняемые вызовы не проверены; dependency closure OPEN.
 
 ### R7-C. Карта назначения, зависимостей и архивных решений [PENDING]
 Для каждого подсистемного блока: `KEEP_ACTIVE`, `KEEP_PROVENANCE`, `MIGRATE_TEST_FIRST`, `REMOVE_FROM_MAIN_AFTER_PROOF`, `HOLD_UNKNOWN`. UNKNOWN → KEEP до доказательства, историческая ссылка ≠ исполняемая зависимость, но является provenance.
@@ -56,7 +56,7 @@ Merge только после полного R7-0 и R7-E и отдельног�
 
 ## Контроль рисков и ближайшие действия
 1. **Сейчас:** V2 scan SHA PASS, dependency closure ещё OPEN; запустить isolated Git-only whole-main inventory и разобрать JSON; параллельно safe readonly аудит архива.
-2. Затем разработать whole-main-inventory 18 439/18 439, выявить крупные исторические комплексы и уже доказанные защищённые зависимости.
+2. **Выполнено:** whole-main-inventory 18 439/18 439, файл загружен и SHA совпал. **Следующее:** Git-only literal source/config/document links к трём крупнейшим IntradayLab/results optimization A/B/C, затем динамические пути, исследовательская воспроизводимость, CI, tests и protected deps.
 3. Подтвердить second copy и archive protection, плюс полноту внешнего metadata до destructive merge.
 4. Один cleanup PR, полный offline validation, операторский Merge, затем Kimi и лишь потом итоговый Recovery.
 **СТОП:** отсутствие доказанного бэкапа, защищённой исторической ветки, source provenance или регрессий = никакого удаления. Единственный оператор — пользователь. MAIN/INSTALLED/LIVE/RESEARCH/ARCHIVE/RECON не смешивать.
