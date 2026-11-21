@@ -252,3 +252,9 @@ Evidence key: R7_FROZEN_STUDY_IMPACT_VERIFIED_20261121_COMPLEX_CANDIDATE. Operat
 - **Next gates:** archive branch currently UNPROTECTED (no force-push/delete protection), independently stored/verified extra copy must be confirmed, dynamic callers/CI/tests/provenance and historical replay need isolation, disposable candidate before Merge, explicit operator authorization. Existing `market-pattern-archive` KEEP/NO DELETE.
 
 **Status:** CANDIDATE_PREVIEW_COMPLETE; WHOLE_STUDIES_A_B_C=REVIEW_ONLY; DELETE=BLOCKED; `main` and LIVE untouched.
+
+## 21.11.2026 — GitHub protection archive branch = PASS
+
+Evidence key: R7_ARCHIVE_BRANCH_RULESET_27793383_VERIFIED_20261121. GitHub REST GET /repos/alkospacer123/market-pattern-discovery/rulesets/27793383: enforcement=active; ref_name.include=[refs/heads/archive/pre-r7-cleanup]; ref_name.exclude=[]; rules=[deletion,non_fast_forward,update]; bypass_actors=[]; target=branch.
+GitHub REST GET /branches/archive/pre-r7-cleanup: protected=true, commit=f15d565755b996252081ed49ed5a094ee1e8d820. Main: protected=true, commit=f15d565755b996252081ed49ed5a094ee1e8d820. No refs moved.
+Gate R7-0 branch protection => PASS. **Do not equate with independently stored verified Git bundle or complete offline replay; both still require separate evidence.** Cleanup candidate and Merge remain BLOCKED.
