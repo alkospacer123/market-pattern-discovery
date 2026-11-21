@@ -32,7 +32,7 @@
 
 1. Автоматически сравнить исходный `main`, архивную ветку на `09bca5641cb5bb367e84505ebfc6f8c7f35e2620` и кандидат: **233 удаления + единственная архивная ссылка `research_domains.md` вместо оригинального исследовательского контракта**, ни одной модификации Git SHA/mode retained исходников, все 234 архивных Git objects доступны.
 2. Пройти полную обратную проверку импортов и путей (`src.market_pattern_discovery`, `market_pattern_discovery.*`, `docs/`, `config/`, `schemas/`, scripts/CLI, `pyproject`) в V20/CC/TRL/H1/M15/recovery и GitHub workflow. Исторические ссылки исправить на pinned archive commit, активные зависимости — сохранить или мигрировать. Нельзя ошибочно трактовать 0 совпадений в выборке как closure.
-3. Изолированно сравнить offline regression retained V20/CC/H1/M15/TRL и проверить воспроизводимость старого research **из архивного checkout**, включая binary/index, JSON/CSV. Отдельно снять известный `HOLD_SYMLINK_NATIVE` и проверить целостность старого тестового окружения.
+3. Изолированно сравнить offline regression retained V20/CC/H1/M15/TRL и проверить воспроизводимость старого research **из архивного checkout**, включая binary/index, JSON/CSV. Отдельно подтвердить native symlink security и полноту original CC03 scope/native acceptance; отдельный symlink-test не заменяет полный CC03.
 4. CI Main Admission должен быть зелёным на **точном финальном head SHA**. Это не LIVE/FINAM/SLTP PASS. По существующему workflow значительная часть R7-защитных jobs привязана к #583 и не запускается автоматически на новом PR.
 5. Выполнить операторский review полного diff, GitHub metadata/refs, protected dependencies, возможных внешних данных и только затем явно разрешить **отдельный Merge**. До приёмки старый `main` неизменен.
 
@@ -42,5 +42,28 @@
 
 - `TradingSystemLab/README.md` содержит относительную ссылку `../research_domains.md`. Вместо удаления этого файла без замены оставлен **малый указатель на архивный SHA**, исходный H1 Git tree не изменён.
 - `ControlCenter/ci/scope_audit.py` сравнивает **весь** верхний уровень кроме CC с замороженным `ci/protected-main-tree.json`, поэтому уже вступившие в `main` независимые изменения других проектов несовместимы с этим старым контрактом. Не изменять frozen CC baseline и не подавлять native-test failure; требуется согласованный **преемник scope-guard** с отдельной политикой разрешённых изменений.
-- В кандидат добавлен `.github/workflows/r7-root-legacy-readonly.yml` и offline-сканер `recovery/tools/r7_root_legacy_readonly_gate.py`: git SHA/mode по точному родителю, неизменность protected subtree/старых workflow, Markdown-ссылки, AST direct imports. Скан не исполняет код репозитория, пропуски фиксирует и блокирует тест; **не заменяет полную регрессию/CC03 native**.
+- В кандидат добавлен `.github/workflows/r7-root-legacy-readonly.yml` и offline-сканер `recovery/tools/r7_root_legacy_readonly_gate.py`: git SHA/mode относительно закреплённого архивного предка, неизменность protected subtree/старых workflow, Markdown-ссылки, AST direct imports. Скан не исполняет код репозитория, пропуски фиксирует и блокирует тест; **не заменяет полную регрессию/CC03 native**.
 - Ключевой gate: `DELETE_SCOPE_PARTIAL`, `LIVE_UNTOUCHED`, `MERGE_BLOCKED` до source parity, archive replay, CC native, external dependency verification и отдельного разрешения.
+
+## Реальные дополнительные тесты 22.11.2026 — исходный архив не переписывать
+
+### Статические и аппаратно-независимые проверки
+
+- [Main Admission на HEAD `6a24f38fab8e495e8f0e2a61bd121e4e5117aadc`](https://github.com/alkospacer123/market-pattern-discovery/actions/runs/44951308427) — **SUCCESS**, только selected offline baseline, не полный релиз.
+- [R7 Root Legacy Gate на том же HEAD](https://github.com/alkospacer123/market-pattern-discovery/actions/runs/44951308441) — scope/link/AST **PASS**: 233 удаления, 3 добавления, 6 документальных замен, 2 045 текстовых файлов, 1 266 внутренних Markdown-ссылок, 0 новых missing, 0 прямых импортов старого root ядра, 0 skipped eligible text. **Весь workflow остаётся FAILURE из-за отдельного исторического теста**; это не следует маскировать.
+- Динамические вызовы с точным file/line: **80 всего**, 61 literal и 19 computed: CC=1, IntradayLab=11, V20=7 computed, TradingSystemLab=0 computed. В просмотренных выражениях — локальные CC importlist, IntradayLab tools/audit, V20-owned research AST и временные research modules, **не наблюдаются прямые переходы к удалённому `market_pattern_discovery`**. Это не закрывает внешние вызовы или непрямую runtime reachability.
+- Отдельный защищённый [Windows-native CC03 symlink gate](https://github.com/alkospacer123/market-pattern-discovery/actions/runs/44951308441) — **PASS**: file/directory symlinks отказаны, sealed CC Git tree SHA неизменен, только временные synthetic fixtures. Старый **full native CC03** с проверкой entire-root `ControlCenter/ci/scope_audit.py` не принят и не отключён.
+
+### Архивный checkout — точный SHA, настоящий тест, обнаруженный дефект
+
+- В GitHub Actions checkout строго `09bca5641cb5bb367e84505ebfc6f8c7f35e2620` (старый исходный код, не кандидатный runtime). В архивном оригинале: **143/143 Python AST parse PASS**, **30/30 JSON parse PASS**, **4/4 .u32 content SHA-256 + count×4 bytes PASS**. Исторические `pyproject.toml`, `research/experiments/EXP-000001.json` присутствуют.
+- Запущены выбранные реальные synthetic тесты `tests/test_backtest_engine.py`, `tests/test_validation_engine.py`, `tests/test_research_cells.py`: **45 PASS / 1 FAIL**. Единственный отказ: `tests/test_validation_engine.py::test_all_deterministic_acceptance_outcomes` ожидает `ValidationStatus.REJECTED`, но исходный `ValidationEngine._decision` при `trade_count < minimum_trades` возвращает `INSUFFICIENT_DATA`. Это фактический исторический дефект/расхождение тестового ожидания, **не регрессия от очистки**, поскольку тест запускался в исходном архивном snapshot.
+- Тест **не** подавлен, не исправлен в истории, не xfailed и не исключён. `ARCHIVE_SOURCE_INTEGRITY=PASS_SCOPED`, `ARCHIVED_SELECTED_TESTS=45_PASS_1_FAIL`, `FULL_LEGACY_REPLAY=BLOCKED` до отдельного решения о документированном дефекте либо версионированном исправлении **без изменения замороженного оригинала**.
+
+### Непройденные заключительные gate
+
+- Верификация external data/ZIP/XLSX и indirect consumers, полный парный offline regression V20/CC/H1/M15/TRL; оригинальное исследование из архива не полностью PASS.
+- Согласованный successor для устаревшего полного root-scope CC03, без изменения frozen CC origin, отдельные native-тесты.
+- После приёмки #585 перенаправить #586 на `main`, выполнить итоговые exact-head CI/checkout/hash/diff/rollback проверки; требуется явное разрешение пользователя для Merge.
+
+**ИТОГ: DRAFT / PARTIAL_ARCHIVE_VALIDATED / HISTORICAL_TEST_FAIL_PRESERVED / NATIVE_SYMLINK_PASS / MAIN_UNCHANGED / NO_MERGE.**
