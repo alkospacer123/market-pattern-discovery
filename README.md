@@ -16,7 +16,7 @@
 
 - `TradingSystemLab/` — исторический H1 и рабочие библиотеки `TradingSystemLab.stage8_robot` для V20. Сотни тестов и тысячи результатов — не основание удалять исходные исследования.
 - `IntradayLab/` — исторический M15 и необходимые V20 модули `IntradayLab.core`; множество `t3_m15_*` — воспроизводимая история, не новые LIVE-роботы.
-- Корневые `src/`, `tests/`, `docs/`, `results/`, `scripts/`, `config/`, `audit_only/`, `schemas/`, `evidence/`, `research/` — старая исследовательская платформа и доказательства; точная безопасность удаления пока **не установлена**. [Паспорт сохранности](recovery/LEGACY_DEPENDENCIES_AND_RETENTION.md).
+- Старая корневая платформа Market Pattern Discovery (`src/`, `tests/`, `docs/`, `research/`, `schemas/`, `scripts/`, `config/`, `results/`, `evidence/` и старые отчёты) **вынесена из этого ДRAFT-кандидата** в [фиксированный Git-снимок](https://github.com/alkospacer123/market-pattern-discovery/tree/09bca5641cb5bb367e84505ebfc6f8c7f35e2620) и ветку `archive/pre-root-legacy-20261122`. В основном `main` удаление вступит в силу **только после отдельного Merge и приёмки**. `audit_only/` остаётся на месте из-за H1-связей. [Паспорт сохранности](recovery/LEGACY_DEPENDENCIES_AND_RETENTION.md), [gate](recovery/R7_ROOT_LEGACY_EXTRACTION_GATE_2026-11-22.md).
 
 **Какие старые корневые файлы нужны?** [Ревизия docs / research / schemas / scripts / Smoke Run](recovery/ROOT_LEGACY_AUDIT_2026-11-21.md) — не текущие проекты, но пока важны для provenance и воспроизводимости старой платформы.
 

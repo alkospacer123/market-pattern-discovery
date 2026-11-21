@@ -5,7 +5,7 @@
 ## Области и приоритет
 
 - `V20_TradingSystem_M15/` = ACTIVE торговое ядро; `ControlCenter/` = ACTIVE операторская панель; `TradingResearchLab/` = RESEARCH. `recovery/` = KNOWLEDGE / continuity.
-- `TradingSystemLab/` = LEGACY H1 + **необходимая** библиотека `stage8_robot`; `IntradayLab/` = LEGACY M15 + **необходимая** библиотека `core`. H1/M15 нельзя автоматически запускать. Остальные корневые исторические `src`, `tests`, `docs` и результаты — KEEP/DEPENDENCY_UNVERIFIED; проверять [карту](recovery/LEGACY_DEPENDENCIES_AND_RETENTION.md).
+- `TradingSystemLab/` = LEGACY H1 + **необходимая** библиотека `stage8_robot`; `IntradayLab/` = LEGACY M15 + **необходимая** библиотека `core`. H1/M15 нельзя автоматически запускать. Старая корневая автономная платформа `src/tests/docs/config/results` и её пакеты в этой **Draft-кандидатной** ветке отсутствуют; исторический источник закреплён в `archive/pre-root-legacy-20261122` на `09bca564…`. Это **не доказательство отсутствия всех зависимостей**, Merge остаётся BLOCKED до gate. `audit_only` остаётся для H1. Проверять [карту](recovery/LEGACY_DEPENDENCIES_AND_RETENTION.md) и [gate](recovery/R7_ROOT_LEGACY_EXTRACTION_GATE_2026-11-22.md).
 - При конфликте статуса: свежий проверенный источник и паспорт проекта важнее более раннего датированного среза, но нельзя объявить исторические файлы ложными или незаметно переписать историю. Всегда фиксировать SHA/дату/доказательные границы.
 
 ## Методология

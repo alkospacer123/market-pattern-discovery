@@ -1,3 +1,5 @@
+> **Дополнение 22.11.2026 (только Draft-кандидат):** этот файл фиксирует состояние `main` **до** удаления. Полный целостный комплекс, кроме `audit_only/`, предложен к выведению из рабочей ветки: 234 исходных Git blob, сохранённые в `archive/pre-root-legacy-20261122` на `09bca5641cb5bb367e84505ebfc6f8c7f35e2620`. Текущий `main` не изменён этим Draft. Проверки влияния на H1/M15/TRL/CI и независимых исторических воспроизведений не завершены: **MERGE BLOCKED**. См. [текущий gate](R7_ROOT_LEGACY_EXTRACTION_GATE_2026-11-22.md).
+
 # R7 — что делать со старой корневой платформой (21.11.2026)
  
 **Объект:** только пути на корне `market-pattern-discovery/main`, а не `TradingResearchLab/research`, `ControlCenter/docs` или `V20_TradingSystem_M15`. Срез исходного main `e52dd90ef3e85c6ccc3b075f934df3ea8f5ffa8d` после #583/#584, GitHub recursive tree `truncated=false`.
