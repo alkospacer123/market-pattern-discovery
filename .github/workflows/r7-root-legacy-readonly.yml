@@ -48,6 +48,8 @@ jobs:
           print('R7_IMPORTS',s['legacy_imports'][:40])
           print('R7_OMISSIONS',s['omissions'][:40])
           print('R7_SCOPE',r['deleted'],r['added'],r['modified'])
+          print('R7_DYNAMIC_SITE_COUNT',len(s['dynamic_sites']))
+          print('R7_DYNAMIC_SITES',s['dynamic_sites'])
           PY
           fi
 

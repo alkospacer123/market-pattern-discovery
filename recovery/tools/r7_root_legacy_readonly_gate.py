@@ -73,6 +73,7 @@ def source_scan(before,after):
     imports=[]
     references=[]
     dynamic=0
+    dynamic_sites=[]
     omissions=[]
     for path in sorted(after):
         if Path(path).suffix.lower() not in TEXT: continue
@@ -109,11 +110,23 @@ def source_scan(before,after):
                 if isinstance(node,ast.Call):
                     fn=node.func
                     name=getattr(fn,"id",getattr(fn,"attr",""))
-                    if name in ("eval","exec","__import__","import_module"): dynamic+=1
+                    if name in ("eval","exec","__import__","import_module"):
+                        dynamic+=1
+                        first=node.args[0] if node.args else None
+                        literal=(first.value if isinstance(first,ast.Constant)
+                                 and isinstance(first.value,str) else None)
+                        dynamic_sites.append({
+                            "path":path,"line":node.lineno,"call":name,
+                            "arg_type":type(first).__name__ if first is not None else "NONE",
+                            "literal_legacy":bool(literal and (
+                                "market_pattern_discovery" in literal or
+                                "unknown_universe_v1" in literal))
+                        })
         if re.search(r"market_pattern_discovery|research_domains\.md|pyproject\.toml|unknown_universe_v1",body,re.I):
             references.append(path)
     return {"scanned_text":scanned,"links_checked":links,"newly_broken":broken,
             "legacy_imports":imports,"nonliteral_or_dynamic_calls_count":dynamic,
+            "dynamic_sites":dynamic_sites,
             "files_with_legacy_reference_markers":references[:100],
             "files_with_legacy_reference_markers_count":len(references),
             "omissions":omissions[:100],"omission_count":len(omissions)}
