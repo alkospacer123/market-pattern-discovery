@@ -38,6 +38,12 @@ jobs:
             /.github/workflows/controlcenter-cc03-windows-native.yml
           sparse-checkout-cone-mode: false
 
+      - name: Explicit pinned Windows CPython 3.12.10 x64 (match passing R7-H job)
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # pinned v5
+        with:
+          python-version: '3.12.10'
+          architecture: x64
+
       - name: Verify old complete CC tree, frozen manifest, historic original scope identities
         env:
           EXPECTED_HEAD: ${{ github.event.pull_request.head.sha }}
