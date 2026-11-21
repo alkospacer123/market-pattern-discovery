@@ -1,5 +1,3 @@
-> **Актуально с 21.11.2026:** [паспорт CC](../recovery/PROJECT_PASSPORT_CONTROL_CENTER.md), [проектный AGENTS](AGENTS.md), [CC-08](docs/V20_CC08_OPERATIONS.md). Не путать CC-03/H1 и текущую V20 панель.
-
 # Control Center — актуальная V20-панель (состояние на 20.11.2026)
 
 **Действующий V20 UI:** `C:\Control Center\v20-preview-d80f2446\v20_app.py`, локальный адрес `http://127.0.0.1:8502`; три независимых робота Shallow / OBV / Inside. Код в [`v20_app.py`](v20_app.py), операционный журнал и границы приёмки — в [CC-08](docs/V20_CC08_OPERATIONS.md), этапы — в [V20 roadmap](docs/V20_CONTROL_CENTER_ROADMAP.md).
