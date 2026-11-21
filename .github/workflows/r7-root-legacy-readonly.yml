@@ -50,3 +50,82 @@ jobs:
           print('R7_SCOPE',r['deleted'],r['added'],r['modified'])
           PY
           fi
+
+  archive-legacy-offline:
+    name: R7 archived legacy source integrity + synthetic tests
+    if: github.event.pull_request.number == 586
+    needs: root-legacy-readonly
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    env:
+      PYTHONDONTWRITEBYTECODE: '1'
+      PYTEST_DISABLE_PLUGIN_AUTOLOAD: '1'
+      PYTHONPATH: ${{ github.workspace }}/src
+      V20_LIVE_AUTHORIZED: 'no'
+      M15_LIVE_AUTHORIZED: 'no'
+      PIP_DISABLE_PIP_VERSION_CHECK: '1'
+      ARCHIVE_SHA: 09bca5641cb5bb367e84505ebfc6f8c7f35e2620
+    steps:
+      - name: Checkout exact archived ancestor in disposable hosted runner
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4 pinned
+        with:
+          ref: 09bca5641cb5bb367e84505ebfc6f8c7f35e2620
+          persist-credentials: false
+          fetch-depth: 1
+          filter: blob:none
+          sparse-checkout: |
+            /src/
+            /tests/
+            /config/
+            /results/
+            /schemas/
+            /research/
+            /evidence/
+            /scripts/
+            /pyproject.toml
+            /research_domains.md
+          sparse-checkout-cone-mode: false
+      - name: Pinned Python
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5 pinned
+        with:
+          python-version: '3.12.10'
+      - name: Original research code syntax and manifest SHA256 verification (no imports)
+        shell: bash
+        run: |
+          python -B - <<'PY'
+          import ast,hashlib,json,os,pathlib,subprocess
+          root=pathlib.Path.cwd()
+          actual=subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip()
+          assert actual==os.environ['ARCHIVE_SHA'], 'WRONG_ARCHIVE_HEAD'
+          py=sorted(p for rel in ('src','tests','scripts') for p in (root/rel).rglob('*.py'))
+          assert len(py)>=130, ('INSUFFICIENT_ARCHIVE_PYTHON',len(py))
+          for p in py: ast.parse(p.read_bytes(),filename=str(p))
+          files=sorted(p for rel in ('config','schemas','research','results','evidence') for p in (root/rel).rglob('*.json'))
+          assert len(files)>=20, ('INSUFFICIENT_ARCHIVE_JSON',len(files))
+          for p in files: json.loads(p.read_text(encoding='utf-8'))
+          manifest=json.loads((root/'config/unknown_universe_v1/manifest.json').read_text())
+          expected={'rank-CNYRUBF-M1.u32','rank-CNYRUBF-M5.u32',
+                    'rank-USDRUBF-M1.u32','rank-USDRUBF-M5.u32'}
+          assert set(manifest['rank_indexes'])==expected, 'INDEX_SET_MOVED'
+          for name,entry in manifest['rank_indexes'].items():
+              p=root/'config/unknown_universe_v1'/name
+              assert p.is_file(), 'MISSING_INDEX:'+name
+              assert p.stat().st_size==entry['count']*4, 'INDEX_SIZE_MISMATCH:'+name
+              assert hashlib.file_digest(open(p,'rb'),'sha256').hexdigest()==entry['sha256'], 'INDEX_SHA_MISMATCH:'+name
+          assert (root/'research/experiments/EXP-000001.json').is_file(), 'EXP_SOURCE_MISSING'
+          assert (root/'pyproject.toml').is_file(), 'OLD_PACKAGING_MISSING'
+          print('R7_ARCHIVE_SHA',actual)
+          print('R7_ARCHIVE_AST_SOURCES_PASS',len(py))
+          print('R7_ARCHIVE_JSON_PASS',len(files))
+          print('R7_ARCHIVE_U32_INDEX_SHA_PASS',len(expected))
+          PY
+      - name: Install test-only pinned dependencies outside original live machines
+        run: python -m pip install --disable-pip-version-check pytest==8.4.2 numpy==2.2.6 pandas==2.3.3 jsonschema==4.25.1 tabulate==0.9.0
+      - name: Run only selected originally archived synthetic research tests
+        run: |
+          python -B -m pytest -q -p no:cacheprovider \
+            tests/test_backtest_engine.py \
+            tests/test_validation_engine.py \
+            tests/test_research_cells.py
+          git diff --exit-code -- src tests config schemas research results evidence scripts pyproject.toml
+          echo 'R7_ARCHIVE_SELECTED_REPLAY_PASS_NOT_FULL_RESEARCH_REPRODUCTION'
