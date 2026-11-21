@@ -68,7 +68,7 @@ jobs:
           import sys
 
           PIN='f15d565755b996252081ed49ed5a094ee1e8d820'
-          EXPECTED_PARENT='1a1de3ca65c42e97ed3cb12a0ccaf75bbef02218'
+          EXPECTED_PARENT='a35e056d5f2d8c5202241b78a7702ec54e2a3419'
           CI_FILE='.github/workflows/r7-abc-cleanup-gate.yml'
           CC_FILE='.github/workflows/controlcenter-cc03-windows-native.yml'
           CC_BLOB='ebf5b976a9f3857728369b6813512c0e00f2399d'
@@ -442,7 +442,7 @@ jobs:
           print('R7_HISTORIC_INVENTORY_11491=PASS', 'source_files=1', 'exec_import_matches=0_for_six_exact_names')
           PY
 
-r7-s-v20-r088-no-ext2:
+  r7-s-v20-r088-no-ext2:
     name: R7-S V20 R088 TP6 Protect3 HOLD5 no-EXT2 staged offline
     if: github.event.pull_request.base.ref == 'main'
     needs: immutable-tree-and-symlink
