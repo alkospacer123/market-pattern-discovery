@@ -37,7 +37,7 @@ jobs:
         with:
           ref: ${{ github.event.pull_request.head.sha }}
           persist-credentials: false
-          fetch-depth: 4
+          fetch-depth: 5
           filter: blob:none
           sparse-checkout: |
             /.github/workflows/
@@ -90,9 +90,10 @@ jobs:
               return git('rev-parse', name).decode().strip()
 
           assert exact('HEAD') == os.environ['R7_PR_SHA'], 'UNEXPECTED_PR_HEAD'
-          assert exact('HEAD^') == '695da3a7cd75538a56d8e77a957e81ab99a35079', 'PR_WORKFLOW_PARENT_MOVED'
-          assert exact('HEAD^^') == DELETION_COMMIT, 'DELETE_GRANDPARENT_MOVED'
-          assert exact('HEAD^^^') == PIN, 'ORIGINAL_MAIN_PIN_MOVED'
+          assert exact('HEAD^') == '9add3b972c1923fa2ccb563cc219a5c43c7f336c', 'PREVIOUS_R7_CI_PARENT_MOVED'
+          assert exact('HEAD^^') == '695da3a7cd75538a56d8e77a957e81ab99a35079', 'INITIAL_R7_CI_PARENT_MOVED'
+          assert exact('HEAD^^^') == DELETION_COMMIT, 'DELETE_ANCESTOR_MOVED'
+          assert exact('HEAD^^^^') == PIN, 'ORIGINAL_MAIN_PIN_MOVED'
           assert exact('HEAD^{tree}') != DELETION_TREE, 'CI_WORKFLOW_NOT_COMMITTED'
           assert exact(DELETION_COMMIT + '^{tree}') == DELETION_TREE, 'VERIFIED_DELETE_TREE_MOVED'
           assert exact('HEAD:ControlCenter') == CC_TREE, 'CONTROL_CENTER_TREE_CHANGED'
@@ -262,3 +263,139 @@ jobs:
           path: ${{ runner.temp }}/cc03-evidence/
           if-no-files-found: error
           retention-days: 30
+
+  r7-archived-2023-original-data:
+    name: Pinned M5 2023 source SHA256 + historical A/B/C inventory
+    if: github.event.pull_request.base.ref == 'main'
+    needs: immutable-tree-and-symlink
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - name: Checkout exact R7 candidate with only retained historic inventory
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4, SHA pinned
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          persist-credentials: false
+          fetch-depth: 5
+          filter: blob:none
+          sparse-checkout: |
+            /IntradayLab/t3_m15_a6_s1_walk_forward_2025_v1/BASE_TREE_INVENTORY.txt
+          sparse-checkout-cone-mode: false
+      - name: Checkout separate original public M5 data commit (no secrets)
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4, SHA pinned
+        with:
+          repository: alkospacer123/market-pattern-data
+          ref: f8486b446cf3d5f9f3cba6dfec32bdef8fd184c8
+          path: original-m5-data
+          fetch-depth: 1
+          filter: blob:none
+          persist-credentials: false
+          sparse-checkout: |
+            /forever/USDRUBF/USDRUBF_M5.csv
+            /forever/CNYRUBF/CNYRUBF_M5.csv
+          sparse-checkout-cone-mode: false
+      - name: Verify immutable A/B/C 2023 raw prefixes and historic Git inventory
+        env:
+          R7_CANDIDATE_SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          python3 -B - <<'PY'
+          import collections
+          import hashlib
+          import json
+          import os
+          from pathlib import Path
+          import re
+          import subprocess
+
+          BASE = 'f15d565755b996252081ed49ed5a094ee1e8d820'
+          DATA = 'f8486b446cf3d5f9f3cba6dfec32bdef8fd184c8'
+          WHERE = Path('original-m5-data')
+          roots = {
+              'IntradayLab/optimization_a_2023_v1/': (19, 'fb1f882623d996835f3ff4519b93f40e9a154da3'),
+              'IntradayLab/optimization_b_high_low_cluster_2023_v1/': (23, '700f96fd1318ad28d939785f6b6eab5bfdb1f87a'),
+              'IntradayLab/optimization_c_return_retest_rejection_2023_v1/': (24, '3d0347b599643e0243f498330b62972761798863'),
+              'IntradayLab/results/optimization_a_equal_high_low_2023_v1/': (1174, 'dceef112bf1259e2c4bfe2b16fe5ab2048e6b264'),
+              'IntradayLab/results/optimization_b_high_low_cluster_2023_v1/': (7053, '0849d085bd78eab929d0589efb8392eaf82da93a'),
+              'IntradayLab/results/optimization_c_return_retest_rejection_2023_v1/': (3198, 'cf4c474b34f41b0e3f80251645675b42c2ec4eef'),
+          }
+          inputs = {
+              'USDRUBF': {'blob':'2b621e1c0aa9a84838d95d4c139257889b6f825e',
+                          'whole':8871133, 'prefix':2342431, 'rows':42576,
+                          'sha256':'047de8fbc74fbe98028cd236b67bf11823b4e6b9f79a6488113a1d0f43947e1d'},
+              'CNYRUBF': {'blob':'01d667868daaa5610cc8794bf90fe0f276e33686',
+                          'whole':8295947, 'prefix':2212189, 'rows':39362,
+                          'sha256':'42e30caf28909da46226cd2e163739f1c97d00a3a80780d0f2550a05884c9bc9'},
+          }
+          studies = [
+              ('IntradayLab/optimization_a_2023_v1','IntradayLab/results/optimization_a_equal_high_low_2023_v1',('USDRUBF','CNYRUBF'),144),
+              ('IntradayLab/optimization_b_high_low_cluster_2023_v1','IntradayLab/results/optimization_b_high_low_cluster_2023_v1',('USDRUBF','CNYRUBF'),585),
+              ('IntradayLab/optimization_c_return_retest_rejection_2023_v1','IntradayLab/results/optimization_c_return_retest_rejection_2023_v1',('USDRUBF',),288),
+          ]
+          def git(*args, cwd='.'):
+              return subprocess.check_output(['git','-C',str(cwd),*args], stderr=subprocess.PIPE).decode().strip()
+          def old_json(path):
+              return json.loads(git('show',BASE+':'+path))
+          assert git('rev-parse','HEAD') == os.environ['R7_CANDIDATE_SHA'], 'WRONG_R7_HEAD'
+          assert git('rev-parse','HEAD',cwd=WHERE) == DATA, 'WRONG_PUBLIC_DATA_COMMIT'
+          for prefix,(count,pinned_tree) in roots.items():
+              assert git('rev-parse',BASE+':'+prefix.rstrip('/')) == pinned_tree, 'R7_HISTORIC_SUBTREE_MISSING:'+prefix
+          print('R7_HISTORIC_ARCHIVE_SIX_TREE_SHA=PASS')
+
+          for symbol, claim in inputs.items():
+              path=WHERE/'forever'/symbol/(symbol+'_M5.csv')
+              assert path.is_file(), 'R7_M5_MISSING:'+symbol
+              assert path.stat().st_size==claim['whole'], 'R7_M5_SIZE:'+symbol
+              assert git('hash-object','--',f'forever/{symbol}/{symbol}_M5.csv',cwd=WHERE)==claim['blob'], 'R7_M5_GIT_BLOB:'+symbol
+              with path.open('rb',buffering=0) as f:
+                  prefix=f.read(claim['prefix'])
+              assert len(prefix)==claim['prefix'], 'R7_M5_SHORT_PREFIX:'+symbol
+              assert hashlib.sha256(prefix).hexdigest()==claim['sha256'], 'R7_M5_PREFIX_SHA256:'+symbol
+              assert len(prefix.splitlines())==claim['rows']+1, 'R7_M5_PREFIX_BAR_COUNT:'+symbol
+              print('R7_M5_2023_PREFIX_SHA256=PASS',symbol,
+                    'bytes='+str(claim['prefix']), 'rows='+str(claim['rows']))
+          print('R7_M5_SOURCE_BLOB_AND_PREFIX=PASS_2_OF_2')
+
+          for source,result,symbols,evals in studies:
+              commits=old_json(source+'/source_commitments.json')
+              provenance=old_json(result+'/input_provenance.json')
+              audit=old_json(result+'/audit.json')
+              assert commits['source_sha']==DATA and provenance['source_sha']==DATA, 'R7_FREEZE_WRONG_SOURCE:'+source
+              assert audit['status']=='PASS' and audit['evaluations']==evals, 'R7_OLD_AUDIT_NOT_PASS:'+source
+              assert audit['selection']=='NO QUALIFYING OPTIMIZATION CANDIDATE', 'R7_OLD_STUDY_NOT_NEGATIVE:'+source
+              assert set(commits['input_commitments'])==set(symbols), 'R7_OLD_SOURCE_INSTRUMENT_MISMATCH:'+source
+              assert set(provenance['verified_prefixes'])==set(symbols), 'R7_OLD_RESULT_INSTRUMENT_MISMATCH:'+source
+              for sym in symbols:
+                  expected=inputs[sym]
+                  source_claim=commits['input_commitments'][sym]
+                  prov=provenance['verified_prefixes'][sym]
+                  for obj in (source_claim,prov):
+                      assert obj['blob']==expected['blob'], 'R7_SOURCE_BLOB_MISMATCH:'+sym
+                      assert obj['prefix_bytes']==expected['prefix'], 'R7_SOURCE_PREFIX_BYTES_MISMATCH:'+sym
+                      assert obj['prefix_sha256']==expected['sha256'], 'R7_SOURCE_PREFIX_HASH_MISMATCH:'+sym
+                      assert obj['rows_2023']==expected['rows'], 'R7_SOURCE_ROWS_MISMATCH:'+sym
+              print('R7_HISTORIC_FREEZE_AND_RESULT_PROVENANCE=PASS',source.rsplit('/',1)[-1], 'evaluations='+str(evals))
+          print('R7_HISTORIC_AUDIT_CLAIMS_MATCH_SOURCE=PASS_3_OF_3')
+
+          inventory_path=Path('IntradayLab/t3_m15_a6_s1_walk_forward_2025_v1/BASE_TREE_INVENTORY.txt')
+          assert git('rev-parse','HEAD:IntradayLab/t3_m15_a6_s1_walk_forward_2025_v1/BASE_TREE_INVENTORY.txt')=='8e79633623759cc33819bf060ad56d2771b5e1ed', 'R7_HISTORIC_INVENTORY_MUTATED'
+          counts=collections.Counter()
+          paths=set()
+          pattern=re.compile(r'^100644 blob [0-9a-f]{40}\t(.+)$')
+          for line in inventory_path.read_text(encoding='utf-8').splitlines():
+              if not any(path in line for path in roots):
+                  continue
+              match=pattern.fullmatch(line)
+              assert match, 'R7_INVENTORY_MALFORMED_LINE'
+              name=match.group(1)
+              assert name not in paths, 'R7_INVENTORY_DUPLICATE_PATH'
+              matches=[prefix for prefix in roots if name.startswith(prefix)]
+              assert len(matches)==1, 'R7_INVENTORY_UNEXPECTED_PATH:'+name
+              paths.add(name)
+              counts[matches[0]]+=1
+          assert len(paths)==11491, 'R7_INVENTORY_REFERENCE_COUNT'
+          assert dict(counts)=={k:v[0] for k,v in roots.items()}, 'R7_INVENTORY_PER_TREE_COUNTS'
+          print('R7_HISTORIC_INVENTORY_11491=PASS', 'source_files=1', 'exec_import_matches=0_for_six_exact_names')
+          PY
