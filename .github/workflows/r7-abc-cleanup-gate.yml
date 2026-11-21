@@ -37,7 +37,7 @@ jobs:
         with:
           ref: ${{ github.event.pull_request.head.sha }}
           persist-credentials: false
-          fetch-depth: 5
+          fetch-depth: 7
           filter: blob:none
           sparse-checkout: |
             /.github/workflows/
@@ -61,6 +61,8 @@ jobs:
           DELETION_COMMIT = '20e5e0f23adbf9422c3dd8e6d1290bcd90340560'
           DELETION_TREE = '47a8bc791f13601530d1046bfe3cb87683fd1632'
           CI_FILE = '.github/workflows/r7-abc-cleanup-gate.yml'
+          CC_SEALED_FILE = '.github/workflows/controlcenter-cc03-windows-native.yml'
+          CC_SEALED_BLOB = '24c2fcf63340be9c6a22ec9d87f849fc1911758d'
           CC_TREE = '8052938c83a27b2367309052d455d74d9341df09'
           JOURNAL_BLOB = '5c620431d30242dbb4cb418fd2d7c5cf33b2ade9'
           EXPECTED = {
@@ -90,10 +92,12 @@ jobs:
               return git('rev-parse', name).decode().strip()
 
           assert exact('HEAD') == os.environ['R7_PR_SHA'], 'UNEXPECTED_PR_HEAD'
-          assert exact('HEAD^') == '9add3b972c1923fa2ccb563cc219a5c43c7f336c', 'PREVIOUS_R7_CI_PARENT_MOVED'
-          assert exact('HEAD^^') == '695da3a7cd75538a56d8e77a957e81ab99a35079', 'INITIAL_R7_CI_PARENT_MOVED'
-          assert exact('HEAD^^^') == DELETION_COMMIT, 'DELETE_ANCESTOR_MOVED'
-          assert exact('HEAD^^^^') == PIN, 'ORIGINAL_MAIN_PIN_MOVED'
+          assert exact('HEAD^') == '2adf2a2c186c223fe2b709da9d11e3319f187a85', 'CC_CI_SEAL_PARENT_MOVED'
+          assert exact('HEAD^^') == 'c57bad6d151d2c9621c2d9a732edcdde653f1377', 'R7_K_CI_PARENT_MOVED'
+          assert exact('HEAD^^^') == '9add3b972c1923fa2ccb563cc219a5c43c7f336c', 'R7_H_CI_PARENT_MOVED'
+          assert exact('HEAD^^^^') == '695da3a7cd75538a56d8e77a957e81ab99a35079', 'R7_G_CI_PARENT_MOVED'
+          assert exact('HEAD^^^^^') == DELETION_COMMIT, 'DELETE_ANCESTOR_MOVED'
+          assert exact('HEAD^^^^^^') == PIN, 'ORIGINAL_MAIN_PIN_MOVED'
           assert exact('HEAD^{tree}') != DELETION_TREE, 'CI_WORKFLOW_NOT_COMMITTED'
           assert exact(DELETION_COMMIT + '^{tree}') == DELETION_TREE, 'VERIFIED_DELETE_TREE_MOVED'
           assert exact('HEAD:ControlCenter') == CC_TREE, 'CONTROL_CENTER_TREE_CHANGED'
@@ -102,7 +106,8 @@ jobs:
           removed, added = set(a) - set(b), set(b) - set(a)
           modified = {x for x in a.keys() & b.keys() if a[x] != b[x]}
           assert added == {CI_FILE.encode()}, 'EXTRA_ADDITIONS:' + str(sorted(added)[:8])
-          assert not modified, 'MODIFIED_RETAINED:' + str(sorted(modified)[:8])
+          assert modified == {CC_SEALED_FILE.encode()}, 'UNAUTHORIZED_OR_MISSING_MODIFICATION:' + str(sorted(modified)[:8])
+          assert exact('HEAD:'+CC_SEALED_FILE) == CC_SEALED_BLOB, 'CC_SEALED_WORKFLOW_MUTATED'
           counts = collections.Counter()
           for name in removed:
               decoded = name.decode('utf-8', 'surrogateescape')
@@ -112,7 +117,7 @@ jobs:
           assert dict(counts) == EXPECTED, 'WRONG_DELETION_COUNTS:' + repr(dict(counts))
           assert len(removed) == 11491, 'WRONG_DELETE_TOTAL'
           assert len(b) == 6949, 'WRONG_RETAINED_COUNT'
-          print('R7_GIT_SCOPE=PASS', 'deleted=11491', 'retained_original=6948', 'ci_only_additions=1')
+          print('R7_GIT_SCOPE=PASS', 'deleted=11491', 'original_retained_paths=6948', 'original_unchanged_blobs=6947', 'ci_only_additions=1', 'cc_sealed_workflow_modifications=1')
 
           # Only disposable files in hosted runner temp; never source DBs or LIVE.
           from ControlCenter.controller.v20_offline_journal import OfflineJournal, DB_NAME
@@ -279,7 +284,7 @@ jobs:
         with:
           ref: ${{ github.event.pull_request.head.sha }}
           persist-credentials: false
-          fetch-depth: 5
+          fetch-depth: 7
           filter: blob:none
           sparse-checkout: |
             /IntradayLab/t3_m15_a6_s1_walk_forward_2025_v1/BASE_TREE_INVENTORY.txt
