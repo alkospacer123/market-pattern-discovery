@@ -79,7 +79,7 @@ def source_scan(before,after):
         f=Path(path)
         if not f.is_file():
             omissions.append(("missing_checkout",path)); continue
-        if f.stat().st_size > 2000000:
+        if f.stat().st_size > (8000000 if f.suffix.lower() == ".md" else 2000000):
             omissions.append(("large",path)); continue
         try: body=f.read_text("utf-8")
         except UnicodeError:
