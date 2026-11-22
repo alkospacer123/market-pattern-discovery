@@ -22,7 +22,7 @@ Statuses are **document authority categories**, not broker or physical LIVE stat
 
 ## 2. Relative link audit and limits
 
-All **79 existing Markdown files** were fetched from pinned `main` for a scoped inline Markdown-link check. **No missing link targets inside V20** were found. Link parser covers `[text](relative-path)` and resolves file/directory membership against the untruncated V20 Git tree. It **does not** prove reference-style links, `#heading` anchors, HTML links, externally hosted URLs or links outside `V20_TradingSystem_M15/`. Those are `NOT VERIFIED`, not `PASS`. Root/recovery sources had a separate prior source-authority audit; this operation did not repeat global cleanup.
+All **79 existing Markdown files** were fetched from pinned `main` for a scoped inline Markdown-link check. **No missing link targets inside V20** were found. Link parser covers обычный синтаксис inline Markdown-ссылок and resolves file/directory membership against the untruncated V20 Git tree. It **does not** prove reference-style links, `#heading` anchors, HTML links, externally hosted URLs or links outside `V20_TradingSystem_M15/`. Those are `NOT VERIFIED`, not `PASS`. Root/recovery sources had a separate prior source-authority audit; this operation did not repeat global cleanup.
 
 ## 3. Full Markdown inventory (original HEAD before this Draft PR)
 
