@@ -1,5 +1,31 @@
 # TRL — начинать здесь: актуальные знания для Kimi
 
+## Контрольный вход для двух ИИ — технический аудит 22.11.2026
+
+**Точка отсчёта:** exact проверенный `main=0e569be6cb3c7cce1f7224e7f1fef6be38f6ba52` (датированный pin, **не** вечный HEAD). **Порядок полномочий:** [общий AGENTS](../../AGENTS.md) → [Documentation Authority](../../recovery/DOCUMENTATION_AUTHORITY_2026-11-22.md) → [паспорт TRL](../../recovery/PROJECT_PASSPORT_TRL.md) → [TRL AGENTS](../AGENTS.md) → этот Start Here → [Closeout](TRL-NOV-2026-FINAL-CLOSEOUT.md). Корневые документы и recovery не изменяются из TRL.
+
+**Текущие материалы для работы Kimi — не перепутать роли:**
+
+| Задача | Каноническая ссылка | Правило чтения |
+|---|---|---|
+| **TRL START HERE / authority** | Этот документ + [README](../README.md) + [STATUS](../STATUS.md) | Датированные старые блоки ниже не становятся новым решением |
+| **RESEARCH METHODOLOGY** | [Правила исследования](../research/RESEARCH_METHODOLOGY.md), [операционный цикл](../OPERATING_CYCLE.md) | ZERO LOOK-AHEAD, GO/costs, 2018–2026 compromised, true OOS только если реально untouched |
+| **RESEARCH REGISTRY** | [R040–R098 с Git blob, исходниками и ограничениями](TRL-RESEARCH-REGISTRY-2026-11-22.md) | Статус Markdown не равен clean replay |
+| **SOURCE & ARTIFACT MANIFEST** | [Исходные архивы, проверенные SHA и недостающие оригиналы](TRL-NOV-2026-ARTIFACT-MANIFEST.md) | Бинарные ZIP/XLSX локально подтверждены; **нет в GitHub** |
+| **APPROVED DECISIONS** | [Ноябрьский Closeout](TRL-NOV-2026-FINAL-CLOSEOUT.md) | Владелец выбрал **60/30/45**, а не исторического Net/PF лидера 75/30/30 |
+| **NEGATIVE RESEARCH** | [Отклонённые исследования и диагностические гипотезы](TRL-NEGATIVE-RESEARCH-INDEX-2026-11-22.md) | Не удалять/не подбирать заново по тому же 2018–2026 |
+| **EVOLUTION CONTRACT** | [READONLY источники V20](V20_READONLY_SOURCE_REQUIREMENTS.md), [ручные отчёты FINAM](../evolution/MANUAL_FINAM_MONTHLY_INPUT.md) | Три отдельных счёта; реальные Net/PF только по верифицированным обезличенным данным |
+| **ROADMAP & CALENDAR** | [Roadmap 1.1](../TRL_Roadmap_1_1.md), [календарь 2027](TRL-CALENDAR-2027.md), [декабрьская передача](TRL-DEC-2026-HANDOFF.md) | Начало нового исследования только в декабре; сейчас документационный аудит |
+| **DOCUMENT STATUS** | [Полный каталог 169 Git файлов](TRL-DOCUMENT-STATUS-CATALOG-2026-11-22.md) | CURRENT/HISTORICAL/RESEARCH/SOURCE_EVIDENCE/SUPERSEDED |
+| **KIMI EXAM** | [Формализованный экзамен Kimi Chat и Kimi Code](TRL-KIMI-EXAM-2026-11-22.md) | До реальных логов и оценок `NOT_TESTED`; Chat ≠ Code |
+| **AUDIT** | [Технический отчёт 22.11](TRL-AUDIT-2026-11-22.md) | Пробелы, SHA, offline checks и Draft PR; **не Merge** |
+
+**Пять неэквивалентных объектов:** (1) испытанные исследовательские варианты; (2) 75/30/30 — исторический лидер R097 по Net/PF; (3) **60/30/45** — окончательно выбранная владельцем исследовательская сборка; (4) физически INSTALLED версия на Intel — **UNKNOWN для TRL**; (5) фактическая LIVE работа и P&L — **UNKNOWN без отдельной свежей READONLY сверки**. Нельзя автоматически переносить цифры между ними.
+
+**Воспроизводимость:** исходные R060/R097 ZIP и ряд XLSX доступны и SHA-verified в локальном исследовательском окружении, но **не** доступны из одного этого GitHub дерева. Перенос прав/байтов Kimi Code не выполнен. R087 новый TXT/ZIP и STS pinned dependencies остаются пробелом. **В этом аудите не был выполнен полный backtest; результаты R097 не пересчитывались и не оптимизировались.**
+
+
+
 **Срез:** 20.11.2026. **Область:** только Trading Research Lab. Это индекс для помощника, **не разрешение управлять LIVE**.
 
 ## 1. Источники истины в правильном порядке
