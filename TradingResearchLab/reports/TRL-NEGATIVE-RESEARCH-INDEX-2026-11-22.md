@@ -1,0 +1,27 @@
+# TRL — индекс отрицательных и ограниченно-положительных исследований
+
+**Срез:** 22.11.2026, MAIN `0e569be6cb3c7cce1f7224e7f1fef6be38f6ba52`. Это **навигационный индекс**, не повторная экспертиза PF и не изменение старых результатов. Для каждого утверждения первичный отчёт имеет приоритет; `REJECT_CORE` не означает запрет на будущие новые данные и механизмы.
+
+| ID | Гипотеза / тест | Факт/причина непринятия | Источник | Статус в исследовании |
+|---|---|---|---|---|
+| R042 | Reclaim Retest | 25 сделок, 2025 PF BASE около 0,329, исчезновение устойчивости без top-5; не годится как ядро | [R042](../research/sts/TRL_R_2026_042_STS_New_Modules_Research.md) | `REJECT_AS_CORE` |
+| R042 | Volume Dry Reset | 68 сделок, высокая концентрация на top-5, потери в слабые дни Classic и при замене ядра | [R042](../research/sts/TRL_R_2026_042_STS_New_Modules_Research.md) | `ARCHIVE_FOR_FORWARD / NOT_CORE` |
+| R043 | H1/H4 MTF Ledge | Коррелирует с трендовым фактором Shallow; доходность/риск не оправдали замену | [R043](../research/sts/TRL_R_2026_043_STS_MTF_Staircase_Research.md) | `REJECT_AS_CORE` |
+| R043 | Multi-Session Staircase | Только 22 сделки, отрицательные 2024 и 2026, зависимость от лучших пяти; независимость не доказана | [R043](../research/sts/TRL_R_2026_043_STS_MTF_Staircase_Research.md) | `ARCHIVE_FOR_PROSPECTIVE_VALIDATION` |
+| R046 | Drive Continuation | Не компенсирует missed trends при портфельном cash-replay, риск/DD ухудшаются | [R046](../research/sts/TRL_R_2026_046_Inside_and_Missed_Trends_Research.md) | `REJECT_CORE` |
+| R047/R048 | Early Trend / раннее возобновление | Фильтры Early не превзошли V20 при независимых счетах; C2 ухудшает результат, 2023 убыточен | [R047](../research/sts/TRL_R_2026_047_Missed_Trend_Opportunities.md) · [R048](../research/sts/TRL_R_2026_048_Early_Trend_Quality_Research.md) | `REJECT_CORE / ARCHIVE_DIAGNOSTIC` |
+| R049 | Compression Release BREAK/HOLD | TP6 результаты малы, Nov GO и C2/C4 отрицательны, без топ-5 нестойки | [R049](../research/sts/TRL_R_2026_049_Compression_Release_Research.md) | `REJECT_CORE / ARCHIVE_MECHANISM` |
+| R050 | START_ALL / START_ACCEPT | Нет приемлемого улучшения портфельного PF/DD при замене; C4/Nov обнуляет запас | [R050](../research/sts/TRL_R_2026_050_Trend_Start_Attempts_Research.md) | `REJECT_CORE / RETAIN_DIAGNOSTIC` |
+| R053/R054 | Три одновременных Shallow | Дополнительная историческая прибыль сопровождалась коррелированными рисками; R054 исправил прежнюю одностороннюю блокировку | [R053](../research/sts/TRL_R_2026_053_Three_Shallow_and_Limits_Research.md) · [R054](../research/sts/TRL_R_2026_054_Shallow_Gated_Risk_Parity_Report.md) | `NO_CORE_APPROVAL` |
+| R057–R059 | Обязательный откат / общий ATR1 / broad no-entry filters | Удаляют большие выигрыши либо не улучшают причинную экономику, первоначальный SL=2×ATR предпочтён в тесте | [R057](../evolution/2026-11-12-r057-v20-loss-attribution-and-pullback.md) · [R058](../evolution/2026-11-12-r058-all-stop-loss-forensics.md) · [R059](../evolution/2026-11-12-r059-v20-entry-quality-gld-obv.md) | `NO_RELEASE / RESEARCH_ONLY` |
+| R067 | Passive/Limit +1 тик, partial fills | M5 OHLC touch не доказывает 60-секундное исполнение всей заявки, очередь/стакан отсутствуют | [R067](../evolution/2026-11-12-r067-limit-entry-full-m5-cash-replay.md) | `HOLD_DATA`, Market benchmark |
+| R068 | E1 FIRST_SQUEEZE_RELEASE, E2 OPEN_RANGE_FIRST_ESCAPE | ADD ухудшает cash-PF/Net и годовую устойчивость на истории, standalone слаб | [R068](../evolution/2026-11-13-r068-early-trend-capture-negative.md) | `REJECT_E1_E2_AS_NEW_EDGE` |
+| R076 | MOM8 на IMOEX | На новом Sep–Nov отрезке trade-ledger не изменён, явного доказанного дополнительного edge нет; не делать LIVE вывод | [R076](../evolution/2026-11-16-r076-mom8-imoex-direct-test.md) | `RESEARCH_ONLY` |
+| R079–R080 | Чистый trailing ATR3.5 без TP / no-time | По одинаковой денежной модели не доказано превосходство по прибыли, риску, сроку и исполнению; long hold несёт новый риск | [R079](../evolution/2026-11-18-r079-trailing-stops-n4.md) · [R080](../evolution/2026-11-18-r080-no-time-no-tp-trail.md) | `PURE_TRAILING_REJECT` |
+| R090–R096 | Ранние подборы распределения | Короткие 64 EXT2-ON сделки, ошибки lot parity и отсутствие полного 2023–2026 cash replay не позволяют выбирать по ним | [архив R090–R096](../evolution/archive-2026-11/README.md) | `HISTORICAL / NOT_FINAL_BACKTEST` |
+| R089 | Упрощение без EXT2 | **Не отвергнуто**: OFF снизил Net/PF против ON, но **выбран владельцем** как более простая исследовательская версия; оба 43/45 месяца | [оригинал R089](../evolution/TRL-R089-HOLD5-WITHOUT-EXT2-ORIGINAL-20261118.md) | `SELECTED_WITH_KNOWN_COST` |
+| R098 | Условное предпочтение 75/30/30 | **Не отрицательный тест**: 75/30/30 — лидер исторического Net/PF; владелец позже окончательно выбрал 60/30/45 | [R098](../evolution/TRL-R098-CONDITIONAL-ALLOCATION-20261119.md) · [closeout](TRL-NOV-2026-FINAL-CLOSEOUT.md) | `SUPERSEDED_DECISION` |
+
+**Правило сохранения:** не удалять неудачные эксперименты или ранние frozen-протоколы. Не считать диагностические ex-post метки истинными входными признаками и не создавать «успешную» систему подбором границ на 2018–2026 после известного исхода.
+
+**Реальные ограничения:** весь индекс — история **RESEARCH**, не брокерские LIVE данные, не TRUE OOS и не установленный Intel. Для повторения обращаться к [реестру](TRL-RESEARCH-REGISTRY-2026-11-22.md) и [манифесту](TRL-NOV-2026-ARTIFACT-MANIFEST.md). При отсутствии требуемого ZIP/data — `PARTIAL / NOT_REPLAYED`, а не подтверждённый новый edge.
