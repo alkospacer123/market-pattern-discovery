@@ -1,3 +1,5 @@
+> **Актуальная роль с 21.11.2026:** историческая H1 и необходимая V20-зависимость. [Карта сохранности H1/M15](../recovery/LEGACY_DEPENDENCIES_AND_RETENTION.md), [общий AGENTS](../AGENTS.md). Датированные LIVE/2025 OOS разделы ниже не являются текущим разрешением запускать H1 или инструкциями для TRL.
+
 # Trading System Lab research domain
 
 **Status:** `STAGE_8_10_4_PERMISSION_BOUNDARY_CODE_READY_PENDING_PHYSICAL_VALIDATION`

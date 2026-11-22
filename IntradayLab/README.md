@@ -1,3 +1,5 @@
+> **Актуальная роль с 21.11.2026:** историческая M15 и необходимая V20-зависимость `IntradayLab.core`. [Карта](../recovery/LEGACY_DEPENDENCIES_AND_RETENTION.md), [общий AGENTS](../AGENTS.md). Старые research/OOS и LIVE-срезы ниже относятся к своим frozen экспериментам, не к TRL/V20.
+
 # IntradayLab — independent MOEX intraday strategy research
 
 ## Выбранный T3/M15-робот — стартовый риск уточнён 16.10.2026

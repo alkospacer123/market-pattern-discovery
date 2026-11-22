@@ -1,20 +1,30 @@
-# Research safety contract
+# Trading Systems — действующий общий AGENTS для GPT/Codex и Kimi Code
 
-This repository is governed by **ZERO LOOK-AHEAD**. No target leakage is
-permitted: information may be used only after it became observable. In
-particular, higher-timeframe alignment is causal and an M5 candle is available
-only after it closes (an M5 close at 10:15 is unavailable at 10:14).
+**Обновлено 21.11.2026.** Заменяет старый корневой Research safety contract как универсальную инструкцию. Исходный текст и старый Market Pattern Discovery остаются в Git history и исторических документах. Для проекта сначала прочитать [README](README.md), [срез](recovery/REPOSITORY_CURRENT_STATE.md), [паспорт V20](recovery/PROJECT_PASSPORT_V20.md) / [CC](recovery/PROJECT_PASSPORT_CONTROL_CENTER.md) / [TRL](recovery/PROJECT_PASSPORT_TRL.md).
 
-Day and session boundaries must be explicit. Future rolling features reset at
-the trading-day boundary unless their name and documentation explicitly say
-that they cross days. Processing, ordering, and tie-breaking must be
-deterministic and reproducible.
+## Области и приоритет
 
-Development and out-of-sample data are strictly separated. Calendar year 2025
-is locked TRUE OOS: it must not be read during ingestion, feature engineering,
-discovery, optimization, or strategy selection. Never optimize on TRUE OOS.
+- `V20_TradingSystem_M15/` = ACTIVE торговое ядро; `ControlCenter/` = ACTIVE операторская панель; `TradingResearchLab/` = RESEARCH. `recovery/` = KNOWLEDGE / continuity.
+- `TradingSystemLab/` = LEGACY H1 + **необходимая** библиотека `stage8_robot`; `IntradayLab/` = LEGACY M15 + **необходимая** библиотека `core`. H1/M15 нельзя автоматически запускать. Остальные корневые исторические `src`, `tests`, `docs` и результаты — KEEP/DEPENDENCY_UNVERIFIED; проверять [карту](recovery/LEGACY_DEPENDENCIES_AND_RETENTION.md).
+- При конфликте статуса: свежий проверенный источник и паспорт проекта важнее более раннего датированного среза, но нельзя объявить исторические файлы ложными или незаметно переписать историю. Всегда фиксировать SHA/дату/доказательные границы.
 
-Future backtests must include configurable transaction costs and slippage.
-Never chase profit factor (PF), search parameters to inflate it, or omit costs.
-Source market data is read-only and must never be copied into this repository.
+## Методология
 
+- ZERO LOOK-AHEAD, доступность свечи только после полного закрытия, корректный causal MTF, определённые day/session границы, детерминизм, воспроизводимые costs/slippage/GO/ликвидность, запрет подгонки PF и повторной оптимизации на TRUE OOS.
+- **НЕТ общего запрета на 2025.** V20 и TRL уже изучали 2018–2026, поэтому это research history, не untouched TRUE OOS. Старые H1/M15/Market Pattern Discovery имеют собственные frozen-сплиты только для воспроизведения соответствующих исторических экспериментов.
+- M5-запрет из старого Research safety contract не отменяет M15-first V20. Индикация/сбросы и уровни риска — строго по замороженному проектному контракту, не по устаревшим корневым протоколам.
+
+## Безопасность
+
+- **Только оператор** разрешает Merge, PR-удаления, LIVE-установку, торговые действия, изменения risk/signal/FINAM, кошельков, Scheduled Tasks, HALT/ARM или rearm. Работа ИИ — read-only или offline до отдельного подтверждения.
+- MAIN = принятое в Git; INSTALLED = физические файлы Intel; LIVE = свежая фактическая сверка Task/FINAM/SLTP; RESEARCH = история тестов; ARCHIVE = исходные исследования; RECON = восстановленный контекст. Отсутствует проверка — `UNKNOWN`, не PASS.
+- Никогда не читать и не публиковать FINAM/DPAPI, идентификаторы счетов, секреты, приватные SQLite, личные журналы; не открывать реальные заявки для тестов. Не повторять broker POST с неизвестным результатом.
+- Любая работа с кодом: отдельная ветка и PR, точные SHA/diff, offline tests, review, контроль секретов/приватности, доказательство неизменности LIVE. Не делать `git pull` в работающий каталог Intel.
+
+## Kimi, архив и восстановление
+
+- Три логических проекта Kimi Chat используют один MAIN с разными паспортами. Kimi Code — отдельная реальная code/GitHub интеграция, обязательны экзамен, отдельная ветка, peer review и handoff GPT↔Kimi.
+- `market-pattern-archive` — опциональная вспомогательная публичная история, **не** обязательная зависимость V20/CC/TRL и **не** полный backup. Нельзя удалять до проверки полноты будущего Recovery; не делать туда массовую публикацию без privacy-аудита.
+- Финальный Recovery вне Intel, основного SSD, GitHub и обеих ИИ с SHA, Git refs, PR/Issues/CI, оригиналами TRL, защищёнными конфигами и реальным cold restore — в конце.
+
+**Количество старых файлов — не критерий мусора.** Для удаления нужны точный список, зависимость, сохранённый первоисточник/провананс, offline-тесты и отдельное разрешение. При UNKNOWN оставить.
