@@ -42,6 +42,7 @@ TTL наблюдения — **300 секунд**. Просроченный/бу
 | STOP/RESTART на каждом из трёх роботов | **NOT_VERIFIED** полностью | Только естественный разрешённый операторский сценарий; не останавливать ради теста |
 | Успешный RECOVER при реальном HALT | **NOT_VERIFIED**; защитный отказ проверялся | Не инициировать искусственный HALT; ждать отдельного безопасного события и допуска |
 | Полная установка/активность альтернативного gateway | **NOT_VERIFIED** | Сверить installed channel-policy и imports READONLY, не запускать второй канал |
+| Новый docs-only PR и frozen CC-03 CI | **BLOCKED:** workflow `controlcenter-cc03-windows-native.yml` требует неизменный `HEAD:ControlCenter`. PR #592 исходный head `bd0817b19f2837e48b8c33bc298f4d2a92a06691` → run [45002006316](https://github.com/alkospacer123/market-pattern-discovery/actions/runs/45002006316) **FAIL** в identity guard: `CC_FROZEN_ORIGIN_CHANGED:HEAD:ControlCenter`; Windows tests **NOT RUN** | Нужен отдельный утверждённый review CI owner/общего проекта: безопасно разделить immutable CC03 baseline и docs-only проверки. Нельзя обходить gate или менять `.github/workflows` в этом ТЗ |
 | Полная Windows pytest и физическая приёмка этого docs PR | **NOT RUN** | CI по точному PR HEAD; физические действия отдельным решением |
 | Независимый полный Recovery/cold restore | **NOT_TESTED** | Общий финальный этап после Kimi |
 
