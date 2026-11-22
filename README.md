@@ -10,6 +10,8 @@
 | `ControlCenter/` | V20-панель, мониторинг, CC-07 и операторские команды | [Control Center](recovery/PROJECT_PASSPORT_CONTROL_CENTER.md) |
 | `TradingResearchLab/` | Research, Evolution, Journal и воспроизводимость исследований | [TRL](recovery/PROJECT_PASSPORT_TRL.md) |
 
+[**Сохранённые исследования и audit_only: точная классификация (22.11)**](recovery/RETAINED_RESEARCH_CLASSIFICATION_2026-11-22.md) — история H1/M15 отдельно от текущих инструкций.
+
 **Общие источники:** [AGENTS.md](AGENTS.md) — действующие правила обоих ИИ; [состояние GitHub](recovery/REPOSITORY_CURRENT_STATE.md); [Roadmap](ROADMAP.md); [база знаний](recovery/README.md).
 
 ## Исторические комплексы — сохранять до доказательства ненужности
