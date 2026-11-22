@@ -1,6 +1,15 @@
 > **Актуально для Kimi с 21.11.2026:** [паспорт V20](../recovery/PROJECT_PASSPORT_V20.md), [R088 release](V20-08/LIVE_RELEASE_R088_20261120_RU.md), [проектный AGENTS](AGENTS.md). Старые разделы ниже — исторические свидетельства; не авторизуют LIVE.
 
-# V20_TradingSystem_M15 — V20-04: три независимых робота
+# V20 Trading System M15 — R088 LIVE source и исторические исследования
+
+> **Срез GitHub 22.11.2026:** `main@0e569be6cb3c7cce1f7224e7f1fef6be38f6ba52`; актуальные GitHub исходники != Intel INSTALLED != свежий LIVE. 20.11 физическая установка R088 PREPOST+Protect3 подтверждена с HALTED 3/3, но ARMED/FINAM/SLTP на 22.11 **NOT VERIFIED**. EXT2 OFF. Ничего из этого README не разрешает ARM/HALT, broker POST или Merge.
+
+## Начните здесь — GPT / Kimi Chat / Kimi Code
+
+**[KIMI START HERE](KIMI_START_HERE_R088.md)** — порядок чтения и пять состояний. Затем [архитектура / карта девяти патчей / риски / safety](R088_ARCHITECTURE_AND_SAFETY_20261122.md), [offline reproducibility / экзамен Kimi Code](R088_OFFLINE_EXAM_20261122.md), [инвентаризация 79 Markdown и разбор противоречий](V20_DOCUMENTATION_AUDIT_20261122.md). Канонические доказательства физической установки остаются в [R088 release](V20-08/LIVE_RELEASE_R088_20261120_RU.md). Общие правила — [AGENTS](AGENTS.md) и [паспорт V20](../recovery/PROJECT_PASSPORT_V20.md).
+
+## Исторические решения и результаты V20-03/V20-04 (не новое LIVE-разрешение)
+
 
 > **АКТУАЛЬНО 20.11.2026 (V20 LIVE):** базовые Shallow/OBV/Inside и R088 без EXT2 фактически установлены на Intel; последний подтверждённый результат после установки — `PASS_3_RUNNING_HALTED_FRESH_CYCLES`, а восстановление ARMED через Control Center ещё не подтверждено. Заморожены M15/N4/NEXT_OPEN, SL 2×ATR14, TP6, Protect3, HOLD5, риск 1,5%/6%; EXT2 отключён. **Текущий производственный паспорт:** [V20-08/LIVE_RELEASE_R088_20261120_RU.md](V20-08/LIVE_RELEASE_R088_20261120_RU.md). Исторические ниже слова «V20-04 IN PROGRESS / LIVE OFF» и TIME3 описывают прежний этап, а не текущую эксплуатацию.
 
