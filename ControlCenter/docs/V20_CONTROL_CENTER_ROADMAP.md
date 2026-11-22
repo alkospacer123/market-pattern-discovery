@@ -1,5 +1,7 @@
 # Control Center — V20 roadmap CC-00–CC-08
 
+**GitHub status 22.11.2026:** MAIN `0e569be6cb3c7cce1f7224e7f1fef6be38f6ba52`, PR #568 MERGED. Актуальный source guide: [START HERE](V20_START_HERE_SOURCE_MAP.md), [CC-07](V20_CC07_COMMAND_CONTRACT.md), [CC-08](V20_CC08_OPERATIONS.md), [Kimi exam](V20_KIMI_EXAM.md). Следующий этап — Maintenance → проверяемая документация/Kimi → физическая приёмка по необходимости → Recovery в конце. Ниже срез 20.11 и более ранняя хронология остаются датированными свидетельствами, а не свежим LIVE.
+
 **Актуальная операторская сводка: 20.11.2026.** Подтверждения от владельца Intel и GitHub зафиксированы на дату наблюдения; не трактовать как постоянное состояние FINAM или роботов. GitHub `main` при подготовке: `0881d1e08b51a564fb54bb7d334d1578fc130400`; PR #568 head `b9da21b3b5e530460ed54100add999fa5afcf131`, только `ControlCenter/`.
 
 **Действующая панель:** `127.0.0.1:8502`, `v20_app.py`, три вкладки **Главная / Журнал / Управление**, три робота **v20-shallow / v20-obv / v20-inside**. Ручная кнопка обновления данных выполняет READONLY-проверки и не равна управляющей команде. Раздельный авторизованный CC-07 выполняет `START`, `PAUSE`, `STOP`, `RESTART`, `RECOVER`: PAUSE — одно нажатие; остальные действия — подтверждение с журналом, проверкой источника и условий V20. Отказ по неизвестному SHA / результату — защитный, не повторять автоматически.
@@ -22,7 +24,7 @@
 - Intel: `cc07_install=pass`, `cc07_only_controlcenter_files_changed=yes`, `cc07_no_v20_task_no_finam_no_arm=yes`; после установки `cc07_install_status=already_current`. Backup `C:\Users\alkos\downloads\cc07-verified-install-20261120-125138\backup`.
 - Результат `cc07_recovery_switch_not_halted` на Inside ранее был правильным защитным отказом в `Running/ARMED/PASS/healthy=True`. Он **не доказывает** успешное выполнение RECOVER в аварийном состоянии. При неизвестном исходе проверять Task, FINAM и журнал вручную; не повторять команду.
 - **Зависимость Kimi/DR:** работающие версии launcher `e1de4aad…` и двух модулей `0fc4c454…`, `5d30270d…` отсутствуют как доступные Git blob в текущем репозитории (проверка GitHub API). Merge CC-07 не означает восстановимость V20. Это отдельная задача V20, вне области изменений Control Center.
-- **Merge-процедура:** PR #568 — Draft; review/CI по финальному SHA, проверка состава изменений, права ветки и отдельное разрешение владельца. Автоматического Merge или действий на Intel этот документ не производит.
+- **GitHub-факт 22.11:** [PR #568](https://github.com/alkospacer123/market-pattern-discovery/pull/568) MERGED 20.11.2026 (merge `66093575312010ea2ecd92b5cddef063f1340488`). Этот merge не является новой установкой на Intel и не меняет LIVE; предыдущая проверка прав, SHA и CI сохранена как историческое свидетельство.
 
 ## Историческая хронология CC-00–CC-08 (24.10–10.11.2026)
 
