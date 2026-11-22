@@ -33,6 +33,20 @@ TTL наблюдения — **300 секунд**. Просроченный/бу
 - По MAIN `0e569be…` GitHub Main Admission SUCCESS, специализированные проверки CC-03 были SKIPPED. Это не новый результат pytest CC07.
 - В рамках текущей документационной ревизии физические pytest/Windows PowerShell/real Streamlit click **NOT RUN**: у агента нет disposable Windows checkout и доступа к Intel. Git/source review ≠ test run. Не обещать установку при документационном PR.
 
+## Known issues / UNKNOWN / NOT_VERIFIED
+
+| Вопрос | Статус на 22.11 | Следующая безопасная проверка |
+|---|---|---|
+| Побайтовый installed UI/adapter/operator на Intel сейчас | **NOT_VERIFIED**; есть датированное свидетельство 20.11 | Отдельная READONLY SHA-сверка с разрешением доступа |
+| Текущие ARMED/FLAT, реальные заявки/SLTP FINAM | **UNKNOWN** | Независимые свежие Task/switch/FINAM READONLY, не UI heartbeat |
+| STOP/RESTART на каждом из трёх роботов | **NOT_VERIFIED** полностью | Только естественный разрешённый операторский сценарий; не останавливать ради теста |
+| Успешный RECOVER при реальном HALT | **NOT_VERIFIED**; защитный отказ проверялся | Не инициировать искусственный HALT; ждать отдельного безопасного события и допуска |
+| Полная установка/активность альтернативного gateway | **NOT_VERIFIED** | Сверить installed channel-policy и imports READONLY, не запускать второй канал |
+| Полная Windows pytest и физическая приёмка этого docs PR | **NOT RUN** | CI по точному PR HEAD; физические действия отдельным решением |
+| Независимый полный Recovery/cold restore | **NOT_TESTED** | Общий финальный этап после Kimi |
+
+**Операторская процедура при инциденте:** сохранить время, робот/действие/request_id, локальный результат и audit; при неизвестном исходе не повторять POST/команду и не менять switch; провести независимую READONLY сверку. Для отказа панели — отдельно разрешённый rollback **только Control Center** из точного backup после SHA/ACL review, без пересоздания Task или token.
+
 ## Ограничения физической приёмки и восстановление
 Операторский `cc07_install=pass` и `already_current` на 20.11, некоторые START/PAUSE/STOP/RESTART — датированное INSTALLED свидетельство. Не проверены **сейчас** ARMED, FINAM positions/orders/SLTP, все STOP/RESTART и успешный RECOVER на естественном аварийном HALT. R5 final backup/R6 cold restore — в конце общего проекта, изолированно. При `FAILED_UNKNOWN` никакого автоматического повтора, только независимая проверка.
 
