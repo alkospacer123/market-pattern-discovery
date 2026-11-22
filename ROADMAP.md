@@ -1,23 +1,27 @@
-# Trading Systems — Roadmap (после 21.11.2026)
+# Trading Systems — Roadmap (актуализирован 22.11.2026)
 
-**Приоритет:** GitHub и безопасность → Kimi Chat + Kimi Code → финальный независимый Recovery.
+Порядок обязателен: **(I) безопасно упорядоченный GitHub → (II) Kimi Chat + Kimi Code → (III) независимый backup и настоящий cold restore**. MAIN ≠ INSTALLED ≠ LIVE ≠ RESEARCH ≠ ARCHIVE.
 
-## I. Реальный GitHub-порядок
+## I. Упорядоченный GitHub
 
-- [x] #583 удалил 11 594 проверенных исторических A/B/C+BBW файлов, сохранив историю и защищённые рабочие корни. Это частичная уборка.
-- [ ] Принять актуальные README/AGENTS, три паспорта, объяснения H1/M15/TRL и роли публичного архива. Проверить ссылки/CI, отдельно разрешить Merge.
-- [ ] Разобрать #580 (Kimi V20 source/exam), #581 (уникальные инструменты аудита), #582 (старый archive snapshot) без потери unique contents и без слепого Merge устаревших инструкций.
-- [x] Подготовить в #586 единый вынос корневого legacy-комплекса: 234 исходных объекта (233 удаления + 1 архивный указатель), immutable archive, проверка прямых импортов/ссылок, выбранные offline V20/CC/TRL/H1/M15 tests и архивный forensic replay. [Gate с точным CI SHA](recovery/R7_ROOT_LEGACY_EXTRACTION_GATE_2026-11-22.md).
-- [ ] Операторская приёмка полного diff, внешних потребителей/оригинальных данных и решение по документированному историческому FAIL; отдельное разрешение и Merge **#585 → #586**, затем сверка итогового `main` и обновление паспорта. Статус определять по [GitHub PR](https://github.com/alkospacer123/market-pattern-discovery/pull/586), не по этой датированной галочке.
+- [x] [#583](https://github.com/alkospacer123/market-pattern-discovery/pull/583): из main удалены 11 594 проверенных исторических A/B/C+BBW paths с сохранением Git history.
+- [x] [#585](https://github.com/alkospacer123/market-pattern-discovery/pull/585): Merge канонических README/AGENTS, трёх паспортов и dependency retention.
+- [x] [#586](https://github.com/alkospacer123/market-pattern-discovery/pull/586): один пакет реальной уборки старой root платформы — 233 удаления / 6 изменений / 4 добавления, CI R7 7/7 + Windows CC03 + Main Admission SUCCESS на exact HEAD, protected trees и archive refs сохранены. Merge commit `4f118ee1cdeced15406136401faabe4fdc3bb847`.
+- [ ] Принять проверенные post-R7 статусные документы и карту Kimi R1.2; не переписывать старые отчёты задним числом.
+- [ ] Разобрать уникальное из Draft #581: только проверенные standalone read-only scanner/checkpoint tools, тесты и source provenance; **не Merge исторический 82-commit stack**, не запускать удаление H1/M15.
+- [ ] Закрыть устаревшие #580/#581 только **после переноса уникальных материалов и проверки**; не удалять ветки/архивы без разрешения.
+- [x] Проверена структура H1/M15/V20/CC/TRL и `audit_only` по точным Git tree SHA; [классификация retained research](recovery/RETAINED_RESEARCH_CLASSIFICATION_2026-11-22.md). Это **не** доказательство полной внешней dependency closure.
+- [ ] Дальнейший перенос исторических файлов, включая 16 audit_only, только после отдельного доказательного gate и разрешения; пока **KEEP**.
 
 ## II. Полная адаптация Kimi
 
-- [ ] Создать три **логических проекта знаний** V20, CC, TRL на одном проверенном MAIN. Правила MAIN/INSTALLED/LIVE/RESEARCH/ARCHIVE.
-- [ ] Подключить Kimi Code (не подменять Kimi Chat), проверить GitHub права, исходники, SHA, тесты, безопасность, экзамен и совместную offline задачу GPT↔Kimi.
+- [ ] Три отдельных логических knowledge projects V20/CC/TRL из **одного** `market-pattern-discovery/main`; роль H1/M15 как общих зависимостей, а не новых LIVE.
+- [ ] Отдельное подключение **Kimi Code** с проверкой source/permissions/SHA, sandbox и offline-only тестами, без токенов FINAM.
+- [ ] Практический экзамен R1.2–R1.4, совместная безопасная задача GPT ↔ Kimi, кодовый PR и peer-review/handoff; никакого автоматического Merge или LIVE.
 
-## III. Recovery — строго последним
+## III. Автономный Recovery — только последним
 
-- [ ] Независимый автономный backup V20/CC/TRL, исходных исследований и знаний, Git history/refs/PR/Issues/CI, приватных данных в шифрованном виде, 10–30 лет.
-- [ ] Реальный изолированный cold restore без Intel, главного SSD, GitHub и двух ИИ; offline tests, отчёт и операторская приёмка.
+- [ ] После всех GitHub/Kimi работ: полный версионированный backup V20, CC, TRL, provenance, оригинальных исследований, Git refs/PR/Issues/CI и приватных данных в безопасной форме на независимых носителях.
+- [ ] Настоящий изолированный cold restore без Intel, основного SSD, GitHub и обеих ИИ с SHA, офлайн-тестами и операторским актом; горизонт сохранения 10–30 лет.
 
-Не выдавать CI за FINAM/LIVE PASS, частичную архивацию за backup или Git history за доказанный cold restore.
+**Границы R7:** GitHub CI не доказательство FINAM/SLTP; historical archived 45 PASS/1 FAIL не исправлен, 3 крупных metadata пропущены; Git history не заменяет backup. [Current state](recovery/REPOSITORY_CURRENT_STATE.md).

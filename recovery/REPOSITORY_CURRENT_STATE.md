@@ -1,26 +1,26 @@
-# GitHub — проверенный срез 21.11.2026
+# GitHub — проверенное состояние после R7 (22.11.2026)
 
-Источники: GitHub API branch/commit/recursive tree (`truncated=false`), PR #583/#584, PR list, archive tree и ruleset 24745505. **Снимок, не вечный SHA.**
+**SOURCE OF TRUTH: GitHub API после Merge.** Проверенный `market-pattern-discovery/main` = `4f118ee1cdeced15406136401faabe4fdc3bb847`; commit родителей `a28f4e06c8c898822c62d516a1a2cf617e22ad29` и `02790ca461afc131f5e480a1dd3f4d0cf35a1283`; итоговый Git tree `3e6139db1387b060fbebc829969eab93c0efa382` **совпадает** с прошедшим CI деревом кандидата #586. Это GitHub-срез, не installed/LIVE и не автономный Recovery.
 
-| Область | Факт |
+| Область | Подтверждение |
 | --- | --- |
-| Рабочая база | `market-pattern-discovery/main=e52dd90ef3e85c6ccc3b075f934df3ea8f5ffa8d` перед этим исправительным PR |
-| Массовое удаление | #583 merged: 11 491 A/B/C + 103 BBW = 11 594 файлов удалены из рабочего дерева; исходная история и `archive/pre-r7-cleanup` остались |
-| Дерево | После #583 — 6 846 Git blobs / 17 корневых папок, но это **не** генеральный перевод в отдельный архив |
-| H1 | `TradingSystemLab/` 3 059, из них `results/` 2 508; `stage8_robot` нужен V20 |
-| M15 | `IntradayLab/` 2 722, из них `results/` 490 и `t3_m15_*` 1 979; `core` нужен V20 |
-| Три основных проекта | V20 446, ControlCenter 163, TRL 168 Git files |
-| Корень legacy | `src/` 86, `tests/` 50, `docs/` 34, `audit_only/` 16, plus конфиги, схемы и отчёты — удаление без dependency gate нельзя |
-| PR #584 | 21.11 оказался merged с одной строкой README «АКТУАЛИЗИРОВАТЬ ОПИСАНИЕ ПРОЕКТА»; эта новая ветка предлагает содержательную замену, не прямой push |
-| GitHub CI | `Protect main` active, обязательный `Main Admission - protected offline baseline` с strict up-to-date, это частичный offline gate, не LIVE |
-| Archive | Публичный `market-pattern-archive/main=8d4027c8d53625dfe7780cb7ccfdc354d51b25ba`: 26 файлов, 19 исторических оригиналов, **0/19 blob SHA есть в текущем рабочем main** (проверено дерево 21.11); не полный архив. Draft #5 с 16 STOP/TICK GRID не merged. **Сохранить** до финальной независимой проверки Recovery |
+| #583 | Ранее merged: 11 594 исторических A/B/C+BBW Git paths удалены из рабочего дерева; original Git history сохранена |
+| [#585](https://github.com/alkospacer123/market-pattern-discovery/pull/585) | MERGED, канонические README/AGENTS, три паспорта, Git main `a28f4e06…` |
+| [#586](https://github.com/alkospacer123/market-pattern-discovery/pull/586) | MERGED обычным merge commit `4f118ee1cdeced15406136401faabe4fdc3bb847`; **233 удалено / 6 изменено / 4 добавлено**; runtime шести проектных поддеревьев без изменений |
+| [R7 CI](https://github.com/alkospacer123/market-pattern-discovery/actions/runs/44993087919) | 7/7 SUCCESS на точном HEAD `02790ca4…`, не эквивалент текущему LIVE |
+| [CC03 Windows-native](https://github.com/alkospacer123/market-pattern-discovery/actions/runs/44993087915) | SUCCESS: 757 PASS/15 designated SKIP, 15/15 non-scope gates; frozen historical scope-audit **EXPECTED FAIL**, не объявлять его PASS |
+| [Main Admission](https://github.com/alkospacer123/market-pattern-discovery/actions/runs/44993087924) | SUCCESS на точном HEAD #586 |
+| Метаданные | 530 eligible, 527 SHA/UTF-8 verified, 3 >2MB не сканированы; 302 historical literal references, преимущественно provenance |
+| Archive refs | `archive/pre-r7-cleanup=f15d565755b996252081ed49ed5a094ee1e8d820`; `archive/pre-root-legacy-20261122=09bca5641cb5bb367e84505ebfc6f8c7f35e2620`; обе защищены Ruleset #27793383 active, без bypass |
+| Защищённые каталоги | `V20_TradingSystem_M15/`, `ControlCenter/`, `TradingResearchLab/`, `TradingSystemLab/`, `IntradayLab/`, `audit_only/`; Git tree SHA неизменны относительно HEAD #586 |
+| Открытые исторические Draft | [#580](https://github.com/alkospacer123/market-pattern-discovery/pull/580) — уникальная карта R088+экзамен; [#581](https://github.com/alkospacer123/market-pattern-discovery/pull/581) — уникальные scanner/checkpoint tools; обе ветки устарели и **не merge as-is** |
 
-## Открытые PR на момент среза
+## Каталоги и статус
 
-- [#580](https://github.com/alkospacer123/market-pattern-discovery/pull/580) — подготовка V20 R088 deep-dive и экзамена Kimi, обновить относительно нового main перед Merge; уникальная информация сохраняется.
-- [#581](https://github.com/alkospacer123/market-pattern-discovery/pull/581) — устаревший roadmap R7, **но уникальные офлайн инструменты**; без проверки не закрывать/не терять.
-- [#582](https://github.com/alkospacer123/market-pattern-discovery/pull/582) — **закрыт без Merge 21.11**, сохранив ветку и исходный двухфайловый исторический снимок; это не текущая инструкция.
+Три активных логических направления: [V20](PROJECT_PASSPORT_V20.md), [Control Center](PROJECT_PASSPORT_CONTROL_CENTER.md), [TRL](PROJECT_PASSPORT_TRL.md). Не путать frozen H1/M15-исследования с исполняемыми LIVE-проектами: `TradingSystemLab.stage8_robot` и `IntradayLab.core` нужны V20. `research_domains.md` в `main` — совместимый исторический указатель; удалённый root legacy доступен по архивному SHA.
 
-## Не подтверждено
+## Ограничения
 
-Ни ненужность оставшихся 6 846 файлов, ни отсутствие всех legacy dependencies, ни полнота независимого GitHub metadata/TRL originals/ZIP/XLSX; Kimi Code экзамен и cold restore не проведены. GitHub не показывает свежий физический FINAM/ARMED/SLTP. Сохранять сомнительные файлы; для удаления отдельный доказательный gate и санкция.
+Исторический тест старой платформы: **45 PASS / 1 known pre-existing FAIL**; он сохранён forensic gate, а не исправлен в архиве. Полный replay неизвестных external consumers, всех ZIP/XLSX/CSV и трёх больших metadata не доказан. `market-pattern-archive` — неполный вспомогательный публичный архив и не финальный disaster recovery. Состояние Intel, FINAM, SLTP, ARMED, реальная версия установленного кода и Kimi Code доступ **не проверены этим GitHub-аудитом**.
+
+Старый срез до R7 сохранён в [Git parent #585](https://github.com/alkospacer123/market-pattern-discovery/blob/a28f4e06c8c898822c62d516a1a2cf617e22ad29/recovery/REPOSITORY_CURRENT_STATE.md), чтобы не переписывать provenance.

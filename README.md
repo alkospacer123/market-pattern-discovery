@@ -1,6 +1,6 @@
 # Trading Systems — V20 / Control Center / Trading Research Lab
 
-> **Единый рабочий GitHub трёх проектов.** Старые системы H1 и M15 сохранены как необходимые V20-зависимости и источники исследований, а не как новые LIVE-проекты. Срез: 21.11.2026; исходный проверенный main при подготовке `e52dd90ef3e85c6ccc3b075f934df3ea8f5ffa8d`. Перед работой перепроверять текущий SHA.
+> **Единый рабочий GitHub трёх проектов.** H1/M15 сохранены как необходимые V20-зависимости и источник исследований, а не новые LIVE-проекты. Проверенный после R7 `main=4f118ee1cdeced15406136401faabe4fdc3bb847` (22.11.2026). Перед любой новой операцией повторно сверять GitHub SHA.
 
 ## Проекты — начинать здесь
 
@@ -10,15 +10,17 @@
 | `ControlCenter/` | V20-панель, мониторинг, CC-07 и операторские команды | [Control Center](recovery/PROJECT_PASSPORT_CONTROL_CENTER.md) |
 | `TradingResearchLab/` | Research, Evolution, Journal и воспроизводимость исследований | [TRL](recovery/PROJECT_PASSPORT_TRL.md) |
 
+[**Сохранённые исследования и audit_only: точная классификация (22.11)**](recovery/RETAINED_RESEARCH_CLASSIFICATION_2026-11-22.md) — история H1/M15 отдельно от текущих инструкций.
+
 **Общие источники:** [AGENTS.md](AGENTS.md) — действующие правила обоих ИИ; [состояние GitHub](recovery/REPOSITORY_CURRENT_STATE.md); [Roadmap](ROADMAP.md); [база знаний](recovery/README.md).
 
 ## Исторические комплексы — сохранять до доказательства ненужности
 
 - `TradingSystemLab/` — исторический H1 и рабочие библиотеки `TradingSystemLab.stage8_robot` для V20. Сотни тестов и тысячи результатов — не основание удалять исходные исследования.
 - `IntradayLab/` — исторический M15 и необходимые V20 модули `IntradayLab.core`; множество `t3_m15_*` — воспроизводимая история, не новые LIVE-роботы.
-- Старая корневая платформа Market Pattern Discovery (`src/`, `tests/`, `docs/`, `research/`, `schemas/`, `scripts/`, `config/`, `results/`, `evidence/` и старые отчёты) **отсутствует в этой ревизии Git-дерева**; все исходные объекты доступны в [закреплённом архивном коммите](https://github.com/alkospacer123/market-pattern-discovery/tree/09bca5641cb5bb367e84505ebfc6f8c7f35e2620) и защищённой ветке `archive/pre-root-legacy-20261122`. Проверять фактический `main` и статус [PR #585](https://github.com/alkospacer123/market-pattern-discovery/pull/585) → [PR #586](https://github.com/alkospacer123/market-pattern-discovery/pull/586): наличие удаления в отдельной ветке само по себе не означает, что оно уже принято в `main`. `audit_only/` сохранён из-за H1-связей. `research_domains.md` в этом дереве — [совместимый указатель на оригинал](research_domains.md), чтобы не ломать существующую ссылку H1. [Паспорт сохранности](recovery/LEGACY_DEPENDENCIES_AND_RETENTION.md), [gate](recovery/R7_ROOT_LEGACY_EXTRACTION_GATE_2026-11-22.md).
+- Старая корневая платформа Market Pattern Discovery (`src/`, `tests/`, `docs/`, `research/`, `schemas/`, `scripts/`, `config/`, `results/`, `evidence/` и шесть root reports) **удалена из `main` после [Merge #586](https://github.com/alkospacer123/market-pattern-discovery/pull/586)**: 233 удалённых path, 6 изменений и 4 добавления, только в проверенном scope. Все старые оригиналы доступны в [Git commit `09bca564…`](https://github.com/alkospacer123/market-pattern-discovery/tree/09bca5641cb5bb367e84505ebfc6f8c7f35e2620) и protected branch `archive/pre-root-legacy-20261122`. `audit_only/` сохранён; [research_domains.md](research_domains.md) — архивный указатель для H1. [Состояние](recovery/REPOSITORY_CURRENT_STATE.md), [свидетельства приёмки](recovery/R7_ROOT_LEGACY_EXTRACTION_GATE_2026-11-22.md). История Git **не** является самостоятельной резервной копией.
 
-**Зачем сохранять старые корневые файлы?** [Ревизия docs / research / schemas / scripts / Smoke Run](recovery/ROOT_LEGACY_AUDIT_2026-11-21.md) — не текущие проекты, но пока важны для provenance и воспроизводимости старой платформы.
+**Почему старые корневые файлы не уничтожены?** [Ревизия docs / research / schemas / scripts / Smoke Run](recovery/ROOT_LEGACY_AUDIT_2026-11-21.md) — не текущие проекты, но пока важны для provenance и воспроизводимости старой платформы.
 
 ## Критические ограничения
 
