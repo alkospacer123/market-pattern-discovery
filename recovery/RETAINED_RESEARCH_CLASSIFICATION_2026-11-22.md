@@ -1,3 +1,5 @@
+> **FINAL R7 STATUS 22.11.2026:** #587 MERGED `8a1c6618f8d3c9f33de9de6cb3f6efae13fe29f0`, #588 MERGED `bb8c46c1db89ca2b5311f22c755bb4e51ce8f7d6`; #580/#581 CLOSED WITHOUT MERGE, обе исходные ветки сохранены. **[PR #590](https://github.com/alkospacer123/market-pattern-discovery/pull/590) попытался удалить 16 файлов audit_only, однако CI [FAIL](https://github.com/alkospacer123/market-pattern-discovery/actions/runs/44998434881) обнаружил ДВЕ прямые H1 offline research/test зависимости; PR закрыт без Merge.** Каталог оставлен в `main` по доказательной необходимости, [акт этапа I](R7_STAGE_I_FINAL_ACCEPTANCE_20261122.md). Исторические заметки ниже (включая «ещё не merged») относятся к прежнему срезу, а не к фактическому состоянию GitHub.
+
 # R7 — классификация сохранённых исследований и audit_only
 
 **GitHub-срез 22.11.2026:** `market-pattern-discovery/main=4f118ee1cdeced15406136401faabe4fdc3bb847`. Проверены рекурсивные Git trees пяти проектных корней и audit_only: `truncated=false`. Это **не** проверка физической Intel/LIVE установки, не повторный research replay и не право на новое удаление.
@@ -57,7 +59,13 @@ H1 `TradingSystemLab.stage8_robot` и M15 `IntradayLab.core` импортиру�
 - После аудита [PR #493 (MERGED)](https://github.com/alkospacer123/market-pattern-discovery/pull/493) добавил код candidate STOP/TICK GRID V2 в H1; GitHub merge **не** доказывает physical LIVE deploy/fills/SLTP.
 - Исторический `run_existing_tests.py` ссылается на `tests/test_trail1_authoritative_ledger.py`, **отсутствующий в текущем `main`** после #586, но существующий в защищённом архивном SHA. Для оригинального test replay нужен *архивный изолированный checkout* и frozen data; считать нынешний audit runner полностью запускаемым нельзя.
 - Изменение `audit_only` ранее запрещалось immutable scope gate #586 вместе с пятью другими защищёнными поддеревьями. Полная проверка сторонних, динамических и внешних consumers **не проведена**; отсутствие прямого импорта в роботе не является доказательством отсутствия всех dependencies.
-- **Вердикт: `KEEP_IN_MAIN_AS_HISTORICAL_PROVENANCE`.** В обычной работе Kimi не запускает этот код и не принимает старую диагностику за оперативное состояние. Перенос целиком в архив можно рассмотреть позже одним консолидированным cleanup-пакетом, только после доказанного dependency gate, фиксации исходных SHA и явного разрешения владельца.
+- **Финальный вердикт: `KEEP_IN_MAIN_AS_H1_OFFLINE_RESEARCH_DEPENDENCY`.** В обычной работе Kimi не запускает этот код и не принимает старую диагностику за оперативное состояние. Перенос целиком в архив можно рассмотреть позже одним консолидированным cleanup-пакетом, только после доказанного dependency gate, фиксации исходных SHA и явного разрешения владельца.
+
+### Подтверждённые потребители audit_only после gate #590
+
+- `TradingSystemLab/stage8_robot/signal_execution_diagnostic.py` (Git blob `33f20607c828223d426718768ff3f4669dd31956`): `diagnose()` открывает `full_available_raw_signals.csv` из этой папки.
+- `TradingSystemLab/stage8_robot/tests/replay_stop_tick_grid.py` (Git blob `23889f765919866357cf034a7c725fab81f4c840`): импортирует архивный `audit.py` и читает `lifecycle_admitted_entries.csv` / `full_available_raw_signals.csv`.
+- Подтверждено [CI FAIL #590](https://github.com/alkospacer123/market-pattern-discovery/actions/runs/44998434881); сохранность в Git архиве не обеспечивает работу этих относительных путей в сегодняшнем checkout. **Сохранять 16/16 файлов без правок H1 и audit_only**. Это не утверждение об актуальном V20 LIVE.
 
 ## Что уже действительно выведено из рабочего дерева
 
