@@ -1,4 +1,6 @@
-# Control Center — актуальная V20-панель (состояние на 20.11.2026)
+# Control Center — актуальная V20-панель (последняя Intel-приёмка 20.11.2026)
+
+**START HERE для GPT/Kimi, GitHub-ревизия 22.11:** [карта компонентов](docs/V20_START_HERE_SOURCE_MAP.md) → [CC-07 команды](docs/V20_CC07_COMMAND_CONTRACT.md) → [CC-08 operations](docs/V20_CC08_OPERATIONS.md) → [данные, security, CI](docs/V20_DATA_SECURITY_TESTS.md) → [реестр документации](docs/V20_DOCUMENT_REGISTER_20261122.md) → [экзамен Kimi](docs/V20_KIMI_EXAM.md). MAIN source не подтверждает сегодняшнюю установленную версию или LIVE FINAM.
 
 **Действующий V20 UI:** `C:\Control Center\v20-preview-d80f2446\v20_app.py`, локальный адрес `http://127.0.0.1:8502`; три независимых робота Shallow / OBV / Inside. Код в [`v20_app.py`](v20_app.py), операционный журнал и границы приёмки — в [CC-08](docs/V20_CC08_OPERATIONS.md), этапы — в [V20 roadmap](docs/V20_CONTROL_CENTER_ROADMAP.md).
 
@@ -6,7 +8,7 @@
 - **Точная установленная версия CC-07:** controller Git blob `10de325be0335733a248c412943f39d45bd93c62`, Python adapter `ef2fa2cd6b0ddfefc920548995274f123c5884bf`; V20 launcher только для сравнения `e1de4aad7a98cdc84768c1811131c3ad079d7d90`. Результат Windows CI #44711373064: SUCCESS для PR #568 head `b9da21b3b5e530460ed54100add999fa5afcf131` (757 passed / 15 skipped). Это **не** LIVE-верификация брокера.
 - **Граница действий:** ручное обновление экрана — READONLY. Команды CC-07 — отдельно подтверждаемые операторские действия с разрешениями, журналом и защитными проверками; не автоматическое восстановление. Не обходить HALT, не повторять команду при неизвестном результате и не управлять работоспособными V20 ради тестирования.
 - **Исходники V20:** установленный launcher и два закреплённых в нём модуля на Intel совпали с операторскими SHA, но GitHub не отдаёт их конкретные blob `e1de4aad…`, `0fc4c454…`, `5d30270d…` в PR #567. Для полного Kimi/DR-восстановления их потребуется отдельно включить в утверждённую историю V20; **не изменять V20 из этого PR**.
-- **GitHub:** отдельный Draft PR #568, только `ControlCenter/`; его Merge не выполняется автоматически. `main` перед подготовкой обновления: `0881d1e08b51a564fb54bb7d334d1578fc130400`.
+- **GitHub (проверено 22.11.2026):** [PR #568](https://github.com/alkospacer123/market-pattern-discovery/pull/568) **MERGED 20.11.2026**, merge commit `66093575312010ea2ecd92b5cddef063f1340488`; текущий проверенный MAIN `0e569be6cb3c7cce1f7224e7f1fef6be38f6ba52`. Исторический base `0881d1...` ниже не является текущим HEAD.
 
 ## Историческое направление CC-03 для H1/M15 (ниже, не инструкция для V20 8502)
 
