@@ -1,3 +1,5 @@
+**HISTORICAL CC-03 H1/M15 ARCHITECTURE.** Действующая V20/8502 source map — [V20_START_HERE_SOURCE_MAP.md](V20_START_HERE_SOURCE_MAP.md). Описание ниже сохранено как датированная архитектура, не нынешний CC-07.
+
 > Актуальное дополнение CC-03 C: [manual WINDOWS_OS_ONLY](CC03_MANUAL_OS_SOURCE.md) подключает fixed Task/process helper по кнопке под ccpanel с отдельной policy в app/deployment; без exporter/private/legacy I/O. Ниже сохранено описание прежнего receiver/standalone пути.
 
 # Архитектура Control Center — CC-03

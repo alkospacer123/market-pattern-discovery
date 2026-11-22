@@ -1,3 +1,5 @@
+**HISTORICAL CC-03 H1/M15 ROADMAP — SUPERSEDED для V20 8502.** Действующий V20 CC-roadmap: [V20_CONTROL_CENTER_ROADMAP.md](V20_CONTROL_CENTER_ROADMAP.md); навигация/статусы — [START HERE](V20_START_HERE_SOURCE_MAP.md). Исходная история не переписана.
+
 # Roadmap Control Center — CC-03 manual H1 OS source
 
 Актуальная база main `9506d5c8790d4d3b3eabb629d38532a581051e54`, #549 merged. [Ручной источник C и проверки](CC03_MANUAL_OS_SOURCE.md), [отдельная физическая готовность](CC03_MANUAL_OS_INSTALLATION_READINESS.md). Только инженерный Draft; A продолжается отдельно, B/C physical не разрешены. Следующие исторические checkpoints не являются доказательством нового HEAD.
