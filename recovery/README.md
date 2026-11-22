@@ -3,6 +3,7 @@
 **Точка входа 22.11.2026 после Merge #585/#586:** [корневой README](../README.md) → [общий AGENTS](../AGENTS.md) → [проверенное состояние](REPOSITORY_CURRENT_STATE.md) → паспорт проекта.
 
 ## Три проекта
+- [Phase II: три проекта знаний Kimi Chat / Kimi Code и практический экзамен](kimi/README.md) — исходный пакет, подключение и экзамены пока НЕ выполнены.
 - [V20 — паспорт](PROJECT_PASSPORT_V20.md) → [операторский R088 release](../V20_TradingSystem_M15/V20-08/LIVE_RELEASE_R088_20261120_RU.md).
 - [Control Center — паспорт](PROJECT_PASSPORT_CONTROL_CENTER.md) → [CC-08](../ControlCenter/docs/V20_CC08_OPERATIONS.md).
 - [TRL — паспорт](PROJECT_PASSPORT_TRL.md) → [TRL Start Here](../TradingResearchLab/reports/TRL-NOV-2026-KIMI-START-HERE.md).
