@@ -1,5 +1,7 @@
 # Kimi knowledge project — Trading Research Lab
 
+> **SOURCE AUTHORITY CHECK 22.11.2026:** последние принятые GitHub-документы после [Merge #589](https://github.com/alkospacer123/market-pattern-discovery/pull/589) зафиксированы на контрольном `main=41d0b48c1d33db29bc1b19497d558748b3db8fb4`. Указанный ниже `bb8c46c1...` — **воспроизводимый исходный base до #589**, а не всегда актуальный HEAD. Перед чтением и практическим экзаменом перепроверять `main`, Git blobs и [иерархию документов](../DOCUMENTATION_AUTHORITY_2026-11-22.md). Никаких Kimi Chat/Code access, установленного LIVE, FINAM или cold restore не подтверждено.
+
 **PINNED SOURCE:** GitHub main `bb8c46c1db89ca2b5311f22c755bb4e51ce8f7d6`. Research only; original ZIP/XLSX/OHLCV bytes not fully verified in this GitHub.
 
 Читать: [AGENTS](../../TradingResearchLab/AGENTS.md) blob `65c585b1e34015882b66aef393947e4541844c13` → [паспорт TRL](../PROJECT_PASSPORT_TRL.md) blob `0420ec83a8328ce625c2d699062ef9ec75018e43` → [TRL Start Here](../../TradingResearchLab/reports/TRL-NOV-2026-KIMI-START-HERE.md) blob `3c0dd263e21d68cb07bf5a2df2a2a919fa3418b5` → [November Closeout](../../TradingResearchLab/reports/TRL-NOV-2026-FINAL-CLOSEOUT.md) blob `ec06839fd233f9909eead53e82b9b7d1d7868fb8` → [binary manifest](../../TradingResearchLab/reports/TRL-NOV-2026-ARTIFACT-MANIFEST.md) blob `9c56376e087ce40bfd070fcf8056bd81f3ce44c4`.

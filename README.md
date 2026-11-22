@@ -1,6 +1,6 @@
 # Trading Systems — V20 / Control Center / Trading Research Lab
 
-> **Единый рабочий GitHub трёх проектов.** H1/M15 сохранены как необходимые V20-зависимости и источник исследований, а не новые LIVE-проекты. Проверенный после R7 `main=4f118ee1cdeced15406136401faabe4fdc3bb847` (22.11.2026). Перед любой новой операцией повторно сверять GitHub SHA.
+> **Единый рабочий GitHub трёх проектов.** H1/M15 сохранены как необходимые V20-зависимости и источник исследований, а не новые LIVE-проекты. Контрольный GitHub-срез после этапа I: `main=41d0b48c1d33db29bc1b19497d558748b3db8fb4` (22.11.2026, Merge #589). Это **датированный pin**, а не обещание неизменности HEAD. Перед любой новой операцией повторно сверять GitHub SHA.
 
 ## Проекты — начинать здесь
 
@@ -11,6 +11,8 @@
 | `TradingResearchLab/` | Research, Evolution, Journal и воспроизводимость исследований | [TRL](recovery/PROJECT_PASSPORT_TRL.md) |
 
 [**Сохранённые исследования и audit_only: точная классификация (22.11)**](recovery/RETAINED_RESEARCH_CLASSIFICATION_2026-11-22.md) — история H1/M15 отдельно от текущих инструкций.
+
+**Порядок документов и правила устаревших источников:** [реестр полномочий документации](recovery/DOCUMENTATION_AUTHORITY_2026-11-22.md).
 
 **Общие источники:** [AGENTS.md](AGENTS.md) — действующие правила обоих ИИ; [состояние GitHub](recovery/REPOSITORY_CURRENT_STATE.md); [Roadmap](ROADMAP.md); [база знаний](recovery/README.md).
 
@@ -33,6 +35,7 @@
 
 - [PR #583](https://github.com/alkospacer123/market-pattern-discovery/pull/583) удалил 11 594 исторических A/B/C+BBW файла с сохранением Git history, **но не провёл полного выноса старых исследований в отдельный архив**.
 - [market-pattern-data](https://github.com/alkospacer123/market-pattern-data) — отдельные данные; [market-pattern-archive](https://github.com/alkospacer123/market-pattern-archive) — дополнительный публичный архив (по проверке в его main 26 файлов), **не требуется для ежедневной работы трёх систем** и не является независимым полным Recovery. До решения о сохранности не удалять.
+- [Пакеты Kimi V20 / CC / TRL и практический экзамен](recovery/kimi/README.md) приняты в GitHub через [Merge #589](https://github.com/alkospacer123/market-pattern-discovery/pull/589); создание Kimi-проектов и отдельный доступ Kimi Code **ещё не подтверждены**.
 - Kimi Chat — три логических проекта знаний из одного GitHub; **Kimi Code отдельно** должен получить проверенные доступы, выполнить практический offline-экзамен и взаимную передачу задач с GPT. Не считать настроенным до теста.
 - Финальный автономный backup + реальный cold restore V20, CC и TRL вне Intel/GitHub/обоих ИИ — **после** всех исправлений и адаптации.
 
