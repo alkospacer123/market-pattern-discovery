@@ -3,11 +3,13 @@
 **Точка входа 22.11.2026 после Merge #585/#586:** [корневой README](../README.md) → [общий AGENTS](../AGENTS.md) → [проверенное состояние](REPOSITORY_CURRENT_STATE.md) → паспорт проекта.
 
 ## Три проекта
+- [Phase II: три проекта знаний Kimi Chat / Kimi Code и практический экзамен](kimi/README.md) — исходный пакет, подключение и экзамены пока НЕ выполнены.
 - [V20 — паспорт](PROJECT_PASSPORT_V20.md) → [операторский R088 release](../V20_TradingSystem_M15/V20-08/LIVE_RELEASE_R088_20261120_RU.md).
 - [Control Center — паспорт](PROJECT_PASSPORT_CONTROL_CENTER.md) → [CC-08](../ControlCenter/docs/V20_CC08_OPERATIONS.md).
 - [TRL — паспорт](PROJECT_PASSPORT_TRL.md) → [TRL Start Here](../TradingResearchLab/reports/TRL-NOV-2026-KIMI-START-HERE.md).
 
 ## История и доказательства
+- [Финальный акт этапа I: audit_only сохранён из-за прямых H1 research-зависимостей, PR #590 не merged](R7_STAGE_I_FINAL_ACCEPTANCE_20261122.md).
 - [Реестр H1/M15/V20/CC/TRL и STOP/TICK GRID, 22.11](RETAINED_RESEARCH_CLASSIFICATION_2026-11-22.md): ACTIVE / DEPENDENCY / RESEARCH / HISTORICAL и доказанные SHA.
 - [Карта необходимых H1/M15 и legacy root](LEGACY_DEPENDENCIES_AND_RETENTION.md), [AGENT continuation](Agent.md), [Roadmap](../ROADMAP.md).
 - [R1.1 Kimi индекс 20.11](KIMI_R1_1_VERIFIED_SOURCE_INDEX_2026-11-20.md), [R1.2 V20 source map и экзамен, перенос из Draft #580](KIMI_R1_2_V20_DEEP_DIVE_AND_EXAM_2026-11-20.md), [границы 20.11](KIMI_REPOSITORY_BOUNDARIES_2026-11-20.md), [первоначальная инструкция 20.11](PROJECT_INSTRUCTIONS_CURRENT_2026-11-20.md) — **датированные источники**, не текущий LIVE SHA.

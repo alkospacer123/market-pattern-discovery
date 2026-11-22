@@ -1,3 +1,5 @@
+> **LATEST GITHUB DECISION 22.11.2026 (после этого исторического среза):** `main=bb8c46c1db89ca2b5311f22c755bb4e51ce8f7d6` после #587 и #588, оба MERGED; #580/#581 CLOSED WITHOUT MERGE, ветки сохранены. Исторический H1 `audit_only` оставлен: удаляющий [#590](https://github.com/alkospacer123/market-pattern-discovery/pull/590) BLOCKED реальными offline зависимостями (два H1 файла), не merged. Стадия I завершена **с сохранением доказанно нужных файлов**, [акт приёмки](R7_STAGE_I_FINAL_ACCEPTANCE_20261122.md). Kimi #589 готовится, фактические Kimi Chat/Code access/exam не доказаны, GitHub ≠ Intel LIVE или cold restore. Нижние таблицы — исторический предыдущий checkpoint, не сегодняшняя PR telemetry.
+
 # GitHub — проверенное состояние после R7 (22.11.2026)
 
 **SOURCE OF TRUTH: GitHub API после Merge.** Проверенный `market-pattern-discovery/main` = `4f118ee1cdeced15406136401faabe4fdc3bb847`; commit родителей `a28f4e06c8c898822c62d516a1a2cf617e22ad29` и `02790ca461afc131f5e480a1dd3f4d0cf35a1283`; итоговый Git tree `3e6139db1387b060fbebc829969eab93c0efa382` **совпадает** с прошедшим CI деревом кандидата #586. Это GitHub-срез, не installed/LIVE и не автономный Recovery.
