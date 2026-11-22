@@ -16,9 +16,9 @@
 
 - `TradingSystemLab/` — исторический H1 и рабочие библиотеки `TradingSystemLab.stage8_robot` для V20. Сотни тестов и тысячи результатов — не основание удалять исходные исследования.
 - `IntradayLab/` — исторический M15 и необходимые V20 модули `IntradayLab.core`; множество `t3_m15_*` — воспроизводимая история, не новые LIVE-роботы.
-- Корневые `src/`, `tests/`, `docs/`, `results/`, `scripts/`, `config/`, `audit_only/`, `schemas/`, `evidence/`, `research/` — старая исследовательская платформа и доказательства; точная безопасность удаления пока **не установлена**. [Паспорт сохранности](recovery/LEGACY_DEPENDENCIES_AND_RETENTION.md).
+- Старая корневая платформа Market Pattern Discovery (`src/`, `tests/`, `docs/`, `research/`, `schemas/`, `scripts/`, `config/`, `results/`, `evidence/` и старые отчёты) **отсутствует в этой ревизии Git-дерева**; все исходные объекты доступны в [закреплённом архивном коммите](https://github.com/alkospacer123/market-pattern-discovery/tree/09bca5641cb5bb367e84505ebfc6f8c7f35e2620) и защищённой ветке `archive/pre-root-legacy-20261122`. Проверять фактический `main` и статус [PR #585](https://github.com/alkospacer123/market-pattern-discovery/pull/585) → [PR #586](https://github.com/alkospacer123/market-pattern-discovery/pull/586): наличие удаления в отдельной ветке само по себе не означает, что оно уже принято в `main`. `audit_only/` сохранён из-за H1-связей. `research_domains.md` в этом дереве — [совместимый указатель на оригинал](research_domains.md), чтобы не ломать существующую ссылку H1. [Паспорт сохранности](recovery/LEGACY_DEPENDENCIES_AND_RETENTION.md), [gate](recovery/R7_ROOT_LEGACY_EXTRACTION_GATE_2026-11-22.md).
 
-**Какие старые корневые файлы нужны?** [Ревизия docs / research / schemas / scripts / Smoke Run](recovery/ROOT_LEGACY_AUDIT_2026-11-21.md) — не текущие проекты, но пока важны для provenance и воспроизводимости старой платформы.
+**Зачем сохранять старые корневые файлы?** [Ревизия docs / research / schemas / scripts / Smoke Run](recovery/ROOT_LEGACY_AUDIT_2026-11-21.md) — не текущие проекты, но пока важны для provenance и воспроизводимости старой платформы.
 
 ## Критические ограничения
 

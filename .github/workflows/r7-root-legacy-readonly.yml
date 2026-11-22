@@ -1,0 +1,544 @@
+name: R7 root legacy static preservation and broken-link gate
+on:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  retained-noncode-literals:
+    name: R7 retained small configs/metadata legacy-reference inventory
+    if: github.event.pull_request.number == 586
+    needs: root-legacy-readonly
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    permissions:
+      contents: read
+    env:
+      EXPECT_HEAD: ${{ github.event.pull_request.head.sha }}
+      PYTHONDONTWRITEBYTECODE: '1'
+    steps:
+      - name: Checkout non-results metadata only from exact candidate, no stored token
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # pinned v4
+        env:
+          GIT_CONFIG_COUNT: '1'
+          GIT_CONFIG_KEY_0: core.autocrlf
+          GIT_CONFIG_VALUE_0: 'false'
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          persist-credentials: false
+          fetch-depth: 1
+          filter: blob:none
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            /**/*.json
+            /**/*.txt
+            /**/*.yaml
+            /**/*.yml
+            /**/*.ini
+            /**/*.cfg
+            /**/*.xml
+            /**/*.toml
+            /**/*.js
+            /**/*.ts
+            !/**/results/**
+            !/**/independent_results/**
+            !/**/work/**
+            !/**/archive/**
+            !/**/data/**
+            !/**/evidence/**
+      - name: Exact Git blob SHA and literal mentions in retained non-results metadata
+        run: |
+          python3 -B - <<'PY'
+          import collections,hashlib,json,os,pathlib,re,subprocess
+          roots={'V20_TradingSystem_M15','ControlCenter','TradingResearchLab',
+                 'TradingSystemLab','IntradayLab','audit_only'}
+          excluded={'results','independent_results','work','archive','data','evidence'}
+          suffixes={'.json','.txt','.yaml','.yml','.ini','.cfg','.xml','.toml','.js','.ts'}
+          pats={
+              'removed_py_namespace':re.compile(r'(?<![A-Za-z0-9_])market_pattern_discovery(?![A-Za-z0-9_])',re.I),
+              'removed_old_universe':re.compile(r'unknown_universe_v1',re.I),
+              'removed_old_cli':re.compile(r'(?:^|[\\/])scripts[\\/](?:validate_phase|run_autonomous_research)',re.I),
+              'root_old_pyproject':re.compile(r'(?<![A-Za-z0-9])pyproject\.toml',re.I),
+              'root_old_domains':re.compile(r'research_domains\.md',re.I),
+          }
+          head=subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip()
+          assert head==os.environ['EXPECT_HEAD'],'R7_METADATA_HEAD_CHANGED'
+          raw=subprocess.check_output(['git','ls-tree','-r','-l','-z','HEAD'])
+          counts=collections.Counter()
+          hits=[]
+          omissions=[]
+          visited=[]
+          for rec in raw.split(b'\0'):
+              if not rec: continue
+              info,name=rec.split(b'\t',1)
+              mode,typ,sha,size=info.decode('ascii').split()
+              path=name.decode('utf-8')
+              parts=path.split('/')
+              if parts[0] not in roots or pathlib.PurePosixPath(path).suffix.lower() not in suffixes:
+                  continue
+              if any(x in excluded for x in parts[1:-1]): continue
+              if typ!='blob' or mode!='100644':
+                  raise AssertionError('R7_METADATA_NON_REGULAR_GIT_PATH:'+path)
+              size=int(size)
+              counts['eligible']+=1
+              if size>2_000_000:
+                  omissions.append({'path':path,'reason':'large_meta','git_size':size})
+                  continue
+              file=pathlib.Path(path)
+              assert file.is_file() and not file.is_symlink(), 'R7_METADATA_CHECKOUT_MISSING_OR_SYMLINK:'+path
+              data=file.read_bytes()
+              actual=hashlib.sha1(b'blob '+str(len(data)).encode()+b'\0'+data).hexdigest()
+              assert actual==sha and len(data)==size,'R7_METADATA_BLOB_SHA_OR_SIZE:'+path
+              counts['sha_verified']+=1
+              try: text=data.decode('utf-8')
+              except UnicodeError:
+                  omissions.append({'path':path,'reason':'non_utf8'})
+                  continue
+              counts['utf8_scanned']+=1
+              for line,s in enumerate(text.splitlines(),1):
+                  found=[key for key,pat in pats.items() if pat.search(s)]
+                  if found:
+                      hits.append({'source_path':path,'line':line,'markers':found})
+          assert counts['eligible']>=500, 'R7_METADATA_INVENTORY_INCOMPLETE'
+          assert counts['sha_verified']>=500,'R7_METADATA_COVERAGE_TOO_LOW'
+          assert not [x for x in omissions if x['reason']=='non_utf8'],'R7_METADATA_UNDECODABLE'
+          report={'schema':'r7-retained-noncode-reference-evidence-v1','head':head,
+                  'counts':dict(counts),'oversized_metadata':omissions,
+                  'references':hits,
+                  'verdict':'READONLY_LITERAL_REFERENCES_NOT_RUNTIME_DEPENDENCY_CLOSURE'}
+          out=pathlib.Path(os.environ['RUNNER_TEMP'])/'r7-retained-metadata-references.json'
+          out.write_text(json.dumps(report,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
+          print('R7_METADATA_ELIGIBLE',counts['eligible'])
+          print('R7_METADATA_GIT_SHA_MATCH',counts['sha_verified'])
+          print('R7_METADATA_UTF8_SCANNED',counts['utf8_scanned'])
+          print('R7_METADATA_SKIPPED_OVERSIZE',len(omissions))
+          print('R7_METADATA_LITERAL_HITS',len(hits))
+          print('R7_METADATA_MARKERS',dict(collections.Counter(k for x in hits for k in x['markers'])))
+          print('R7_METADATA_SAMPLE_PATHS',sorted(set(x['source_path'] for x in hits))[:40])
+          print('R7_METADATA_CLASSIFICATION=SOURCE_ONLY_NOT_DEPENDENCY_CLOSURE')
+          PY
+      - name: Preserve content-free reference locations and omissions
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # pinned v4
+        with:
+          name: r7-retained-metadata-ref-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/r7-retained-metadata-references.json
+          if-no-files-found: error
+          retention-days: 30
+
+  archive-ref-protection:
+    name: R7 immutable archive pointer protected against delete/force-update
+    if: github.event.pull_request.number == 586
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    env:
+      GH_READ_TOKEN: ${{ github.token }}
+      ARCHIVE_EXPECTED: 09bca5641cb5bb367e84505ebfc6f8c7f35e2620
+    steps:
+      - name: Verify protected archive GitHub branch metadata (read-only, fail closed)
+        run: |
+          python3 - <<'PY'
+          import json,os,urllib.request
+          url="https://api.github.com/repos/alkospacer123/market-pattern-discovery/branches/archive/pre-root-legacy-20261122"
+          req=urllib.request.Request(url,headers={
+              "Authorization":"Bearer "+os.environ["GH_READ_TOKEN"],
+              "Accept":"application/vnd.github+json",
+              "X-GitHub-Api-Version":"2022-11-28",
+              "User-Agent":"r7-archive-ref-audit"})
+          with urllib.request.urlopen(req,timeout=30) as res:
+              j=json.load(res)
+          expected=os.environ["ARCHIVE_EXPECTED"]
+          assert j["commit"]["sha"]==expected,"R7_ARCHIVE_REF_SHA_MOVED"
+          print("R7_ARCHIVE_REF_EXACT_SHA=PASS")
+          if j.get("protected") is not True:
+              raise SystemExit("R7_ARCHIVE_REF_UNPROTECTED: operator must prohibit deletion and force-push before merge")
+          print("R7_ARCHIVE_REF_PROTECTED=PASS")
+          print("R7_ARCHIVE_REF_SAFETY=NOT_AN_INDEPENDENT_BACKUP")
+          PY
+
+  root-legacy-readonly:
+    name: R7 root legacy immutable scope + static links/imports
+    if: github.event.pull_request.number == 586
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    env:
+      EXPECT_HEAD: ${{ github.event.pull_request.head.sha }}
+      PYTHONDONTWRITEBYTECODE: '1'
+    steps:
+      - name: Checkout only text source, without tokens in checkout or full data blobs
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # SHA pinned
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 16
+          filter: blob:none
+          persist-credentials: false
+          sparse-checkout: |
+            /*.md
+            /**/*.md
+            /**/*.py
+            /**/*.ps1
+            /**/*.psm1
+            /**/*.psd1
+            /**/*.toml
+            /**/*.yml
+            /**/*.yaml
+          sparse-checkout-cone-mode: false
+      - name: Exact immutable tree diff, source static import and link check
+        run: |
+          python3 -B recovery/tools/r7_root_legacy_readonly_gate.py --expect-head "$EXPECT_HEAD" --output "$RUNNER_TEMP/r7-root-legacy.json"
+      - name: Report failures and scope without source content
+        if: always()
+        run: |
+          if [ -f "$RUNNER_TEMP/r7-root-legacy.json" ]; then
+            python3 - "$RUNNER_TEMP/r7-root-legacy.json" <<'PY'
+          import json,sys
+          r=json.load(open(sys.argv[1],encoding='utf-8'))
+          s=r['scan']
+          print('R7_LINK_BREAKS',s['newly_broken'][:40])
+          print('R7_IMPORTS',s['legacy_imports'][:40])
+          print('R7_OMISSIONS',s['omissions'][:40])
+          print('R7_SCOPE',r['deleted'],r['added'],r['modified'])
+          print('R7_DYNAMIC_SITE_COUNT',len(s['dynamic_sites']))
+          print('R7_DYNAMIC_SITES',s['dynamic_sites'])
+          PY
+          fi
+
+  archive-legacy-offline:
+    name: R7 archived legacy source integrity + synthetic tests
+    if: github.event.pull_request.number == 586
+    needs: root-legacy-readonly
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    env:
+      PYTHONDONTWRITEBYTECODE: '1'
+      PYTEST_DISABLE_PLUGIN_AUTOLOAD: '1'
+      PYTHONPATH: ${{ github.workspace }}/src
+      V20_LIVE_AUTHORIZED: 'no'
+      M15_LIVE_AUTHORIZED: 'no'
+      PIP_DISABLE_PIP_VERSION_CHECK: '1'
+      ARCHIVE_SHA: 09bca5641cb5bb367e84505ebfc6f8c7f35e2620
+    steps:
+      - name: Checkout exact archived ancestor in disposable hosted runner
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4 pinned
+        with:
+          ref: 09bca5641cb5bb367e84505ebfc6f8c7f35e2620
+          persist-credentials: false
+          fetch-depth: 1
+          filter: blob:none
+          sparse-checkout: |
+            /src/
+            /tests/
+            /config/
+            /results/
+            /schemas/
+            /research/
+            /evidence/
+            /scripts/
+            /pyproject.toml
+            /research_domains.md
+          sparse-checkout-cone-mode: false
+      - name: Pinned Python
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5 pinned
+        with:
+          python-version: '3.12.10'
+      - name: Original research code syntax and manifest SHA256 verification (no imports)
+        shell: bash
+        run: |
+          python -B - <<'PY'
+          import ast,hashlib,json,os,pathlib,subprocess
+          root=pathlib.Path.cwd()
+          actual=subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip()
+          assert actual==os.environ['ARCHIVE_SHA'], 'WRONG_ARCHIVE_HEAD'
+          py=sorted(p for rel in ('src','tests','scripts') for p in (root/rel).rglob('*.py'))
+          assert len(py)>=130, ('INSUFFICIENT_ARCHIVE_PYTHON',len(py))
+          for p in py: ast.parse(p.read_bytes(),filename=str(p))
+          files=sorted(p for rel in ('config','schemas','research','results','evidence') for p in (root/rel).rglob('*.json'))
+          assert len(files)>=20, ('INSUFFICIENT_ARCHIVE_JSON',len(files))
+          for p in files: json.loads(p.read_text(encoding='utf-8'))
+          manifest=json.loads((root/'config/unknown_universe_v1/manifest.json').read_text())
+          expected={'rank-CNYRUBF-M1.u32','rank-CNYRUBF-M5.u32',
+                    'rank-USDRUBF-M1.u32','rank-USDRUBF-M5.u32'}
+          assert set(manifest['rank_indexes'])==expected, 'INDEX_SET_MOVED'
+          for name,entry in manifest['rank_indexes'].items():
+              p=root/'config/unknown_universe_v1'/name
+              assert p.is_file(), 'MISSING_INDEX:'+name
+              assert p.stat().st_size==entry['count']*4, 'INDEX_SIZE_MISMATCH:'+name
+              assert hashlib.file_digest(open(p,'rb'),'sha256').hexdigest()==entry['sha256'], 'INDEX_SHA_MISMATCH:'+name
+          assert (root/'research/experiments/EXP-000001.json').is_file(), 'EXP_SOURCE_MISSING'
+          assert (root/'pyproject.toml').is_file(), 'OLD_PACKAGING_MISSING'
+          print('R7_ARCHIVE_SHA',actual)
+          print('R7_ARCHIVE_AST_SOURCES_PASS',len(py))
+          print('R7_ARCHIVE_JSON_PASS',len(files))
+          print('R7_ARCHIVE_U32_INDEX_SHA_PASS',len(expected))
+          PY
+      - name: Install test-only pinned dependencies outside original live machines
+        run: python -m pip install --disable-pip-version-check pytest==8.4.2 numpy==2.2.6 pandas==2.3.3 jsonschema==4.25.1 tabulate==0.9.0
+      - name: Reproduce full selected original tests and classify exactly one pre-existing historical failure
+        shell: bash
+        run: |
+          set -o pipefail
+          set +e
+          python -B -m pytest -q -p no:cacheprovider \
+            tests/test_backtest_engine.py \
+            tests/test_validation_engine.py \
+            tests/test_research_cells.py \
+            --junitxml="$RUNNER_TEMP/legacy-replay.xml" \
+            2>&1 | tee "$RUNNER_TEMP/legacy-replay.log"
+          rc=${PIPESTATUS[0]}
+          set -e
+          python - "$rc" "$RUNNER_TEMP/legacy-replay.xml" <<'PY'
+          import sys
+          import xml.etree.ElementTree as ET
+          rc=int(sys.argv[1])
+          root=ET.parse(sys.argv[2]).getroot()
+          cases=list(root.iter('testcase'))
+          failures=[x for x in cases if x.find('failure') is not None]
+          errors=[x for x in cases if x.find('error') is not None]
+          skips=[x for x in cases if x.find('skipped') is not None]
+          assert rc==1, 'ARCHIVE_ORIGINAL_TEST_EXIT_CHANGED'
+          assert len(cases)==46, 'ARCHIVE_TEST_CASE_COUNT_CHANGED'
+          assert len(failures)==1 and not errors and not skips, 'ARCHIVE_FAILURE_SET_CHANGED'
+          case=failures[0]
+          assert case.get('name')=='test_all_deterministic_acceptance_outcomes', 'UNEXPECTED_ARCHIVE_FAILURE_CASE'
+          assert 'test_validation_engine' in (case.get('classname') or ''), 'UNEXPECTED_ARCHIVE_FAILURE_SUITE'
+          failure=case.find('failure')
+          message=(failure.get('message') or '')+' '+(failure.text or '')
+          assert 'INSUFFICIENT_DATA' in message and 'REJECTED' in message, 'ARCHIVE_FAILURE_REASON_CHANGED'
+          print('R7_ARCHIVE_ORIGINAL_PYTEST_EXIT=1 (UNMODIFIED HISTORIC FAIL)')
+          print('R7_ARCHIVE_TESTS_PASS=45 FAIL=1 ERRORS=0 SKIPS=0')
+          print('R7_ARCHIVE_KNOWN_FAILURE=test_validation_engine::test_all_deterministic_acceptance_outcomes')
+          print('R7_ARCHIVE_BASELINE_CLASSIFICATION=KNOWN_HISTORIC_FAIL_NOT_ALL_TESTS_PASS')
+          print('R7_ARCHIVE_FORensic_GATE=PASS_ONLY_IF_EXACT_FINGERPRINT')
+          PY
+          git diff --exit-code -- src tests config schemas research results evidence scripts pyproject.toml
+      - name: Preserve original legacy test failure evidence with disclosed scope
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # pinned v4
+        with:
+          name: r7-archive-legacy-evidence-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            ${{ runner.temp }}/legacy-replay.xml
+            ${{ runner.temp }}/legacy-replay.log
+          if-no-files-found: error
+          retention-days: 30
+
+  cc03-windows-native-symlink:
+    name: R7 CC03 pinned original Windows symlink refusal (isolated fixture)
+    if: github.event.pull_request.number == 586
+    runs-on: windows-2022
+    timeout-minutes: 20
+    env:
+      EXPECT_HEAD: ${{ github.event.pull_request.head.sha }}
+      PYTHONDONTWRITEBYTECODE: '1'
+    steps:
+      - name: Immutable sparse checkout of original CC source
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4 pinned
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 1
+          filter: blob:none
+          persist-credentials: false
+          sparse-checkout: |
+            /ControlCenter/controller/
+          sparse-checkout-cone-mode: false
+      - name: Pinned Windows Python
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5 pinned
+        with:
+          python-version: '3.12.10'
+      - name: Test unchanged original CC tree + native file and directory symlinks
+        shell: pwsh
+        run: |
+          $ErrorActionPreference='Stop'
+          if ((& git rev-parse HEAD).Trim() -ne $env:EXPECT_HEAD) { throw 'R7_CC_WRONG_HEAD' }
+          if ((& git rev-parse 'HEAD:ControlCenter').Trim() -ne '8052938c83a27b2367309052d455d74d9341df09') { throw 'R7_CC_SEALED_TREE_CHANGED' }
+          @'
+          import os, sys, tempfile
+          from pathlib import Path
+          from ControlCenter.controller.v20_offline_journal import OfflineJournal, DB_NAME
+          assert os.name == 'nt' and os.environ['RUNNER_ENVIRONMENT'] == 'github-hosted'
+          with tempfile.TemporaryDirectory(prefix='r7-cc03-',dir=os.environ['RUNNER_TEMP']) as folder:
+              root=Path(folder)
+              source=root/'fixture-non-database.txt'
+              body=b'SYNTHETIC_TEST_ONLY'
+              source.write_bytes(body)
+              journal=root/'journal'; journal.mkdir()
+              link=journal/DB_NAME
+              link.symlink_to(source)
+              assert link.is_symlink()
+              try: OfflineJournal(journal)
+              except ValueError as exc: assert str(exc)=='CC07_AUDIT_SYMLINK_FORBIDDEN',str(exc)
+              else: raise AssertionError('CC03_ACCEPTED_FILE_SYMLINK')
+              realdir=root/'real-dir'; realdir.mkdir()
+              dirlink=root/'directory-link'
+              dirlink.symlink_to(realdir,target_is_directory=True)
+              assert dirlink.is_symlink()
+              try: OfflineJournal(dirlink)
+              except ValueError as exc: assert str(exc)=='CC07_AUDIT_DIRECTORY_INVALID',str(exc)
+              else: raise AssertionError('CC03_ACCEPTED_DIRECTORY_SYMLINK')
+              assert source.read_bytes()==body,'FIXTURE_CHANGED'
+          print('R7_CC03_ORIGINAL_NATIVE_SYMLINK_FILE_AND_DIRECTORY=PASS')
+          print('R7_CC03_FULL_NATIVE_PACKAGE_ACCEPTANCE=NOT_TESTED')
+          '@ | python -B -
+          if ($LASTEXITCODE -ne 0) { throw 'R7_CC03_NATIVE_SYMLINK_TEST_FAILED' }
+
+  r7-s-v20-r088-no-ext2:
+    name: R7-586 V20 R088 staged offline 13 cases, reversible
+    if: github.event.pull_request.number == 586
+    needs: root-legacy-readonly
+    runs-on: windows-2022
+    timeout-minutes: 20
+    env:
+      PYTHONDONTWRITEBYTECODE: '1'
+      EXPECTED_HEAD: ${{ github.event.pull_request.head.sha }}
+    steps:
+      - name: Exact PR candidate V20-only checkout
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # pinned v4
+        env:
+          GIT_CONFIG_COUNT: '1'
+          GIT_CONFIG_KEY_0: core.autocrlf
+          GIT_CONFIG_VALUE_0: 'false'
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 2
+          filter: blob:none
+          persist-credentials: false
+          sparse-checkout: |
+            /V20_TradingSystem_M15/
+            /TradingSystemLab/stage8_robot/
+            /TradingSystemLab/authority_hashing.py
+            /TradingSystemLab/core/
+          sparse-checkout-cone-mode: false
+      - name: Pinned Windows Python 3.12.10
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # pinned v5
+        with:
+          python-version: '3.12.10'
+          architecture: x64
+      - name: Original V20 offline test numerical packages
+        shell: pwsh
+        run: |
+          python -m pip install --disable-pip-version-check numpy==2.2.6 pandas==2.3.3 tzdata==2025.2
+          if ($LASTEXITCODE -ne 0) { throw 'R7_S_NUMERICAL_INSTALL_FAILED' }
+      - name: Verify patched R088 offline 13 cases, no EXT2 or live, reverse every patch
+        shell: pwsh
+        run: |
+          $ErrorActionPreference='Stop'
+          if ($env:GITHUB_ACTIONS -ne 'true' -or ((& git.exe rev-parse HEAD).Trim()) -ne $env:EXPECTED_HEAD) { throw 'R7_S_WRONG_HOSTED_HEAD' }
+          if ((& git.exe rev-parse 'HEAD:V20_TradingSystem_M15').Trim() -ne '08e4b1ff98f8599f662ee8724c2d11cea03d85d3') { throw 'R7_S_V20_TREE_MOVED' }
+          $live='V20_TradingSystem_M15/v20_runtime/finam_live.py'
+          $execution='V20_TradingSystem_M15/v20_runtime/finam_execution.py'
+          $origLive='b80fb9eb135f7cdcb4c78337e2b808c4d7135195'
+          $origExec='6b600451178b42bd4f8b2037995e7db3a9ad27c8'
+          if ((& git.exe hash-object -- $live).Trim() -ne $origLive -or (& git.exe hash-object -- $execution).Trim() -ne $origExec) { throw 'R7_S_FROZEN_BASE_BLOBS_CHANGED' }
+          $names=@(
+            'r070-tp6-one-shot-candidate.patch',
+            'r070-protect3-flat-cleanup-candidate.patch',
+            'r070-protect3-broker-id-readonly-candidate.patch',
+            'r070-protect3-live-trigger-candidate.patch',
+            'r070-protect3-night-monitor-candidate.patch',
+            'r070-finam-get-incomplete-read-candidate.patch',
+            'r088-hold5-after-r070-combined-candidate.patch',
+            'r088-inside-prepost-orphan-20261119.patch',
+            'r088-protect3-main-identity-20261120.patch'
+          )
+          $applied=New-Object 'System.Collections.Generic.List[string]'
+          try {
+            foreach ($name in $names) {
+              $p='V20_TradingSystem_M15/V20-08/'+$name
+              & git.exe apply --check -- $p
+              if ($LASTEXITCODE -ne 0) { throw ('R7_S_PATCH_CONFLICT_'+$name) }
+              & git.exe apply -- $p
+              if ($LASTEXITCODE -ne 0) { throw ('R7_S_PATCH_APPLY_FAILED_'+$name) }
+              $applied.Add($p)
+            }
+            $src=Get-Content -LiteralPath $live -Raw
+            foreach ($forbidden in @('admit_r070_frozen_draft_pre_intent','configure_r088_ext2_live_source','r070_verified_history_refresh','r088-moex-calendar.json')) {
+              if ($src.Contains($forbidden)) { throw ('R7_S_EXT2_OR_CALENDAR_HOOK_'+$forbidden) }
+            }
+            & python -B -m unittest -q V20_TradingSystem_M15.v20_runtime.tests.test_r088_hold5_offline V20_TradingSystem_M15.v20_runtime.tests.test_r088_prepost_all3 V20_TradingSystem_M15.v20_runtime.tests.test_r088_protect3_identity
+            if ($LASTEXITCODE -ne 0) { throw 'R7_S_R088_TESTS_FAILED' }
+            & python -B -m py_compile $live $execution
+            if ($LASTEXITCODE -ne 0) { throw 'R7_S_WORKER_SYNTAX_FAILED' }
+            Write-Output ('R7_S_R088_STAGED_LIVE_BLOB='+(& git.exe hash-object -- $live).Trim())
+            Write-Output ('R7_S_R088_STAGED_EXEC_BLOB='+(& git.exe hash-object -- $execution).Trim())
+            Write-Output 'R7_S_R088_NO_EXT2_STAGED=PASS_NO_FINAM_NO_LIVE'
+          }
+          finally {
+            $reverse=@($applied.ToArray())
+            [array]::Reverse($reverse)
+            foreach ($p in $reverse) {
+              & git.exe apply -R -- $p
+              if ($LASTEXITCODE -ne 0) { throw ('R7_S_RESTORE_FAILED_'+$p) }
+            }
+          }
+          if ((& git.exe hash-object -- $live).Trim() -ne $origLive -or (& git.exe hash-object -- $execution).Trim() -ne $origExec) { throw 'R7_S_FROZEN_BLOBS_NOT_RESTORED' }
+          & git.exe diff --exit-code -- $live $execution
+          if ($LASTEXITCODE -ne 0) { throw 'R7_S_WORKTREE_DIRTY_AFTER_RESTORE' }
+          Write-Output 'R7_S_R088_FROZEN_RESTORE=PASS'
+
+  r7-s-h1-m15-trl-selected-offline:
+    name: R7-586 H1 M15 offline + TRL pinned authority (partial)
+    if: github.event.pull_request.number == 586
+    needs: root-legacy-readonly
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    env:
+      PYTHONDONTWRITEBYTECODE: '1'
+      PYTEST_DISABLE_PLUGIN_AUTOLOAD: '1'
+      EXPECTED_HEAD: ${{ github.event.pull_request.head.sha }}
+    steps:
+      - name: Immutable sparse checkout of retained H1 M15 TRL sources
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # pinned v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          persist-credentials: false
+          fetch-depth: 2
+          filter: blob:none
+          sparse-checkout: |
+            /TradingSystemLab/stage8_robot/
+            /TradingSystemLab/authority_hashing.py
+            /TradingSystemLab/core/
+            /IntradayLab/core/
+            /IntradayLab/tools/
+            /IntradayLab/config/
+            /IntradayLab/tests/test_net_c1_execution.py
+            /IntradayLab/tests/test_m5_clock_confirmation.py
+            /IntradayLab/tests/test_causal_mtf.py
+            /TradingResearchLab/
+          sparse-checkout-cone-mode: false
+      - name: Pinned offline Python
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # pinned v5
+        with:
+          python-version: '3.12.10'
+      - name: Pinned test dependencies
+        run: python -m pip install --disable-pip-version-check pytest==8.4.2 numpy==2.2.6 pandas==2.3.3
+      - name: Exact H1 M15 TRL Git SHA and TRL authority links
+        run: |
+          python -B - <<'PY'
+          import os,re,subprocess
+          from pathlib import Path
+          def git(*a): return subprocess.check_output(['git',*a],text=True).strip()
+          assert git('rev-parse','HEAD')==os.environ['EXPECTED_HEAD'],'R7_S_WRONG_HEAD'
+          roots={'TradingSystemLab':'08722b448d9b14201284e4dab83693e960a290b2',
+                 'IntradayLab':'d6b686bcdcbd54eca9d1d25c160fecd5bfd82407',
+                 'TradingResearchLab':'a5764c5e693f43cbb09469badf26c8dbe3fd3fa9'}
+          for k,v in roots.items(): assert git('rev-parse','HEAD:'+k)==v,'R7_S_TREE_MOVED_'+k
+          doc=Path('TradingResearchLab/reports/TRL-NOV-2026-KIMI-START-HERE.md')
+          body=doc.read_text(encoding='utf-8')
+          assert all(x in body for x in ('60/30/45','TP6 + Protect3 + HOLD5','без EXT2','не разрешение управлять LIVE')),'TRL_AUTHORITY_CHANGED'
+          for link in re.findall(r'\]\(([^)]+)\)',body):
+              if link.startswith(('https://','http://','#','mailto:')): continue
+              path=(doc.parent/link.split('#')[0]).resolve()
+              assert path.is_file() and path.is_relative_to(Path.cwd()),'TRL_LINK_MISSING:'+link
+          print('R7_S_PROTECTED_H1_M15_TRL_TREE_SHAS=PASS')
+          print('R7_S_TRL_KIMI_AUTHORITY_LINKS=PASS')
+          PY
+      - name: Synthetic offline H1 safety and M15 causal tests (not full suite)
+        run: |
+          python -B -m pytest -q -p no:cacheprovider \
+            TradingSystemLab/stage8_robot/tests/test_trading_safety_gate.py \
+            IntradayLab/tests/test_net_c1_execution.py \
+            IntradayLab/tests/test_m5_clock_confirmation.py \
+            IntradayLab/tests/test_causal_mtf.py
+          echo 'R7_S_SELECTED_H1_M15=PASS_NOT_FULL_SUITE'
+
