@@ -1,3 +1,5 @@
+**HISTORICAL CC-03/H1/8501 (не действующая граница V20/8502).** Для действующего Control Center читать [security/data contract](V20_DATA_SECURITY_TESTS.md) и [CC-07 command contract](V20_CC07_COMMAND_CONTRACT.md). Этот исходный документ сохранён без изменения исторических результатов.
+
 > Актуальное дополнение CC-03 C: [manual WINDOWS_OS_ONLY](CC03_MANUAL_OS_SOURCE.md) подключает fixed Task/process helper по кнопке под ccpanel с отдельной policy в app/deployment; без exporter/private/legacy I/O. Ниже сохранено описание прежнего receiver/standalone пути.
 
 # Граница безопасности — CC-03
