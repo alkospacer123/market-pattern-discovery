@@ -1,0 +1,38 @@
+name: R7 extracted tools — isolated synthetic offline tests
+on:
+  pull_request:
+    paths:
+      - 'recovery/tools/r7_dependency_scan.py'
+      - 'recovery/tools/r7_git_checkpoint.py'
+      - 'recovery/tools/tests/test_r7_dependency_scan.py'
+      - 'recovery/tools/tests/test_r7_git_checkpoint.py'
+      - 'recovery/tools/README.md'
+      - '.github/workflows/r7-extracted-tools-synthetic.yml'
+permissions:
+  contents: read
+
+jobs:
+  synthetic-offline:
+    name: R7 extracted Git scanner/checkpoint synthetic-only
+    runs-on: ubuntu-24.04
+    timeout-minutes: 12
+    env:
+      PYTHONDONTWRITEBYTECODE: '1'
+      GIT_TERMINAL_PROMPT: '0'
+      GCM_INTERACTIVE: 'never'
+    steps:
+      - name: Checkout exact PR head without persisted credentials
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          persist-credentials: false
+      - name: Show interpreter and Git versions (no secrets)
+        run: |
+          python3 --version
+          git --version
+      - name: Run original dependency scanner synthetic tests
+        run: python3 -B -m unittest discover -s recovery/tools/tests -p 'test_r7_dependency_scan.py' -v
+      - name: Run original Git checkpoint synthetic tests
+        run: python3 -B -m unittest discover -s recovery/tools/tests -p 'test_r7_git_checkpoint.py' -v
+      - name: Verify no tracked source tree changes
+        run: test -z "$(git status --porcelain --untracked-files=no)"
