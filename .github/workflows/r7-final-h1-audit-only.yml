@@ -110,7 +110,9 @@ jobs:
                   skipped.append(str(path)); continue
               seen+=1
               if suspect.search(data):
-                  if path.suffix.lower() in source_extensions:
+                  if path.as_posix() == '.github/workflows/r7-final-h1-audit-only.yml':
+                      documentary.append(str(path))  # this gate itself pins the archived path
+                  elif path.suffix.lower() in source_extensions:
                       critical.append(str(path))
                   else:
                       documentary.append(str(path))
