@@ -2,7 +2,7 @@
 
 ## Контрольный вход для двух ИИ — технический аудит 22.11.2026
 
-**Точка отсчёта:** exact проверенный `main=0e569be6cb3c7cce1f7224e7f1fef6be38f6ba52` (датированный pin, **не** вечный HEAD). **Порядок полномочий:** [общий AGENTS](../../AGENTS.md) → [Documentation Authority](../../recovery/DOCUMENTATION_AUTHORITY_2026-11-22.md) → [паспорт TRL](../../recovery/PROJECT_PASSPORT_TRL.md) → [TRL AGENTS](../AGENTS.md) → этот Start Here → [Closeout](TRL-NOV-2026-FINAL-CLOSEOUT.md). Корневые документы и recovery не изменяются из TRL.
+**Точка отсчёта:** exact проверенный `main=0e569be6cb3c7cce1f7224e7f1fef6be38f6ba52` (датированный pin, **не** вечный HEAD). **Порядок полномочий:** [общий AGENTS](https://github.com/alkospacer123/market-pattern-discovery/blob/main/AGENTS.md) → [Documentation Authority](https://github.com/alkospacer123/market-pattern-discovery/blob/main/recovery/DOCUMENTATION_AUTHORITY_2026-11-22.md) → [паспорт TRL](https://github.com/alkospacer123/market-pattern-discovery/blob/main/recovery/PROJECT_PASSPORT_TRL.md) → [TRL AGENTS](../AGENTS.md) → этот Start Here → [Closeout](TRL-NOV-2026-FINAL-CLOSEOUT.md). Корневые документы и recovery не изменяются из TRL.
 
 **Текущие материалы для работы Kimi — не перепутать роли:**
 
