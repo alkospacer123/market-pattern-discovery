@@ -8,6 +8,8 @@
 - [TRL — паспорт](PROJECT_PASSPORT_TRL.md) → [TRL Start Here](../TradingResearchLab/reports/TRL-NOV-2026-KIMI-START-HERE.md).
 
 ## История и доказательства
+- [STOP/TICK GRID H1 12.10: архивный паспорт / 16 исходных SHA / область выводов](H1_STOP_TICK_GRID_ARCHIVE_20261012.md) — архивный источник, не текущий код и не LIVE.
+
 - [Реестр H1/M15/V20/CC/TRL и STOP/TICK GRID, 22.11](RETAINED_RESEARCH_CLASSIFICATION_2026-11-22.md): ACTIVE / DEPENDENCY / RESEARCH / HISTORICAL и доказанные SHA.
 - [Карта необходимых H1/M15 и legacy root](LEGACY_DEPENDENCIES_AND_RETENTION.md), [AGENT continuation](Agent.md), [Roadmap](../ROADMAP.md).
 - [R1.1 Kimi индекс 20.11](KIMI_R1_1_VERIFIED_SOURCE_INDEX_2026-11-20.md), [R1.2 V20 source map и экзамен, перенос из Draft #580](KIMI_R1_2_V20_DEEP_DIVE_AND_EXAM_2026-11-20.md), [границы 20.11](KIMI_REPOSITORY_BOUNDARIES_2026-11-20.md), [первоначальная инструкция 20.11](PROJECT_INSTRUCTIONS_CURRENT_2026-11-20.md) — **датированные источники**, не текущий LIVE SHA.

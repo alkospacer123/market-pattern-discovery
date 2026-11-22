@@ -1,6 +1,6 @@
 # Trading Systems — V20 / Control Center / Trading Research Lab
 
-> **Единый рабочий GitHub трёх проектов.** H1/M15 сохранены как необходимые V20-зависимости и источник исследований, а не новые LIVE-проекты. Проверенный после R7 `main=4f118ee1cdeced15406136401faabe4fdc3bb847` (22.11.2026). Перед любой новой операцией повторно сверять GitHub SHA.
+> **Единый рабочий GitHub трёх проектов.** H1/M15 сохранены как необходимые V20-зависимости и источник исследований, а не новые LIVE-проекты. Проверенный перед финальной ревизией R7 `main=bb8c46c1db89ca2b5311f22c755bb4e51ce8f7d6` (22.11.2026); это исходный pin, не вечный HEAD. Перед любой новой операцией сверять GitHub SHA.
 
 ## Проекты — начинать здесь
 
@@ -18,7 +18,7 @@
 
 - `TradingSystemLab/` — исторический H1 и рабочие библиотеки `TradingSystemLab.stage8_robot` для V20. Сотни тестов и тысячи результатов — не основание удалять исходные исследования.
 - `IntradayLab/` — исторический M15 и необходимые V20 модули `IntradayLab.core`; множество `t3_m15_*` — воспроизводимая история, не новые LIVE-роботы.
-- Старая корневая платформа Market Pattern Discovery (`src/`, `tests/`, `docs/`, `research/`, `schemas/`, `scripts/`, `config/`, `results/`, `evidence/` и шесть root reports) **удалена из `main` после [Merge #586](https://github.com/alkospacer123/market-pattern-discovery/pull/586)**: 233 удалённых path, 6 изменений и 4 добавления, только в проверенном scope. Все старые оригиналы доступны в [Git commit `09bca564…`](https://github.com/alkospacer123/market-pattern-discovery/tree/09bca5641cb5bb367e84505ebfc6f8c7f35e2620) и protected branch `archive/pre-root-legacy-20261122`. `audit_only/` сохранён; [research_domains.md](research_domains.md) — архивный указатель для H1. [Состояние](recovery/REPOSITORY_CURRENT_STATE.md), [свидетельства приёмки](recovery/R7_ROOT_LEGACY_EXTRACTION_GATE_2026-11-22.md). История Git **не** является самостоятельной резервной копией.
+- Старая корневая платформа Market Pattern Discovery (`src/`, `tests/`, `docs/`, `research/`, `schemas/`, `scripts/`, `config/`, `results/`, `evidence/` и шесть root reports) **удалена из `main` после [Merge #586](https://github.com/alkospacer123/market-pattern-discovery/pull/586)**: 233 удалённых path, 6 изменений и 4 добавления, только в проверенном scope. Все старые оригиналы доступны в [Git commit `09bca564…`](https://github.com/alkospacer123/market-pattern-discovery/tree/09bca5641cb5bb367e84505ebfc6f8c7f35e2620) и protected branch `archive/pre-root-legacy-20261122`. `audit_only/` исторический набор STOP/TICK GRID из 16 файлов выводится из рабочего дерева завершающим R7-пакетом; [оригинальный архив и SHA](recovery/H1_STOP_TICK_GRID_ARCHIVE_20261012.md); [research_domains.md](research_domains.md) — архивный указатель для H1. [Состояние](recovery/REPOSITORY_CURRENT_STATE.md), [свидетельства приёмки](recovery/R7_ROOT_LEGACY_EXTRACTION_GATE_2026-11-22.md). История Git **не** является самостоятельной резервной копией.
 
 **Почему старые корневые файлы не уничтожены?** [Ревизия docs / research / schemas / scripts / Smoke Run](recovery/ROOT_LEGACY_AUDIT_2026-11-21.md) — не текущие проекты, но пока важны для provenance и воспроизводимости старой платформы.
 

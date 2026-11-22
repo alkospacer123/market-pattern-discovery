@@ -1,3 +1,5 @@
+> **R7 final verified pre-cleanup snapshot 22.11.2026:** #587 MERGED at `8a1c6618f8d3c9f33de9de6cb3f6efae13fe29f0`; #588 MERGED at `bb8c46c1db89ca2b5311f22c755bb4e51ce8f7d6`. #580/#581 CLOSED WITHOUT MERGE, branches retained. The 16-file historic H1 audit will be removed in the final R7 gated cleanup, original source kept at [archive passport](H1_STOP_TICK_GRID_ARCHIVE_20261012.md). Original `main=4f118...` below is a dated previous stage, not current GitHub status. Phase II Kimi Chat/Code is **NOT CONNECTED / NOT EXAMINED**; final cold restore not done.
+
 # GitHub — проверенное состояние после R7 (22.11.2026)
 
 **SOURCE OF TRUTH: GitHub API после Merge.** Проверенный `market-pattern-discovery/main` = `4f118ee1cdeced15406136401faabe4fdc3bb847`; commit родителей `a28f4e06c8c898822c62d516a1a2cf617e22ad29` и `02790ca461afc131f5e480a1dd3f4d0cf35a1283`; итоговый Git tree `3e6139db1387b060fbebc829969eab93c0efa382` **совпадает** с прошедшим CI деревом кандидата #586. Это GitHub-срез, не installed/LIVE и не автономный Recovery.

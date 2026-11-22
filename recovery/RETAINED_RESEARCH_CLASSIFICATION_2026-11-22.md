@@ -1,3 +1,5 @@
+> **FINAL R7 TRANSITION 22.11.2026:** числа и дерево ниже — original inventory в `main=bb8c46c1db89ca2b5311f22c755bb4e51ce8f7d6` **до** удаления 16 исторических audit файлов. После принятия завершающего cleanup каталог `audit_only/` отсутствует; ссылки заменены на [архивный паспорт](H1_STOP_TICK_GRID_ARCHIVE_20261012.md) и защищённый Git SHA. Датированные отчёты ниже — provenance, не свежая LIVE телеметрия.
+
 # R7 — классификация сохранённых исследований и audit_only
 
 **GitHub-срез 22.11.2026:** `market-pattern-discovery/main=4f118ee1cdeced15406136401faabe4fdc3bb847`. Проверены рекурсивные Git trees пяти проектных корней и audit_only: `truncated=false`. Это **не** проверка физической Intel/LIVE установки, не повторный research replay и не право на новое удаление.
@@ -13,7 +15,7 @@
 | `TradingResearchLab/` | 169 | `a5764c5e693f43cbb09469badf26c8dbe3fd3fa9` | **RESEARCH**: research (45), evolution (40), journal (56), reports (23), 5 корневых файлов |
 | `TradingSystemLab/` | 3 059 | `08722b448d9b14201284e4dab83693e960a290b2` | **DEPENDENCY + H1 HISTORY**: stage8_robot (252), tests (94), results (2 508) |
 | `IntradayLab/` | 2 722 | `d6b686bcdcbd54eca9d1d25c160fecd5bfd82407` | **DEPENDENCY + M15 HISTORY**: core (14), optimization_registry (20), results (490), 22 t3_m15_* комплексов (1 979) |
-| `audit_only/` | 16 | `6c7a68b7b51b2d272bd66734835cbece3a25d2b9` | **HISTORICAL_PROVENANCE**: единственный STOP/TICK GRID аудит H1 |
+| `audit_only/` (исторический источник, отсутствует в новом main) | 16 в архиве | `1a184db9d4d856948611442262635573a6699d10` | **ARCHIVE_PINNED**: STOP/TICK GRID H1, [паспорт](H1_STOP_TICK_GRID_ARCHIVE_20261012.md) |
 
 H1 `TradingSystemLab.stage8_robot` и M15 `IntradayLab.core` импортируются действующим V20; из факта их использования **не** следует, что все 2 508/1 979 старых результатов исполняются ежедневно. Однако исследования, замороженные тесты, отрицательные результаты и история независимого replay сохраняют доказательную ценность. Никаких массовых удалений H1/M15 **не разрешено**.
 
@@ -51,24 +53,24 @@ H1 `TradingSystemLab.stage8_robot` и M15 `IntradayLab.core` импортиру�
 
 ## audit_only/stop_tick_grid_20261012 — техническая приёмка
 
-- Источник: [PR #492 (MERGED)](https://github.com/alkospacer123/market-pattern-discovery/pull/492), [исходный отчёт](../audit_only/stop_tick_grid_20261012/REPORT_RU.md), [README](../audit_only/stop_tick_grid_20261012/README.md), [verification.json](../audit_only/stop_tick_grid_20261012/verification.json).
+- Источник: [PR #492 (MERGED)](https://github.com/alkospacer123/market-pattern-discovery/pull/492), [исходный отчёт](https://github.com/alkospacer123/market-pattern-discovery/blob/09bca5641cb5bb367e84505ebfc6f8c7f35e2620/audit_only/stop_tick_grid_20261012/REPORT_RU.md), [README](https://github.com/alkospacer123/market-pattern-discovery/blob/09bca5641cb5bb367e84505ebfc6f8c7f35e2620/audit_only/stop_tick_grid_20261012/README.md), [verification.json](https://github.com/alkospacer123/market-pattern-discovery/blob/09bca5641cb5bb367e84505ebfc6f8c7f35e2620/audit_only/stop_tick_grid_20261012/verification.json).
 - Ровно **16 файлов**. Git tree `1a184db9d4d856948611442262635573a6699d10`: все **16/16 file path + blob SHA** совпали в текущем `main` и `archive/pre-root-legacy-20261122@09bca5641cb5bb367e84505ebfc6f8c7f35e2620` (защищённый архивный ref).
 - Датированный 12.10.2026 результат H1: **1 422/1 422** исторических raw continuous signals с stop off tick-grid; **418/418** frozen TRAIL1 trades research replay PASS; `LIVE_EXECUTION_CONFORMANCE=FAIL` на исследованном старом исполнителе; `PRODUCTION_CHANGES=NONE`. Это **не статус текущей V20 или Intel**.
 - После аудита [PR #493 (MERGED)](https://github.com/alkospacer123/market-pattern-discovery/pull/493) добавил код candidate STOP/TICK GRID V2 в H1; GitHub merge **не** доказывает physical LIVE deploy/fills/SLTP.
 - Исторический `run_existing_tests.py` ссылается на `tests/test_trail1_authoritative_ledger.py`, **отсутствующий в текущем `main`** после #586, но существующий в защищённом архивном SHA. Для оригинального test replay нужен *архивный изолированный checkout* и frozen data; считать нынешний audit runner полностью запускаемым нельзя.
 - Изменение `audit_only` ранее запрещалось immutable scope gate #586 вместе с пятью другими защищёнными поддеревьями. Полная проверка сторонних, динамических и внешних consumers **не проведена**; отсутствие прямого импорта в роботе не является доказательством отсутствия всех dependencies.
-- **Вердикт: `KEEP_IN_MAIN_AS_HISTORICAL_PROVENANCE`.** В обычной работе Kimi не запускает этот код и не принимает старую диагностику за оперативное состояние. Перенос целиком в архив можно рассмотреть позже одним консолидированным cleanup-пакетом, только после доказанного dependency gate, фиксации исходных SHA и явного разрешения владельца.
+- **Финальное решение R7:** вывести 16 исторических файлов из рабочего `main` с защищённым архивным SHA и [архивным паспортом](H1_STOP_TICK_GRID_ARCHIVE_20261012.md). Основание — точная идентичность архива и ограниченная статическая dependency/link проверка в отдельном CI; полная внешняя и динамическая dependency closure **не доказана**. Kimi не принимает старую диагностику за действующий LIVE код.
 
 ## Что уже действительно выведено из рабочего дерева
 
 - Merge [#583](https://github.com/alkospacer123/market-pattern-discovery/pull/583) вывел 11 594 проверенных исторических A/B/C и BBW paths.
 - Merge [#586](https://github.com/alkospacer123/market-pattern-discovery/pull/586) вывел 233 файла старой самостоятельной root Market Pattern Discovery. Исходники доступны в `archive/pre-root-legacy-20261122@09bca5641cb5bb367e84505ebfc6f8c7f35e2620`. Исторический тест этой платформы — **45 PASS / 1 known FAIL**, сохранён, не подавлен.
-- Старые Draft PR #580/#581 и исследования #557–#564 **не автоматически потеряны**, даже если их содержимого нет в текущем `main`. [Исторический реестр решений](R0_HISTORICAL_RESEARCH_DECISIONS_2026-11-20.md) содержит исходные Git blob SHA/PR и отрицательные результаты. Уникальные материалы из #580/#581 частично перенесены в **ещё не merged** #587/#588; старые ветки не удалять до приёмки.
+- Старые Draft PR #580/#581 и исследования #557–#564 **не автоматически потеряны**, даже если их содержимого нет в текущем `main`. [Исторический реестр решений](R0_HISTORICAL_RESEARCH_DECISIONS_2026-11-20.md) содержит исходные Git blob SHA/PR и отрицательные результаты. Уникальные материалы #580/#581 перенесены в **merged** #587/#588, старые Draft закрыты **без Merge**, их ветки и provenance сохранены.
 - `market-pattern-archive` — неполный вспомогательный архив, не главный рабочий репозиторий и **не** доказанный Disaster Recovery.
 
 ## Следующая безопасная последовательность
 
-1. Принять документы и исходные инструменты из #587/#588 после exact-HEAD проверки и отдельного разрешения; закончить review старых Draft, не смешивать устаревшие инструкции с действующими.
+1. Документы и исходные инструменты из #587/#588 **приняты**, старые Draft #580/#581 закрыты без Merge; завершающий R7 вывод исторического STOP/TICK GRID сохраняет полный архивный указатель и не затрагивает V20/CC/TRL/H1/M15.
 2. Создать три **логических** Kimi knowledge project V20 / Control Center / TRL из одного `main`; первыми читать `README.md`, `AGENTS.md`, свой паспорт, затем pinned code/tests. H1/M15 — запросные зависимости и исследования, не четвёртый проект.
 3. Kimi Chat **и отдельно Kimi Code**: проверить доступ, SHA, воспроизведение кода, безопасность, практический экзамен и GPT↔Kimi handoff. До проверки `NOT_EXAMINED`.
 4. **После Kimi** — независимый backup и реальный cold restore без Intel, главного SSD, GitHub и двух ИИ. Не считать Git history или CI заменой этого испытания.

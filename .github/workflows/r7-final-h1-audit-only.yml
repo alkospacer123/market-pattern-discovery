@@ -1,0 +1,151 @@
+name: R7 final H1 audit-only archive parity and dependency boundaries
+
+on:
+  pull_request:
+    paths:
+      - 'audit_only/**'
+      - 'README.md'
+      - 'AGENTS.md'
+      - 'ROADMAP.md'
+      - 'recovery/**'
+      - '.github/workflows/r7-final-h1-audit-only.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  final-h1-audit-removal:
+    name: R7 final 16-file source parity, scope, references and links
+    if: github.head_ref == 'cleanup/r7-final-h1-audit-20261122'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    env:
+      BASE_SHA: bb8c46c1db89ca2b5311f22c755bb4e51ce8f7d6
+      ARCHIVE_SHA: 09bca5641cb5bb367e84505ebfc6f8c7f35e2620
+      AUDIT_TREE: 1a184db9d4d856948611442262635573a6699d10
+      PYTHONDONTWRITEBYTECODE: '1'
+    steps:
+      - name: Checkout candidate HEAD, source text sparse, no persistent credential
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          persist-credentials: false
+          fetch-depth: 0
+          filter: blob:none
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            /*.md
+            /**/*.md
+            /**/*.py
+            /**/*.ps1
+            /**/*.yml
+            /**/*.yaml
+            /**/*.toml
+            /recovery/**/*.json
+            /IntradayLab/optimization_registry/*.json
+      - name: Archive source identity, bounded code references and retained docs links
+        shell: bash
+        run: |
+          python3 -B - <<'PY'
+          from pathlib import Path
+          import os, re, subprocess, sys, collections
+
+          def git(*args):
+              return subprocess.check_output(('git',)+args, stderr=subprocess.PIPE).decode().strip()
+          base = os.environ['BASE_SHA']
+          archive = os.environ['ARCHIVE_SHA']
+          original = 'audit_only/stop_tick_grid_20261012'
+          assert git('rev-parse',f'{archive}:{original}') == os.environ['AUDIT_TREE'], 'ARCHIVE_TREE_HASH_MISMATCH'
+          roots = ('V20_TradingSystem_M15','ControlCenter','TradingResearchLab','TradingSystemLab','IntradayLab')
+          for root in roots:
+              assert git('rev-parse',f'{base}:{root}') == git('rev-parse',f'HEAD:{root}'), f'PROTECTED_TREE_MODIFIED:{root}'
+          def inventory(sha):
+              lines = subprocess.check_output(('git','ls-tree','-r','-z',sha,'--',original)).split(b'\0')
+              out = {}
+              for line in lines:
+                  if not line: continue
+                  obj, name = line.split(b'\t',1)
+                  mode, kind, blob = obj.split()
+                  assert kind == b'blob'
+                  out[name.decode()] = (mode.decode(), blob.decode())
+              return out
+          before, frozen, after = inventory(base), inventory(archive), inventory('HEAD')
+          assert len(before) == len(frozen) == 16, ('NOT_EXACT_16',len(before),len(frozen))
+          assert before == frozen, 'ARCHIVE_ORIGINAL_BLOB_MISMATCH'
+          assert not after, 'AUDIT_FILES_STILL_IN_MAIN_CANDIDATE'
+          changed = git('diff','--name-status',base,'HEAD').splitlines()
+          allow = {'README.md','AGENTS.md','ROADMAP.md',
+                   'recovery/RETAINED_RESEARCH_CLASSIFICATION_2026-11-22.md',
+                   'recovery/LEGACY_DEPENDENCIES_AND_RETENTION.md',
+                   'recovery/REPOSITORY_CURRENT_STATE.md','recovery/README.md',
+                   'recovery/H1_STOP_TICK_GRID_ARCHIVE_20261012.md',
+                   '.github/workflows/r7-final-h1-audit-only.yml'}
+          dels, non = set(), set()
+          for line in changed:
+              flag, path = line.split('\t',1)
+              if flag == 'D':
+                  dels.add(path)
+              elif flag in ('A','M'):
+                  non.add(path)
+              else:
+                  raise AssertionError('UNEXPECTED_CHANGE:'+line)
+          assert dels == set(frozen), ('WRONG_DELETE_SCOPE',len(dels),len(frozen))
+          assert non == allow, ('WRONG_NON_DELETE_SCOPE',sorted(non.symmetric_difference(allow)))
+          source_extensions={'.py','.ps1','.psm1','.yml','.yaml','.toml'}
+          text_extensions=source_extensions | {'.md','.json','.txt'}
+          suspect=re.compile(r'audit_only[\\/]+stop_tick_grid_20261012|(?:^|\n)\s*(?:from|import)\s+audit_only\b',re.I)
+          critical=[]
+          seen=0
+          skipped=[]
+          documentary=[]
+          for path in Path('.').rglob('*'):
+              if not path.is_file() or path.is_symlink() or '.git' in path.parts:
+                  continue
+              if path.suffix.lower() not in text_extensions: continue
+              try:
+                  if path.stat().st_size > 2_000_000:
+                      skipped.append(str(path)); continue
+                  data=path.read_text(encoding='utf-8',errors='strict')
+              except (OSError,UnicodeDecodeError):
+                  skipped.append(str(path)); continue
+              seen+=1
+              if suspect.search(data):
+                  if path.suffix.lower() in source_extensions:
+                      critical.append(str(path))
+                  else:
+                      documentary.append(str(path))
+          assert seen >= 200, ('INSUFFICIENT_SOURCE_SCAN',seen)
+          assert not critical, ('BROKEN_ACTIVE_IMPORT_OR_SCRIPT_REFERENCE',critical)
+          checkdocs=('README.md','AGENTS.md','ROADMAP.md','recovery/README.md',
+                     'recovery/RETAINED_RESEARCH_CLASSIFICATION_2026-11-22.md',
+                     'recovery/LEGACY_DEPENDENCIES_AND_RETENTION.md',
+                     'recovery/REPOSITORY_CURRENT_STATE.md',
+                     'recovery/H1_STOP_TICK_GRID_ARCHIVE_20261012.md')
+          allpaths=set(git('ls-tree','-r','--name-only','HEAD').splitlines())
+          broken=[]
+          for filename in checkdocs:
+              assert filename in allpaths
+              contents=Path(filename).read_text(encoding='utf8')
+              for m in re.finditer(r'\]\(([^)]+)\)', contents):
+                  link=m.group(1).split('#')[0]
+                  if not link or re.match(r'^(https?://|mailto:)',link): continue
+                  rel=(Path(filename).parent/link)
+                  parts=[]
+                  for part in rel.parts:
+                      if part == '..':
+                          if parts: parts.pop()
+                      elif part!='.': parts.append(part)
+                  target='/'.join(parts)
+                  if target not in allpaths: broken.append((filename,target))
+          assert not broken, ('BROKEN_RETAINED_MARKDOWN_LINKS',broken)
+          print('R7_AUDIT_ARCHIVE_TREE=PASS',os.environ['AUDIT_TREE'])
+          print('R7_AUDIT_SOURCE_BLOB_PARITY=PASS_16_OF_16')
+          print('R7_AUDIT_REMOVAL_EXACT_SCOPE=PASS_16_DELETIONS')
+          print('R7_FIVE_PROTECTED_PROJECT_TREES=UNCHANGED')
+          print('R7_AUDIT_SMALL_TEXT_SCANNED',seen,'skipped',len(skipped))
+          print('R7_AUDIT_ACTIVE_SOURCE_REFERENCES=0')
+          print('R7_AUDIT_DOCUMENTARY_REFERENCES',len(documentary))
+          print('R7_AUDIT_CHANGED_DOC_LINKS=PASS_8_FILES')
+          print('R7_AUDIT_SCOPE=STATIC_ONLY_NOT_FULL_EXTERNAL_DEPENDENCY_CLOSURE')
+          print('R7_AUDIT_FINAM_AND_PRODUCTION=NOT_TOUCHED')
+          PY
