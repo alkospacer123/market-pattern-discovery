@@ -1,0 +1,134 @@
+name: ControlCenter docs - immutable source and safe links
+
+# A separate documentation-only gate for the post-R7 V20 panel.
+# Frozen CC-03 original remains governed by its own UNMODIFIED native suite.
+on:
+  pull_request:
+    paths:
+      - 'ControlCenter/**'
+      - '.github/workflows/controlcenter-docs-only.yml'
+      - '.github/workflows/controlcenter-cc03-windows-native.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  cc-documents-no-live:
+    name: CC docs scope, immutable CC03/runtime blobs and internal links
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    env:
+      PR_HEAD: ${{ github.event.pull_request.head.sha }}
+      PR_BASE: ${{ github.event.pull_request.base.sha }}
+      FROZEN_COMMIT: 0e569be6cb3c7cce1f7224e7f1fef6be38f6ba52
+      FROZEN_CC_TREE: 8052938c83a27b2367309052d455d74d9341df09
+      PYTHONDONTWRITEBYTECODE: '1'
+    steps:
+      - name: Checkout exact PR source for tree checks only (no credential)
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          persist-credentials: false
+          fetch-depth: 0
+          filter: blob:none
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            /ControlCenter/
+            /.github/workflows/
+
+      - name: Diff-safe docs allowlist, immutable source blob parity, links, privacy markers
+        shell: bash
+        run: |
+          python3 -B - <<'PY'
+          import os, pathlib, posixpath, re, subprocess
+
+          def git(*args):
+              return subprocess.check_output(('git',)+args, stderr=subprocess.PIPE).decode().strip()
+
+          head=os.environ['PR_HEAD']
+          base=os.environ['PR_BASE']
+          frozen=os.environ['FROZEN_COMMIT']
+          assert git('rev-parse','HEAD')==head, 'CC_DOCS_WRONG_HEAD'
+          assert git('rev-parse',f'{frozen}:ControlCenter')==os.environ['FROZEN_CC_TREE'], 'CC_FROZEN_REFERENCE_CHANGED'
+
+          sealed={
+              'ci/protected-main-tree.json':'ff07b592289d975fe644a79f9d1d32f32a003d7a',
+              'ci/scope_audit.py':'8ad3656a707a1278685927f77c9055e5bff2a8dc',
+              'deployment/manifest.json':'7cd99f68f930f64ef74f17d50f6510fcd7f96691',
+              'controller/v20_offline_journal.py':'5c620431d30242dbb4cb418fd2d7c5cf33b2ade9',
+          }
+          for p,sha in sealed.items():
+              assert git('rev-parse',f'{frozen}:ControlCenter/{p}')==sha, 'CC_FROZEN_BLOB_CHANGED:'+p
+
+          def doc_allowed(p):
+              if p=='ControlCenter/README.md': return True
+              if re.fullmatch(r'ControlCenter/docs/V20_[^/]+\.md',p): return True
+              return p in {
+                  'ControlCenter/docs/ARCHITECTURE.md',
+                  'ControlCenter/docs/SECURITY_BOUNDARY.md',
+                  'ControlCenter/docs/ROADMAP_STATUS.md',
+              }
+          workflows={
+              '.github/workflows/controlcenter-cc03-windows-native.yml',
+              '.github/workflows/controlcenter-docs-only.yml',
+          }
+          assert doc_allowed('ControlCenter/README.md')
+          assert doc_allowed('ControlCenter/docs/V20_SAFE_TEST.md')
+          assert doc_allowed('ControlCenter/docs/SECURITY_BOUNDARY.md')
+          assert not doc_allowed('ControlCenter/controller/operator.py')
+          assert not doc_allowed('ControlCenter/ci/scope_audit.py')
+          assert not doc_allowed('ControlCenter/docs/CC03_MANUAL_OS_SOURCE.md')
+          assert not doc_allowed('ControlCenter/cc/v20_contract.py')
+          assert not doc_allowed('ControlCenter/docs/ANYTHING.txt')
+
+          def objects(ref):
+              out={}
+              raw=subprocess.check_output(('git','ls-tree','-r','-z',ref,'--','ControlCenter'))
+              for el in raw.split(b'\0'):
+                  if not el: continue
+                  info,path=el.split(b'\t',1)
+                  mode,kind,sha=info.decode().split()
+                  out[path.decode()]=(mode,kind,sha)
+              return out
+          frozen_files=objects(frozen)
+          candidate_files=objects(head)
+          cc_delta={p for p in frozen_files.keys()|candidate_files.keys()
+                    if frozen_files.get(p)!=candidate_files.get(p)}
+          assert all(doc_allowed(p) and p in candidate_files for p in cc_delta), ('CC_SEALED_SOURCE_OR_HISTORICAL_DOC_CHANGED', sorted(p for p in cc_delta if not doc_allowed(p) or p not in candidate_files))
+
+          changed={}
+          for line in git('diff','--name-status','--no-renames',base,head).splitlines():
+              status,path=line.split('\t',1)
+              assert status in ('A','M'), 'CC_DOCS_DELETION_OR_RENAME_FORBIDDEN:'+line
+              assert doc_allowed(path) or path in workflows, 'CC_DOCS_WRONG_PATH:'+path
+              changed[path]=status
+          assert changed, 'CC_DOCS_NO_CHANGES'
+          if set(changed)&workflows:
+              assert set(changed).issubset(workflows), 'CC_DOCS_WORKFLOW_AND_DOCUMENTS_MIXED'
+              assert not cc_delta, 'CC_SOURCE_CHANGED_DURING_CI_CHANGE'
+          else:
+              assert set(changed)==cc_delta, ('CC_DOCS_DIFF_NOT_EXACT',sorted(set(changed)^cc_delta))
+
+          allpaths=set(git('ls-tree','-r','--name-only',head).splitlines())
+          linkcount=0
+          for path in changed:
+              if not path.endswith('.md'): continue
+              content=pathlib.Path(path).read_text(encoding='utf-8')
+              for m in re.finditer(r'\]\(([^)]+)\)',content):
+                  href=m.group(1).strip().split('#')[0]
+                  if not href or re.match(r'^(https?://|mailto:|data:)',href,re.I): continue
+                  if ' ' in href: continue
+                  dest=posixpath.normpath(posixpath.join(posixpath.dirname(path),href))
+                  assert dest in allpaths, ('CC_DOCS_BROKEN_LINK',path,dest)
+                  linkcount+=1
+              bad=re.compile(r'-----BEGIN (?:RSA |EC |OPENSSH )?PRIVATE KEY-----|github_pat_[A-Za-z0-9_]{30,}|ghp_[A-Za-z0-9]{30,}|Authorization:\s*Bearer\s+[A-Za-z0-9_-]{35,}',re.I)
+              assert not bad.search(content), 'CC_DOCS_POSSIBLE_SECRET:'+path
+
+          print('CC_FROZEN_ORIGINAL_SOURCE=PASS',frozen,os.environ['FROZEN_CC_TREE'])
+          print('CC_RUNTIME_AND_CC03_BLOB_IDENTITIES=UNCHANGED')
+          print('CC_DOCUMENTATION_CHANGE_SCOPE=PASS',len(cc_delta))
+          print('CC_MODIFIED_DOCUMENT_LINKS=PASS',linkcount)
+          print('CC_NEGATIVE_SCOPE_TESTS=PASS')
+          print('CC_DOCS_SOURCE_NOT_FINAM_NOT_LIVE=PASS')
+          print('CC03_FROZEN_NATIVE_IS_SEPARATE_HISTORIC_GATE_NOT_RUN_IN_THIS_JOB')
+          PY
