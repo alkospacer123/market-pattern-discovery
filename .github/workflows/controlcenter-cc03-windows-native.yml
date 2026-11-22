@@ -7,6 +7,11 @@ on:
   pull_request:
     paths:
       - 'ControlCenter/**'
+      # No frozen CC03 rerun for documentation-only changes: the separate
+      # exact-source documentation boundary gate checks those changes.
+      # Any CC non-Markdown change still invokes the original fail-closed suite.
+      - '!ControlCenter/*.md'
+      - '!ControlCenter/**/*.md'
       - '.github/workflows/controlcenter-cc03-windows-native.yml'
 
 permissions:
