@@ -45,3 +45,9 @@
 - **KDR-003 реклассифицирован:** проблема достоверности TZ, а не доказанная дата-галлюцинация. Формально это исправление ошибочного предположения GPT. Ответ Kimi ещё не получен.
 - [Сводный протокол](G2_TRL_TRAINING_REVIEW_20261123.md) и [усиленные V20/TRL практические требования](V20_TRL_ENHANCED_PRACTICAL_ACCEPTANCE_20261123.md).
 - Пользователь потребовал максимально жёсткой практики именно для V20 и TRL: не снижать V20 90/100 и TRL 36/40 + 54/60; слепые кодовые/исследовательские тесты после изоляции, исходные бинарные SHA, независимый review, GPT-outage. **Точные скрытые тесты/seed не размещать** в доступном Kimi GitHub до экзамена.
+
+## G2.3C — independent TRL Chat exam (2026-11-23 UTC+03)
+
+- [Canonical 40-point TRL review](G2_TRL_INDEPENDENT_EXAM_REVIEW_20261123.md): **39/40 PASS**, Git blob SHA **26/26 discovery + 4/4 data**, 0 critical errors in observed exam, no binary replay or Code. The model correctly distinguished historical vs production Protect3 trigger, but still **did not explicitly name** \`Switch=ARMED\` prerequisite for the documented cancel-first stage function. This was **not directly requested as a HALTED incident** in this exam, so one point deducted for incomplete scope, not newly proven dangerous assertion. \`KDR-001\` remains open pending two hidden context probes + Code test and independent review.
+- \`KDR-003\`: still external timezone evidence gap, not a confirmed Kimi date error. Do not ask Kimi to confess a fact not established. Ask for date+offset/source and retain GPT's reviewer correction.
+- With G2.3C completed, model postmortem may begin. Show Kimi full journal; require consent-free evidence-based disagreement permitted, causal hypotheses (not claims about own hidden weights), proposed checklist/source retrieval, objective blind retests, no claim of self-cure. **Register entry CLOSED_VERIFIED only by independent outcome and operator approval**.
