@@ -37,3 +37,13 @@ Cumulative deltas between the three nonzero screenshots: `+1.16` and `+2.11` per
 6. G9: annual Pro/Max decision only on actual representative quality, short-window and monthly capacity measurements, not from three source audits.
 
 This document is part of Draft PR #597; **do not merge without explicit operator approval.**
+
+## WORK-REMOTE-01 mobile project visibility — 23 Nov 2026 (operator evidence)
+
+- Desktop Kimi Work project is bound to `C:\KimiSandbox\market-pattern-discovery`, confirmed in Work conversation by Kimi as folder-bound, not no-folder.
+- On the remote mobile interface for connected `URIU-PC`, the project `market-pattern-discovery` **appeared after creating a folder-bound diagnostic task**, alongside earlier no-folder G1.1/G1.2 shown as tasks.
+- Acceptance: `REMOTE_MACHINE_VISIBLE=PASS`, `REMOTE_PROJECT_LIST_VISIBLE=PASS`, `REMOTE_PROJECT_TASK_VISIBLE=PASS`.
+- **Not tested:** creating a new Work task from phone, remote approval semantics, permission-mode enforcement, behavior with disconnected desktop, persistence on device restart, remote control security, and LIVE environment. Do not infer those capabilities from project visibility.
+- Desktop answer mentioned access to loaded `AGENTS.md`; this does **not** prove that no file-read operation occurred. The operator prompt prohibited tools and changes; detailed tool-call logs were not independently reviewed.
+- Pro usage snapshot at 23 Nov 15:29: **3.51%** total monthly, five-hour Code **0%**; delta from prior 14:57 snapshot 3.46% is **+0.05 percentage points**. Cumulative delta is not a certified per-task cost.
+- User has attached 2 source documents to each of the three Kimi Chat projects (V20, Control Center, TRL), per operator report; content retention, updates and cross-device context behavior not yet tested.
