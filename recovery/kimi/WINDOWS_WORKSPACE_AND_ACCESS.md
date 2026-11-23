@@ -1,6 +1,6 @@
 # Kimi Code — Windows source workspace, safety gates and operator handoff
 
-**Status (2026-11-23): POLICY / PREPARATION, NOT PHYSICAL PASS.** This page records the approved configuration and acceptance criteria. It is **not** evidence of a completed Windows checkout, Kimi permissions, tests, installed release or LIVE state. Approved source baseline for preparation: `market-pattern-discovery/main@1413273a1a312802a0ced7a06a4eb73f050d2ec3`; always recheck the actual HEAD when work begins.
+**Status (2026-11-23): SOURCE_CHECKOUT_PASS_OPERATOR_OUTPUT / KIMI_EXAMS_NOT_RUN / OFFLINE_EXECUTOR_NOT_READY / LIVE_UNKNOWN.** The operator supplied Windows PowerShell output confirming the checkout and clean source tree. This document is not evidence of Kimi tool access, actual Windows isolation, tests, installed release or LIVE state. Approved source baseline for preparation: `market-pattern-discovery/main@1413273a1a312802a0ced7a06a4eb73f050d2ec3`; always recheck the actual HEAD when work begins.
 
 ## 1. Single source and workspace
 
@@ -12,7 +12,7 @@
 
 ## 2. Phase-II permission gates
 
-**Before subscription:** GitHub source/documents verified; Kimi Code authenticated under same account and `Always Ask` selected, per operator. OAuth application was found in GitHub, with broad repository scope. OAuth authorization does **not** prove actual Kimi Work/Code tool reads or local Git operations. Operator must verify `C:` checkout HEAD, required files, clean worktree and its use in Kimi Code; no tests have yet run.
+**Before subscription:** GitHub source/documents verified; Kimi Code authenticated under the same account and `Always Ask` selected, per operator. Kimi OAuth application found, with broad repository scope. OAuth authorization does **not** prove actual Kimi Work/Code tool reads. Windows operator command confirmed `C:` checkout HEAD `1413273a1a312802a0ced7a06a4eb73f050d2ec3`, required files and clean worktree; Kimi Code opening the workspace and all tests remain **NOT TESTED**.
 
 **Stage A — source exam:** Read repository files, inspect Git SHA/history, classify active versus historical and missing artifacts. Do not assume Kimi Chat projects, Work plugins and Code share instructions automatically. Three logical projects have different passports. Kimi Code starts in the sole approved checkout. Kimi GitHub work is on a task branch; require approval for writes, PR, merge.
 
