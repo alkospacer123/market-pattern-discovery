@@ -32,3 +32,5 @@ MAIN != INSTALLED != LIVE != RESEARCH != ARCHIVE. Никаких DPAPI, FINAM cr
 **G2.1 V20, 23.11.2026:** [проверенная карта знаний, 96/100 (обучающий этап), ограничения и обнаруженные устаревшие CC blob SHA](G2_V20_TRAINING_REVIEW_20261123.md). Не является экзаменом, offline test или допуском в LIVE.
 
 **G2.2A Control Center, 23.11.2026:** [проверка инженерной карты, 28/28 source blob SHA, 96/100, технические нюансы и квота Pro](G2_CC_TRAINING_REVIEW_20261123.md). Только обучение, без Code-exam и LIVE.
+
+**G2.3A TRL, 23.11.2026:** [глубокое обучение и независимая проверка 54/54 Git blob SHA, 97/100, ограничения воспроизводимости и квота Pro](G2_TRL_TRAINING_REVIEW_20261123.md) — не экзамен и не replay.
