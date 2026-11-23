@@ -1,5 +1,8 @@
 # Trading Systems — Roadmap (фактический R7 closeout, 22.11.2026)
 
+**OPERATING CHECKPOINT 23.11.2026:** После финальных документационных Merge #592–#595 source MAIN проверен: `1413273a1a312802a0ced7a06a4eb73f050d2ec3` до принятия последующих PR. Оператор подтвердил локальную исходную копию на `C:\KimiSandbox\market-pattern-discovery` (тот же HEAD, required files PASS, clean PASS); это не допуск исполнения на Intel. Правила работы и критерии покупки месячного Pro в [Windows gate](recovery/kimi/WINDOWS_WORKSPACE_AND_ACCESS.md). После каждого Merge повторно проверять новый MAIN.
+
+
 **Обязательный порядок:** (I) безопасно упорядоченный GitHub → (II) полная адаптация Kimi Chat **и отдельно** Kimi Code → (III) независимый backup и доказанный cold restore. **MAIN ≠ INSTALLED ≠ LIVE ≠ RESEARCH ≠ ARCHIVE**.
 
 ## I. Упорядоченный GitHub — завершён в проверенном объёме
@@ -35,7 +38,7 @@
 - [x] Kimi account authenticated for Chat/Work/Code according to operator; Kimi Code `Always Ask` confirmed. Kimi GitHub OAuth authorized; **actual Kimi data access untested**.
 - [x] Two Kimi Chat knowledge projects available before subscription; Control Center third project awaits paid limit.
 - [x] Temporary Git clone on external Expansion D: was created/read-verified and then removed by operator; **D: is not the permanent workspace**.
-- [ ] Create and verify **one** NTFS source checkout on Intel at `C:\KimiSandbox\market-pattern-discovery`, pinned to verified SHA. This is not execution isolation.
+- [x] **Operator-verified 23.11:** one NTFS source checkout on Intel at `C:\KimiSandbox\market-pattern-discovery`, `HEAD=1413273a1a312802a0ced7a06a4eb73f050d2ec3`, required files PASS, clean worktree PASS. **Not execution isolation.**
 - [ ] Verify a working Kimi Work per-action approval path (if supported), or keep PC/browser automation ungranted for LIVE; design an independent no-secret execution environment before agent-run offline tests.
 - [ ] Purchase **one-month Kimi Pro** after preparatory acceptance; measure quality, monthly and five-hour Code limits, then decide annual Pro or Max. No annual contract before pilot results.
 - [ ] Complete three Chat projects, real GitHub reads, separate Kimi Code source/tests, V20/CC/TRL exams, GPT↔Kimi Draft PR/handoff, operator acceptance. Then and only then begin Stage III Recovery.
