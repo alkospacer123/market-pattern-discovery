@@ -174,3 +174,9 @@
 Слепые fixtures, seeds и ожидаемые результаты нельзя размещать в GitHub, к которому имеет доступ Kimi; документы задают только рубрики и объективные условия. Сначала независимый TRL Chat экзамен, **потом** прямая обратная связь Kimi по реестру KDR, затем настоящие изолированные Code негативные тесты и повторные свежие кейсы. Время/часовой пояс всегда фиксировать с UTC offset, не наказывать за 24 ноября UTC+08, пока не выяснен источник timestamp.
 
 Сохранить правило: Kimi **не получает GPT/FINAM/Windows LIVE bypass** даже после высокой оценки; автономия требует CI/review доказательств и явных разрешений владельца. Этап III Recovery — строго последним.
+
+## 11. Закрытие теоретического G2 и старт прямого разбора недостатков (23.11.2026)
+
+**Theory gate:** V20 \`59/60 PASS\`, CC \`58/60 PASS\`, TRL canonical \`39/40 PASS\` (>=36, no critical); TRL source SHA \`26/26 discovery + 4/4 data\`. [TRL independent review](G2_TRL_INDEPENDENT_EXAM_REVIEW_20261123.md). No original binary ZIP/XLSX replay, no Code practical/runner isolation, no GPT outage; no extension of FINAM/Intel LIVE permissions.
+
+**Proceed next:** professional Kimi postmortem of [KDR journal](KIMI_DEFECTS_AND_REMEDIATION_REGISTER.md), with Kimi free to agree or refute source-backed critiques (including KDR-003 timezone correction), propose concrete root-cause hypotheses, retrieval/checklist/independent-assertion improvements, objective fresh-context retests and failure conditions. KDR-001 Protect3/HALTED remains OPEN. After postmortem prepare the truly isolated Kimi Code runner and execute elevated V20 + TRL source/replay/negative tests in [acceptance contract](V20_TRL_ENHANCED_PRACTICAL_ACCEPTANCE_20261123.md). No Merge or actual broker operations without explicit owner authorization.
