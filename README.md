@@ -1,5 +1,8 @@
 # Trading Systems — V20 / Control Center / Trading Research Lab
 
+**Операционная проверка 23.11.2026:** GitHub `main` сверялся на `1413273a1a312802a0ced7a06a4eb73f050d2ec3` до текущей документационной ревизии. На Intel оператор подтвердил **единственную** рабочую Git-копию `C:\KimiSandbox\market-pattern-discovery` на NTFS с тем же SHA и чистым рабочим деревом. Это не OS sandbox и не разрешение тестировать код на Intel. Для Kimi: [Phase-II knowledge](recovery/kimi/README.md) → [Windows access gate](recovery/kimi/WINDOWS_WORKSPACE_AND_ACCESS.md) → [практический экзамен](recovery/kimi/EXAM_AND_HANDOFF.md). LIVE по-прежнему UNKNOWN.
+
+
 > **Единый рабочий GitHub трёх проектов.** H1/M15 сохранены как необходимые V20-зависимости и источник исследований, а не новые LIVE-проекты. Контрольный GitHub-срез после этапа I: `main=41d0b48c1d33db29bc1b19497d558748b3db8fb4` (22.11.2026, Merge #589). Это **датированный pin**, а не обещание неизменности HEAD. Перед любой новой операцией повторно сверять GitHub SHA.
 
 ## Проекты — начинать здесь
@@ -35,7 +38,7 @@
 
 - [PR #583](https://github.com/alkospacer123/market-pattern-discovery/pull/583) удалил 11 594 исторических A/B/C+BBW файла с сохранением Git history, **но не провёл полного выноса старых исследований в отдельный архив**.
 - [market-pattern-data](https://github.com/alkospacer123/market-pattern-data) — отдельные данные; [market-pattern-archive](https://github.com/alkospacer123/market-pattern-archive) — дополнительный публичный архив (по проверке в его main 26 файлов), **не требуется для ежедневной работы трёх систем** и не является независимым полным Recovery. До решения о сохранности не удалять.
-- [Пакеты Kimi V20 / CC / TRL и практический экзамен](recovery/kimi/README.md) приняты в GitHub через [Merge #589](https://github.com/alkospacer123/market-pattern-discovery/pull/589); создание Kimi-проектов и отдельный доступ Kimi Code **ещё не подтверждены**.
+- [Пакеты Kimi V20 / CC / TRL и практический экзамен](recovery/kimi/README.md) приняты через [Merge #589](https://github.com/alkospacer123/market-pattern-discovery/pull/589). **Обновление 23.11:** оператор подтвердил два Chat-проекта и авторизацию Kimi Code; третий Chat-проект пока ожидает подписки, реальное чтение Kimi GitHub и экзамены ещё не проверены. [Windows workspace и доступ](recovery/kimi/WINDOWS_WORKSPACE_AND_ACCESS.md).
 - Kimi Chat — три логических проекта знаний из одного GitHub; **Kimi Code отдельно** должен получить проверенные доступы, выполнить практический offline-экзамен и взаимную передачу задач с GPT. Не считать настроенным до теста.
 - Финальный автономный backup + реальный cold restore V20, CC и TRL вне Intel/GitHub/обоих ИИ — **после** всех исправлений и адаптации.
 

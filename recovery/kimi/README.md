@@ -1,5 +1,8 @@
 # Kimi Phase II — три логических проекта знаний
 
+**OPERATING UPDATE 23.11.2026 (operator evidence):** два Kimi Chat проекта уже созданы до подписки; третий (Control Center) планируется после активации Pro. Kimi Code Desktop авторизован под тем же аккаунтом, `Always Ask` выбран; GitHub OAuth Kimi предоставлен, но фактический доступ инструментами Kimi ещё не проверялся. На Intel NTFS создана рабочая Git-копия `C:\KimiSandbox\market-pattern-discovery`: оператор сообщил `HEAD=1413273a1a312802a0ced7a06a4eb73f050d2ec3`, `REQUIRED_FILES=PASS`, `WORKTREE_CLEAN=PASS`, `KIMI_C_SOURCE_WORKSPACE_READY`. Это **не** OS sandbox, не тест Kimi и не LIVE. Исторический статус и SHA документа 22.11 ниже относятся только к своему срезу. [Действующий Windows gate](WINDOWS_WORKSPACE_AND_ACCESS.md).
+
+
 > **SOURCE AUTHORITY CHECK 22.11.2026:** последние принятые GitHub-документы после [Merge #589](https://github.com/alkospacer123/market-pattern-discovery/pull/589) зафиксированы на контрольном `main=41d0b48c1d33db29bc1b19497d558748b3db8fb4`. Указанный ниже `bb8c46c1...` — **воспроизводимый исходный base до #589**, а не всегда актуальный HEAD. Перед чтением и практическим экзаменом перепроверять `main`, Git blobs и [иерархию документов](../DOCUMENTATION_AUTHORITY_2026-11-22.md). Никаких Kimi Chat/Code access, установленного LIVE, FINAM или cold restore не подтверждено.
 
 PINNED_SOURCE: market-pattern-discovery main `bb8c46c1db89ca2b5311f22c755bb4e51ce8f7d6`, GitHub 22.11.2026. Это исходные материалы, а не настройка Kimi или проверка Intel.
@@ -15,3 +18,7 @@ MAIN != INSTALLED != LIVE != RESEARCH != ARCHIVE. Никаких DPAPI, FINAM cr
 Обязательный практический [экзамен и GPT ↔ Kimi handoff](EXAM_AND_HANDOFF.md). После подлинной приёмки Kimi — последний этап: автономный backup и настоящий offline cold restore. Git history и CI не заменяют Recovery.
 
 Внешние Kimi-проекты ещё не созданы через этот GitHub PR, доступ не подтверждён, экзамен не сдавался.
+
+## Kimi Code on Intel Windows — practical preparation (23.11.2026)
+
+[Windows workspace, GitHub access and staged permissions](WINDOWS_WORKSPACE_AND_ACCESS.md): the designated *source* checkout is `C:\KimiSandbox\market-pattern-discovery` on NTFS; the former temporary external `D:\KimiSandbox` was removed by the operator. Creating this folder and cloning Git does **not** establish a secure execution sandbox. Read-only source evaluation precedes isolated offline tests; successful examinations permit operator-approved graduated access to non-secret production evidence, not automatic LIVE control. Monthly Pro is the capacity pilot before annual Pro/Max; local Windows acceptance is still pending.

@@ -1,5 +1,8 @@
 # Kimi Chat + Kimi Code — практический экзамен и GPT ↔ Kimi handoff
 
+**OPERATING UPDATE 23.11.2026:** три проекта Kimi и экзамен пока не завершены; два Chat проекта существуют, третий ожидает Pro. Kimi Code авторизован, но GitHub tool reads и offline tests через него **не проверены**. Подтверждённая оператором подготовительная NTFS source-копия: `C:\KimiSandbox\market-pattern-discovery` @ `1413273a1a312802a0ced7a06a4eb73f050d2ec3`; см. [Windows workspace gate](WINDOWS_WORKSPACE_AND_ACCESS.md). Нижеследующий `NOT_CONNECTED` — исторический статус 22.11, не новая диагностика Kimi.
+
+
 > **SOURCE AUTHORITY CHECK 22.11.2026:** последние принятые GitHub-документы после [Merge #589](https://github.com/alkospacer123/market-pattern-discovery/pull/589) зафиксированы на контрольном `main=41d0b48c1d33db29bc1b19497d558748b3db8fb4`. Указанный ниже `bb8c46c1...` — **воспроизводимый исходный base до #589**, а не всегда актуальный HEAD. Перед чтением и практическим экзаменом перепроверять `main`, Git blobs и [иерархию документов](../DOCUMENTATION_AUTHORITY_2026-11-22.md). Никаких Kimi Chat/Code access, установленного LIVE, FINAM или cold restore не подтверждено.
 
 **SOURCE HEAD:** `bb8c46c1db89ca2b5311f22c755bb4e51ce8f7d6`. **STATUS: NOT_CONNECTED / NOT_EXAMINED / HANDOFF_NOT_TESTED.** Это спецификация испытания, а не протокол его успешного исполнения.
