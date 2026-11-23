@@ -15,3 +15,7 @@ MAIN != INSTALLED != LIVE != RESEARCH != ARCHIVE. Никаких DPAPI, FINAM cr
 Обязательный практический [экзамен и GPT ↔ Kimi handoff](EXAM_AND_HANDOFF.md). После подлинной приёмки Kimi — последний этап: автономный backup и настоящий offline cold restore. Git history и CI не заменяют Recovery.
 
 Внешние Kimi-проекты ещё не созданы через этот GitHub PR, доступ не подтверждён, экзамен не сдавался.
+
+## Kimi Code on Intel Windows — practical preparation (23.11.2026)
+
+[Windows workspace, GitHub access and staged permissions](WINDOWS_WORKSPACE_AND_ACCESS.md): the designated *source* checkout is `C:\KimiSandbox\market-pattern-discovery` on NTFS; the former temporary external `D:\KimiSandbox` was removed by the operator. Creating this folder and cloning Git does **not** establish a secure execution sandbox. Read-only source evaluation precedes isolated offline tests; successful examinations permit operator-approved graduated access to non-secret production evidence, not automatic LIVE control. Monthly Pro is the capacity pilot before annual Pro/Max; local Windows acceptance is still pending.
