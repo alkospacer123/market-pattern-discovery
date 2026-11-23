@@ -54,3 +54,33 @@ Source-supported findings:
 **Pro usage checkpoint:** operator mobile screenshot at 23 Nov 17:04 shows cumulative **8.26%** monthly (up **+1.60 p.p.** since 16:06 6.66%), five-hour Code **0%**, extra paid quota OFF, monthly reset 2026-12-23. Delta may include work beyond G2.1B; not isolated per-task cost. Mobile 5-hour reset clock differs from desktop, likely display timezone — no quota reset inference made.
 
 **Next:** give the **12-question independent V20 R088 theory exam** in a **new project Chat** (60 max, 5/question); first answer without access to coaching messages, cite primary GitHub sources. Do not claim full `V20_EXAM_PASS` until four practical tasks (40 max) in approved isolated executor and combined >=90/100, no critical failures. G2 CC and TRL training remain required.
+
+## G2.1C — independent Kimi Chat theory exam, V20 (23 Nov 2026)
+
+**Assessment status:** `CHAT_V20_THEORY_PASS=59/60` against provisional Chat theory threshold `54/60`; 12 questions answered. **Not** `KIMI_CODE_FULL_EXAM_PASS`, `PRACTICE_PASS`, `LIVE_ACCEPTED` or `ARMED`. The canonical separate `R088_OFFLINE_EXAM_20261122.md` requires 60 theory + 40 independent offline practical and >=90/100 with no critical failures.
+
+Operator supplied a ~678-line Kimi Chat answer. GPT independently checked GitHub HEAD `e05bbd24db88f127a52f0ff1b7282d7c6919cd81`, **14/14 additional selected Git blob SHA**, and cross-referenced frozen Inside, R088 BASE/patch documentation, CC-07 gate, `finam_live.py` and `r070_linked_sltp.py`.
+
+| Question | Topic | Points /5 |
+| --- | --- | ---: |
+| 1 | Source hierarchy / MAIN vs INSTALLED | 5 |
+| 2 | Frozen Shallow, OBV Pressure, Inside | 5 |
+| 3 | M15 immediate NEXT_OPEN | 5 |
+| 4 | Risk, margin, tick grid | 5 |
+| 5 | Nine patches and derived provenance | 5 |
+| 6 | Partial fills/VWAP and SLTP | 5 |
+| 7 | Protect3 cancel-first unknown POST | 5 |
+| 8 | PREPOST never-sent vs UNKNOWN | 5 |
+| 9 | HOLD5 observed sessions | 5 |
+| 10 | HALTED / worker / durable halt | **4** |
+| 11 | CC07/08 guarded commands | 5 |
+| 12 | Remaining risks / OOS / Recovery | 5 |
+| **Total** | | **59/60** |
+
+**Only deduction (#10):** the exam answer correctly explained separation of Task Running, HALTED, execution_halt and reconciliation, but it omitted explicit Protect3 replacement gating `stage_r070_protect3_cancel_first_once` requires `Switch=ARMED` and fails `R070_PROTECT3_SWITCH_NOT_ARMED` when HALTED (confirmed in `v20_runtime/r070_linked_sltp.py`). The learner had identified this in G2.1B, so test true transfer/retention later without hints. `Running/HALTED` allows some follow-existing processing but **not all protective actions**.
+
+**Limits:** Kimi described GitHub MCP read and pinned raw URL reads; attempted `read_file` on unavailable attachment (no V20 source proof from it). This was not an established production filesystem access; complete tool-trace not independently audited. New DERIVED binary rebuild, offline tests, FINAM/Intel installed checks and LIVE remain `NOT_RUN / NOT_VERIFIED`.
+
+**Pro usage checkpoint:** operator screenshot 23 Nov 17:55 shows **9.7%** total monthly used, **0%** rolling five-hour Code, extra usage OFF. Prior screenshot 17:04 **8.26%**, delta **+1.44 percentage points** across snapshots; not certified cost of the exam alone. Monthly reset 2026-12-23.
+
+**Next:** begin G2.2 **Control Center Chat** deep training in its own knowledge project, then dedicated exam; separately do G2.3 TRL. Practical V20 Kimi Code in approved isolated executor after full source qualification; no production Windows execution/FINAM before explicit authorization.
