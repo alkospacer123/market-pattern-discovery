@@ -44,3 +44,7 @@
 - [ ] Complete three Chat projects, real GitHub reads, separate Kimi Code source/tests, V20/CC/TRL exams, GPT↔Kimi Draft PR/handoff, operator acceptance. Then and only then begin Stage III Recovery.
 
 Execution, on-host privilege and post-exam expansion rules: [Kimi Windows workspace/access policy](recovery/kimi/WINDOWS_WORKSPACE_AND_ACCESS.md). Original dated Roadmap and decisions above are not replaced.
+
+## Детализация этапа II — квалификация Kimi, 23.11.2026
+
+После безопасной подготовки GitHub и Kimi source-копии владелец выбрал **полную последовательную** квалификацию, без ускоренного запуска LIVE и без привязки ARMED к оплате Pro. [Программа квалификации, оценки качества, измерения Pro и go/no-go](recovery/kimi/PHASE_II_QUALIFICATION_AND_PRO_LIMITS_20261123.md) — надстройка над профильными экзаменами. Gate G0–G9 охватывают Chat/Work/Code, SHA и доказательные источники, реальный GitHub, изолированную практику, проверку safety/контекста, handoff GPT↔Kimi, последующее контролируемое read-only LIVE-наблюдение и только отдельное операторское решение о ARMED. **Покупка Pro не означает сдачи экзамена, автономных прав на Intel или запуска роботов.** Тариф на год — Pro/Max/MORE_PILOT/NO_GO по фактическим измерениям месячного пилота.
