@@ -36,7 +36,7 @@
 - [x] Two Kimi Chat knowledge projects available before subscription; Control Center third project awaits paid limit.
 - [x] Temporary Git clone on external Expansion D: was created/read-verified and then removed by operator; **D: is not the permanent workspace**.
 - [ ] Create and verify **one** NTFS source checkout on Intel at `C:\KimiSandbox\market-pattern-discovery`, pinned to verified SHA. This is not execution isolation.
-- [ ] Confirm Kimi Work manual approvals and design an independent no-secret execution environment before agent-run offline tests.
+- [ ] Verify a working Kimi Work per-action approval path (if supported), or keep PC/browser automation ungranted for LIVE; design an independent no-secret execution environment before agent-run offline tests.
 - [ ] Purchase **one-month Kimi Pro** after preparatory acceptance; measure quality, monthly and five-hour Code limits, then decide annual Pro or Max. No annual contract before pilot results.
 - [ ] Complete three Chat projects, real GitHub reads, separate Kimi Code source/tests, V20/CC/TRL exams, GPT↔Kimi Draft PR/handoff, operator acceptance. Then and only then begin Stage III Recovery.
 
