@@ -39,7 +39,7 @@ Required evidence to declare `C_SOURCE_WORKSPACE_READY`:
 2. `git rev-parse HEAD` matches the explicitly pinned commit or a newly approved exact base.
 3. `git status --porcelain` is empty, required root instructions, V20, CC, TRL and shared dependencies are present.
 4. No scripts, FINAM calls, real tasks or changes to production paths were invoked.
-5. Kimi Code `Always Ask` and Kimi Work manual action approvals confirmed; any Remote Control/Computer Use mode is not silently authorized for LIVE.
+5. Kimi Code `Always Ask` confirmed. For Kimi Work, verify per-action manual approvals **if the installed version supports them**; otherwise leave PC/browser automation ungranted for LIVE. Any Remote Control/Computer Use mode is not silently authorized for LIVE.
 
 **Subscription gate:** Monthly Kimi Pro is a one-month capacity/quality experiment before deciding annual Pro versus annual Max. Subscription may be purchased after preparatory acceptance, **without** conflating payment with sandbox execution permission. Actual GitHub plug-in proof, creation of third Chat project, examinations and isolated runtime tests begin only after payment.
 
