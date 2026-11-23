@@ -30,3 +30,5 @@ MAIN != INSTALLED != LIVE != RESEARCH != ARCHIVE. Никаких DPAPI, FINAM cr
 **G1.1–G1.3, 23.11.2026:** [журнал source-аудитов Work и Chat, оценки и расход месячного Pro](G1_CHAT_WORK_READONLY_SCORECARD_20261123.md). Это принятая по отчётам READONLY-проверка GitHub, не полный экзамен Chat/Code, не offline test и не LIVE.
 
 **G2.1 V20, 23.11.2026:** [проверенная карта знаний, 96/100 (обучающий этап), ограничения и обнаруженные устаревшие CC blob SHA](G2_V20_TRAINING_REVIEW_20261123.md). Не является экзаменом, offline test или допуском в LIVE.
+
+**G2.2A Control Center, 23.11.2026:** [проверка инженерной карты, 28/28 source blob SHA, 96/100, технические нюансы и квота Pro](G2_CC_TRAINING_REVIEW_20261123.md). Только обучение, без Code-exam и LIVE.
