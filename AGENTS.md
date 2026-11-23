@@ -28,3 +28,7 @@
 - Финальный Recovery вне Intel, основного SSD, GitHub и обеих ИИ с SHA, Git refs, PR/Issues/CI, оригиналами TRL, защищёнными конфигами и реальным cold restore — в конце.
 
 **Количество старых файлов — не критерий мусора.** Для удаления нужны точный список, зависимость, сохранённый первоисточник/провананс, offline-тесты и отдельное разрешение. При UNKNOWN оставить.
+
+## Kimi Code Windows workspace and access gate — 23.11.2026
+
+The single *designated source checkout* for Kimi Code on Intel is `C:\KimiSandbox\market-pattern-discovery`; see [Windows workspace and phased access policy](recovery/kimi/WINDOWS_WORKSPACE_AND_ACCESS.md). This local directory is **not** an OS sandbox: any unreviewed runtime tests/dependency installation require approved separate execution (isolated VM or no-secret CI). The three Kimi projects may share GitHub knowledge but not LIVE permissions. The former external D: checkout is retired. After practical exams the operator may authorize scoped read-only access to non-secret production data, while deploy, FINAM actions, HALT/ARM, code writes in LIVE and unknown-result retries remain independently gated. Preserve `Always Ask` and equivalent approvals in Work; optional Computer Use/Browser Extension must not silently gain LIVE authority.
