@@ -1,11 +1,14 @@
 # Trading Systems — актуальная база знаний GPT и Kimi
 
+**Операционное дополнение 23.11.2026:** GitHub MAIN проверен до документационного PR на `1413273a1a312802a0ced7a06a4eb73f050d2ec3`. Подтверждённая оператором source-копия Kimi Code находится на NTFS `C:\KimiSandbox\market-pattern-discovery`, не является ОС-песочницей. После Merge заново перепроверить MAIN и обновить только эту копию; LIVE/FINAM не меняется.
+
+
 **Актуальная точка входа после Merge #589, GitHub-срез 22.11.2026:** [корневой README](../README.md) → [общий AGENTS](../AGENTS.md) → [проверенное состояние](REPOSITORY_CURRENT_STATE.md) → паспорт проекта.
 
 [**Реестр документации и приоритетов (аудит R7, источники, паспорта, Kimi)**](DOCUMENTATION_AUTHORITY_2026-11-22.md) — действующие документы отдельно от исторических.
 
 ## Три проекта
-- [Phase II: три проекта знаний Kimi Chat / Kimi Code и практический экзамен](kimi/README.md) — исходный пакет, подключение и экзамены пока НЕ выполнены.
+- [Phase II: три проекта знаний Kimi Chat / Kimi Code и практический экзамен](kimi/README.md) — исходные пакеты подготовлены; на 23.11 два проекта Chat и авторизация Code подтверждены оператором, фактическое чтение GitHub в Kimi, третий проект и экзамены ещё НЕ проверены. [Windows workspace, права и доступ к LIVE](kimi/WINDOWS_WORKSPACE_AND_ACCESS.md).
 - [V20 — паспорт](PROJECT_PASSPORT_V20.md) → [операторский R088 release](../V20_TradingSystem_M15/V20-08/LIVE_RELEASE_R088_20261120_RU.md).
 - [Control Center — паспорт](PROJECT_PASSPORT_CONTROL_CENTER.md) → [CC-08](../ControlCenter/docs/V20_CC08_OPERATIONS.md).
 - [TRL — паспорт](PROJECT_PASSPORT_TRL.md) → [TRL Start Here](../TradingResearchLab/reports/TRL-NOV-2026-KIMI-START-HERE.md).
