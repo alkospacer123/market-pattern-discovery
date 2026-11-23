@@ -30,3 +30,23 @@
 `G2.2B`: source-backed unfamiliar/negative CC cases targeting PAUSE/Protect3, UNKNOWN latch, timeout/dispatch, alternate gateway, CC03 CI and operator authority; **GitHub READONLY, no scripts, tasks, FINAM, local access or Git writes**.
 
 `G2.2C`: new-chat independently graded CC theory, with no replay of earlier answers. Then `G2.3` TRL training and exam. Code practical, synthetic CI, GPT-outage, production read-only and final Kimi documentation revision remain later independent gates. Final Recovery is last.
+
+## G2.2B — Control Center advanced scenarios (23 Nov 2026, evening)
+
+**Outcome:** `CC_G2_2B_TRAINING_PASS`; GPT provisional score **98/100**, *not* an independent CC examination pass, production acceptance, runtime test or Code practical. Operator supplied a ~749-line eight-scenario READONLY report. GPT checked current GitHub `main=e05bbd24db88f127a52f0ff1b7282d7c6919cd81` and independently matched **19/19 selected source blob SHA** (10 first batch + 9 further) against the reported values. Additional inspected source: `ControlCenter/v20_app.py`, `v20_admin_control.py`, `cc/v20_contract.py`, `controller/cc07-v20-operator.ps1`, `v20_command_channel.py`, `.github/workflows/controlcenter-docs-only.yml`, `v20_runtime/r070_linked_sltp.py`. Source spot-check, not exhaustive call trace or executable test.
+
+**Verified cross-project safety:**
+- PAUSE permits worker continuation and some existing-position follow-up when truly running; **new Protect3 cancel-first replacement is blocked under HALTED** with `R070_PROTECT3_SWITCH_NOT_ARMED` before cancel/post. No assertion about currently active broker SLTP.
+- A valid source snapshot parsed `UNKNOWN` at T0 remains `UNKNOWN` through `age()` at T+400s; `heartbeat_health()` becomes `STALE`, `confirmed_armed_cycle()` is false. Fresh parse at T+400s yields `STALE`. This is explicitly latched code behavior, **not a proven bug**; proposed new synthetic test has **NOT_RUN**.
+- `START` timeout after dispatch => `FAILED_UNKNOWN`, no blind repeat; request ID may be absent on adapter exception, so do not invent correlation. Reconciliation requires separate audit/Task/switch/broker read-only proofs.
+- `RECOVER` may pass CC07 preflight but stock ARM refuses on durable `execution_halt`; post-dispatch `cc07_stock_operator_failed` is **not** safe `REFUSED_PREFLIGHT` whitelist; classify ambiguous as `FAILED_UNKNOWN`.
+- Two CI barriers for modern CC Python changes: sealed CC03 workflow exact tree and separate docs-only source allowlist, both triggered by `ControlCenter/**`. A proposed dedicated V20 CI design needs user-approved changes preserving historical CC03 provenance; no CI bypass and **no workflow writes were performed**.
+- Alternative inbox/worker gateway **not imported by current V20 UI**, has no RECOVER and different pins/policies; `QUEUED_NOT_EXECUTED` is not proof of dispatch or broker action.
+- Failed READONLY refresh can leave previous CC-owned snapshot available; `observed_at` remains old. `PUBLISHER_UNAVAILABLE` is explicitly excluded from publication-error caption in `v20_app.py` lines 237-239 — candidate UX contract/test clarification, **NOT_PROVEN_DEFECT**.
+- GPT-outage response proposed independent human review/CI and fail-closed behavior in absence of mandatory independent evidence; **this is a design response, not an executed GPT-outage acceptance**.
+
+**Reviewer caveats:** G2.2B was continuation of a trained Chat, with named scenarios and source access. It is not an unexpected blind incident, not Kimi Code execution, not physical installed or FINAM proof. Agent's claims about command outcomes remain conditional on source and mocks until tested. Prevent affirmative statements about broker protection without live GET-only evidence under separate authorization.
+
+**Pro usage checkpoint:** screenshot 2026-11-23 19:34 shows monthly usage **13.46%**, five-hour Code **0%**, extra usage OFF. Previous 18:54 snapshot was **11.75%**: delta **+1.71 percentage points** between screenshots, not independently measured per-task expense. Remaining by UI percentage **86.54%**; reset shown 2026-12-23 11:28.
+
+**Next:** open fresh Chat within Control Center knowledge project, run **independent G2.2C theory examination**, answer without coaching history, cite real GitHub blobs, grade source accuracy and negative cases separately. Later offline Code practical under actual isolation, then TRL training and independent GPT-outage acceptance.
