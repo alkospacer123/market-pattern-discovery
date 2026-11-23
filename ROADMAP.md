@@ -29,3 +29,15 @@
 - [ ] Настоящий offline cold restore всех трёх систем на изолированном оборудовании: SHA, БД, исходники/зависимости, unit/regression, доступность знаний и операторский акт. До отдельного LIVE-разрешения никаких реальных заявок.
 
 **Не доказывается самим GitHub:** сегодняшние FINAM positions/orders/SLTP, ARMED или установленная на Intel версия, Kimi Chat/Code access, автономный backup/cold restore.
+
+## Phase-II Windows preparation addendum — 23.11.2026
+
+- [x] Kimi account authenticated for Chat/Work/Code according to operator; Kimi Code `Always Ask` confirmed. Kimi GitHub OAuth authorized; **actual Kimi data access untested**.
+- [x] Two Kimi Chat knowledge projects available before subscription; Control Center third project awaits paid limit.
+- [x] Temporary Git clone on external Expansion D: was created/read-verified and then removed by operator; **D: is not the permanent workspace**.
+- [ ] Create and verify **one** NTFS source checkout on Intel at `C:\KimiSandbox\market-pattern-discovery`, pinned to verified SHA. This is not execution isolation.
+- [ ] Confirm Kimi Work manual approvals and design an independent no-secret execution environment before agent-run offline tests.
+- [ ] Purchase **one-month Kimi Pro** after preparatory acceptance; measure quality, monthly and five-hour Code limits, then decide annual Pro or Max. No annual contract before pilot results.
+- [ ] Complete three Chat projects, real GitHub reads, separate Kimi Code source/tests, V20/CC/TRL exams, GPT↔Kimi Draft PR/handoff, operator acceptance. Then and only then begin Stage III Recovery.
+
+Execution, on-host privilege and post-exam expansion rules: [Kimi Windows workspace/access policy](recovery/kimi/WINDOWS_WORKSPACE_AND_ACCESS.md). Original dated Roadmap and decisions above are not replaced.
