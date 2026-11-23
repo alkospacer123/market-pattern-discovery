@@ -22,3 +22,7 @@ MAIN != INSTALLED != LIVE != RESEARCH != ARCHIVE. Никаких DPAPI, FINAM cr
 ## Kimi Code on Intel Windows — practical preparation (23.11.2026)
 
 [Windows workspace, GitHub access and staged permissions](WINDOWS_WORKSPACE_AND_ACCESS.md): the designated *source* checkout is `C:\KimiSandbox\market-pattern-discovery` on NTFS; the former temporary external `D:\KimiSandbox` was removed by the operator. Creating this folder and cloning Git does **not** establish a secure execution sandbox. Read-only source evaluation precedes isolated offline tests; successful examinations permit operator-approved graduated access to non-secret production evidence, not automatic LIVE control. Monthly Pro is the capacity pilot before annual Pro/Max; local Windows acceptance is still pending.
+
+## Полная квалификация Kimi и проверка месячного Pro — 23.11.2026
+
+[Детальная программа этапа II: обучение трём системам, экзамены Chat/Work/Code, самостоятельное чтение GitHub, изолированные тесты, GPT↔Kimi handoff, устойчивость между сессиями, лимиты и итоговая оценка](PHASE_II_QUALIFICATION_AND_PRO_LIMITS_20261123.md). Приоритет качество/безопасность, а не ускорение ARMED. Владелец сохраняет роботов HALTED до отдельного согласованного практического наблюдения; учебные материалы не являются разрешением на LIVE-команды. Исторические pins и статусы в документе ниже не переписываются задним числом.
