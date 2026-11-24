@@ -136,3 +136,9 @@ Execution, on-host privilege and post-exam expansion rules: [Kimi Windows worksp
 - [x] GPT independently read GitHub ref and 3/3 quoted Git blob SHA — **MATCH**; checked additional research/evolution/AGENTS docs. Scope = factual source-consistency review, not audited Kimi connector logs or research replay.
 - [ ] **Memory Space retrieval still UNPROVEN:** Kimi explicitly said its pre-GitHub recap came from text supplied at the beginning of that dialog, not from independently inspected memory store. Need separate unseeded fresh-Chat test; then Work, Code, three projects, mobile checks. Do not ask Kimi to claim hidden retrieval without evidence.
 - [ ] Skill creation/review unchanged; no LIVE authorization, no GitHub Merge, no Code execution on Intel.
+
+## TRL Research — явная таксономия стратегий (24.11.2026)
+
+- [x] В ответе Kimi `MEMORY_TRL_RECALL_AND_SOURCE_CHECK` корректно выявлен пробел: в канонических Research документах не были **явно** перечислены три типа — трендовые, импульсные, волатильные стратегии. Это **документационное уточнение по запросу владельца**, не ошибка Kimi и не доказанный новый торговый edge.
+- [x] В Draft PR #597 обновлены `TradingResearchLab/README.md`, `research/RESEARCH_METHODOLOGY.md`, `OPERATING_CYCLE.md` и `research/RESEARCH_CARD_TEMPLATE.md`: перечисление направлений, определение исследовательского scope, необязательная классификация гипотез, отсутствие квот, допуск других подходов, no-LIVE.
+- [ ] Независимое docs-only review перед любым Merge; не объявлять новые исследования/тесты выполненными. Не менять frozen V20, FINAM или running Intel.
