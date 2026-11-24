@@ -137,3 +137,15 @@
 4. Critical project prompts and GitHub knowledge remain in their project instructions and authoritative sources independently of memory reliability. Skills/Work/Code qualification separate.
 
 **Safety:** No changes to LIVE/Intel/FINAM or Code isolation gate; Draft docs only.
+
+## 11. Owner UI screenshot — stored items not visible (24.11.2026)
+
+The user shared two screenshots of Kimi Settings → Personalization → Memory, taken 24.11 around 10:21 local. They display memory-from-chats toggle ON and a Memory Space card with empty introductory copy «Продолжайте общаться — Kimi знакомится с вашим миром», with **no saved item entries visible**. The re-opened “Import from another AI” modal contains a blank *new input* field, which **does not prove** the previous import was not submitted.
+
+**Observed state:** `MEMORY_TOGGLE_UI=ON`, `MEMORY_SPACE_ENTRIES_VISIBLE=0` in screenshots, `PREVIOUS_IMPORT_SUBMITTED=USER_REPORTED`, `IMPORT_PERSISTENCE=UNKNOWN`, `FRESH_CHAT_RECALL=FAIL`; root cause is **not established**.
+
+Official Kimi references checked 24.11:
+- https://www.kimi.ai/help/features/memory-space — Kimi may use saved Memory Space and past chats separately; memory is selected for relevance and cited when used; saved info/last updated should be viewable; new experience is rolling out gradually; saved memory can take time to appear after new chats.
+- https://www.kimi.ai/ru/help/features/memory-tips — new-chat trigger/processing delay, distinction of Chat settings vs project instructions vs memory.
+
+**Diagnosis plan:** (1) Ask Kimi for documented UI process and practical troubleshooting; model statements about its own hidden memory access are not proof. (2) Check memory card again after chat processing/new session, refresh and same signed-in account. (3) Look for actual saved entries/update-time or UI confirmation/error from Import. (4) If empty persists, targeted platform support or a single consented nonsensitive one-entry test, not blind re-import of the full batch. No secrets, LIVE changes, Code permissions or trading actions.
