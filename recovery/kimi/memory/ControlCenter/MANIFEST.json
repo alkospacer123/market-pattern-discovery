@@ -1,0 +1,72 @@
+{
+  "schema": "kimi-project-knowledge/v1",
+  "project": "Control Center",
+  "date": "2026-11-25",
+  "source_snapshot": "ec20cfcfbf7eebdd17862091f00fb20af11ad154",
+  "reference_main": "e05bbd24db88f127a52f0ff1b7282d7c6919cd81",
+  "status": "DRAFT_REVIEW_CANDIDATE",
+  "files": [
+    {
+      "file": "Trading_Systems_Architecture_and_AI_Collaboration.md",
+      "source": "recovery/kimi/Trading_Systems_Architecture_and_AI_Collaboration.md",
+      "blob": "66325ca5e9264bf449cc73e9a6bfc2bd42a16db0",
+      "authority": "DRAFT_NEW_IN_SAME_COMMIT"
+    },
+    {
+      "file": "PROJECT_PASSPORT_CONTROL_CENTER.md",
+      "source": "recovery/PROJECT_PASSPORT_CONTROL_CENTER.md",
+      "source_commit": "ec20cfcfbf7eebdd17862091f00fb20af11ad154",
+      "blob": "9e649ee4820e1849580b85574f58d6084e798018",
+      "authority": "PINNED_SOURCE_CHECK_MAIN"
+    },
+    {
+      "file": "CONTROL_CENTER.md",
+      "source": "recovery/kimi/CONTROL_CENTER.md",
+      "source_commit": "ec20cfcfbf7eebdd17862091f00fb20af11ad154",
+      "blob": "afdf81f3c61a45a3642a7f91692601aa4c1fcf79",
+      "authority": "PINNED_SOURCE_CHECK_MAIN"
+    },
+    {
+      "file": "V20_START_HERE_SOURCE_MAP.md",
+      "source": "ControlCenter/docs/V20_START_HERE_SOURCE_MAP.md",
+      "source_commit": "ec20cfcfbf7eebdd17862091f00fb20af11ad154",
+      "blob": "b8e18e49f2504852821b98f152ba348350720c12",
+      "authority": "PINNED_SOURCE_CHECK_MAIN"
+    },
+    {
+      "file": "V20_CC08_OPERATIONS.md",
+      "source": "ControlCenter/docs/V20_CC08_OPERATIONS.md",
+      "source_commit": "ec20cfcfbf7eebdd17862091f00fb20af11ad154",
+      "blob": "18be465651d3747abe99f669967e374cde616252",
+      "authority": "PINNED_SOURCE_CHECK_MAIN"
+    },
+    {
+      "file": "V20_CC07_COMMAND_CONTRACT.md",
+      "source": "ControlCenter/docs/V20_CC07_COMMAND_CONTRACT.md",
+      "source_commit": "ec20cfcfbf7eebdd17862091f00fb20af11ad154",
+      "blob": "7f42a76888df8ec9ce5b0fa1a14cb19b52d851b2",
+      "authority": "PINNED_SOURCE_CHECK_MAIN"
+    },
+    {
+      "file": "skills/cc-incident-audit/SKILL.md",
+      "source": "recovery/kimi/skills/cc-incident-audit/SKILL.md",
+      "source_commit": "ec20cfcfbf7eebdd17862091f00fb20af11ad154",
+      "blob": "1f2ed856cddf30d00b611985c26d7c48f79cf428",
+      "authority": "DRAFT_SKILL"
+    },
+    {
+      "file": "skills/github-source-audit/SKILL.md",
+      "source": "recovery/kimi/skills/github-source-audit/SKILL.md",
+      "source_commit": "ec20cfcfbf7eebdd17862091f00fb20af11ad154",
+      "blob": "513faaf196c678c5fbec3db0a2b0b2a05545b953",
+      "authority": "DRAFT_SKILL"
+    },
+    {
+      "file": "skills/ai-engineering-handoff/SKILL.md",
+      "source": "recovery/kimi/skills/ai-engineering-handoff/SKILL.md",
+      "source_commit": "ec20cfcfbf7eebdd17862091f00fb20af11ad154",
+      "blob": "0d8e521de93d777f9da5405721a814a8f6520384",
+      "authority": "DRAFT_SKILL"
+    }
+  ]
+}
