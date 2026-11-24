@@ -121,3 +121,19 @@
 **Next tests (separate):** fresh blank general Chat, without pasted memory text/attached project context, neutral question about user's ongoing technical projects and TRL's internal components; examine memory UI/diagnostics without claiming private retrieval. Then project-specific new sessions, Work, Code, and mobile independent context check and tool logs. Kimi Code G4.0 remains source-only, OS isolation gate unchanged. Follow with versioned Skill independent review, not with duplicate long-lived memory records.
 
 **Status:** `TRL_SOURCE_AUDIT_REVIEWED_PASS`; `MEMORY_INDEPENDENT_RETRIEVAL_NOT_VERIFIED`; `NO_NEW_LIVE_PERMISSION`.
+
+## 10. Unseeded ordinary Chat — Memory retrieval FAIL (24.11.2026)
+
+**Observed evidence:** user-supplied reply from a genuinely new ordinary Kimi chat outside all three project folders and without pasted background or external tools. The test asked Kimi to name the user's long-term technical projects and explain any research system based solely on actually available context. Kimi responded that **no information about long-term technical projects was available**, explicitly declined to invent a list or falsely claim memory access, and did not claim to access GitHub or files.
+
+**Evaluation:** \`M2_UNSEEDED_FRESH_CHAT_RECALL=FAIL\` (0/3 projects; no TRL block description); \`HONEST_UNCERTAINTY=PASS\`; \`IMPORT_UI_CONTENT=NOT_INSPECTED\`; \`MEMORY_SPACE_RETRIEVAL=NOT_DEMONSTRATED\`; \`PLATFORM_ROOT_CAUSE=UNKNOWN\`. Prior initial chat recall and detailed TRL GitHub source audit **must not count as successful retrieval** because their context included injected TRL text or source access. This is a behavior failure of this retrieval test, **not** evidence that Kimi's underlying models or Code have lost project knowledge, and **not** proof the import was erased.
+
+**Official memory guidance (24.11):** https://www.kimi.ai/help/features/memory-space — Memory Space and past chats are distinct; saved information is used when relevant; Memory Space processing may be delayed after a new chat; saved entries/last update can be inspected in Settings → Personalization → Chat memory → Memory Space; memory usage may carry source citation indicator. https://www.kimi.ai/help/features/memory-tips — persistent response-style directives belong to Chat settings; project-specific constraints belong to project instructions/files; Work projects remain separate from Chat projects.
+
+**Narrow correction plan (NO LIVE):**
+1. User visually confirms whether Chat memory toggle is on; in Memory Space checks saved V20/CC/TRL concepts, update time and whether imported entries exist, pending, duplicated, rejected or absent. Screenshot should hide unrelated private memories.
+2. If absent/pending, diagnose the actual Import UI result rather than pasting the entire batch repeatedly; allow asynchronous update and recheck. If present, test one fresh ordinary Chat with a natural project-context task and whether memory citation appears, without preloading names.
+3. Report the split outcomes as \`MEMORY_STORED_VERIFIED\` vs \`MEMORY_USED_IN_NEW_CHAT\`; do not infer either from Kimi's assertion about its hidden context alone.
+4. Critical project prompts and GitHub knowledge remain in their project instructions and authoritative sources independently of memory reliability. Skills/Work/Code qualification separate.
+
+**Safety:** No changes to LIVE/Intel/FINAM or Code isolation gate; Draft docs only.
