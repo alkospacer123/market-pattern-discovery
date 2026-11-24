@@ -161,3 +161,24 @@ Official Kimi references checked 24.11:
 - Score separately: `PROJECT_IMPORT_STORAGE`, `CANARY_STORAGE`, `CANARY_FRESH_CHAT_RECALL`, `CANARY_MEMORY_SPACE_SOURCE`. Successful canary does not prove original import succeeded; absent marker after a documented update suggests a wider storage/availability gap without proving a specific root cause. If necessary, support via official Help Center with redacted evidence; no bulk re-import or mass deletion. Remove only the test record/conversation after evidence is captured, with owner consent.
 
 **Status:** `KIMI_DIAGNOSTIC_REVIEW_PASS` / `PROJECT_IMPORT_PERSISTENCE_UNKNOWN` / `CANARY_NOT_RUN` / `MEMORY_SPACE_RETRIEVAL_NOT_VERIFIED`. Do not block G4.0 source-only on this account issue; no change to Code/OS-isolation/LIVE gates. No Merge.
+
+## 13. Controlled memory test — visible storage and fresh-chat recall PASS (24.11.2026)
+
+**Operator evidence:** two supplied screenshots of Kimi international web UI, 24.11.2026 10:37 operator local time, and the quoted response from the new ordinary chat. Before the temporary test instruction the operator reported the memory view was still empty. After the instruction and new chat, the UI showed memory-from-chats ON, Memory Space “Updated just now”, the populated profile summary, and the temporary nonsensitive marker as actual file `topic/memory-space-diagnostic.md`. The marker was reproduced exactly in the new chat without giving its value in the question; Kimi attributed it to Memory Space rather than current context or direct prior-chat history. Do not publish the marker, raw screenshots or memory export in this public repository.
+
+| Check | Result |
+|---|---|
+| Memory toggle | ON — screenshot |
+| Canary storage | PASS_UI_VERIFIED — exact temporary record visible in Memory Space file |
+| Canary fresh-chat recall | PASS_USER_REPORTED — exact match |
+| Canary Memory Space retrieval source | MODEL_REPORTED; independent source citation UI not yet inspected |
+| Project knowledge in UI summary | PASS_VISIBLE — V20, Control Center, TRL, Research/Evolution/Journal and engineering preferences |
+| Original import provenance | UNKNOWN — cannot distinguish delayed import from past-chat organization |
+| Project knowledge recall without prompting project names | RETEST_PENDING — earlier negative test remains historical |
+| Export, targeted cleanup, project/Work/Code/mobile transfer and stale-memory challenge | NOT_TESTED |
+
+Visible summary is appropriately durable: related but distinct project roles, independent evidence and verified source/installed versions, no fixed risk/capital/release/broker-state parameters in shown content. TRL does not manage real trading or implement changes without a separate decision. The summary is not an audit of every memory file. The screenshot shows a file organization with areas/convention/people/topic; it does not establish that every category has a stored record.
+
+**Next:** verify source indicator if available, run one fresh ordinary Chat project-map recall test without naming the projects or supplying background; no GitHub retrieval needed for this recall-only check. Optionally inspect/export only locally. Do not re-import the project batch or add duplicate entries. Remove only the test item with operator approval after capturing evidence; the global delete control is not presumed safe for a single item. KMS-01 and G4.0 continue as separate qualifications. No LIVE, OS isolation, Code execution or Merge permission changes.
+
+**Status:** `MEMORY_CONFIG_VERIFIED` / `CANARY_STORAGE_PASS` / `CANARY_RECALL_PASS_REPORTED` / `PROJECT_SUMMARY_VISIBLE` / `MEMORY_SOURCE_INDICATOR_PENDING` / `IMPORT_PROVENANCE_UNKNOWN` / `FULL_MEMORY_QUALIFICATION_PENDING`.
