@@ -196,3 +196,11 @@ Execution, on-host privilege and post-exam expansion rules: [Kimi Windows worksp
 7. Only after Stage II acceptance and required separate permissions: Stage III independent complete backup and genuine offline cold restore.
 
 No arbitrary overall progress percentage: setup, theory, source review, execution and autonomy are not equally weighted. A completed source gate is not operational qualification. Current production status remains UNKNOWN; no new LIVE access, no deployment, no Merge.
+
+### Sequential execution update — 24.11.2026 (owner decision)
+
+This pointer supersedes the parallel queue above, without removing any acceptance gate.
+
+**Current single task: KMS-01.** Peer review of rc.1 ACCEPT, both Kimi improvements incorporated; YAML quoting defect caught by actual packaging validation and fixed. Version `1.0.1-rc.3` is the validated import candidate, not yet installed or qualified. [Detailed evidence §17](recovery/kimi/MEMORY_AND_SKILLS_QUALIFICATION_20261124.md); [pinned SKILL.md](https://github.com/alkospacer123/market-pattern-discovery/blob/2baae127c4a360d032e96ee484f16eebd32d0813/recovery/kimi/skills/github-source-audit/SKILL.md). Blob `513faaf196c678c5fbec3db0a2b0b2a05545b953`.
+
+Next: manual operator-approved install and version/selection evidence → sequential smoke cases → full applicable qualification and documented transfer/export gates. Do not treat smoke as full qualification. Do not dispatch G4.0-RC, G4.0-W, or another skill concurrently. Once KMS-01 acceptance has been evidenced, resume the pending queue starting with G4.0-RC. If an acceptance gate is blocked, record it and obtain the owner's decision rather than silently closing it. No LIVE, no Merge, no new execution permissions.
