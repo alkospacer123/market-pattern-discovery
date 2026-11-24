@@ -91,7 +91,7 @@
 
 - Обновлять Memory/Skills **параллельно** G4.0 source-only Code, но не блокировать выполнение текущей task и не разрешать new Chat давать инструкции прямо работающему Code без ручного подтверждения.
 - Измерять ежемесячную и 5h Code квоту до/после каждой существенной задачи; создание Skills может расходовать кредиты. Не запускать дорогостоящую автоматическую генерацию пачками.
-- Рекомендуется сохранить *не более 10* компактных начальных Memory seeds; проверки удаления/экспорта делать только на **специальном тестовом** несекретном воспоминании, не удалять полезную память массово.
+- Не добавлять новые проектные Memory seeds до проверки уже сообщённого владельцем импорта (§8–12); более ранний совет о 10 seeds отменён §3. Проверки удаления выполнять только на **специальном тестовом** несекретном воспоминании; экспорт проверять локально, не удалять полезную память массово.
 - Правила специфичного проекта и safety-critical gates — только в его \`AGENTS.md\`, инструкции и проверенном source/Skill; Memory — вспомогательный слой. Не сохранять автоматически сгенерированные навыки без статуса \`REVIEWED\`.
 
 **Roadmap status:** MEMORY & SKILLS INCLUDED / ACCOUNT VERIFICATION PENDING / NO LIVE CHANGE / NO MERGE.
@@ -149,3 +149,15 @@ Official Kimi references checked 24.11:
 - https://www.kimi.ai/ru/help/features/memory-tips — new-chat trigger/processing delay, distinction of Chat settings vs project instructions vs memory.
 
 **Diagnosis plan:** (1) Ask Kimi for documented UI process and practical troubleshooting; model statements about its own hidden memory access are not proof. (2) Check memory card again after chat processing/new session, refresh and same signed-in account. (3) Look for actual saved entries/update-time or UI confirmation/error from Import. (4) If empty persists, targeted platform support or a single consented nonsensitive one-entry test, not blind re-import of the full batch. No secrets, LIVE changes, Code permissions or trading actions.
+
+## 12. Kimi self-diagnosis — independent review and controlled storage/retrieval test (24.11.2026)
+
+**Evidence:** operator supplied Kimi's diagnostic answer. GPT independently reread the official international help pages [Memory](https://www.kimi.ai/help/features/memory-space) and [Memory tips](https://www.kimi.ai/help/features/memory-tips). The answer correctly distinguishes documented features, hypotheses and unknown account state; Kimi does not claim to inspect account storage/server logs or to have performed any import, deletion or test. **Review: SOURCE_AND_UNCERTAINTY_PASS; not a memory-function PASS.**
+
+- Documentation confirms separate Memory Space and past-chat sources, relevance-based retrieval, source indicators, gradual rollout, visible saved information/update time, import/export controls, and asynchronous organization of past chats after opening a new chat.
+- The documented past-chat processing delay does not establish a processing deadline or internal workflow for imported text. Empty import input or a single failed recall cannot establish import success/failure, loss, or cause. No documented import audit receipt, history or specific error-code contract found in these two pages.
+- Before any write, inspect same-account Memory Space and, if export is available, verify the three project names/roles locally in the exported saved content. Keep only redacted status/count/time evidence in GitHub; no raw export or account identifiers.
+- If still unresolved, owner may approve one unrelated nonsensitive, uniquely chosen test marker in a normal Chat, then open a new normal Chat to trigger organization. Do not reuse the example marker already present in the diagnostic answer. Do not publish the real marker or seed in GitHub or supply it in the blind recall prompt. Check Memory Space/update time and export (if offered), then ask for the marker in a fresh ordinary Chat without project context. Inspect the source indicator; past-chat recall alone is not proof of Memory Space retrieval.
+- Score separately: `PROJECT_IMPORT_STORAGE`, `CANARY_STORAGE`, `CANARY_FRESH_CHAT_RECALL`, `CANARY_MEMORY_SPACE_SOURCE`. Successful canary does not prove original import succeeded; absent marker after a documented update suggests a wider storage/availability gap without proving a specific root cause. If necessary, support via official Help Center with redacted evidence; no bulk re-import or mass deletion. Remove only the test record/conversation after evidence is captured, with owner consent.
+
+**Status:** `KIMI_DIAGNOSTIC_REVIEW_PASS` / `PROJECT_IMPORT_PERSISTENCE_UNKNOWN` / `CANARY_NOT_RUN` / `MEMORY_SPACE_RETRIEVAL_NOT_VERIFIED`. Do not block G4.0 source-only on this account issue; no change to Code/OS-isolation/LIVE gates. No Merge.
