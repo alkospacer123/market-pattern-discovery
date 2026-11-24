@@ -44,3 +44,5 @@ MAIN != INSTALLED != LIVE != RESEARCH != ARCHIVE. Никаких DPAPI, FINAM cr
 **Postmortem Kimi и независимые улучшения**, 23.11.2026: KDR-001 признан Kimi и остаётся открыт до Code negative/positive/reachability теста и новых слепых проверок; KDR-003 не доказан, часовой пояс неизвестен. [Независимый обзор и 10 мер надёжности](KIMI_RELIABILITY_IMPROVEMENTS_20261123.md), [текущий журнал KDR](KIMI_DEFECTS_AND_REMEDIATION_REGISTER.md). Текущий Pro 23,22%, Code 0%, автономная квалификация впереди.
 
 **G4.0 Kimi Code source-only, 24.11.2026:** [итоги согласования RLI (7 ACCEPT / 3 MODIFY) и безопасный source-only вход](G4_RELIABILITY_CONSENSUS_AND_CODE_ENTRY_GATE_20261124.md). Практические запуски требуют отдельной доказанной OS isolation; KDR-001 по-прежнему открыт, разрешения LIVE не изменены.
+
+**Memory & Skills Qualification (24.11.2026):** [установка Memory Space, MyKimi Self-growth, десять M01–M10, подготовка пяти `SKILL.md` и независимые тесты памяти/переноса](MEMORY_AND_SKILLS_QUALIFICATION_20261124.md). Только утверждённый план; создание записей памяти и Skills в аккаунте пока NOT_VERIFIED, не открывает новые права Code/LIVE.
