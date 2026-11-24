@@ -45,4 +45,4 @@ MAIN != INSTALLED != LIVE != RESEARCH != ARCHIVE. Никаких DPAPI, FINAM cr
 
 **G4.0 Kimi Code source-only, 24.11.2026:** [итоги согласования RLI (7 ACCEPT / 3 MODIFY) и безопасный source-only вход](G4_RELIABILITY_CONSENSUS_AND_CODE_ENTRY_GATE_20261124.md). Практические запуски требуют отдельной доказанной OS isolation; KDR-001 по-прежнему открыт, разрешения LIVE не изменены.
 
-**Memory & Skills Qualification (24.11.2026):** [установка Memory Space, MyKimi Self-growth, десять M01–M10, подготовка пяти `SKILL.md` и независимые тесты памяти/переноса](MEMORY_AND_SKILLS_QUALIFICATION_20261124.md). Только утверждённый план; создание записей памяти и Skills в аккаунте пока NOT_VERIFIED, не открывает новые права Code/LIVE.
+**Memory & Skills Qualification (коррекция 24.11.2026):** [минимальная долговечная память 0–3 записи, прежние M01–M10 отменены, пять проверяемых `SKILL.md`, тесты переноса](MEMORY_AND_SKILLS_QUALIFICATION_20261124.md). Не импортировать релизы R088, параметры, FINAM-состояния и исторические ошибки KDR в бессрочную память; Skills/KDR и свежие проектные источники — отдельно. Запись в аккаунт NOT_VERIFIED, Code/LIVE права не расширены.
