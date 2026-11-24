@@ -115,3 +115,11 @@ Execution, on-host privilege and post-exam expansion rules: [Kimi Windows worksp
 - [ ] **MS-06 Final:** после G4–G9 и GPT-OUTAGE включить только испытанные навыки в обновлённые AGENTS/паспорта/инструкции и провести fresh-context bootstrap. Экспорт Memory/Skills для документального handoff не является преждевременным Stage III Recovery; независимый cold restore — в самом конце.
 
 **Главный принцип:** Memory помогает вспомнить контекст; Skill задаёт процесс; текущая правда подтверждается Git SHA, source, независимыми тестами/брокером; права на исполнение определяются operator approval и технической изоляцией. \`C:\KimiSandbox\` — не OS sandbox, G4.0 остаётся source-only.
+
+## Memory & Skills — состояние UI на 24.11.2026
+
+- [x] **MyKimi Self-growth UI enabled:** пользователь включил «Саморазвитие», скриншот MyKimi показывает «Самообучение включено». Это включает механизм обучения предпочтениям/рабочим привычкам, но **не доказывает создания или проверки Skills**.
+- [x] **Memory settings UI available:** пользователь открыл \`Settings → Personalization → Memory\`; screenshot показывает синее включённое переключение и диалог «Импорт из другого ИИ в пространство для запомненного». Это подтверждает доступность нового **Memory Space import** UI, но ещё **не** импорт и не результат записи.
+- [ ] **Memory import seed:** сохранить только проверенные долговременные сведения о V20/CC/TRL, процессах и границах полномочий в формате разделов Instructions, Identity, Career, Projects, Preferences с датами; данные Identity/Career при отсутствии необходимости не добавлять; полный персональный экспорт из GPT не переносить автоматически. Самостоятельный выбор пользователем содержимого обязателен.
+- [ ] **Verify actual stored entries:** выполнить Import, затем пересмотреть сохранённые Memory Space items, проверить даты/версии, исключить дубли и устаревший SHA; выполнить fresh Chat/Work/Code memory visibility checks по [контракту](recovery/kimi/MEMORY_AND_SKILLS_QUALIFICATION_20261124.md).
+- [ ] **Skills:** отдельно проверить библиотеку Skills / автоматически предложенные MyKimi навыки; ни один Skill не получает доверия или права исполнения без проверки \`SKILL.md\`/действительных инструментов и независимого ретеста.
