@@ -61,3 +61,11 @@
 **KDR-001 status:** \`REMEDIATION_PROPOSED\` / **still OPEN, no retest**. Не закрывать по одному объяснению Kimi. **KDR-003 status:** \`EVIDENCE_GAP\` / \`REVIEWER_FALSE_POSITIVE_CANDIDATE\` с исходным timezone неизвестно, без автоматического требования «признать ошибку». KDR-002/004–009 остались открытыми отдельными видами задач. Exact hidden prompts/seeds/expected outputs не публиковать ни здесь, ни в других документах доступного Kimi GitHub.
 
 **Следующий gate:** отдельный no-secret OS-isolated executor, source-only Code до разрешённых тестов, new blind test/independent evaluation, V20 и TRL с повышенными требованиями, затем GPT-OUTAGE. Никаких изменений в реальном торговом коде или физических LIVE состояниях на основании этого postmortem.
+
+## G4 reliability-plan review — Kimi response 24.11.2026
+
+Kimi представил \`RELIABILITY_PLAN_REVIEW_SUBMITTED\`: **RLI-01/02/04/05/07/09/10 ACCEPT, RLI-03/06/08 MODIFY, REJECT=none**. Инженерно обоснованные улучшения: compact hazard-directed conformance matrix вместо независимой state machine, допустимые timestamp-preserving причинные изменения после frozen cutoff, безопасные конфигурационные/canary deny-tests вместо опасных попыток обращения к FINAM/DPAPI/секретам. Дополнительно он предупредил, что mutation score, positive control, ledger parity на собственном oracle и blind tests могут давать ложную уверенность.
+
+**Решение ревьюера:** принять изменённый [conformance packet + G4.0 entry contract](G4_RELIABILITY_CONSENSUS_AND_CODE_ENTRY_GATE_20261124.md) как рабочую программу; не менять код без изоляции. \`KDR-001=REMEDIATION_PROPOSED (OPEN)\`, не закрывать до независимого source+derived trace, точного HALTED reason, отсутствия cancel/post, positive control, controlled mutation, hidden retest и решения оператора. \`KDR-003=EVIDENCE_GAP\`; не приписывать Kimi факт ошибки без доказанного часового пояса. \`KDR-006=ENVIRONMENT_GAP HIGH\` до доказательства настоящей OS isolation. Все остальные KDR сохраняют категории, без подмены внешнего недостатка ошибкой модели.
+
+**Инженерный статус:** \`RELIABILITY_PLAN_ACCEPTED_WITH_3_MODIFICATIONS\` / \`G4_CODE_SOURCE_ONLY_READY_TO_BEGIN\` / \`NO_CODE_EXECUTION\` / \`NO_LIVE\`. Отдельная квота 24.11 06:15: monthly 23.72% (прошлый снимок 23.22%), 5h Code 0%, exact per-task usage NOT_VERIFIED.
