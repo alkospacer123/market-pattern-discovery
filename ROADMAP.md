@@ -129,3 +129,10 @@ Execution, on-host privilege and post-exam expansion rules: [Kimi Windows worksp
 - [x] Исправлена архитектурная ошибка первоначального плана: Memory не должна стать долгоживущей копией меняющихся технических паспортов. Примеры R088, +9 patches, текущий ARMED/HALTED, FINAM, локальные пути, параметры, номер KDR-001 и исторические результаты **запрещены для персональной памяти**, поскольку могут устареть через месяцы.
 - [x] M01–M10 отменены как рекомендуемый импорт. Memory — **опциональный минимальный указатель**, не технический контракт. Источник актуальности — GitHub/оригиналы/installed/broker evidence; исправления ошибок — KDR + ревизуемый Skill + retest.
 - [x] Владелец самостоятельно выбрал и импортировал **6 долговечных записей** (общая инструкция, V20, CC, TRL, две preferences), расширив предварительный ориентир «0–3». Предыдущие M01–M10 и техпаспортные импорты не используются. При смене роли/архитектуры потребуется ревизия памяти; Stage III cold restore остаётся последним.
+
+## Memory Qualification — TRL fresh-chat source audit, 24.11.2026
+
+- [x] Kimi presented `MEMORY_TRL_RECALL_AND_SOURCE_CHECK`: correctly described Research / Evolution / Journal, auxiliary Reports, append-only as policy, staged decisions and the no-LIVE boundary.
+- [x] GPT independently read GitHub ref and 3/3 quoted Git blob SHA — **MATCH**; checked additional research/evolution/AGENTS docs. Scope = factual source-consistency review, not audited Kimi connector logs or research replay.
+- [ ] **Memory Space retrieval still UNPROVEN:** Kimi explicitly said its pre-GitHub recap came from text supplied at the beginning of that dialog, not from independently inspected memory store. Need separate unseeded fresh-Chat test; then Work, Code, three projects, mobile checks. Do not ask Kimi to claim hidden retrieval without evidence.
+- [ ] Skill creation/review unchanged; no LIVE authorization, no GitHub Merge, no Code execution on Intel.
