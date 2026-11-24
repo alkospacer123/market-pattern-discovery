@@ -101,3 +101,17 @@ Execution, on-host privilege and post-exam expansion rules: [Kimi Windows worksp
 - [ ] **G4.1 isolation before execution:** выбрать независимый disposable runner, доказать отсутствие secrets, broker egress, production mounts с контролируемыми canaries и пассивной проверкой policy. Никаких реальных попыток к FINAM/DPAPI для демонстрации блокировки. Установка Windows Sandbox/Hyper-V/WSL на Intel, если требует restart/admin, — только отдельное разрешение; пользователю не нужно торопиться.
 - [ ] После изоляции выполнить enhanced V20 P0 tests (KDR-001 OPEN), TRL original-data/replay or BLOCKED_EXTERNAL, CC standard tests, hidden independent tests, двусторонний handoff и GPT-OUTAGE. Полная финальная документация Kimi, затем Stage III Recovery.
 - [x] Kimi Pro screenshot 24.11 06:15: месячная квота 23.72%, 5h Code 0%, extra OFF; это не доказательство экономической достаточности при будущих практических задачах.
+
+## M&S — Kimi Memory & Skills Qualification (решение владельца 24.11.2026)
+
+**Дополнительный обязательный сквозной Gate этапа II, параллельно G4.0.** [Подробный onboarding, Memory Seed M01–M10, пять проектных Skills и критерии приёмки](recovery/kimi/MEMORY_AND_SKILLS_QUALIFICATION_20261124.md).
+
+- [x] Утверждён **план включения** Memory Space + MyKimi Self-growth + Kimi Skills; это **не свидетельство фактической записи памяти** или применения Skills в аккаунте.
+- [ ] **MS-01 Inventory:** в Kimi Settings → Personalization → Chat memory проверить доступную версию, включённое состояние, имеющиеся entries и дубли. Новый Memory Space с октября 2026 поэтапный; 50 элементов × 500 символов — исторический формат, а не гарантированный предел нового опыта.
+- [ ] **MS-02 Memory Seed:** по согласованию владельца записать до 10 компактных долговременных M01–M10 в обычном Kimi Chat, проверить появление после актуализации; не помещать секреты, динамические SHA/FINAM/LIVE и неподтверждённый PASS.
+- [ ] **MS-03 Memory transfer:** fresh Chat, 3 профильных Chat-проекта, Work, Code и мобильное приложение; проверка реального использования, исправления, устаревшего значения против нового GitHub ref и экспорта. Нельзя предполагать, что память автоматически работает в Code.
+- [ ] **MS-04 Self-growth:** проверить MyKimi Саморазвитие; разрешать анализ рабочих привычек и **предложения** навыков, но любой автоматически созданный Skill проходит ручную проверку, версионирование и fail-closed gate. Нет автоматических LIVE полномочий.
+- [ ] **MS-05 Skills:** создать первый \`github-source-audit\` в формате \`SKILL.md\` как READONLY; прогнать два безопасных кейса и конфликтный negative case, сохранить source/author/version, проверить \`/\` invocation в Chat/Work, отдельно Code import/transfer. Затем \`v20-safety-analysis\`, \`trl-reproducibility-review\`, \`control-center-incident-audit\`, \`gpt-kimi-handoff\`.
+- [ ] **MS-06 Final:** после G4–G9 и GPT-OUTAGE включить только испытанные навыки в обновлённые AGENTS/паспорта/инструкции и провести fresh-context bootstrap. Экспорт Memory/Skills для документального handoff не является преждевременным Stage III Recovery; независимый cold restore — в самом конце.
+
+**Главный принцип:** Memory помогает вспомнить контекст; Skill задаёт процесс; текущая правда подтверждается Git SHA, source, независимыми тестами/брокером; права на исполнение определяются operator approval и технической изоляцией. \`C:\KimiSandbox\` — не OS sandbox, G4.0 остаётся source-only.
