@@ -156,3 +156,43 @@ Execution, on-host privilege and post-exam expansion rules: [Kimi Windows worksp
 - [x] Пользователь предоставил два скриншота Kimi Settings → Personalization → Memory (24.11, 10:21). **Создавать записи из чатов = ON**. Карточка «Пространство для запомненного» показывает пустой стартовый текст «Продолжайте общаться — Kimi знакомится с вашим миром», **ни одной записи в предоставленном UI не видно**. Диалог «Импорт из другого ИИ» открыт повторно, поле ввода пустое — само по себе **не** свидетельство об отсутствии прежнего отправленного импорта.
 - [ ] Установить фактический persisted state: подтверждение импорта/UI saved entries/async processing или ошибка, затем fresh Chat retest. Не делать массовый повторный импорт до диагностики.
 - [x] Проверена официальная документация Kimi: `https://www.kimi.ai/help/features/memory-space` и `https://www.kimi.ai/ru/help/features/memory-tips`: новую информацию систематизируют в Memory Space после начала нового чата, обновление может занять время; сохранённые записи и время обновления должны отображаться в Memory Space после обработки. Memory Space vs past chats — разные источники. Project memory parity не обещана. **Не утверждать, что записи утрачены, без проверки.**
+
+## Контрольная сверка Roadmap — 24.11.2026 (current checkpoint, Draft PR #597)
+
+Этот раздел — актуальный сводный указатель статусов на дату сверки, а не замена исторических чекбоксов или критериев приёмки выше. Источники: [полная программа G0–G9, включая обязательные mobile routes](recovery/kimi/PHASE_II_QUALIFICATION_AND_PRO_LIMITS_20261123.md), [G1 Chat/Work](recovery/kimi/G1_CHAT_WORK_READONLY_SCORECARD_20261123.md), [G4.0 final closeout/I0–I4](recovery/kimi/G4_RELIABILITY_CONSENSUS_AND_CODE_ENTRY_GATE_20261124.md), [Memory & Skills](recovery/kimi/MEMORY_AND_SKILLS_QUALIFICATION_20261124.md), [KDR](recovery/kimi/KIMI_DEFECTS_AND_REMEDIATION_REGISTER.md). MAIN verified at `e05bbd24db88f127a52f0ff1b7282d7c6919cd81`. Stage I accepted in approved scope; Stage II active; Stage III final autonomous backup/cold restore not started. Historic captures are not recovery acceptance.
+
+| Gate | Current evidence/status | Remaining |
+|---|---|---|
+| G0 account/setup | Pro monthly, three Chat projects with instructions/attachments, three Work training projects visible remotely, Code authenticated, designated Intel source checkout; operator evidence | Verify each surface's actual approval/deny and access boundaries; fresh local HEAD/clean status only via authorized means; no production access |
+| G1 source | PASS scoped: Work G1.1 5/5 blobs, G1.2 9/9 / 96/100, Chat G1.3 98/100 reported/reviewed | Mobile Chat GitHub parity and independent action evidence |
+| G2 knowledge/theory | PASS: V20 59/60, CC 58/60, TRL 39/40; postmortem complete, RLI 7 ACCEPT / 3 MODIFY | Delayed blind retention and targeted KDR retests; practical grades separate |
+| G3 Work | PARTIAL: GitHub-only audits and folder/project visibility PASS | Fresh phone-initiated local source task, approvals, stop/reconnect/revoke, comparative Work value |
+| G4.0 Code Desktop | SOURCE_ONLY_ACCEPTED: 18/18 independent blob match, review 96/100, full supplement accepted | No repeat; no executable test or technical isolation inferred |
+| G4.0-RC | NEXT / NOT_TESTED | Actual new Code task from phone in designated source checkout, tool evidence, scope, quota |
+| G4.0-W | NEXT / NOT_TESTED | Actual new Work task from mobile, compare with Code/Chat; no shell/writes |
+| G4.1 | PLANNING ONLY / BLOCKED EXECUTION | Approved isolated executor I0–I4; verify mounts/secrets/egress/least privilege, harmless canaries and approval/deny, no disruption to Intel |
+| G5 | NOT_TESTED | V20 BASE+9 build, synthetic positives/negatives and blind fixes; TRL original bytes/ledger replay or BLOCKED_EXTERNAL; CC command and telemetry synthetic cases |
+| G6 | PARTIAL preparation (M5 simulated stale-source test PASS, RLI agreed) | New blind retention, injection, conflicting evidence, unknown result, safety/remote failure tests; independent KDR closeouts |
+| G7 | NOT_TESTED as formal gate | Both author/reviewer directions, approved isolated test/docs branch, Draft PR, review/rework/test evidence |
+| GPT-OUTAGE | NOT_TESTED, mandatory | New operator-assigned work covering three projects without GPT prompts/review/runtime dependency; mobile route; independent non-GPT evidence and owner decision, STOP/DEFER if risky gate missing |
+| G8 | NOT_TESTED | After required exams and separate approval: sanitized dated read-only operational observations, not ARM/broker commands |
+| G9 | NOT_TESTED | Full cross-surface acceptance, final docs/knowledge/runbook, open issues, scope of approved capabilities, monthly Pro decision, owner signoff; no auto-Merge or LIVE authorization |
+
+### Parallel tracks
+
+- Memory: M0/M1 basic config/storage and reported fresh-chat canary recall; M2 project map recall PASS after earlier failure; M5 simulated conflict PASS. Original import provenance and UI source attribution not fully verified. M3 project-context/attachment checks, M4 Work/Code/mobile visibility, delayed retention, export and targeted test-record cleanup remain; do not bulk re-import.
+- Skills: KMS-01 original draft integrity/source reviewed, GPT candidate [1.0.1-rc.1](recovery/kimi/skills/github-source-audit/SKILL.md) awaiting Kimi review and owner approval; NOT installed/qualified. Then S1 fresh READONLY cases, S2 actual transfer/use and S3 maintenance/export. KMS-02 V20, KMS-03 TRL, KMS-04 CC, KMS-05 GPT↔Kimi handoff not yet authored/accepted; sequential development and independent testing, no automatic execution.
+- KDR: 001–009 remain open in latest register; prioritize 006 isolation before execution, 001 Protect3 negative/positive + delayed blind retests, 005 TRL original bytes, 008 remote safety, 009 independent operation. 002 docs drift, 003 timezone evidence (not a confirmed Kimi error), 004 research methodology and 007 action/cross-surface evidence remain. Keep findings distinct from model errors. No closure by explanation alone.
+- Capacity: latest supplied screenshot 24.11 11:34, 28.5% monthly / 51.41% 5h Code used; Extra Usage OFF. Mixed intervals include interrupted/restarted tasks and parallel work; not clean per-task costs. Continue monthly pilot, no annual Pro/Max decision yet.
+
+### Work queue (single current pointer)
+
+1. Now: G4.0-RC via Code Desktop phone route; in parallel receive KMS-01 revision review. Use existing Intel source checkout only, no repeat of full G4.0.
+2. G4.0-W via Work mobile route; short Chat web/mobile parity and scoped cross-surface Memory checks. Record actual tools, before/after quota and failures.
+3. Review/approve/install KMS-01 as READONLY candidate only, run independent tests; continue KMS-02–05 in order; not a prerequisite to source-only remote tests.
+4. Prepare and separately authorize G4.1 executor, pass I0–I4; locate/privacy-check original TRL artifacts for approved transfer. No code execution until this gate.
+5. G5 V20 then TRL then CC (prioritize V20/TRL), G6 independent blind/safety retests and G7 reciprocal handoff; complete required Skills/retention/transfer tests.
+6. Mandatory GPT-OUTAGE, then G8 separately approved read-only operational observation, G9 full documented acceptance and subscription decision. If a mandatory gate cannot be verified, state BLOCKED/NOT_TESTED, not PASS.
+7. Only after Stage II acceptance and required separate permissions: Stage III independent complete backup and genuine offline cold restore.
+
+No arbitrary overall progress percentage: setup, theory, source review, execution and autonomy are not equally weighted. A completed source gate is not operational qualification. Current production status remains UNKNOWN; no new LIVE access, no deployment, no Merge.
