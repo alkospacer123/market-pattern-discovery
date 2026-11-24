@@ -226,3 +226,5 @@ Owner requested sequential work and an end to continuously added exams; accepted
 6. Stage III: autonomous backup and actual cold restore outside Intel/GitHub/both AI platforms.
 
 See [program §15](recovery/kimi/PHASE_II_QUALIFICATION_AND_PRO_LIMITS_20261123.md) and [skill acceptance §24](recovery/kimi/MEMORY_AND_SKILLS_QUALIFICATION_20261124.md). Untested capabilities remain explicitly unverified. Do not add tasks without material reason or owner agreement. No LIVE change or Merge.
+
+**KMS-02 checkpoint 24.11:** accepted for practical source diagnosis after owner-confirmed rc.1 activation and 4/4 source blob matches; conditional Protect3 time-gate finding retained for existing V20 engineering work, historical root cause UNKNOWN. [§28](recovery/kimi/MEMORY_AND_SKILLS_QUALIFICATION_20261124.md). KDR-001 runtime gate still open; no new exam. **Next only KMS-03 — trl-reproducibility-review** under simplified fixed queue. No LIVE change or Merge.
