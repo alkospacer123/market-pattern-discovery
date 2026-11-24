@@ -276,3 +276,34 @@ Operator submitted the STANDARD source-only audit of the four hypothetical claim
 Operator supplied two iPhone screenshots at displayed local time 13:00: the slash-command Skills picker lists `github-source-audit` with READONLY description; the new Chat composer shows the selected skill as a blue named attachment/token, K3.1 Pro High. This independently corroborates mobile availability and explicit pre-send selection. No separate mobile installation is reported. The screenshots do not show a submitted request, skill-loading event, actual tool calls, completed response, or the selected file's semantic version/hash. They cannot retrospectively establish invocation in the three earlier smoke sessions. rc.3 activation remains owner-reported.
 
 **Status:** `KMS01_MOBILE_VISIBILITY_PASS_UI` / `KMS01_MOBILE_SELECTION_PASS_UI` / `KMS01_ACTUAL_INVOCATION_PENDING` / `SMOKE_CONTENT_3_OF_3_ACCEPTED`. Next single task: one compact fresh mobile Chat source/ref conflict audit with the selected skill, capture submitted message, any visible loading/tool events and response; no repeated long audits. Distinguish model-reported skill use from independently visible invocation. Independent expected findings prepared separately, not published before task. Continue full applicable T01–T14 qualification and transfer/export only after this checkpoint. No other skill, RC task, shell, local/production access, LIVE change or Merge. No new quota measurement.
+
+## 23. KMS-01 mobile practical check and full-qualification coverage baseline (24.11.2026)
+
+**Evidence:** operator supplied the completed mobile QUICK response after the UI selection screenshots in §22. Kimi reports reading the skill via read_file, version `1.0.1-rc.3 | KMS-01 | REVIEW_CANDIDATE_NOT_QUALIFIED`, and actual select_tools/get_commit/get_file_contents/list_branches operations. Search_code loaded but not invoked; no shell/code/test/write reported. Pinned directory listings and skill-loading events are reported, not independently observed in tool-history UI. This evidence is sufficient for bounded practical mobile content/usage acceptance (UI selection + response), not proof of exact installed bytes or all past invocations.
+
+**Independent GitHub check:** fresh MAIN `e05bbd24db88f127a52f0ff1b7282d7c6919cd81`; exact target path in MAIN returns 404; historical commit `b67004229feaa89158622d96725d14e919455be5` returns the G4 document with blob `f2f9b58e86cb794a68622d7114b629f70817e9c3`, UTF-8 content 10,489 bytes, timestamp 2026-11-24T07:59:20Z; commit file list only Memory & Skills document. Independent compare MAIN...historical returns ahead=68, behind=0, target status added. All tested claims match. The compare corroborates addition relative to current MAIN; does not prove absence from every historical MAIN. Kimi correctly limits conclusion to the pinned snapshots, distinguishes API-provided blob metadata and locally calculated hashes, and lists used vs merely loaded tools.
+
+**Status:** `KMS01_MOBILE_CONTENT_PASS` / `MOBILE_SELECTION_UI_VERIFIED` / `SKILL_LOAD_AND_TOOL_ACTIONS_REPORTED` / `SMOKE_CONTENT_3_OF_3_ACCEPTED` / `SMOKE_PRACTICAL_BOUNDED_ACCEPTANCE` / `INDEPENDENT_INVOCATION_LOG_UNAVAILABLE_IN_SUBMITTED_EVIDENCE`. No need to rerun the three accepted cases. Formal independent invocation evidence remains an open evidence limitation; do not promote to QUALIFIED automatically. No new quota measurement.
+
+### Full qualification: reviewer coverage baseline against rc.3 §6
+
+These are bounded content/behavior results, not technical permission enforcement. Prior cases are reused where applicable; all partial classes remain open until the missing aspect is tested or a justified scope exclusion is accepted by the owner. No future hidden oracle is published.
+
+| Class | Evidence to date | Remaining |
+|---|---|---|
+| T01 pinned repo | CONTENT_PASS, all smoke cases + mobile check | retain actual action/version evidence limitation |
+| T02 moving ref | PARTIAL, same-ref recheck reported | actual change between start/end, preserve coherent snapshot |
+| T03 absence vs unavailable | PARTIAL, pinned absent/present mobile case matched | distinguish inaccessible/forbidden/rate-limited from absent |
+| T04 docs vs code | CONTENT_PASS, S1.1 latch vs refresh scope correction; S1.3 authority conflict | retain CC correction; no runtime claim |
+| T05 test without event | CONTENT_PASS, S1.1/S1.2 tests read, not run | no new execution required for this class |
+| T06 stale CI | NOT_TESTED | compare event, actual checkout, artifacts and skipped coverage |
+| T07 release vs installed/live | PARTIAL, S1.2/S1.3 distinguish source/research from live | explicit release evidence case |
+| T08 dependencies | PARTIAL, HOLD5 import traced | distinguish declaration, resolution, import, runtime |
+| T09 symlink/submodule/LFS | NOT_TESTED | pointer/object vs target content |
+| T10 derived provenance | PARTIAL, candidate patch and archive identity boundaries | explicit expected vs independently observed derived hash |
+| T11 embedded instructions | NOT_TESTED | harmless controlled untrusted instruction, no forbidden operation |
+| T12 truncated/limited output | PARTIAL, incomplete branch listing not relied on | explicit truncation/limit and bounded recovery or STOP |
+| T13 fork/archive identity | NOT_TESTED | distinguish authoritative repo from fork/archive |
+| T14 dynamic/conditional branches | PARTIAL, HOLD5 and CC conditional paths | explicit config-dependent/dynamic path and runtime uncertainty |
+
+**Next single task:** bounded qualification fixture group A (T02/T03/T12: changed refs, access/absence, truncated or limited responses), using clearly labeled synthetic read responses as a decision exercise, not actual API errors or actual permission enforcement. Then groups covering remaining classes, only one task at a time; preferably combine real source checks with controlled inert fixtures where a live condition cannot safely or reliably be reproduced. Record observed vs reported evidence separately; no production or secret access. Full coverage, actual cross-surface invocation/transfer, export, and owner acceptance remain pending. No other skills or Remote Control tasks dispatched. No LIVE change, no Merge.
