@@ -214,3 +214,15 @@ Next: manual operator-approved install and version/selection evidence → sequen
 **KMS-01 mobile checkpoint 24.11:** iPhone UI confirms skill visibility and explicit pre-send selection; [§22](recovery/kimi/MEMORY_AND_SKILLS_QUALIFICATION_20261124.md). Actual invocation and exact mobile-loaded version not independently evidenced. **Next single task: compact mobile source/ref audit with selected skill and visible invocation/tool evidence where available.** Retain 3/3 smoke content acceptance and no premature full qualification. No execution, LIVE change or Merge.
 
 **KMS-01 mobile practical checkpoint 24.11:** mobile QUICK content PASS; UI selection verified, rc.3 load and tool calls model-reported, both pinned Git slices independently confirmed. Bounded practical acceptance; independent invocation log remains an evidence limitation. [§23 and T01–T14 coverage baseline](recovery/kimi/MEMORY_AND_SKILLS_QUALIFICATION_20261124.md). **Next single task: full-qualification group A (T02/T03/T12), controlled synthetic read-response exercise.** No repeated accepted smoke audits; remaining coverage, Work/Code transfer, export and owner acceptance pending. No execution, LIVE change or Merge.
+
+## Simplified fixed work queue — 24.11.2026 (supersedes earlier next-task pointers)
+
+Owner requested sequential work and an end to continuously added exams; accepted continuation under simplified program. Stage I accepted. Stage II:
+1. KMS-01 accepted for bounded READONLY use (not full certification); theory/source/memory results retained. Additional skill edge-case exams are a non-blocking backlog.
+2. **NOW: KMS-02 V20 safety analysis**, then KMS-03 TRL, KMS-04 CC, KMS-05 handoff, one at a time. Each: draft, independent review/correct if material, install with owner approval, one meaningful case.
+3. Actual Code and Work phone routes, access boundaries and existing sandbox isolation assessment. No executable tasks until approved isolation I0–I4. No new production grants.
+4. Useful engineering work for V20, CC, TRL with independent evidence; integrate required practical/safety/reproducibility checks and skill transfer, no redundant theoretical exams.
+5. Reciprocal GPT/Kimi handoff, mandatory GPT-OUTAGE, bounded operational acceptance, final documentation/export and Pro decision.
+6. Stage III: autonomous backup and actual cold restore outside Intel/GitHub/both AI platforms.
+
+See [program §15](recovery/kimi/PHASE_II_QUALIFICATION_AND_PRO_LIMITS_20261123.md) and [skill acceptance §24](recovery/kimi/MEMORY_AND_SKILLS_QUALIFICATION_20261124.md). Untested capabilities remain explicitly unverified. Do not add tasks without material reason or owner agreement. No LIVE change or Merge.
