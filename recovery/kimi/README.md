@@ -1,5 +1,28 @@
 # Kimi Phase II — три логических проекта знаний
 
+## Checkpoint G6.4 / G6.5 — 25.11.2026; исправление G6.5.1
+
+**Проверенный SOURCE BASE:** `alkospacer123/market-pattern-discovery/main@e05bbd24db88f127a52f0ff1b7282d7c6919cd81`.
+
+**Каноническая среда G6.5:** `CLIENT_ENVIRONMENT=KIMI_CHAT`; `EXECUTION_CONTEXT=AGENT_TOOL_ENABLED_CHAT`; `ENVIRONMENT_EVIDENCE=OPERATOR_CONFIRMED`; `KIMI_WORK=NOT_USED`; `KIMI_CODE=NOT_USED`; `GITHUB_PLUGIN_ACCESS=READ_WRITE_PASS`; `LOCAL_WINDOWS_ACCESS=NOT_PERFORMED`; `OFFLINE_EXECUTOR=NOT_CONFIRMED`; `LIVE=UNKNOWN`. Это свидетельство о GitHub source/documentation работе в Kimi Chat, не о Kimi Work, Kimi Code на Windows, INSTALLED или LIVE.
+
+- **G6.4 — COMPLETE в заявленном scope:** оператор принял проверку GitHub READONLY и иерархии документации. `G6.4_CLIENT_ENVIRONMENT=UNKNOWN`: отдельная принадлежность G6.4 к клиенту не подтверждена, и атрибуция G6.5 на него не переносится.
+- **Независимая сверка GPT — 19/19 Git blob SHA MATCH; иерархия Control Center признана корректной.** Результат передан оператором и имеет класс `REPORTED_ONLY`: Kimi не выдаёт его за собственную повторную сверку всех 19 blob.
+- По переданному оператором решению GPT, **G6.5=PARTIALLY_ACCEPTED, MERGE_HOLD** до исправления атрибуции. G6.5.1 сохраняет исходный commit и добавляет один корректирующий commit в существующий Draft PR #598.
+
+| Последующий статус | Действующее заключение |
+| --- | --- |
+| Полный `CODE_EXAM_PASS` | **NOT CONFIRMED** |
+| Полный `HANDOFF_PASS` | **NOT CONFIRMED** до повторного независимого review и решения оператора |
+| `OFFLINE_EXECUTOR` | **NOT_CONFIRMED** |
+| `LIVE` | **UNKNOWN** |
+| `COLD_RESTORE` | **NOT TESTED** |
+
+**ENVIRONMENT_ATTRIBUTION_ERROR:** Kimi ошибочно отождествил наличие Agent-инструментов с использованием Kimi Work; ошибку обнаружили оператор и GPT. Исправление разделяет клиента, execution context, фактические инструменты и полномочия. Запрещено выводить среду только из Skills, plugins или sandbox. Статус: `CORRECTION_PENDING_GPT_REVIEW`.
+
+Новый блок не отменяет датированные статусы и SHA ниже и не закрывает другие пункты [Roadmap](../../ROADMAP.md). Корректные исторические упоминания Work/Code сохранены. Следующий шаг — повторное GPT-ревью именно G6.5.1, затем решение оператора. Правила остаются в [экзамене и handoff](EXAM_AND_HANDOFF.md) и [Windows access gate](WINDOWS_WORKSPACE_AND_ACCESS.md). Никаких действий с FINAM, Intel, production, секретами или долговременной памятью checkpoint не разрешает и не подтверждает.
+
+
 **OPERATING UPDATE 23.11.2026 (operator evidence):** два Kimi Chat проекта уже созданы до подписки; третий (Control Center) планируется после активации Pro. Kimi Code Desktop авторизован под тем же аккаунтом, `Always Ask` выбран; GitHub OAuth Kimi предоставлен, но фактический доступ инструментами Kimi ещё не проверялся. На Intel NTFS создана рабочая Git-копия `C:\KimiSandbox\market-pattern-discovery`: оператор сообщил `HEAD=1413273a1a312802a0ced7a06a4eb73f050d2ec3`, `REQUIRED_FILES=PASS`, `WORKTREE_CLEAN=PASS`, `KIMI_C_SOURCE_WORKSPACE_READY`. Это **не** OS sandbox, не тест Kimi и не LIVE. Исторический статус и SHA документа 22.11 ниже относятся только к своему срезу. [Действующий Windows gate](WINDOWS_WORKSPACE_AND_ACCESS.md).
 
 

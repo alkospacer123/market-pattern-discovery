@@ -1,5 +1,20 @@
 # Kimi Code — Windows source workspace, safety gates and operator handoff
 
+## G6.4 / G6.5 documentation checkpoint — 25.11.2026; G6.5.1 correction
+
+**Current SOURCE BASE:** `market-pattern-discovery/main@e05bbd24db88f127a52f0ff1b7282d7c6919cd81`.
+
+**Corrected G6.5 attribution (`OPERATOR_CONFIRMED`):** `CLIENT_ENVIRONMENT=KIMI_CHAT`; `EXECUTION_CONTEXT=AGENT_TOOL_ENABLED_CHAT`; `KIMI_WORK=NOT_USED`; `KIMI_CODE=NOT_USED`; `GITHUB_PLUGIN_ACCESS=READ_WRITE_PASS`; `LOCAL_WINDOWS_ACCESS=NOT_PERFORMED`; `OFFLINE_EXECUTOR=NOT_CONFIRMED`; `LIVE=UNKNOWN`. GitHub READONLY and the authorized branch/commit/Draft-PR writes were performed in Kimi Chat through the available GitHub plugin, not through Kimi Work or Kimi Code.
+
+**Separate G6.4 boundary:** G6.4 remains **COMPLETE within its declared source-only scope** as accepted by the operator, but `G6.4_CLIENT_ENVIRONMENT=UNKNOWN`; the G6.5 attribution must not be retroactively applied to G6.4. The operator reports independent GPT verification of **19/19 Git blob SHA MATCH** and correct Control Center documentation hierarchy; for Kimi this remains `REPORTED_ONLY`, not a repeated independent 19-blob check.
+
+This evidence does **not** establish Kimi Code Desktop access to either Windows checkout, local HEAD/clean state, technical execution isolation or permission boundaries. Full `CODE_EXAM_PASS` and `HANDOFF_PASS` remain **NOT CONFIRMED**; `COLD_RESTORE=NOT_TESTED`. No Intel, reserve-PC, FINAM, production-path, secret or long-term-memory action was performed or authorized.
+
+**ENVIRONMENT_ATTRIBUTION_ERROR:** Agent tools were incorrectly equated with Kimi Work, producing an incorrect environment in the documentation and HANDOFF. Detected by the operator and GPT. The correction separately records client, execution context, actual tools and permissions. Never infer environment solely from Skills, plugins or sandbox. Status: `CORRECTION_PENDING_GPT_REVIEW`. Per the operator-relayed GPT decision, G6.5 is `PARTIALLY_ACCEPTED` with `MERGE_HOLD` pending this correction.
+
+G6.5.1 preserves the original commit and adds one corrective commit to existing Draft PR #598. Repeated GPT non-author review and the operator's final decision remain mandatory. The 23.11 status, paths, SHA and valid historical Work/Code references below are preserved as their original dated baseline. See [exam and handoff](EXAM_AND_HANDOFF.md), [Phase-II index](README.md) and [Roadmap](../../ROADMAP.md).
+
+
 **Status (2026-11-23): SOURCE_CHECKOUT_PASS_OPERATOR_OUTPUT / KIMI_EXAMS_NOT_RUN / OFFLINE_EXECUTOR_NOT_READY / LIVE_UNKNOWN.** The operator supplied Windows PowerShell output confirming the checkout and clean source tree. This document is not evidence of Kimi tool access, actual Windows isolation, tests, installed release or LIVE state. Approved source baseline for preparation: `market-pattern-discovery/main@1413273a1a312802a0ced7a06a4eb73f050d2ec3`; always recheck the actual HEAD when work begins.
 
 ## 1. Single source and workspace

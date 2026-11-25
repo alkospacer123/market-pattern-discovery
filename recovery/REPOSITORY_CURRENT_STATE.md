@@ -1,5 +1,23 @@
 # GitHub — проверенное состояние проекта (22.11.2026)
 
+## Checkpoint 25.11.2026 — G6.4, G6.5 и исправление G6.5.1
+
+**SOURCE BASE:** `alkospacer123/market-pattern-discovery/main@e05bbd24db88f127a52f0ff1b7282d7c6919cd81`, независимо разрешён через GitHub при подготовке G6.5. Это датированный snapshot, не постоянный HEAD и не свидетельство INSTALLED/LIVE.
+
+**Исправленная атрибуция G6.5 (`OPERATOR_CONFIRMED`):** `CLIENT_ENVIRONMENT=KIMI_CHAT`; `EXECUTION_CONTEXT=AGENT_TOOL_ENABLED_CHAT`; `KIMI_WORK=NOT_USED`; `KIMI_CODE=NOT_USED`; `GITHUB_PLUGIN_ACCESS=READ_WRITE_PASS`; `LOCAL_WINDOWS_ACCESS=NOT_PERFORMED`; `OFFLINE_EXECUTOR=NOT_CONFIRMED`; `LIVE=UNKNOWN`. GitHub READONLY и разрешённые записи ветки/commit/Draft PR выполнены именно в этой chat/agent-сессии.
+
+- **G6.4 — COMPLETE в заявленном scope**, принят оператором; `G6.4_CLIENT_ENVIRONMENT=UNKNOWN`, поскольку отдельного доказательства клиента нет. Атрибуция G6.5 на G6.4 не переносится.
+- По отчёту оператора о независимой сверке GPT: **19/19 Git blob SHA MATCH**, иерархия Control Center корректна. Для Kimi это `REPORTED_ONLY`, не самостоятельная повторная сверка 19 blob.
+- По переданному оператором решению GPT: **G6.5=PARTIALLY_ACCEPTED, MERGE_HOLD** до исправления среды. Полный `CODE_EXAM_PASS` и `HANDOFF_PASS` остаются **NOT CONFIRMED**; `COLD_RESTORE=NOT_TESTED`.
+- G6.5.1 добавляет один корректирующий commit в существующий Draft PR #598; исходный commit и история ошибки сохранены. До повторного GPT non-author review и решения оператора это не принятый MAIN, не Merge и не полный handoff PASS.
+
+**ENVIRONMENT_ATTRIBUTION_ERROR:** Agent-инструменты были ошибочно приравнены к Kimi Work; последствие — неверная среда в документации и HANDOFF. Обнаружение — оператор и GPT. Коррекция разделяет клиента, execution context, инструменты и полномочия. Нельзя выводить среду исключительно из Skills, plugins или sandbox. Статус — `CORRECTION_PENDING_GPT_REVIEW`.
+
+Открытый Draft #597 — отдельная более широкая задача, не MAIN и не дубликат G6.5. Пересечение с `ROADMAP.md`, `recovery/kimi/README.md` и `recovery/kimi/WINDOWS_WORKSPACE_AND_ACCESS.md` требует осознанной интеграции владельцем. Запись об этом дефекте подготовлена для последующего журнала #597, но **PR #597 не изменён** и его содержимое не перенесено как принятое.
+
+Все прежние SHA, таблицы, результаты и статусы ниже сохранены в исходном контексте 22.11. Более раннее «Kimi … NOT VERIFIED / NOT DONE» описывает тот срез и не отменяет принятый G6.4, но не доказывает Code, executor, INSTALLED или LIVE. Корректные исторические упоминания Kimi Work/Kimi Code не изменены. Текущий порядок уточняют [Roadmap](../ROADMAP.md), [Kimi Phase II](kimi/README.md) и [exam/handoff](kimi/EXAM_AND_HANDOFF.md); другие пункты Roadmap не закрываются.
+
+
 **Точка контроля:** `alkospacer123/market-pattern-discovery/main=41d0b48c1d33db29bc1b19497d558748b3db8fb4`, Git tree `5e6aa2a8dee3e30a586d5a0d0204ebd8308a60fc`. Это GitHub API snapshot **до этой документационной ревизии**, а не постоянный HEAD: перед следующими действиями заново проверять `main`. Не путать source MAIN с Intel INSTALLED, текущим LIVE и архивным RESEARCH.
 
 ## Принятые изменения и приёмка R7

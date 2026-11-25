@@ -1,5 +1,32 @@
 # Trading Systems — Roadmap (фактический R7 closeout, 22.11.2026)
 
+## G6.4 / G6.5 checkpoint — 25.11.2026; исправление G6.5.1
+
+**SOURCE BASE:** `alkospacer123/market-pattern-discovery/main@e05bbd24db88f127a52f0ff1b7282d7c6919cd81`. Этап I остаётся принятым только в ранее документированном scope; этап II продолжается; этап III не начат. Checkpoint не переписывает исторические baseline, SHA, чекбоксы или результаты ниже.
+
+### Каноническая атрибуция среды G6.5
+
+| Поле | Исправленное значение |
+| --- | --- |
+| `CLIENT_ENVIRONMENT` | `KIMI_CHAT` |
+| `EXECUTION_CONTEXT` | `AGENT_TOOL_ENABLED_CHAT` |
+| `ENVIRONMENT_EVIDENCE` | `OPERATOR_CONFIRMED` |
+| `KIMI_WORK` | `NOT_USED` |
+| `KIMI_CODE` | `NOT_USED` |
+| `GITHUB_PLUGIN_ACCESS` | `READ_WRITE_PASS` — READONLY, ветка, commit и Draft PR фактически выполнены в G6.5 |
+| `LOCAL_WINDOWS_ACCESS` | `NOT_PERFORMED` |
+| `OFFLINE_EXECUTOR` | `NOT_CONFIRMED` |
+| `LIVE` | `UNKNOWN` |
+
+**Граница G6.4:** `G6.4_CLIENT_ENVIRONMENT=UNKNOWN`. G6.4 остаётся **COMPLETE в заявленном scope** по решению оператора, но принадлежность того испытания к конкретному клиенту не подтверждена; атрибуция G6.5 на G6.4 не переносится. Независимая сверка GPT — **19/19 Git blob SHA MATCH** и корректная иерархия Control Center по отчёту оператора; для Kimi это `REPORTED_ONLY`, не повторный `PERFORMED_CHECK`.
+
+**ENVIRONMENT_ATTRIBUTION_ERROR:** наличие Agent-инструментов было ошибочно отождествлено с использованием Kimi Work, что исказило среду в документации и HANDOFF. Ошибку выявили оператор и GPT. Исправление разделяет клиента, execution context, фактические инструменты и полномочия; запрещено выводить среду только из Skills, plugins или sandbox. Статус: `CORRECTION_PENDING_GPT_REVIEW`. По переданному оператором решению GPT, G6.5 = `PARTIALLY_ACCEPTED`, `MERGE_HOLD` до этой коррекции.
+
+Полный `CODE_EXAM_PASS` и полный `HANDOFF_PASS` остаются **NOT CONFIRMED**; `COLD_RESTORE=NOT_TESTED`. **G6.5.1 — DOCUMENTATION ONLY / EXISTING DRAFT PR / NO MERGE / NO LIVE.** Draft PR и CI не становятся MAIN, полным экзаменом, handoff acceptance, INSTALLED или LIVE_PASS. Требуется повторное независимое GPT-ревью; окончательное решение принимает оператор. Остальные пункты Roadmap и практические/isolation gates не закрываются.
+
+Ссылки: [Kimi Phase II](recovery/kimi/README.md), [экзамен и handoff](recovery/kimi/EXAM_AND_HANDOFF.md), [Windows access gate](recovery/kimi/WINDOWS_WORKSPACE_AND_ACCESS.md), [GitHub state](recovery/REPOSITORY_CURRENT_STATE.md).
+
+
 **OPERATING CHECKPOINT 23.11.2026:** После финальных документационных Merge #592–#595 source MAIN проверен: `1413273a1a312802a0ced7a06a4eb73f050d2ec3` до принятия последующих PR. Оператор подтвердил локальную исходную копию на `C:\KimiSandbox\market-pattern-discovery` (тот же HEAD, required files PASS, clean PASS); это не допуск исполнения на Intel. Правила работы и критерии покупки месячного Pro в [Windows gate](recovery/kimi/WINDOWS_WORKSPACE_AND_ACCESS.md). После каждого Merge повторно проверять новый MAIN.
 
 
