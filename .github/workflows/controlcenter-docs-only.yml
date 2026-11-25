@@ -40,7 +40,7 @@ jobs:
         shell: bash
         run: |
           python3 -B - <<'PY'
-          import os, pathlib, posixpath, re, subprocess
+          import os, posixpath, re, subprocess
 
           def git(*args):
               return subprocess.check_output(('git',)+args, stderr=subprocess.PIPE).decode().strip()
@@ -72,6 +72,39 @@ jobs:
               '.github/workflows/controlcenter-cc03-windows-native.yml',
               '.github/workflows/controlcenter-docs-only.yml',
           }
+          admission='.github/workflows/r7-abc-cleanup-gate.yml'
+          ci_pair={'.github/workflows/controlcenter-docs-only.yml',admission}
+          # Explicit cross-project documentation allowlist (reviewed COC package).
+          # No general recovery/**, Markdown wildcard, runtime or workflow exemption.
+          coc_paths={
+              'AGENTS.md',
+              'ControlCenter/docs/V20_CC07_COMMAND_CONTRACT.md',
+              'ControlCenter/docs/V20_START_HERE_SOURCE_MAP.md',
+              'TradingResearchLab/reports/TRL-NOV-2026-KIMI-START-HERE.md',
+              'TradingResearchLab/research/RESEARCH_METHODOLOGY.md',
+              'V20_TradingSystem_M15/AGENTS.md',
+              'V20_TradingSystem_M15/KIMI_START_HERE_R088.md',
+              'recovery/CRITICAL_OPERATIONS_CONTRACT.md',
+              'recovery/CRITICAL_OPERATIONS_INTEGRATION_MANIFEST.json',
+              'recovery/DOCUMENTATION_AUTHORITY_2026-11-22.md',
+              'recovery/kimi/CONTROL_CENTER.md',
+              'recovery/kimi/EXAM_AND_HANDOFF.md',
+              'recovery/kimi/README.md',
+              'recovery/kimi/TRL.md',
+              'recovery/kimi/V20.md',
+          }
+          skill_projects={
+              'ai-engineering-handoff':('ControlCenter','TRL','V20'),
+              'cc-incident-audit':('ControlCenter',),
+              'github-source-audit':('ControlCenter','TRL','V20'),
+              'trl-repro-review':('TRL',),
+              'v20-safety-analysis':('V20',),
+          }
+          for skill,projects in skill_projects.items():
+              coc_paths.add(f'recovery/kimi/skills/{skill}/SKILL.md')
+              for project in projects:
+                  coc_paths.add(f'recovery/kimi/memory/{project}/skills/{skill}/SKILL.md')
+          assert len(coc_paths)==29, 'CC_COC_ALLOWLIST_COUNT'
           assert doc_allowed('ControlCenter/README.md')
           assert doc_allowed('ControlCenter/docs/V20_SAFE_TEST.md')
           assert doc_allowed('ControlCenter/docs/SECURITY_BOUNDARY.md')
@@ -83,50 +116,127 @@ jobs:
 
           def objects(ref):
               out={}
-              raw=subprocess.check_output(('git','ls-tree','-r','-z',ref,'--','ControlCenter'))
+              raw=subprocess.check_output(('git','ls-tree','-r','-z',ref))
               for el in raw.split(b'\0'):
                   if not el: continue
                   info,path=el.split(b'\t',1)
                   mode,kind,sha=info.decode().split()
                   out[path.decode()]=(mode,kind,sha)
               return out
-          frozen_files=objects(frozen)
-          candidate_files=objects(head)
-          cc_delta={p for p in frozen_files.keys()|candidate_files.keys()
-                    if frozen_files.get(p)!=candidate_files.get(p)}
-          assert all(doc_allowed(p) and p in candidate_files for p in cc_delta), ('CC_SEALED_SOURCE_OR_HISTORICAL_DOC_CHANGED', sorted(p for p in cc_delta if not doc_allowed(p) or p not in candidate_files))
 
+          def regular_doc(entry):
+              return entry is not None and entry[:2]==('100644','blob')
+
+          def cc_objects(tree):
+              return {p:v for p,v in tree.items() if p.startswith('ControlCenter/')}
+
+          def delta(left,right):
+              return {p for p in left.keys()|right.keys() if left.get(p)!=right.get(p)}
+
+          def validate_frozen(frozen_files,candidate_files):
+              cc_delta=delta(frozen_files,candidate_files)
+              invalid={p for p in cc_delta if not doc_allowed(p) or not regular_doc(candidate_files.get(p))}
+              assert not invalid, ('CC_SEALED_SOURCE_OR_HISTORICAL_DOC_CHANGED', sorted(invalid))
+              return cc_delta
+
+          def validate_scope(changed,cc_pr_delta,candidate):
+              assert changed, 'CC_DOCS_NO_CHANGES'
+              for path,status in changed.items():
+                  assert status in ('A','M'), 'CC_DOCS_DELETION_OR_RENAME_FORBIDDEN:'+path
+                  assert regular_doc(candidate.get(path)), 'CC_DOCS_NOT_REGULAR_BLOB:'+path
+              paths=set(changed)
+              if paths & (workflows|{admission}):
+                  if admission in paths:
+                      assert paths==ci_pair, 'CC_DOCS_CI_PAIR_SCOPE'
+                  else:
+                      assert paths.issubset(workflows), 'CC_DOCS_WORKFLOW_AND_DOCUMENTS_MIXED'
+                  assert not cc_pr_delta, 'CC_SOURCE_CHANGED_DURING_CI_CHANGE'
+                  return 'CI_ONLY'
+              cc_changed={p for p in paths if p.startswith('ControlCenter/')}
+              assert cc_changed==cc_pr_delta and cc_changed, ('CC_DOCS_DIFF_NOT_EXACT',sorted(cc_changed^cc_pr_delta))
+              assert all(doc_allowed(p) for p in cc_changed), 'CC_DOCS_WRONG_CC_PATH'
+              if paths-cc_changed:
+                  assert paths.issubset(coc_paths), ('CC_DOCS_WRONG_PATH',sorted(paths-coc_paths))
+                  return 'CROSS_PROJECT_COC_DOCS'
+              return 'CC_ONLY'
+
+          # Calibrate the same predicates used below with harmless synthetic tree entries.
+          normal=('100644','blob','synthetic')
+          link=('120000','blob','synthetic')
+          cc_doc='ControlCenter/docs/V20_CC07_COMMAND_CONTRACT.md'
+          contract='recovery/CRITICAL_OPERATIONS_CONTRACT.md'
+          runtime='ControlCenter/v20_admin_control.py'
+          cc03='ControlCenter/docs/CC03_MANUAL_OS_SOURCE.md'
+          def scope_fixture(paths,cc_paths,expected):
+              assert validate_scope({p:'M' for p in paths},set(cc_paths),{p:normal for p in paths})==expected
+          def must_reject(fn,code):
+              try:
+                  fn()
+              except AssertionError as exc:
+                  assert code in str(exc), ('CC_NEGATIVE_WRONG_GATE',code,str(exc))
+              else:
+                  raise AssertionError('CC_NEGATIVE_ACCEPTED:'+code)
+          scope_fixture({cc_doc},{cc_doc},'CC_ONLY')
+          scope_fixture(coc_paths,{p for p in coc_paths if p.startswith('ControlCenter/')},'CROSS_PROJECT_COC_DOCS')
+          scope_fixture(ci_pair,set(),'CI_ONLY')
+          scope_fixture(workflows,set(),'CI_ONLY')
+          assert validate_frozen({runtime:normal},{runtime:normal,cc_doc:normal})=={cc_doc}
+          must_reject(lambda: validate_frozen({runtime:normal},{runtime:('100644','blob','changed')}),'CC_SEALED_SOURCE')
+          must_reject(lambda: validate_frozen({cc03:normal},{cc03:('100644','blob','changed')}),'CC_SEALED_SOURCE')
+          must_reject(lambda: validate_frozen({cc_doc:normal},{}),'CC_SEALED_SOURCE')
+          must_reject(lambda: validate_scope({cc_doc:'M',runtime:'M'},{cc_doc,runtime},{cc_doc:normal,runtime:normal}),'CC_DOCS_WRONG_CC_PATH')
+          must_reject(lambda: validate_scope({cc_doc:'M','recovery/unreviewed.md':'A'},{cc_doc},{cc_doc:normal,'recovery/unreviewed.md':normal}),'CC_DOCS_WRONG_PATH')
+          must_reject(lambda: validate_scope({cc_doc:'M','V20_TradingSystem_M15/v20_runtime/finam_live.py':'M'},{cc_doc},{cc_doc:normal,'V20_TradingSystem_M15/v20_runtime/finam_live.py':normal}),'CC_DOCS_WRONG_PATH')
+          must_reject(lambda: validate_scope({cc_doc:'D'},{cc_doc},{cc_doc:normal}),'CC_DOCS_DELETION')
+          must_reject(lambda: validate_scope({cc_doc:'R'},{cc_doc},{cc_doc:normal}),'CC_DOCS_DELETION')
+          must_reject(lambda: validate_scope({cc_doc:'M',contract:'A'},{cc_doc},{cc_doc:normal,contract:link}),'CC_DOCS_NOT_REGULAR_BLOB')
+          must_reject(lambda: validate_scope({cc_doc:'M'},{cc_doc},{cc_doc:link}),'CC_DOCS_NOT_REGULAR_BLOB')
+          must_reject(lambda: validate_scope({cc_doc:'M'},set(),{cc_doc:normal}),'CC_DOCS_DIFF_NOT_EXACT')
+          must_reject(lambda: validate_scope({p:'M' for p in ci_pair|{cc_doc}},{cc_doc},{p:normal for p in ci_pair|{cc_doc}}),'CC_DOCS_CI_PAIR_SCOPE')
+          must_reject(lambda: validate_scope({p:'M' for p in ci_pair},{cc_doc},{p:normal for p in ci_pair}),'CC_SOURCE_CHANGED_DURING_CI_CHANGE')
+          must_reject(lambda: validate_scope({admission:'M'},set(),{admission:normal}),'CC_DOCS_CI_PAIR_SCOPE')
+          must_reject(lambda: validate_scope({cc_doc:'M','.github/workflows/controlcenter-docs-only.yml':'M'},{cc_doc},{cc_doc:normal,'.github/workflows/controlcenter-docs-only.yml':normal}),'CC_DOCS_WORKFLOW_AND_DOCUMENTS_MIXED')
+
+          # Two independent checks: frozen source protection (cumulative) and exact PR delta.
+          frozen_files=cc_objects(objects(frozen))
+          base_files=objects(base)
+          candidate=objects(head)
+          candidate_files=cc_objects(candidate)
+          cc_delta=validate_frozen(frozen_files,candidate_files)
+          cc_pr_delta=delta(cc_objects(base_files),candidate_files)
           changed={}
-          for line in git('diff','--name-status','--no-renames',base,head).splitlines():
-              status,path=line.split('\t',1)
-              assert status in ('A','M'), 'CC_DOCS_DELETION_OR_RENAME_FORBIDDEN:'+line
-              assert doc_allowed(path) or path in workflows, 'CC_DOCS_WRONG_PATH:'+path
+          raw=subprocess.check_output(('git','diff','--name-status','--no-renames','-z',base,head)).split(b'\0')
+          assert raw[-1]==b'' and (len(raw)-1)%2==0, 'CC_DOCS_DIFF_PARSE'
+          for i in range(0,len(raw)-1,2):
+              status,path=raw[i].decode('ascii'),raw[i+1].decode('utf-8')
+              assert path not in changed, 'CC_DOCS_DUPLICATE_PATH:'+path
               changed[path]=status
-          assert changed, 'CC_DOCS_NO_CHANGES'
-          if set(changed)&workflows:
-              assert set(changed).issubset(workflows), 'CC_DOCS_WORKFLOW_AND_DOCUMENTS_MIXED'
-              assert not cc_delta, 'CC_SOURCE_CHANGED_DURING_CI_CHANGE'
-          else:
-              assert set(changed)==cc_delta, ('CC_DOCS_DIFF_NOT_EXACT',sorted(set(changed)^cc_delta))
+          assert set(changed)==delta(base_files,candidate), 'CC_DOCS_FULL_DIFF_NOT_EXACT'
+          scope=validate_scope(changed,cc_pr_delta,candidate)
 
-          allpaths=set(git('ls-tree','-r','--name-only',head).splitlines())
+          # Read pinned Git blobs, not sparse working-tree files; cross-project docs stay checked.
+          allpaths={p for p,e in candidate.items() if e[1]=='blob' and e[0] in ('100644','100755')}
           linkcount=0
+          bad=re.compile(r'-----BEGIN (?:RSA |EC |OPENSSH )?PRIVATE KEY-----|github_pat_[A-Za-z0-9_]{30,}|ghp_[A-Za-z0-9]{30,}|Authorization:\s*Bearer\s+[A-Za-z0-9_-]{35,}',re.I)
           for path in changed:
-              if not path.endswith('.md'): continue
-              content=pathlib.Path(path).read_text(encoding='utf-8')
-              for m in re.finditer(r'\]\(([^)]+)\)',content):
-                  href=m.group(1).strip().split('#')[0]
-                  if not href or re.match(r'^(https?://|mailto:|data:)',href,re.I): continue
-                  if ' ' in href: continue
-                  dest=posixpath.normpath(posixpath.join(posixpath.dirname(path),href))
-                  assert dest in allpaths, ('CC_DOCS_BROKEN_LINK',path,dest)
-                  linkcount+=1
-              bad=re.compile(r'-----BEGIN (?:RSA |EC |OPENSSH )?PRIVATE KEY-----|github_pat_[A-Za-z0-9_]{30,}|ghp_[A-Za-z0-9]{30,}|Authorization:\s*Bearer\s+[A-Za-z0-9_-]{35,}',re.I)
+              if not path.endswith(('.md','.json')): continue
+              content=git('show',f'{head}:{path}')
+              if path.endswith('.md'):
+                  for m in re.finditer(r'\]\(([^)]+)\)',content):
+                      href=m.group(1).strip().split('#')[0]
+                      if not href or re.match(r'^(https?://|mailto:|data:)',href,re.I): continue
+                      if ' ' in href: continue
+                      dest=posixpath.normpath(posixpath.join(posixpath.dirname(path),href))
+                      assert dest in allpaths, ('CC_DOCS_BROKEN_LINK',path,dest)
+                      linkcount+=1
               assert not bad.search(content), 'CC_DOCS_POSSIBLE_SECRET:'+path
 
+          print('CC_DOCS_SCOPE_MODE='+scope)
+          print('CC_FROZEN_DOCUMENTATION_DELTA',len(cc_delta))
+          print('CC_PR_DOCUMENTATION_DELTA',len(cc_pr_delta))
           print('CC_FROZEN_ORIGINAL_SOURCE=PASS',frozen,os.environ['FROZEN_CC_TREE'])
           print('CC_RUNTIME_AND_CC03_BLOB_IDENTITIES=UNCHANGED')
-          print('CC_DOCUMENTATION_CHANGE_SCOPE=PASS',len(cc_delta))
+          print('CC_DOCUMENTATION_CHANGE_SCOPE=PASS',len(cc_pr_delta))
           print('CC_MODIFIED_DOCUMENT_LINKS=PASS',linkcount)
           print('CC_NEGATIVE_SCOPE_TESTS=PASS')
           print('CC_DOCS_SOURCE_NOT_FINAM_NOT_LIVE=PASS')
