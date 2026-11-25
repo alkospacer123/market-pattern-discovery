@@ -14,3 +14,7 @@ Research → Evolution → Journal. Итоговое решение владел
 Исходные R060/R097 ZIP, XLSX, калькуляторы и OHLCV могут отсутствовать в GitHub; SHA256 в манифесте — не подтверждение наличия исходных байтов. Не имитировать replay. Сохранять отрицательные результаты и ограничения GO/ликвидности, избегать подгонки и lookahead.
 
 Экзамен: самостоятельно объяснить R086→R089→R097→R098→closeout, сослаться на исходники и проверить SHA; перечислить все недоступные бинарные оригиналы; предложить одну ограниченную offline гипотезу на декабрь с preregistered criteria, costs и без LIVE. [Исторические H1/M15](../RETAINED_RESEARCH_CLASSIFICATION_2026-11-22.md) — reference only.
+
+## Critical Operations Contract
+
+Перед критической TRL-задачей прочитай [контракт](../CRITICAL_OPERATIONS_CONTRACT.md), затем применяй `trl-repro-review` и `github-source-audit`; при передаче добавь `ai-engineering-handoff`. По `COC-TRL-*` проверяй frozen protocol, причинность, фактические bytes, contamination и ledger/witness parity. `REPRODUCIBLE_VERIFIED` не расширяй на недоступный оригинальный R097 engine, INSTALLED или LIVE. Canonical Markdown fallback не называть установленным Skill.

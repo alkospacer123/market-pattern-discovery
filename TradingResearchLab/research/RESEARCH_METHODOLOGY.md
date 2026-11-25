@@ -44,3 +44,7 @@
 Передать задачу второму ИИ: точные ref+blob+SHA, текст frozen-протокола, входной архив и manifests, offline runbook, выходные CSV/JSON, контрольную метрику и известных отрицательных результатов, допущения и критерий остановки. Если первичных данных нет — запросить точное имя и ожидаемый hash, **не заменять отсутствующий результат числом из более раннего эксперимента**.
 
 [Исследовательский реестр](../reports/TRL-RESEARCH-REGISTRY-2026-11-22.md) · [манифест](../reports/TRL-NOV-2026-ARTIFACT-MANIFEST.md) · [отрицательные эксперименты](../reports/TRL-NEGATIVE-RESEARCH-INDEX-2026-11-22.md) · [практический экзамен](../reports/TRL-KIMI-EXAM-2026-11-22.md).
+
+## Critical Operations Contract — conformance ссылка
+
+Перед frozen protocol и replay сверяй [COC-TRL-*](../../recovery/CRITICAL_OPERATIONS_CONTRACT.md). Матрица не заменяет методологию, contamination ledger или witnesses. При `SOURCE_DRIFT` останови зависимый вывод; при отсутствии оригинальных bytes не присваивай identity недоступному engine по output parity.

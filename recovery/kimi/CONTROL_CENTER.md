@@ -14,3 +14,7 @@ CC — панель и операторский контур, не страте�
 Исторические operator/adapter Git blobs `10de325be0335733a248c412943f39d45bd93c62` / `ef2fa2cd6b0ddfefc920548995274f123c5884bf` описывают свидетельство 20.11, не нынешний установленный код. Сохранённый CC03 frozen scope-аудит имеет историческое исключение; успешный selected CI не доказывает LIVE.
 
 Kimi Code: прочитать `ControlCenter/tests/test_cc07_command_channel.py`, `test_cc07_admin_control.py`, `test_v20_controller.py`; объяснить неизвестный результат и fail-closed в синтетическом сценарии, выполнить только разрешённые офлайн-тесты в изолированной копии. Без настоящих кнопок, FINAM, DPAPI, Windows Tasks, SQLite или localhost управления.
+
+## Critical Operations Contract
+
+Перед критической CC-задачей прочитай [контракт](../CRITICAL_OPERATIONS_CONTRACT.md), затем применяй `cc-incident-audit` и `github-source-audit`; при передаче добавь `ai-engineering-handoff`. По `COC-CC-*` разделяй UI, refresh, adapter response, controller proof, Task/switch/audit и broker truth. MAIN UI request ID, offline G5.3.1 и INSTALLED состояние не объединять; unknown outcome не повторять. Canonical Markdown fallback маркировать отдельно от фактической загрузки Skill.

@@ -40,3 +40,7 @@
 PR [#567](https://github.com/alkospacer123/market-pattern-discovery/pull/567), [#574](https://github.com/alkospacer123/market-pattern-discovery/pull/574), [#575](https://github.com/alkospacer123/market-pattern-discovery/pull/575) — **MERGED**, последовательность сохранена; Stage I [#583](https://github.com/alkospacer123/market-pattern-discovery/pull/583), #585–#589, #591 — **MERGED**. [#590](https://github.com/alkospacer123/market-pattern-discovery/pull/590) — **CLOSED without Merge**, H1 audit-only dependency сохранена. Это история принятия источников, не разрешение торговать.
 
 **Перед любыми последующими действиями заново прочитать `main`, перепроверить SHA и не переносить эти статусные выводы на новую дату без доказательств.**
+
+## Critical Operations Contract — обязательный hazard-слой
+
+После source map и R088 release читай [Critical Operations Contract](../recovery/CRITICAL_OPERATIONS_CONTRACT.md). Для ARMED/HALTED, Protect3 и HOLD5 используй его `COC-V20-*` IDs вместе с фактическим BASE + ordered patches. Контракт не заменяет DERIVED/INSTALLED/LIVE проверки и не разрешает операции. Single-trial и основной R088 LIVE path не смешивать.

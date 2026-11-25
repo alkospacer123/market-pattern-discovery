@@ -37,3 +37,7 @@
 После dispatch неполный stdout, timeout или ошибка дают `FAILED_UNKNOWN`, а не PASS. Не тестировать START/PAUSE/STOP/RESTART/RECOVER на реальных роботах ради документации.
 
 **Не путать** с альтернативным `v20_command_channel.py`/`cc07_command_worker.py` (другой PIN, transport, нет RECOVER): текущий `v20_app.py` этот channel не импортирует. Реальная установка gateway **NOT_VERIFIED**; переключение на него требует отдельного проекта/приёмки.
+
+## Связь с Critical Operations Contract
+
+При аудите команд используй [COC-CC-*](../../recovery/CRITICAL_OPERATIONS_CONTRACT.md) как conformance checklist, а точные gates и коды бери из текущего SOURCE. Различай внутренний RECOVER proof refusal и итоговую классификацию адаптера; не каждый wrapper preflight refusal становится `REFUSED_PREFLIGHT`. `FAILED_UNKNOWN` запрещает повтор регламентом, но не доказывает технический interlock. Матрица не авторизует dispatch.
