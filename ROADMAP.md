@@ -1,5 +1,12 @@
 # Trading Systems — Roadmap (фактический R7 closeout, 22.11.2026)
 
+## Operator decision — 25.11.2026: reserve executor accepted; G5.1 next
+
+- **G4.1 = PASS_OPERATOR_CONFIRMED.** Owner confirms the existing separate reserve PC `DESKTOP-AQ582JG` as the accepted engineering executor and explicitly declines further infrastructure checks. No extra VM, host/network/Tailscale changes or additional isolation setup requested. This is an operator acceptance, not independently performed technical I1–I4 deny-test evidence; preserve the earlier evidence gaps as `NOT_INDEPENDENTLY_VERIFIED`, not technical PASS.
+- **NOW G5.1 V20:** proceed with the already statically accepted Protect3 test-only patch on the reserve PC, in a disposable pinned source checkout, with synthetic fixtures/mocked transport only. Check task identity, patch hash, `git apply --check`, exit codes and actual test results as part of the task, not a new infrastructure qualification. No production paths, broker credentials, real FINAM requests, remote actions against Intel, LIVE commands, network/host configuration changes, or blanket execution permission. Stop on unexpected external access, scope drift or failed prerequisites. KDR-001 and runtime tests remain open until actual evidence and independent review.
+- **G6.5/G6.5.1 documentation-only collaboration accepted and merged:** PR #598; new MAIN `2de8c212e29b2c589434a789cd81d6b3816ff28a`. Correct client Kimi Chat, Work/Code not used for this task; environment-attribution and premature GitHub-write confirmation findings retained for the existing KDR register, no repeat exam. Formal G7 Code handoff remains pending.
+- This decision supersedes earlier next-task/infrastructure pointers below, not historical evidence. Continue the fixed V20 → TRL → CC → G6 → G7 → GPT-OUTAGE → G8 → G9 → III queue. Draft #597 remains unmerged; reconcile overlaps with current MAIN separately. No new LIVE grants.
+
 ## CURRENT STATUS — 25.11.2026 (supersedes all earlier dated NOW pointers)
 
 - **I ACCEPTED** in documented cleanup scope; preserve Git history and retained H1/M15/audit dependencies. No new cleanup campaign.
