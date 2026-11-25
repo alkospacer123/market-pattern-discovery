@@ -1,5 +1,25 @@
 # Trading Systems — Roadmap (фактический R7 closeout, 22.11.2026)
 
+## G6.4 verified GitHub READONLY checkpoint — 25.11.2026
+
+**SOURCE BASE:** `alkospacer123/market-pattern-discovery/main@e05bbd24db88f127a52f0ff1b7282d7c6919cd81`. Этап I остаётся принятым только в ранее документированном scope; этап II продолжается; этап III не начат. Новый checkpoint уточняет доказательства Kimi и не переписывает исторические baseline, SHA, чекбоксы или результаты ниже.
+
+| Объект | Статус на 25.11.2026 | Доказательная граница |
+| --- | --- | --- |
+| GitHub READONLY access | **PASS** | Фактически использованная среда — **Kimi Work**; pinned MAIN повторно разрешён при подготовке G6.5 |
+| G6.4 | **COMPLETE в заявленном scope** | Принято оператором как проверка GitHub READONLY и иерархии документации |
+| Независимая сверка GPT | **19/19 Git blob SHA MATCH** | Также подтверждена корректная иерархия Control Center; результат передан оператором и для Kimi Work является `REPORTED_ONLY`, не повторным `PERFORMED_CHECK` |
+| Полный `CODE_EXAM_PASS` | **NOT CONFIRMED** | Данное испытание не запускало изолированные code/runtime tests |
+| Полный `HANDOFF_PASS` | **NOT CONFIRMED** | G6.5 требует независимого GPT-ревью Draft PR и решения оператора |
+| `OFFLINE_EXECUTOR` | **NOT READY / NOT CONFIRMED** | GitHub READONLY не доказывает Windows/OS/runner isolation |
+| `LIVE` | **UNKNOWN** | Никаких свежих Intel/FINAM/positions/orders/SLTP observations |
+| `COLD_RESTORE` | **NOT TESTED** | Этап III не начат |
+
+**G6.5 — DOCUMENTATION ONLY / GITHUB / DRAFT PR / NO LIVE.** Отдельная ветка и один Draft PR фиксируют только пять разрешённых Markdown-документов. Draft PR и CI не становятся MAIN, Merge, полным экзаменом, handoff acceptance, INSTALLED или LIVE_PASS. Следующий шаг — независимая проверка GPT полного diff, BASE/HEAD и blob SHA; окончательное решение принимает оператор. Остальные пункты Roadmap и обязательные практические/isolation gates не закрываются этим checkpoint.
+
+Ссылки на действующие правила и детали: [Kimi Phase II](recovery/kimi/README.md), [экзамен и handoff](recovery/kimi/EXAM_AND_HANDOFF.md), [Windows access gate](recovery/kimi/WINDOWS_WORKSPACE_AND_ACCESS.md), [GitHub state](recovery/REPOSITORY_CURRENT_STATE.md).
+
+
 **OPERATING CHECKPOINT 23.11.2026:** После финальных документационных Merge #592–#595 source MAIN проверен: `1413273a1a312802a0ced7a06a4eb73f050d2ec3` до принятия последующих PR. Оператор подтвердил локальную исходную копию на `C:\KimiSandbox\market-pattern-discovery` (тот же HEAD, required files PASS, clean PASS); это не допуск исполнения на Intel. Правила работы и критерии покупки месячного Pro в [Windows gate](recovery/kimi/WINDOWS_WORKSPACE_AND_ACCESS.md). После каждого Merge повторно проверять новый MAIN.
 
 

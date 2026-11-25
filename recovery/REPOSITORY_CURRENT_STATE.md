@@ -1,5 +1,20 @@
 # GitHub — проверенное состояние проекта (22.11.2026)
 
+## Checkpoint 25.11.2026 — G6.4 и документационный G6.5
+
+**Актуальный SOURCE BASE для этой ревизии:** `alkospacer123/market-pattern-discovery/main@e05bbd24db88f127a52f0ff1b7282d7c6919cd81`, независимо разрешён через GitHub при подготовке G6.5. Это новый датированный snapshot, а не постоянный HEAD и не свидетельство INSTALLED/LIVE.
+
+- **GitHub READONLY access — PASS** в фактически использованной среде **Kimi Work**.
+- **G6.4 — COMPLETE в заявленном scope**, принят оператором.
+- По переданному оператором результату независимой сверки GPT: **19/19 Git blob SHA MATCH**, иерархия документации Control Center корректна. Для текущего Kimi Work checkpoint это `REPORTED_ONLY`, а не самостоятельно повторённая сверка 19 blob.
+- Полный `CODE_EXAM_PASS` и полный `HANDOFF_PASS` **NOT CONFIRMED**; `OFFLINE_EXECUTOR` **NOT READY / NOT CONFIRMED**; `LIVE=UNKNOWN`; `COLD_RESTORE=NOT_TESTED`.
+- G6.5 изменяет только пять разрешённых Markdown-документов через отдельную ветку и Draft PR. До GPT non-author review и решения оператора это не принятый MAIN, не Merge и не полный handoff PASS.
+
+Открытый Draft #597 является отдельной более широкой документационной задачей, не источником принятого MAIN и не дубликатом G6.5. Его пересечение с `ROADMAP.md`, `recovery/kimi/README.md` и `recovery/kimi/WINDOWS_WORKSPACE_AND_ACCESS.md` требует осознанной интеграции владельцем; содержимое #597 не переносится в этот checkpoint как принятое.
+
+Все прежние SHA, таблицы, результаты и статусы ниже сохранены в исходном контексте 22.11. В частности, более раннее «Kimi … NOT VERIFIED / NOT DONE» описывает тот срез и не отменяет принятый G6.4, но также не доказывает Code, executor, INSTALLED или LIVE. Текущий порядок работы уточняют [Roadmap](../ROADMAP.md), [Kimi Phase II](kimi/README.md) и [exam/handoff](kimi/EXAM_AND_HANDOFF.md); другие пункты Roadmap этим checkpoint не закрываются.
+
+
 **Точка контроля:** `alkospacer123/market-pattern-discovery/main=41d0b48c1d33db29bc1b19497d558748b3db8fb4`, Git tree `5e6aa2a8dee3e30a586d5a0d0204ebd8308a60fc`. Это GitHub API snapshot **до этой документационной ревизии**, а не постоянный HEAD: перед следующими действиями заново проверять `main`. Не путать source MAIN с Intel INSTALLED, текущим LIVE и архивным RESEARCH.
 
 ## Принятые изменения и приёмка R7

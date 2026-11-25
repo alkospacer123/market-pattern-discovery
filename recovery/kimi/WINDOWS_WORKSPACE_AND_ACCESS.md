@@ -1,5 +1,14 @@
 # Kimi Code — Windows source workspace, safety gates and operator handoff
 
+## G6.4 / G6.5 documentation checkpoint — 25.11.2026
+
+**Current SOURCE BASE:** `market-pattern-discovery/main@e05bbd24db88f127a52f0ff1b7282d7c6919cd81`. In the actually used **Kimi Work** environment, GitHub READONLY access is **PASS**. G6.4 is **COMPLETE within its declared source-only scope** and was accepted by the operator. The operator reports independent GPT verification of **19/19 Git blob SHA MATCH** and correct Control Center documentation hierarchy; this is `REPORTED_ONLY` for the present Kimi Work checkpoint, not a repeated independent 19-blob check by Kimi.
+
+This evidence does **not** establish Kimi Code Desktop access to either Windows checkout, local HEAD/clean state, technical execution isolation or permission boundaries. `OFFLINE_EXECUTOR` remains **NOT READY / NOT CONFIRMED**; full `CODE_EXAM_PASS` and `HANDOFF_PASS` remain **NOT CONFIRMED**; `LIVE=UNKNOWN`; `COLD_RESTORE=NOT_TESTED`. No Intel, reserve-PC, FINAM, production-path, secret or long-term-memory action was performed or authorized by this checkpoint.
+
+G6.5 records only this evidence in five Markdown documents through a separate branch and Draft PR. GPT non-author review and the operator's final decision remain mandatory. The 23.11 status, paths and SHA below are preserved as their original dated baseline; they are not silently rewritten by the newer GitHub-only result. See [exam and handoff](EXAM_AND_HANDOFF.md), [Phase-II index](README.md) and [Roadmap](../../ROADMAP.md).
+
+
 **Status (2026-11-23): SOURCE_CHECKOUT_PASS_OPERATOR_OUTPUT / KIMI_EXAMS_NOT_RUN / OFFLINE_EXECUTOR_NOT_READY / LIVE_UNKNOWN.** The operator supplied Windows PowerShell output confirming the checkout and clean source tree. This document is not evidence of Kimi tool access, actual Windows isolation, tests, installed release or LIVE state. Approved source baseline for preparation: `market-pattern-discovery/main@1413273a1a312802a0ced7a06a4eb73f050d2ec3`; always recheck the actual HEAD when work begins.
 
 ## 1. Single source and workspace

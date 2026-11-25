@@ -1,5 +1,24 @@
 # Kimi Chat + Kimi Code — практический экзамен и GPT ↔ Kimi handoff
 
+## G6.4 evidence checkpoint и граница G6.5 — 25.11.2026
+
+**Pinned SOURCE BASE:** `e05bbd24db88f127a52f0ff1b7282d7c6919cd81` (`main`, независимо разрешён через GitHub при подготовке G6.5). Фактически использованная среда — **Kimi Work**. В этой среде GitHub READONLY-доступ **PASS**; это не перенос результата на Kimi Chat, Kimi Code Desktop или Windows checkout.
+
+| Проверка / состояние | Результат и предел применимости |
+| --- | --- |
+| G6.4 GitHub READONLY | **COMPLETE в заявленном scope**, принято оператором |
+| Независимая сверка GPT | **19/19 Git blob SHA MATCH**; иерархия документации Control Center корректна. Сообщено оператором, для Kimi Work — `REPORTED_ONLY`, не новый `PERFORMED_CHECK` всех 19 blob |
+| Полный `CODE_EXAM_PASS` | **NOT CONFIRMED**: G6.4/G6.5 не выполняют изолированные code/runtime tests |
+| Полный `HANDOFF_PASS` | **NOT CONFIRMED**: требуется GPT-ревью G6.5 и итоговое решение оператора |
+| `OFFLINE_EXECUTOR` | **NOT READY / NOT CONFIRMED** |
+| `LIVE` | **UNKNOWN** |
+| `COLD_RESTORE` | **NOT TESTED** |
+
+**G6.5 — только документационный collaborative checkpoint.** Разрешены отдельная ветка от указанного BASE, ровно пять документационных файлов, один commit и один Draft PR после проверки diff и CI. Сам факт ветки, commit, Draft PR или зелёного CI не является `CODE_EXAM_PASS`, `HANDOFF_PASS`, Merge, INSTALLED или LIVE_PASS. GPT должен независимо проверить BASE/HEAD, старые и новые blob SHA, полный diff, ссылки, сохранение исторических сведений и фактические checks; окончательное решение остаётся за оператором.
+
+Этот checkpoint дополняет, но не закрывает разделы A–C и критерии PASS/FAIL ниже. Датированные `SOURCE HEAD`, `NOT_CONNECTED` и подготовительные Windows SHA сохранены как исторические свидетельства. См. [индекс Phase II](README.md), [Windows gate](WINDOWS_WORKSPACE_AND_ACCESS.md) и [Roadmap](../../ROADMAP.md).
+
+
 **OPERATING UPDATE 23.11.2026:** три проекта Kimi и экзамен пока не завершены; два Chat проекта существуют, третий ожидает Pro. Kimi Code авторизован, но GitHub tool reads и offline tests через него **не проверены**. Подтверждённая оператором подготовительная NTFS source-копия: `C:\KimiSandbox\market-pattern-discovery` @ `1413273a1a312802a0ced7a06a4eb73f050d2ec3`; см. [Windows workspace gate](WINDOWS_WORKSPACE_AND_ACCESS.md). Нижеследующий `NOT_CONNECTED` — исторический статус 22.11, не новая диагностика Kimi.
 
 
