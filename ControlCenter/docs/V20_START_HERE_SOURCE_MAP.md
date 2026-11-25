@@ -35,3 +35,7 @@
 **Только датированное INSTALLED свидетельство 20.11:** controller и adapter совпадали с приведёнными SHA; V20 launcher Git blob был `e1de4aad7a98cdc84768c1811131c3ad079d7d90`. Сверка сегодняшнего V20 launcher/модулей **NOT_VERIFIED**; восстановимость полного V20 — отдельная ответственность V20.
 
 Далее: [CC-07](V20_CC07_COMMAND_CONTRACT.md) → [CC-08](V20_CC08_OPERATIONS.md) → [телеметрия, security, CI](V20_DATA_SECURITY_TESTS.md) → [реестр](V20_DOCUMENT_REGISTER_20261122.md) → [Kimi exam](V20_KIMI_EXAM.md).
+
+## Critical Operations Contract
+
+Для READONLY и операторского контуров применяй [единый контракт](../../recovery/CRITICAL_OPERATIONS_CONTRACT.md), раздел `COC-CC-*`. Сверяй UI, adapter response, controller proof, Task/switch/audit и broker truth раздельно. Request correlation, MAIN UI и offline-кандидаты не считать установленными без отдельного INSTALLED evidence.

@@ -32,3 +32,9 @@
 ## Kimi Code Windows workspace and access gate — 23.11.2026
 
 The single *designated source checkout* for Kimi Code on Intel is `C:\KimiSandbox\market-pattern-discovery`; see [Windows workspace and phased access policy](recovery/kimi/WINDOWS_WORKSPACE_AND_ACCESS.md). This local directory is **not** an OS sandbox: any unreviewed runtime tests/dependency installation require approved separate execution (isolated VM or no-secret CI). The three Kimi projects may share GitHub knowledge but not LIVE permissions. The former external D: checkout is retired. After practical exams the operator may authorize scoped read-only access to non-secret production data, while deploy, FINAM actions, HALT/ARM, code writes in LIVE and unknown-result retries remain independently gated. Preserve `Always Ask` and equivalent approvals in Work; optional Computer Use/Browser Extension must not silently gain LIVE authority.
+
+## Critical Operations Contract
+
+- Перед критической задачей V20/CC/TRL прочитай [единый контракт](recovery/CRITICAL_OPERATIONS_CONTRACT.md) и применяй релевантные Skills; чтение всех пяти без необходимости не требуется.
+- Контракт — hazard-directed conformance matrix, не runtime authorization. Проверенный SOURCE и фактические gates сохраняют приоритет; противоречие фиксируй как `SOURCE_DRIFT` и останавливай зависимый вывод.
+- Для Git identity используй `github-source-audit`; для передачи — `ai-engineering-handoff`. Установленный Skill, канонический Markdown fallback и backup копия — разные состояния.

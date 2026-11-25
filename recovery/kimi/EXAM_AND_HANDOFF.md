@@ -73,3 +73,7 @@ PASS только при: независимое чтение трёх прое�
 Дата UTC | Проект | base SHA / branch SHA | допуск оператора | source path/blob SHA | файлы и diff | команды+stdout/exit | PASS/FAIL/SKIP | MAIN/INSTALLED/LIVE границы | открытые вопросы | GPT review | Kimi response | operator decision.
 
 Recovery с реальным cold restore — только **после** завершения этапа Kimi.
+
+## G6.2.3 — documentation integration boundary
+
+Перед критической задачей фиксируй версию/blob [Critical Operations Contract](../CRITICAL_OPERATIONS_CONTRACT.md) и релевантных Skills. Принятие documentation handoff не является Skill installation, TESTED, MERGED, QUALIFIED, LIVE_PASS или COLD_RESTORE_PASS. Отложенные независимые blind испытания G4 обязательны; уже принятые G5 tests заново не разрабатывать. `KDR-001=OPEN`; `G6.2 CRITICAL FAIL` остаётся в истории. Механизм не считается доказанным до независимой приёмки.

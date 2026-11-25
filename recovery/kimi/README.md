@@ -45,3 +45,10 @@ MAIN != INSTALLED != LIVE != RESEARCH != ARCHIVE. Никаких DPAPI, FINAM cr
 ## Kimi Code on Intel Windows — practical preparation (23.11.2026)
 
 [Windows workspace, GitHub access and staged permissions](WINDOWS_WORKSPACE_AND_ACCESS.md): the designated *source* checkout is `C:\KimiSandbox\market-pattern-discovery` on NTFS; the former temporary external `D:\KimiSandbox` was removed by the operator. Creating this folder and cloning Git does **not** establish a secure execution sandbox. Read-only source evaluation precedes isolated offline tests; successful examinations permit operator-approved graduated access to non-secret production evidence, not automatic LIVE control. Monthly Pro is the capacity pilot before annual Pro/Max; local Windows acceptance is still pending.
+
+## Critical Operations Contract и Skills
+
+- Общий вход: [Critical Operations Contract](../CRITICAL_OPERATIONS_CONTRACT.md). Перед критической задачей требуются контракт и **релевантные** Skills, не обязательно все пять.
+- Канонические редакции: `recovery/kimi/skills/<name>/SKILL.md`. Резервные копии в `recovery/kimi/memory/{V20,ControlCenter,TRL}/skills/` должны быть побайтово идентичны соответствующему canonical файлу; одинаковые bytes имеют одинаковый Git blob SHA.
+- Не редактируй backup самостоятельно. Старый `trl-reproducibility-review` не заменяет канонический `trl-repro-review`.
+- Фактическая загрузка Skill, чтение canonical `SKILL.md` как `SOURCE_FALLBACK` и наличие backup — разные проверки. Manifest не доказывает установку или qualification.
