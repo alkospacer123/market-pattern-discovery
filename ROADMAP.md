@@ -1,5 +1,17 @@
 # Trading Systems — Roadmap (фактический R7 closeout, 22.11.2026)
 
+## CURRENT STATUS — 25.11.2026 (supersedes all earlier dated NOW pointers)
+
+- **I ACCEPTED** in documented cleanup scope; preserve Git history and retained H1/M15/audit dependencies. No new cleanup campaign.
+- **II ACTIVE:** three Chat profiles, theory V20 59/60, CC 58/60, TRL 39/40, source-only Desktop/remote Code and remote Work accepted within recorded evidence limits; owner-confirmed memory/profile document setup, three GitHub knowledge fallback folders in Draft #597, five KMS skills bounded manual analytical acceptance. READONLY handoff accepted, not formal G7. No repeat theory or broad skill exams.
+- **G4.1:** separate reserve `DESKTOP-AQ582JG`, pinned clean source checkout and Python 3.12.10/venv ready per operator output; I0 evidence accepted in reported scope, I1 partial, I2–I4 pending. Owner requires elevated PowerShell retained and Tailscale untouched on both hosts. Technical execution isolation not proven; test process boundary must be agreed without disrupting host access. Intel source-only.
+- **NOW G5.1 preparation IN PROGRESS (owner confirms task dispatched to Kimi Code):** Protect3 regression-test proposal and HANDOFF, read/analyze only; no repository writes or test execution yet. Review exact diff, then approve and verify necessary I1–I4 gates before actual execution. No KDR-001 closure or G5 PASS without evidence.
+- **Remaining fixed queue:** G5.1 V20 completion → G5 TRL original-data/replay and useful research → G5 CC useful engineering → G6 targeted unresolved reliability evidence → G7 formal reciprocal Code/Draft PR handoff → mandatory all-three GPT-OUTAGE → G8 separately approved READONLY operational qualification → G9 final documents, fresh-context restore, export, Pro decision and owner acceptance. Integrate relevant gaps into those tasks, no duplicate exams; preserve applicable acceptance criteria.
+- **III NOT STARTED:** complete independent backup and actual cold restore after II acceptance. Prior snapshots, Git mirrors and knowledge kit are not final recovery proof.
+
+Historical checkpoints below are preserved for provenance; use this current status for sequencing. Accepted MAIN independently re-resolved to `e05bbd24db88f127a52f0ff1b7282d7c6919cd81`; Draft #597 remains open/unmerged. No production grants, MAIN or LIVE changes, no Merge.
+
+
 **OPERATING CHECKPOINT 23.11.2026:** После финальных документационных Merge #592–#595 source MAIN проверен: `1413273a1a312802a0ced7a06a4eb73f050d2ec3` до принятия последующих PR. Оператор подтвердил локальную исходную копию на `C:\KimiSandbox\market-pattern-discovery` (тот же HEAD, required files PASS, clean PASS); это не допуск исполнения на Intel. Правила работы и критерии покупки месячного Pro в [Windows gate](recovery/kimi/WINDOWS_WORKSPACE_AND_ACCESS.md). После каждого Merge повторно проверять новый MAIN.
 
 
