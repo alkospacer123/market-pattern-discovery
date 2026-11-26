@@ -37,6 +37,7 @@
 | `docs/V20_START_HERE_SOURCE_MAP.md` | CURRENT: источник навигации |
 | `docs/V20_CC07_COMMAND_CONTRACT.md` | CURRENT: команды |
 | `docs/V20_DATA_SECURITY_TESTS.md` | CURRENT: данные/security/CI |
+| `docs/V20_HEALTH_EXPOSURE_FIX_20261126.md` | SOURCE_EVIDENCE / REVIEW_CANDIDATE: HEALTHY/exposure fix; не INSTALLED/LIVE |
 | `docs/V20_KIMI_EXAM.md` | CURRENT: экзамен prepared |
 | `docs/V20_DOCUMENT_REGISTER_20261122.md` | CURRENT: реестр |
 
@@ -57,7 +58,7 @@
 
 В точном head `bd0817b19f2837e48b8c33bc298f4d2a92a06691` проверены **33/33 Markdown-документа**, **147** относительных ссылок по полным путям Git tree. **146 целей существуют, 1 историческая цель отсутствует в MAIN:** `docs/SOURCE_INVENTORY.md` → `../../IntradayLab/SELECTED_T3_M15_SESSION_T1_R20.md` (строка 121). Это историческая ссылка на план M15/R20, не рабочая V20-инструкция; **HISTORICAL LINK BROKEN**. Не перенаправлять на более позднюю R15-версию без независимой source-parity проверки и не изменять старый отчёт задним числом. Указанный SHA — проверенная версия до добавления этого абзаца; для PR HEAD повторно сверить файл, дифф и новые ссылки.
 
-Проверены **пути**, но не Markdown anchors, внешние URL, содержимое ZIP/изображений или частные Windows пути: `NOT_VERIFIED`.
+Проверены **пути**, но не Markdown anchors, внешние URL, содержимое ZIP/изображений или частные Windows пути: **NOT_VERIFIED**.
 
 ## Ограничения
 Идентичности источников и 28 названий сверены с Git tree MAIN (не усечён). Отсутствуют новая физическая проверка Intel, новый Windows pytest/JUnit и независимая FINAM/SLTP сверка; их статусы **NOT RUN / NOT_VERIFIED**. Не заявлена ручная проверка **каждой** старой ссылки, внешнего URL, anchor и бинарных артефактов. Не редактировать старые отрицательные отчёты задним числом и не удалять их ради чистоты.
