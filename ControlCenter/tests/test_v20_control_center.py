@@ -158,7 +158,7 @@ def test_minimal_streamlit_starts_without_read_or_trading_controls(monkeypatch):
     assert not app.sidebar.button and not app.sidebar.radio
     assert len(app.button) == 16  # refresh + 15 disabled CC-07 controls
     assert len(app.metric) == 0
-    visible = "\n".join(str(item.value) for kind in ("markdown", "caption", "info", "warning", "success", "error")
+    visible = "\\n".join(str(item.value) for kind in ("markdown", "caption", "info", "warning", "success", "error")
                          for item in getattr(app, kind))
     assert "Позиции · локально" not in visible
     assert "Стопы · локально" not in visible
@@ -211,7 +211,7 @@ def test_main_shows_only_current_operational_health_without_trade_metrics():
     app.run()
     assert not app.exception
     assert len(app.metric) == 0
-    visible = "\n".join(str(item.value) for kind in ("markdown", "caption", "info", "warning", "success", "error")
+    visible = "\\n".join(str(item.value) for kind in ("markdown", "caption", "info", "warning", "success", "error")
                          for item in getattr(app, kind))
     assert "Windows Task" in visible and "RUNNING" in visible
     assert "Kill switch" in visible and "ARMED" in visible
