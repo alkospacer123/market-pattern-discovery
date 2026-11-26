@@ -1,19 +1,21 @@
-# TRL — направления исследований 2027 и предварительный тест R099
+# TRL — направления исследований 2027 и предварительный тест R100
+
+> Канонический ID: R100; оригинальный ID пакета Kimi: R099. [История переназначения и неизменяемые доказательства](../research/TRL-R100-ID-PROVENANCE.md).
 
 **Дата среза:** 26.11.2026.  
 **Базовый MAIN:** `f0d289bd64536975dbcf3ec25ed1811c06116119`.  
 **Режим:** AUTHORIZED_OFFLINE_RESEARCH / RESEARCH_ONLY.  
-**Статус R099:** **REJECT_CURRENT_BASELINE**.  
+**Статус R100:** **REJECT_CURRENT_BASELINE**.  
 **Статус расчёта:** `REPRODUCIBLE_VERIFIED` для двух byte-identical offline-запусков и дополнительной независимой векторизованной сверки ledger/HAC.  
 **V20 / FINAM / production / капитал / LIVE:** не изменялись.
 
 ## 1. Решение для владельца
 
-1. **R099 отклонён без постфактум-оптимизации.** Положительная статистическая зависимость первого и последнего получасовых интервалов USDRUBF не превратилась в торговое преимущество: Net C2 составил **−25 440 ₽ на 1 лот**, PF C2 — **0,5277**, все четыре календарных сегмента убыточны.
-2. **Не продолжать этот baseline** подбором session time, порога, long-only/short-only, стопов или фильтров. Такие действия после известного результата потребуют нового ID и будут новым development, а не подтверждением R099.
+1. **R100 отклонён без постфактум-оптимизации.** Положительная статистическая зависимость первого и последнего получасовых интервалов USDRUBF не превратилась в торговое преимущество: Net C2 составил **−25 440 ₽ на 1 лот**, PF C2 — **0,5277**, все четыре календарных сегмента убыточны.
+2. **Не продолжать этот baseline** подбором session time, порога, long-only/short-only, стопов или фильтров. Такие действия после известного результата потребуют нового ID и будут новым development, а не подтверждением R100.
 3. **На 2027 год приоритет отдать новым механизмам и качеству данных:** cross-asset lead-lag, самостоятельному среднесрочному trend/volatility исследованию на расширенной истории, event-based post-shock drift, фактическому исполнению и forward-only untouched данным.
 4. **Положительный результат на 2023–2026 сам по себе не будет кандидатом.** История уже многократно использована; нужен новый frozen protocol, экономический запас, robustness и действительно новый forward/untouched участок.
-5. **Никаких изменений V20 по итогам R099.** Исследование не связано с TP6, Protect3, HOLD5, EXT2 или распределением 60/30/45 и не даёт основания менять их.
+5. **Никаких изменений V20 по итогам R100.** Исследование не связано с TP6, Protect3, HOLD5, EXT2 или распределением 60/30/45 и не даёт основания менять их.
 
 ## 2. Что было изучено и как выбрана гипотеза
 
@@ -27,7 +29,7 @@
 
 **Почему USDRUBF:** у механизма есть прямой российский FX-прецедент; бессрочный контракт устраняет roll; pinned M5/M15/M30 физически доступны. Это обоснование выбора до теста, а не доказательство прибыльности.
 
-**Чем R099 отличался от прошлых работ:** исследовалась причинная межинтервальная зависимость и отдельный 30-минутный контракт конца сессии, а не opening-range breakout, запрет первого часа, squeeze/retest, trailing или перераспределение капитала V20.
+**Чем R100 отличался от прошлых работ:** исследовалась причинная межинтервальная зависимость и отдельный 30-минутный контракт конца сессии, а не opening-range breakout, запрет первого часа, squeeze/retest, trailing или перераспределение капитала V20.
 
 ## 3. Карта направлений 2027
 
@@ -35,7 +37,7 @@
 
 | Приоритет | Направление | Механизм, который имеет смысл проверить | Данные / ранняя go/no-go проверка | Главные риски и отличие от прошлых работ | Решение |
 |---:|---|---|---|---|---|
-| 1 | **Cross-asset FX lead-lag: CNYRUBF ↔ USDRUBF** | Общий RUB-фактор, разная скорость price discovery и асинхронное предоставление ликвидности могут создавать короткий causal lead-lag, а не просто одновременную корреляцию | Уже доступны pinned M5; сначала только timestamp/liquidity alignment и out-of-sample-by-time predictive check без торговли; затем отдельный frozen baseline | Stale-котировки, общий фактор вместо переноса информации, синхронные timestamp не доказывают порядок событий, costs могут поглотить эффект. Не повтор R099: источник сигнала — другой инструмент | **NEXT_RESEARCH_CANDIDATE**, новый ID; не тестировано |
+| 1 | **Cross-asset FX lead-lag: CNYRUBF ↔ USDRUBF** | Общий RUB-фактор, разная скорость price discovery и асинхронное предоставление ликвидности могут создавать короткий causal lead-lag, а не просто одновременную корреляцию | Уже доступны pinned M5; сначала только timestamp/liquidity alignment и out-of-sample-by-time predictive check без торговли; затем отдельный frozen baseline | Stale-котировки, общий фактор вместо переноса информации, синхронные timestamp не доказывают порядок событий, costs могут поглотить эффект. Не повтор R100: источник сигнала — другой инструмент | **NEXT_RESEARCH_CANDIDATE**, новый ID; не тестировано |
 | 2 | **Самостоятельный среднесрочный trend/volatility portfolio** | Медленная реакция на макроинформацию и премия за перенос трендового риска; волатильность задаёт экспозицию ex ante, а не подбирается как entry-filter V20 | Нужна более длинная daily/H1 история и единый календарь инструментов; текущие 2023–2026 недостаточны для сильного заявления | Повтор V20 при простой смене названий, параметрический overfit, ограниченные четыре инструмента, vol sizing не должен маскировать слабый сигнал | **HOLD_FOR_LONGER_HISTORY / NEW_ID** |
 | 3 | **Signed post-shock drift вместо compression breakout** | После редкого информационного шока дальнейшее движение может отражать постепенное переваривание новости и inventory adjustment; проверяется event study с заранее заданным горизонтом | Нужны объективные ex-ante shock definitions и достаточное число событий; go/no-go — минимальный N и устойчивость до расчёта PF | Малое N, выбор порога по известным событиям, сходство с R049/R068 при неосторожной формулировке. Compression/squeeze/breakout не повторять | **IDEA_ONLY**, только при отличном механизме и достаточном N |
 | 4 | **Execution/liquidity как отдельный источник улучшения V20** | Spread, depth, очередь и время исполнения могут изменять realised edge без изменения прогноза; это измерение стоимости и вместимости, а не новая «прибыльная» OHLCV-фильтрация | Нужны anonymized event-time order/fill, spread/depth, фактические fees/ГО; OHLCV touch недостаточен | Нет данных — нет вывода; риск выдать модельный fill за наблюдённый. Прямо продолжает ограничения R067/R097/R098 | **HIGH_VALUE_DATA_PROGRAM**, не alpha candidate |
@@ -43,9 +45,9 @@
 
 **Собственная оценка:** направление 1 сейчас наиболее рационально как следующий эксперимент, потому что у него есть другой источник информации и доступные данные. Но оно не должно запускаться автоматически как серия переборов: сначала один frozen mechanism test и жёсткий отказ при слабом экономическом эффекте. Направления 4–5 важнее для долгосрочной ценности V20, чем очередной исторический sweep.
 
-## 4. Frozen design R099
+## 4. Frozen design R100
 
-Протокол [FROZEN_PROTOCOL.md](../research/experiments/r099/FROZEN_PROTOCOL.md) зафиксирован **26.11.2026 11:37:04 UTC**, SHA256 `ea2e066085b016b53be58f947b95e9b37aca99554cc5cdfbeff442f8684ffee0`, до вычисления сигналов, корреляций, PF и P&L.
+Протокол [FROZEN_PROTOCOL.md](../research/experiments/r100/FROZEN_PROTOCOL.md) зафиксирован **26.11.2026 11:37:04 UTC**, SHA256 `ea2e066085b016b53be58f947b95e9b37aca99554cc5cdfbeff442f8684ffee0`, до вычисления сигналов, корреляций, PF и P&L.
 
 - Вход: `market-pattern-data`, commit `f8486b446cf3d5f9f3cba6dfec32bdef8fd184c8`.
 - M5 SHA256: `3758ed99e4ec0c712af09575ddc74f0437f2fcddda05df2c5d27268296037786`.
@@ -133,9 +135,9 @@ Canonical run: 26.11.2026 11:56:18–11:56:47 UTC. Clean replay: 11:56:48–11:5
 - `metrics.csv` — `08bfab4a643223489491ba010ea715a56474094ae038a8cc3de39724d8d8672a`;
 - `statistical_tests.json` — `96ead285b99d3016acefbc27ba3d097905214d5140407efbbb3832f9808ae722`.
 
-`run.log` различается только фактическими timestamps; смысловые поля `eligible=922`, `trades=910`, `decision=REJECT_CURRENT_BASELINE` совпали. Подробности: [replay_verification.json](../research/experiments/r099/artifacts/replay_verification.json).
+`run.log` различается только фактическими timestamps; смысловые поля `eligible=922`, `trades=910`, `decision=REJECT_CURRENT_BASELINE` совпали. Подробности: [replay_verification.json](../research/experiments/r100/artifacts/replay_verification.json).
 
-Дополнительно `independent_check.py` отдельной векторизованной pivot/shift-логикой восстановил 922 eligible-дня и 910 сделок. Все сравниваемые поля `P0/P1/E/X`, direction, Gross и Net C1/C2/C4 совпали с canonical ledger; максимальное денежное расхождение `1,35×10⁻¹¹ ₽`. Независимый statsmodels HAC с явной finite-sample correction дал beta `0,035494289895536525` и p `0,01628737229568263`; расхождения с canonical находятся на уровне floating-point. Свидетельство: [independent_verification.json](../research/experiments/r099/artifacts/independent_verification.json). Bootstrap и остальные diagnostics второй реализацией не переписывались.
+Дополнительно `independent_check.py` отдельной векторизованной pivot/shift-логикой восстановил 922 eligible-дня и 910 сделок. Все сравниваемые поля `P0/P1/E/X`, direction, Gross и Net C1/C2/C4 совпали с canonical ledger; максимальное денежное расхождение `1,35×10⁻¹¹ ₽`. Независимый statsmodels HAC с явной finite-sample correction дал beta `0,035494289895536525` и p `0,01628737229568263`; расхождения с canonical находятся на уровне floating-point. Свидетельство: [independent_verification.json](../research/experiments/r100/artifacts/independent_verification.json). Bootstrap и остальные diagnostics второй реализацией не переписывались.
 
 ### Cross-timeframe ограничение
 
@@ -156,7 +158,7 @@ Canonical run: 26.11.2026 11:56:18–11:56:47 UTC. Clean replay: 11:56:48–11:5
 4. добавлены месячные диагностики и benchmarks на всех eligible days; benchmark bps нормированы на размер лота;
 5. добавлен отдельный M15 18:45 data-quality diagnostic, не влияющий на сигнал/P&L/gates.
 
-Frozen protocol и его SHA256 не менялись. Эти исправления не являются новыми торговыми вариантами; ошибочные промежуточные outputs не использовались для выбора правил. Полная хронология — в [RUNBOOK.md](../research/experiments/r099/RUNBOOK.md) и [CONTAMINATION_LEDGER.md](../research/experiments/r099/CONTAMINATION_LEDGER.md).
+Frozen protocol и его SHA256 не менялись. Эти исправления не являются новыми торговыми вариантами; ошибочные промежуточные outputs не использовались для выбора правил. Полная хронология — в [RUNBOOK.md](../research/experiments/r100/RUNBOOK.md) и [CONTAMINATION_LEDGER.md](../research/experiments/r100/CONTAMINATION_LEDGER.md).
 
 ## 9. Что результат не доказывает
 
@@ -169,7 +171,7 @@ Frozen protocol и его SHA256 не менялись. Эти исправле�
 
 ## 10. Следующий исследовательский порядок
 
-1. **Не оптимизировать R099.** Закрыть как отрицательный результат и сохранить ledger/negative index.
+1. **Не оптимизировать R100.** Закрыть как отрицательный результат и сохранить ledger/negative index.
 2. **До нового теста** подготовить historical session/provenance registry и правила работы с изменением расписания.
 3. **Для cross-asset lead-lag** создать новый Research ID и frozen protocol до расчёта доходностей; сначала проверить timestamp alignment, stale bars и causal availability, затем один baseline с C1/C2/C4 и заранее заданными gates.
 4. **Для V20 Evolution** запрашивать не новые исторические sweep, а anonymized fact fills/fees/ГО и микроструктуру. Без них сохранять `HOLD_DATA`.
@@ -177,11 +179,11 @@ Frozen protocol и его SHA256 не менялись. Эти исправле�
 
 ## 11. Доказательства
 
-- [Research Card R099](../research/TRL_R_2026_099_USDRUBF_FIRST_LAST_MOMENTUM.md)
-- [Frozen protocol](../research/experiments/r099/FROZEN_PROTOCOL.md)
-- [Код](../research/experiments/r099/run_r099.py)
-- [Runbook](../research/experiments/r099/RUNBOOK.md)
-- [Witness matrix](../research/experiments/r099/WITNESS_MATRIX.md)
-- [Contamination ledger](../research/experiments/r099/CONTAMINATION_LEDGER.md)
-- [Run manifest](../research/experiments/r099/artifacts/run_manifest.json)
-- [Journal](../journal/2026-11-26-r099-usdrubf-first-last-momentum.md)
+- [Research Card R100](../research/TRL_R_2026_100_USDRUBF_FIRST_LAST_MOMENTUM.md)
+- [Frozen protocol](../research/experiments/r100/FROZEN_PROTOCOL.md)
+- [Код](../research/experiments/r100/run_r099.py)
+- [Runbook](../research/experiments/r100/RUNBOOK.md)
+- [Witness matrix](../research/experiments/r100/WITNESS_MATRIX.md)
+- [Contamination ledger](../research/experiments/r100/CONTAMINATION_LEDGER.md)
+- [Run manifest](../research/experiments/r100/artifacts/run_manifest.json)
+- [Journal](../journal/2026-11-26-r100-usdrubf-first-last-momentum.md)

@@ -1,4 +1,6 @@
-# TRL Journal — 26.11.2026 — R099 и направления 2027
+# TRL Journal — 26.11.2026 — R100 и направления 2027
+
+> Канонический ID: R100; оригинальный ID пакета Kimi: R099. [История переназначения и неизменяемые доказательства](../research/TRL-R100-ID-PROVENANCE.md).
 
 **Направление:** Research / NEW_STRATEGY.  
 **Статус:** RESEARCH_COMPLETE / **REJECT_CURRENT_BASELINE** / LIVE_UNCHANGED.
@@ -17,10 +19,10 @@
 
 **Replay:** финальные canonical и clean offline runs выполнены в отдельных процессах/каталогах; шесть аналитических outputs совпали побайтово. Код SHA256 `56e99cd46a6f63eefe13be4fd2d95296bc1c67116a5cada929fdb52a858a2fdb`. Дополнительная vectorized pivot/shift реализация и statsmodels HAC независимо восстановили ledger и regression с floating-point расхождениями не более 1,35×10⁻¹¹ ₽ для денежных полей. `REPRODUCIBLE_VERIFIED` относится к расчёту; bootstrap/все diagnostics второй реализацией не переписаны, TRUE OOS отсутствует.
 
-**Решение:** текущий R099 baseline отклонить, не оптимизировать и не переносить в V20. Статистическая предсказуемость не равна торговому преимуществу. Результат внесён в Research Registry и Negative Research Index.
+**Решение:** текущий R100 baseline отклонить, не оптимизировать и не переносить в V20. Статистическая предсказуемость не равна торговому преимуществу. Результат внесён в Research Registry и Negative Research Index.
 
 **Приоритеты 2027:** cross-asset CNYRUBF↔USDRUBF lead-lag как следующий новый mechanism candidate; более длинная история для standalone trend/volatility; отдельный event-based post-shock drift только при достаточном N; фактические fills/fees/ГО/depth для V20; обязательный forward-only untouched OOS и session/provenance registry. Все торговые эффекты этих направлений пока UNPROVEN.
 
 **Операции LIVE/V20/FINAM/капитал:** 0. GPT-review не выполнялся и не имитировался.
 
-Ссылки: [итоговый отчёт](../reports/TRL-2027-RESEARCH-DIRECTIONS-R099.md), [Research Card](../research/TRL_R_2026_099_USDRUBF_FIRST_LAST_MOMENTUM.md), [manifest](../research/experiments/r099/artifacts/run_manifest.json).
+Ссылки: [итоговый отчёт](../reports/TRL-2027-RESEARCH-DIRECTIONS-R100.md), [Research Card](../research/TRL_R_2026_100_USDRUBF_FIRST_LAST_MOMENTUM.md), [manifest](../research/experiments/r100/artifacts/run_manifest.json).
