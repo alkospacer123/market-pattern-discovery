@@ -8,7 +8,7 @@ CC-G53-01: [accepted source fix](https://github.com/alkospacer123/market-pattern
 
 | Копия | Первоисточник | Git blob |
 | --- | --- | --- |
-| [Trading_Systems_Architecture_and_AI_Collaboration.md](Trading_Systems_Architecture_and_AI_Collaboration.md) | [recovery/kimi/Trading_Systems_Architecture_and_AI_Collaboration.md](../../../../recovery/kimi/Trading_Systems_Architecture_and_AI_Collaboration.md) | `66325ca5e9264bf449cc73e9a6bfc2bd42a16db0` |
+| [Trading_Systems_Architecture_and_AI_Collaboration.md](Trading_Systems_Architecture_and_AI_Collaboration.md) | [recovery/kimi/Trading_Systems_Architecture_and_AI_Collaboration.md](../../../../recovery/kimi/Trading_Systems_Architecture_and_AI_Collaboration.md) | `ddc333b21c73e6dc6f841231113c9d844dc665a6` |
 | [PROJECT_PASSPORT_CONTROL_CENTER.md](PROJECT_PASSPORT_CONTROL_CENTER.md) | [recovery/PROJECT_PASSPORT_CONTROL_CENTER.md](../../../../recovery/PROJECT_PASSPORT_CONTROL_CENTER.md) | `61a7d34758fd372331d1d3d0049f9fbe8e3a9541` |
 | [CONTROL_CENTER.md](CONTROL_CENTER.md) | [recovery/kimi/CONTROL_CENTER.md](../../../../recovery/kimi/CONTROL_CENTER.md) | `3c6ce463cad187a9e03d4d0fec68ee9e27310a50` |
 | [V20_START_HERE_SOURCE_MAP.md](V20_START_HERE_SOURCE_MAP.md) | [ControlCenter/docs/V20_START_HERE_SOURCE_MAP.md](https://github.com/alkospacer123/market-pattern-discovery/blob/3eddebb4d915c7798a2d56d2230010933f553c81/ControlCenter/docs/V20_START_HERE_SOURCE_MAP.md) | `2722096dfc2f8f404d31e9bed1efeac2ac932bfb` |

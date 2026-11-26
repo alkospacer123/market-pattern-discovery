@@ -8,7 +8,7 @@ V20 #601 diagnostic patch is accepted SOURCE, not installed; historical cause UN
 
 | Копия | Первоисточник | Git blob |
 | --- | --- | --- |
-| [Trading_Systems_Architecture_and_AI_Collaboration.md](Trading_Systems_Architecture_and_AI_Collaboration.md) | [recovery/kimi/Trading_Systems_Architecture_and_AI_Collaboration.md](../../../../recovery/kimi/Trading_Systems_Architecture_and_AI_Collaboration.md) | `66325ca5e9264bf449cc73e9a6bfc2bd42a16db0` |
+| [Trading_Systems_Architecture_and_AI_Collaboration.md](Trading_Systems_Architecture_and_AI_Collaboration.md) | [recovery/kimi/Trading_Systems_Architecture_and_AI_Collaboration.md](../../../../recovery/kimi/Trading_Systems_Architecture_and_AI_Collaboration.md) | `ddc333b21c73e6dc6f841231113c9d844dc665a6` |
 | [PROJECT_PASSPORT_V20.md](PROJECT_PASSPORT_V20.md) | [recovery/PROJECT_PASSPORT_V20.md](../../../../recovery/PROJECT_PASSPORT_V20.md) | `433e9ebeed832f3b4684046f11c8f6df8952e24f` |
 | [V20.md](V20.md) | [recovery/kimi/V20.md](../../../../recovery/kimi/V20.md) | `2e3db9670a79ac3219e832156b843daeb3bcbc83` |
 | [R088_ARCHITECTURE_AND_SAFETY_20261122.md](R088_ARCHITECTURE_AND_SAFETY_20261122.md) | [V20_TradingSystem_M15/R088_ARCHITECTURE_AND_SAFETY_20261122.md](https://github.com/alkospacer123/market-pattern-discovery/blob/3eddebb4d915c7798a2d56d2230010933f553c81/V20_TradingSystem_M15/R088_ARCHITECTURE_AND_SAFETY_20261122.md) | `376c0342b1bbbe50aaeb24cff959c0f37b1fd648` |

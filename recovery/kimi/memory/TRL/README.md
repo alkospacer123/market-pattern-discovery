@@ -8,7 +8,7 @@ R100: [canonical research record](https://github.com/alkospacer123/market-patter
 
 | Копия | Первоисточник | Git blob |
 | --- | --- | --- |
-| [Trading_Systems_Architecture_and_AI_Collaboration.md](Trading_Systems_Architecture_and_AI_Collaboration.md) | [recovery/kimi/Trading_Systems_Architecture_and_AI_Collaboration.md](../../../../recovery/kimi/Trading_Systems_Architecture_and_AI_Collaboration.md) | `66325ca5e9264bf449cc73e9a6bfc2bd42a16db0` |
+| [Trading_Systems_Architecture_and_AI_Collaboration.md](Trading_Systems_Architecture_and_AI_Collaboration.md) | [recovery/kimi/Trading_Systems_Architecture_and_AI_Collaboration.md](../../../../recovery/kimi/Trading_Systems_Architecture_and_AI_Collaboration.md) | `ddc333b21c73e6dc6f841231113c9d844dc665a6` |
 | [PROJECT_PASSPORT_TRL.md](PROJECT_PASSPORT_TRL.md) | [recovery/PROJECT_PASSPORT_TRL.md](../../../../recovery/PROJECT_PASSPORT_TRL.md) | `1d51b98e1fce01302e5b3e26de5825bcf038af74` |
 | [TRL.md](TRL.md) | [recovery/kimi/TRL.md](../../../../recovery/kimi/TRL.md) | `d8fc1f8e4286c6aeb50461f7a757cecc0a46a426` |
 | [TRL-NOV-2026-KIMI-START-HERE.md](TRL-NOV-2026-KIMI-START-HERE.md) | [TradingResearchLab/reports/TRL-NOV-2026-KIMI-START-HERE.md](https://github.com/alkospacer123/market-pattern-discovery/blob/3eddebb4d915c7798a2d56d2230010933f553c81/TradingResearchLab/reports/TRL-NOV-2026-KIMI-START-HERE.md) | `b0e316134eea8a2c62a6a2ae66dc282093fdbabe` |
