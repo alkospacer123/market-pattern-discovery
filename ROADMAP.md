@@ -1,73 +1,76 @@
-# Trading Systems — Roadmap (фактический R7 closeout, 22.11.2026)
+# Trading Systems — Recovery & Migration — Roadmap
 
-## G6.4 / G6.5 checkpoint — 25.11.2026; исправление G6.5.1
+**Действующий сокращённый план от 26.11.2026.** Цель: самостоятельный равноправный Kimi для V20, Control Center и TRL, качественная и экономичная работа, затем автономный backup/cold restore на горизонте 10–30 лет. Это единая очередь исполнения. [Предыдущая полная редакция с историей, решениями владельца, evidence и детальным планом G9.1–G9.8 / E00–E12](https://github.com/alkospacer123/market-pattern-discovery/blob/1d7045e630481aaaad488f91154a38336844aea6/ROADMAP.md) сохранена неизменной в Git history; её исторические NOW и временные ограничения не являются действующей очередью. Приоритет — настоящие результаты, не количество экзаменов. Оптимизация очереди не отменяет обязательных критериев качества, устранения недостатков и LIVE safety.
 
-**SOURCE BASE:** `alkospacer123/market-pattern-discovery/main@e05bbd24db88f127a52f0ff1b7282d7c6919cd81`. Этап I остаётся принятым только в ранее документированном scope; этап II продолжается; этап III не начат. Checkpoint не переписывает исторические baseline, SHA, чекбоксы или результаты ниже.
-
-### Каноническая атрибуция среды G6.5
-
-| Поле | Исправленное значение |
+| Этап | Статус |
 | --- | --- |
-| `CLIENT_ENVIRONMENT` | `KIMI_CHAT` |
-| `EXECUTION_CONTEXT` | `AGENT_TOOL_ENABLED_CHAT` |
-| `ENVIRONMENT_EVIDENCE` | `OPERATOR_CONFIRMED` |
-| `KIMI_WORK` | `NOT_USED` |
-| `KIMI_CODE` | `NOT_USED` |
-| `GITHUB_PLUGIN_ACCESS` | `READ_WRITE_PASS` — READONLY, ветка, commit и Draft PR фактически выполнены в G6.5 |
-| `LOCAL_WINDOWS_ACCESS` | `NOT_PERFORMED` |
-| `OFFLINE_EXECUTOR` | `NOT_CONFIRMED` |
-| `LIVE` | `UNKNOWN` |
+| I — GitHub cleanup | ACCEPTED: V20/CC/TRL, H1/M15 dependencies, исследования и Git history сохранены. |
+| II. G0–G6 — обучение и практика | ACCEPTED_IN_DOCUMENTED_SCOPE: теория 156/160; G5 три проекта; Skills 5/5 reported byte match; G6 независимые испытания и KDR-001 CLOSED_OWNER_ACCEPTED_20261126. Не повторять. |
+| G7 | REMOVED_BY_OWNER_DECISION. Обычный peer handoff, без отдельного экзамена. |
+| II. A — GPT-OUTAGE | ENGINEERING_RESULTS_ACCEPTED_3_OF_3 / OWNER_CLOSEOUT_PENDING. Остаточные доказательства автономности сохранены. |
+| II. B — G8 + G9.6 | PENDING. Единая эксплуатационная квалификация и фактическая интеграция Intel. |
+| II. C — G9.1–G9.5, G9.7–G9.8 | PENDING. Один аудит, один ограниченный эксперимент, один окончательный closeout. |
+| III — Independent Recovery | NOT_STARTED; только после полного допуска G9. |
 
-**Граница G6.4:** `G6.4_CLIENT_ENVIRONMENT=UNKNOWN`. G6.4 остаётся **COMPLETE в заявленном scope** по решению оператора, но принадлежность того испытания к конкретному клиенту не подтверждена; атрибуция G6.5 на G6.4 не переносится. Независимая сверка GPT — **19/19 Git blob SHA MATCH** и корректная иерархия Control Center по отчёту оператора; для Kimi это `REPORTED_ONLY`, не повторный `PERFORMED_CHECK`.
+## A. GPT-OUTAGE — инженерные результаты приняты
 
-**ENVIRONMENT_ATTRIBUTION_ERROR:** наличие Agent-инструментов было ошибочно отождествлено с использованием Kimi Work, что исказило среду в документации и HANDOFF. Ошибку выявили оператор и GPT. Исправление разделяет клиента, execution context, фактические инструменты и полномочия; запрещено выводить среду только из Skills, plugins или sandbox. Статус: `CORRECTION_PENDING_GPT_REVIEW`. По переданному оператором решению GPT, G6.5 = `PARTIALLY_ACCEPTED`, `MERGE_HOLD` до этой коррекции.
+[Акт и пределы приёмки 26.11.2026](recovery/kimi/BLOCK_A_ACCEPTANCE_20261126.md) — V20 #601, CC #602/#603, TRL #604 MERGED. MAIN snapshot `3eddebb4d915c7798a2d56d2230010933f553c81`. Исторический ход независимого ревью: [Draft #597](https://github.com/alkospacer123/market-pattern-discovery/blob/a4af4cb72257f5c7cffd5d87d97e34438cf0fe46/ROADMAP.md). Сохраняется G6/KDR-001 owner acceptance. Это не полный GPT_OUTAGE_PASS: GPT формулировал задания и помог после первой сдачи; mobile/source fallback и non-GPT control остаются evidence gates. Владелец принимает bounded A и перенос остаточных требований в B/C, не ослабляя mandatory checks. Не повторять принятые три инженерные задачи.
 
-Полный `CODE_EXAM_PASS` и полный `HANDOFF_PASS` остаются **NOT CONFIRMED**; `COLD_RESTORE=NOT_TESTED`. **G6.5.1 — DOCUMENTATION ONLY / EXISTING DRAFT PR / NO MERGE / NO LIVE.** Draft PR и CI не становятся MAIN, полным экзаменом, handoff acceptance, INSTALLED или LIVE_PASS. Требуется повторное независимое GPT-ревью; окончательное решение принимает оператор. Остальные пункты Roadmap и практические/isolation gates не закрываются.
+## B. G8 + G9.6 — одна практическая интеграция
 
-Ссылки: [Kimi Phase II](recovery/kimi/README.md), [экзамен и handoff](recovery/kimi/EXAM_AND_HANDOFF.md), [Windows access gate](recovery/kimi/WINDOWS_WORKSPACE_AND_ACCESS.md), [GitHub state](recovery/REPOSITORY_CURRENT_STATE.md).
+GPT готовит безопасную конфигурацию доступа, артефакты, матрицу компетенций и независимый контроль; Kimi подтверждает фактическое исполнение необходимых действий. Использовать принятые G4–G6 и A, не повторять доказанную разработку/тестирование.
+
+- Настроить и проверить необходимые Work/Code/GitHub/remote маршруты к Intel для V20, CC, TRL: host identity, рабочие каталоги, требуемые права, PowerShell/Python, журналирование, approval/deny/revoke, безопасное восстановление после обрыва/unknown outcome, доступ с ПК и телефона. Конкретные изменения Intel/ОС/сети/прав — отдельно согласовать. Не открывать публичные сервисы и не раскрывать секреты. Утверждённый резервный ПК остаётся executor для экспериментов; подтвердить необходимые границы offline execution и отсутствие production egress/секретов на безопасных canary, не обращаться к реальным FINAM/DPAPI ради deny-test.
+- На подходящем реальном исправлении (например, принятый CC/V20 candidate, если он действительно готов) доказать недостающие практические компетенции: диагностика реального состояния, подготовка release/backup/rollback, установка и readback по отдельно согласованному плану, сопровождение операторских действий и восстановление. READONLY — начальная ступень, не потолок. Не делать искусственный production update, аварии, сделки или изменение риска ради квалификации; выбирать безопасную полезную операцию. Не утверждать installed/LIVE PASS из GitHub/CI.
+- Проверить независимый рабочий маршрут без обязательного GPT-review. Одинаковые для обоих агентов operation-specific gates, CI/independent review, source/host identity, broker reconciliation, approval владельца, secret protection, durable state и fail-closed/unknown handling обязательны. Не самоодобрять рискованные изменения. Новые права не следуют из Roadmap; каждый Merge/deploy/ARM/HALT/FINAM или критическая команда требует применимого отдельного разрешения. После подтверждённого полного допуска снять временные Kimi-only ограничения, не общие safety gates.
+
+Результат B: доказанные эксплуатационные возможности и реальный доступ, не обещание настроить. Использовать одну согласованную цепочку работ и существующие артефакты для G8/G9.6; не два комплекта экзаменов.
+
+## C. G9 — единый аудит, ресурсный эксперимент, финальный допуск
+
+### C1. Один аудит (G9.1 + G9.2 + G9.5), основная работа GPT
+
+Инвентаризация Skills, plugins/tools, memory, project instructions, AGENTS, паспортов/контрактов и source maps. Выявить реальное дублирование, устаревшие SHA, ненужные вызовы GitHub и контекст, не используемые компоненты. Сначала анализ; менять/объединять/удалять лишь после доказательства эквивалентности или ненужности и решения владельца, с экспортом/версиями/хешами/rollback. Не считать наличие установленного Skill/plugin доказанным источником расхода. Не убирать COC, критические знания, safety Skills или необходимые GitHub/Work/Code/remote возможности ради экономии. Не заново экзаменовать пять принятых Skills. Результат — одна компактная матрица keep/change/remove + подтверждённая архитектура знаний (источник истины и короткие ссылки вместо копий).
+
+### C2. Один ограниченный эксперимент (G9.3 + G9.4)
+
+**Baseline по владельцу:** модель Kimi 3.1 Pro, высокие рассуждения, стандартные длина чата и скорость, текущие Skills/plugins/instructions, память включена, русский запрос. Старый Pro — 98,6% за три дня, также сообщено практически 100%. Новый тариф оплачивается; фактические настройки, доступные варианты и квоты сверить в UI, модель не путать с тарифом. Измерять на новой подписке в одном сопоставимом quota window.
+
+Начать с E00 и наиболее перспективных факторов: reasoning (E05/E06), модель (E07), постановка/формат задачи (E10/E11), затем комбинация лучших (E12). Один параметр за сравнение (OFAT); E12 — проверка сочетания. Это **приоритетная очередь, а не требование выполнить все варианты**. Остальные E01/E02 (Skills/plugins), E03/E04 (memory/instructions), E08/E08-S (length/speed), E09 (язык), обычные/структурированные, новый/длинный чат, контекст и Chat/Work/Code — только если аудит или измерения дают разумную гипотезу существенного эффекта, либо недостаёт доказательства нужного рабочего профиля. Полная матрица и исходная задача сохранены в [детальном плане](https://github.com/alkospacer123/market-pattern-discovery/blob/1d7045e630481aaaad488f91154a38336844aea6/ROADMAP.md#g93g94--ofat-one-factor-at-a-time-план-screening-e00e12). Не отключать все знания/память/Skills в рабочем проекте: только обратимый изолированный synthetic test, без LIVE. При невозможности безопасной изоляции — SKIPPED с причиной. Не удалять память или вложения для замера.
+
+Для первого замера использовать один компактный synthetic `health_status` из прежнего плана (целые позиции/стопы, boolean broker_ok; HEALTHY только при broker_ok и равных неотрицательных количествах). GPT фиксирует независимый rubric и скрытый oracle, Kimi получает одинаковое задание в сопоставимом новом контексте. Затем один небольшoй agent/GitHub benchmark и подтверждение выбранных профилей на реальной инженерной, TRL и safety-sensitive работе; максимально использовать уже имеющиеся сопоставимые результаты. Не доказывать критическую пригодность простой игрушечной задачей.
+
+До запуска согласовать небольшой бюджет и stop criteria; не полный факторный перебор. Снять счётчики до/после, окно/тариф/surface/настройки, время, quality, расходы повторов, результат. Исключить параллельные задачи, учитывать округление, задержку, cache, reset; если ниже разрешения — UNRESOLVED, при существенной необходимости минимальная серия для уточнения. Сравнивать квоты только в одинаковых единицах и условиях. Скорость вторична. Расход — на полностью принятый результат, включая переделки. Цели экономии 30/50/70%, **допустимое снижение обязательного качества 0%, критических ошибок 0**. Цели не являются гарантией или требованием ухудшить качество: если экономия не доказана, оставить baseline, отразить факт и owner decision. Результат — компактный журнал, подтверждённые профили для обычных, инженерных, исследовательских и критических задач (допускаются одинаковые конфигурации), правила самостоятельного выбора/escalation Kimi, manifest и rollback. GPT готовит и оценивает, Kimi исполняет только необходимые измерительные прогоны.
+
+### C3. Один финальный closeout (G9.7 + G9.8)
+
+**Все зарегистрированные недостатки должны получить проверенное решение** до G9 PASS; не переносить необходимые исправления на III и не закрывать по формальному отчёту. Одна матрица issue → correction/evidence → validation → owner decision:
+| Запись | Где закрыть без отдельного экзамена |
+| --- | --- |
+| KDR-001 | Уже CLOSED, не повторять. |
+| KDR-002/003 | GPT: исправление документации/источников; проверить TZ, если исторические данные недоступны — честная переклассификация, UNKNOWN сохранён, новые UTC/TZ evidence. |
+| KDR-004/005 | A + C: TRL methodology/preregistration/uncertainty/OOS; восстановить необходимые оригинальные данные и проверяемый replay, SHA, provenance. GPT готовит источники. Недоступный оригинал не заменять реконструкцией под видом оригинала. |
+| KDR-006/008 | B: offline boundary, Intel access, remote/approval/deny/revoke/reconnect и unknown-outcome. |
+| KDR-007/009 | A + B: самостоятельная инженерная работа, non-GPT control, tool/surface/mobile evidence. |
+| KDR-010/011 | A + C1/C3: фактическое применение Skills и all-three source fallback, одна компактная проверка восстановления контекста после существенных изменений знаний; не удалять существующие вложения/память. |
+| Новые findings / ошибки обоих ИИ / реальные дефекты проектов | Исправлять и проверять в соответствующем блоке; historical UNKNOWN не выдумывать; отсутствие доказательства обязательной функции блокирует приёмку. |
+
+GPT согласует Draft #597 с актуальным MAIN, #598/#599 и последующими принятыми PR; обновляет корневые/профильные AGENTS, README, Roadmap, COC, EXAM_AND_HANDOFF, WINDOWS_WORKSPACE_AND_ACCESS, паспорта, source maps, операционные/проектные инструкции Chat/Work/Code, Skills, memory/fallback, runbooks, manifests. После фактического допуска устранить временные Kimi-only READONLY/reserve-only/GPT-required запреты; обозначить историю историей; сохранить общий safety. Сохранить экспорт знаний и доказательств. Kimi не перечитывает весь репозиторий ради экзамена: одна финальная целевая проверка восстановленного контекста/изменившихся компетенций с покрытием трёх проектов, учитывая ранее принятые evidence, без повторной полной квалификации. GPT готовит единый Qualification Report и конфигурацию/профили, владелец принимает.
+
+**G9 PASS только если:** A и B завершены; реальные недостатки и обязательные evidence gaps разрешены; безопасный Intel access реально работает; автономная работа V20/CC/TRL и non-GPT контроль подтверждены; бюджетная оптимизация измерена и профили утверждены без ухудшения обязательного качества; действующие документы и настройки согласованы; временные запреты сняты; экспорт выполнен; явное решение владельца `FULL_PARITY_OWNER_ADMITTED`. До этого `NOT_YET_ADMITTED_FULL_PARITY`. После допуска Kimi работает самостоятельно без GPT как обязательной зависимости, с равными полномочиями и общими safety gates. Совместная работа при желании остаётся возможной.
+
+## III. Независимый Recovery
+
+Только после G9 PASS. Полная автономная резервная копия всех трёх систем и знаний, Git history/provenance, исходники, исходные исследования/данные/артефакты, зависимости и runtime/установочные инструкции, проверяемые manifests/хеши и защищённое отдельное хранение секретов. **Реальный cold restore** на независимой среде вне Intel, основного SSD, GitHub, GPT и Kimi, с доказательствами восстановленной функциональности и знаний, без LIVE-операций по умолчанию. Горизонт 10–30 лет; пригодность к будущим проверкам, переносимости и восстановлению. Не подменять восстановление наличием архива.
+
+## Дисциплина работы и источники
+
+Одна активная содержательная задача Kimi; короткий отчёт SHA/PR, фактические тесты/результат/blocker; подробные доказательства в артефактах. GPT выполняет основную подготовку, независимое ревью, документацию и Recovery; Kimi использует квоту на самостоятельные результаты и необходимые доказательства. Перед новым прогоном проверять, какое обязательное новое свидетельство он даст. После исчерпания лимита возобновлять контрольную точку. Не повторять G0–G6, G7 исключён, не назначать отдельные экзамены по каждому KDR/G9.x. Сохранять quality и безопасность, не экономить за счёт пропуска обязательных проверок.
+
+- [Регистр KDR](recovery/kimi/KIMI_DEFECTS_AND_REMEDIATION_REGISTER.md) — актуализировать при закрытии каждого недостатка.
+- [Полный предыдущий Roadmap, immutable commit 1d7045e](https://github.com/alkospacer123/market-pattern-discovery/blob/1d7045e630481aaaad488f91154a38336844aea6/ROADMAP.md) — история всех решений, evidence G0–G6, V20 PR #601, G9.1–G9.8, полный OFAT E00–E12, первоначальная методология и тестовая задача. Не загружать целиком при обычных заданиях; читать только необходимый раздел.
+- [Qualification plan](recovery/kimi/PHASE_II_QUALIFICATION_AND_PRO_LIMITS_20261123.md) — подробные исторические критерии; текущая очередь определяется этим Roadmap.
+- [Critical Operations Contract](recovery/CRITICAL_OPERATIONS_CONTRACT.md) — обязательный текущий safety contract по проверенному MAIN; не ослабляется данным планом.
 
 
-**OPERATING CHECKPOINT 23.11.2026:** После финальных документационных Merge #592–#595 source MAIN проверен: `1413273a1a312802a0ced7a06a4eb73f050d2ec3` до принятия последующих PR. Оператор подтвердил локальную исходную копию на `C:\KimiSandbox\market-pattern-discovery` (тот же HEAD, required files PASS, clean PASS); это не допуск исполнения на Intel. Правила работы и критерии покупки месячного Pro в [Windows gate](recovery/kimi/WINDOWS_WORKSPACE_AND_ACCESS.md). После каждого Merge повторно проверять новый MAIN.
-
-
-**Обязательный порядок:** (I) безопасно упорядоченный GitHub → (II) полная адаптация Kimi Chat **и отдельно** Kimi Code → (III) независимый backup и доказанный cold restore. **MAIN ≠ INSTALLED ≠ LIVE ≠ RESEARCH ≠ ARCHIVE**.
-
-## I. Упорядоченный GitHub — завершён в проверенном объёме
-
-- [x] [#583](https://github.com/alkospacer123/market-pattern-discovery/pull/583): массовое выведение 11 594 исторических A/B/C и BBW файлов из рабочего `main` с сохранением Git history.
-- [x] [#585](https://github.com/alkospacer123/market-pattern-discovery/pull/585) → [#586](https://github.com/alkospacer123/market-pattern-discovery/pull/586): канонические README/AGENTS/паспорта, реальная очистка старого самостоятельного root (233 удаления), five active/dependency trees untouched и два защищённых архивных Git ref. Старый архивный тест **45 PASS / 1 known FAIL**, исторический дефект не скрыт.
-- [x] [#587](https://github.com/alkospacer123/market-pattern-discovery/pull/587) MERGED: карта актуальных источников/Kimi R1.2 и классификация H1/M15. Commit `8a1c6618f8d3c9f33de9de6cb3f6efae13fe29f0`.
-- [x] [#588](https://github.com/alkospacer123/market-pattern-discovery/pull/588) MERGED: source-preserving offline Git scanner/checkpoint; 10/10 synthetic PASS. Commit `bb8c46c1db89ca2b5311f22c755bb4e51ce8f7d6`. **Это не финальный Recovery и не проверка текущего LIVE.**
-- [x] Draft [#580](https://github.com/alkospacer123/market-pattern-discovery/pull/580) и [#581](https://github.com/alkospacer123/market-pattern-discovery/pull/581) закрыты без Merge после переноса уникальных материалов; исходные ветки/PR/SHA сохранены.
-- [x] **Контроль `audit_only/stop_tick_grid_20261012`**: [#590](https://github.com/alkospacer123/market-pattern-discovery/pull/590) попытался безопасно вывести 16 исторических файлов, но новый CI доказал прямые H1 research dependencies; **FAIL → CLOSED WITHOUT MERGE**. Файлы оставлены, protected H1/V20/CC/TRL/M15 не изменены. [Финальный акт](recovery/R7_STAGE_I_FINAL_ACCEPTANCE_20261122.md).
-- [x] Финальная классификация: V20 и CC — ACTIVE, TRL — RESEARCH; H1/M15 — SHARED DEPENDENCY + historical research; `audit_only` — H1 offline research dependency, не LIVE. [Реестр](recovery/RETAINED_RESEARCH_CLASSIFICATION_2026-11-22.md).
-
-**Граница приёмки I:** исходные ZIP/XLSX/другие внешние потребители, три больших ранее пропущенных metadata, все динамические imports и автономное восстановление не проверены полностью. Без последующего разрешения не удалять H1/M15/audit исходники. Такое сохранение **не мешает** начать Kimi и не подменяет этап III.
-
-[Матрица действующих, датированных и архивных инструкций](recovery/DOCUMENTATION_AUTHORITY_2026-11-22.md) определяет приоритет документов, чтобы старый README/PR не переопределял R088, CC-08 или TRL closeout.
-
-## II. Полная адаптация Kimi — переход к выполнению
-
-- [x] [#589](https://github.com/alkospacer123/market-pattern-discovery/pull/589) **MERGED** обычным merge commit `41d0b48c1d33db29bc1b19497d558748b3db8fb4`: три отдельные логические базы знаний V20/CC/TRL, правила Kimi Chat и **отдельного** Kimi Code, экзамен и GPT↔Kimi handoff. Принятие GitHub-документов ≠ реальные проекты Kimi, экзамен или доступ.
-- [ ] **Kimi Chat**: создать три отдельных проекта на стороне Kimi из одного GitHub, проверить доступ к исходникам, SHA, версии, грамотность и изоляцию знаний; исключить FINAM/DPAPI/приватные сведения.
-- [ ] **Kimi Code**: отдельное подключение к GitHub с минимальными правами, независимая сверка commit/blob SHA, sandbox, реальные безопасные offline tests с stdout/exit; никакого реального брокера, LIVE-кнопок или автоматического Merge.
-- [ ] Экзамены V20 R088 base+9 patches, CC-08 командный fail-closed, TRL R089/R097/R098 и отсутствующие оригиналы; затем совместная ограниченная задача GPT↔Kimi, Draft PR, независимый review/rework/handoff и решение оператора.
-
-## III. Независимый Recovery — последним, после II
-
-- [ ] Полный автономный актуальный комплект V20, CC, TRL, H1/M15-зависимостей, рыночных данных, оригинальных ZIP/XLSX/OHLCV, Git history/refs/PR/Issues/CI, проектных знаний и безопасно отделённой приватной конфигурации. Хранить вне Intel, основного SSD, GitHub и обоих ИИ, горизонт 10–30 лет.
-- [ ] Настоящий offline cold restore всех трёх систем на изолированном оборудовании: SHA, БД, исходники/зависимости, unit/regression, доступность знаний и операторский акт. До отдельного LIVE-разрешения никаких реальных заявок.
-
-**Не доказывается самим GitHub:** сегодняшние FINAM positions/orders/SLTP, ARMED или установленная на Intel версия, Kimi Chat/Code access, автономный backup/cold restore.
-
-## Phase-II Windows preparation addendum — 23.11.2026
-
-- [x] Kimi account authenticated for Chat/Work/Code according to operator; Kimi Code `Always Ask` confirmed. Kimi GitHub OAuth authorized; **actual Kimi data access untested**.
-- [x] Two Kimi Chat knowledge projects available before subscription; Control Center third project awaits paid limit.
-- [x] Temporary Git clone on external Expansion D: was created/read-verified and then removed by operator; **D: is not the permanent workspace**.
-- [x] **Operator-verified 23.11:** one NTFS source checkout on Intel at `C:\KimiSandbox\market-pattern-discovery`, `HEAD=1413273a1a312802a0ced7a06a4eb73f050d2ec3`, required files PASS, clean worktree PASS. **Not execution isolation.**
-- [ ] Verify a working Kimi Work per-action approval path (if supported), or keep PC/browser automation ungranted for LIVE; design an independent no-secret execution environment before agent-run offline tests.
-- [ ] Purchase **one-month Kimi Pro** after preparatory acceptance; measure quality, monthly and five-hour Code limits, then decide annual Pro or Max. No annual contract before pilot results.
-- [ ] Complete three Chat projects, real GitHub reads, separate Kimi Code source/tests, V20/CC/TRL exams, GPT↔Kimi Draft PR/handoff, operator acceptance. Then and only then begin Stage III Recovery.
-
-Execution, on-host privilege and post-exam expansion rules: [Kimi Windows workspace/access policy](recovery/kimi/WINDOWS_WORKSPACE_AND_ACCESS.md). Original dated Roadmap and decisions above are not replaced.
+История закрытия I и ранее принятые SHA: [MAIN Roadmap before consolidation](https://github.com/alkospacer123/market-pattern-discovery/blob/3eddebb4d915c7798a2d56d2230010933f553c81/ROADMAP.md).

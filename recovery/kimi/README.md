@@ -1,5 +1,10 @@
 # Kimi Phase II — три логических проекта знаний
 
+## Current checkpoint — 26.11.2026
+
+[Block A engineering acceptance](BLOCK_A_ACCEPTANCE_20261126.md) · [current Roadmap](../../ROADMAP.md) · [three knowledge profiles](memory/README.md) · [KDR register](KIMI_DEFECTS_AND_REMEDIATION_REGISTER.md). Three Chat projects and five Skills accepted in reported/tested scope; GitHub #601–#604 source results merged. Full autonomy, actual installed/LIVE and cold restore not established. Earlier dated statuses below remain historical. COC and five canonical Skills remain authoritative; KDR-001 later owner acceptance recorded in checkpoint. Use accepted MAIN, not old #597 as current source. No new access authorized.
+
+
 ## Checkpoint G6.4 / G6.5 — 25.11.2026; исправление G6.5.1
 
 **Проверенный SOURCE BASE:** `alkospacer123/market-pattern-discovery/main@e05bbd24db88f127a52f0ff1b7282d7c6919cd81`.

@@ -1,0 +1,95 @@
+{
+  "schema": "kimi-project-knowledge/v1",
+  "project": "Trading Research Lab",
+  "date": "2026-11-26",
+  "source_snapshot": "3eddebb4d915c7798a2d56d2230010933f553c81",
+  "reference_main": "3eddebb4d915c7798a2d56d2230010933f553c81",
+  "status": "RECONCILED_REVIEW_CANDIDATE",
+  "original_draft_head": "a4af4cb72257f5c7cffd5d87d97e34438cf0fe46",
+  "files": [
+    {
+      "file": "Trading_Systems_Architecture_and_AI_Collaboration.md",
+      "source": "recovery/kimi/Trading_Systems_Architecture_and_AI_Collaboration.md",
+      "blob": "66325ca5e9264bf449cc73e9a6bfc2bd42a16db0",
+      "source_commit": null,
+      "authority": "CANDIDATE_SAME_TREE_SOURCE"
+    },
+    {
+      "file": "PROJECT_PASSPORT_TRL.md",
+      "source": "recovery/PROJECT_PASSPORT_TRL.md",
+      "blob": "0420ec83a8328ce625c2d699062ef9ec75018e43",
+      "source_commit": "3eddebb4d915c7798a2d56d2230010933f553c81",
+      "authority": "PINNED_MAIN_SOURCE"
+    },
+    {
+      "file": "TRL.md",
+      "source": "recovery/kimi/TRL.md",
+      "blob": "e1410ce55ca1da9c93ed00642ba6110967cf43ba",
+      "source_commit": "3eddebb4d915c7798a2d56d2230010933f553c81",
+      "authority": "PINNED_MAIN_SOURCE"
+    },
+    {
+      "file": "TRL-NOV-2026-KIMI-START-HERE.md",
+      "source": "TradingResearchLab/reports/TRL-NOV-2026-KIMI-START-HERE.md",
+      "blob": "b0e316134eea8a2c62a6a2ae66dc282093fdbabe",
+      "source_commit": "3eddebb4d915c7798a2d56d2230010933f553c81",
+      "authority": "PINNED_MAIN_SOURCE"
+    },
+    {
+      "file": "RESEARCH_METHODOLOGY.md",
+      "source": "TradingResearchLab/research/RESEARCH_METHODOLOGY.md",
+      "blob": "d96ada1f2babfa0bd050ec0f73de19e37d131331",
+      "source_commit": null,
+      "authority": "CANDIDATE_SAME_TREE_SOURCE"
+    },
+    {
+      "file": "OPERATING_CYCLE.md",
+      "source": "TradingResearchLab/OPERATING_CYCLE.md",
+      "blob": "8e770c0b282d7f41ae611f608f98e4fe19bd9545",
+      "source_commit": null,
+      "authority": "CANDIDATE_SAME_TREE_SOURCE"
+    },
+    {
+      "file": "RESEARCH_CARD_TEMPLATE.md",
+      "source": "TradingResearchLab/research/RESEARCH_CARD_TEMPLATE.md",
+      "blob": "a59264b5d6cee8f460f5bf1d0bf83953eae3e92e",
+      "source_commit": null,
+      "authority": "CANDIDATE_SAME_TREE_SOURCE"
+    },
+    {
+      "file": "TRL-NOV-2026-ARTIFACT-MANIFEST.md",
+      "source": "TradingResearchLab/reports/TRL-NOV-2026-ARTIFACT-MANIFEST.md",
+      "blob": "725da79a35484a7385a8f9b98c3d7c59bc4e19e3",
+      "source_commit": "3eddebb4d915c7798a2d56d2230010933f553c81",
+      "authority": "PINNED_MAIN_SOURCE"
+    },
+    {
+      "file": "TRL-NOV-2026-FINAL-CLOSEOUT.md",
+      "source": "TradingResearchLab/reports/TRL-NOV-2026-FINAL-CLOSEOUT.md",
+      "blob": "ec06839fd233f9909eead53e82b9b7d1d7868fb8",
+      "source_commit": "3eddebb4d915c7798a2d56d2230010933f553c81",
+      "authority": "PINNED_MAIN_SOURCE"
+    },
+    {
+      "file": "skills/trl-repro-review/SKILL.md",
+      "source": "recovery/kimi/skills/trl-repro-review/SKILL.md",
+      "blob": "b5bca2832034dfe93b4981d8e53a9f394d9484e7",
+      "source_commit": "3eddebb4d915c7798a2d56d2230010933f553c81",
+      "authority": "PINNED_MAIN_SOURCE"
+    },
+    {
+      "file": "skills/github-source-audit/SKILL.md",
+      "source": "recovery/kimi/skills/github-source-audit/SKILL.md",
+      "blob": "320f3b558cee14b195ae0e8beb6ad392106f9359",
+      "source_commit": "3eddebb4d915c7798a2d56d2230010933f553c81",
+      "authority": "PINNED_MAIN_SOURCE"
+    },
+    {
+      "file": "skills/ai-engineering-handoff/SKILL.md",
+      "source": "recovery/kimi/skills/ai-engineering-handoff/SKILL.md",
+      "blob": "d08ccc90065b19a8abff75646b64dd0318688bd9",
+      "source_commit": "3eddebb4d915c7798a2d56d2230010933f553c81",
+      "authority": "PINNED_MAIN_SOURCE"
+    }
+  ]
+}
