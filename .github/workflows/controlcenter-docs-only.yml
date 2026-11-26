@@ -318,7 +318,7 @@ jobs:
         run: |
           $ErrorActionPreference='Stop'
           $python="$env:RUNNER_TEMP\cc-active-python\Scripts\python.exe"
-          $env:CC03_CI_DISPOSABLE_ROOT=Join-Path $env:RUNNER_TEMP ('cc-active-'+[guid]::NewGuid().ToString('N'))
+          $env:CC03_CI_DISPOSABLE_ROOT=Join-Path $env:RUNNER_TEMP ('CC03-'+[guid]::NewGuid().ToString('N'))
           New-Item -ItemType Directory -Path $env:CC03_CI_DISPOSABLE_ROOT | Out-Null
           $evidence=Join-Path $env:RUNNER_TEMP 'cc-active-evidence'
           New-Item -ItemType Directory -Path $evidence | Out-Null
