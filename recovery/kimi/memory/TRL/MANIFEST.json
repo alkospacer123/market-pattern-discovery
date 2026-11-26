@@ -17,14 +17,14 @@
     {
       "file": "PROJECT_PASSPORT_TRL.md",
       "source": "recovery/PROJECT_PASSPORT_TRL.md",
-      "blob": "6fc5eab0657ac02c3470c2e2010685b1eb952f5a",
+      "blob": "1d51b98e1fce01302e5b3e26de5825bcf038af74",
       "source_commit": null,
       "authority": "CANDIDATE_SAME_TREE_SOURCE"
     },
     {
       "file": "TRL.md",
       "source": "recovery/kimi/TRL.md",
-      "blob": "45e3c623105642da6d9030d47710f433f9f507f8",
+      "blob": "d8fc1f8e4286c6aeb50461f7a757cecc0a46a426",
       "source_commit": null,
       "authority": "CANDIDATE_SAME_TREE_SOURCE"
     },
@@ -38,21 +38,21 @@
     {
       "file": "RESEARCH_METHODOLOGY.md",
       "source": "TradingResearchLab/research/RESEARCH_METHODOLOGY.md",
-      "blob": "5995dee8d2fcdd337085dd62ddd21d73aedd30a8",
+      "blob": "a4a116693634eef034e2a30ad4162df0f860ecf9",
       "source_commit": null,
       "authority": "CANDIDATE_SAME_TREE_SOURCE"
     },
     {
       "file": "OPERATING_CYCLE.md",
       "source": "TradingResearchLab/OPERATING_CYCLE.md",
-      "blob": "9b72cce632a0bcd5d22de54930a56d1b3e494885",
+      "blob": "edcb49586d03f20ea3e3ef47e70fceb831e2fa52",
       "source_commit": null,
       "authority": "CANDIDATE_SAME_TREE_SOURCE"
     },
     {
       "file": "RESEARCH_CARD_TEMPLATE.md",
       "source": "TradingResearchLab/research/RESEARCH_CARD_TEMPLATE.md",
-      "blob": "3d90ca7823cbbeebdeece81a66951137ae4b6bae",
+      "blob": "d7beaf6bfc6516047df91d1419585b1b0c45e796",
       "source_commit": null,
       "authority": "CANDIDATE_SAME_TREE_SOURCE"
     },
@@ -73,7 +73,7 @@
     {
       "file": "skills/trl-repro-review/SKILL.md",
       "source": "recovery/kimi/skills/trl-repro-review/SKILL.md",
-      "blob": "2ce4933682827ef6ad7aaa256e91043f48318db7",
+      "blob": "9f0f1af3516e6eb6af48d7c434355150544e1476",
       "source_commit": null,
       "authority": "CANDIDATE_SAME_TREE_SOURCE"
     },
