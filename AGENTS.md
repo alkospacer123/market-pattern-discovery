@@ -1,5 +1,7 @@
 # Trading Systems — действующий общий AGENTS для GPT/Codex и Kimi Code
 
+**Решения владельца 26.11.2026:** адаптировать ИИ к работающим системам, не изменять системы ради экзаменов. Для новых TRL-расчётов только C1; три исследования и критерии — [методология](TradingResearchLab/research/RESEARCH_METHODOLOGY.md). #601 подготовить к all-three установке, #602 оставить для планового обновления; [V20](recovery/PROJECT_PASSPORT_V20.md) и [CC](recovery/PROJECT_PASSPORT_CONTROL_CENTER.md). Не разрешение на deploy, ARM, FINAM или Merge.
+
 **Проверенный контур этапа I, 22.11.2026, после Merge #589.** [Реестр действующих и исторических документов](recovery/DOCUMENTATION_AUTHORITY_2026-11-22.md) задаёт приоритет, а каждый указанный Git SHA — свидетельство своего датированного среза, не постоянный HEAD. Заменяет старый корневой Research safety contract как универсальную инструкцию. Исходный текст и старый Market Pattern Discovery остаются в Git history и исторических документах. Для проекта сначала прочитать [README](README.md), [срез](recovery/REPOSITORY_CURRENT_STATE.md), [паспорт V20](recovery/PROJECT_PASSPORT_V20.md) / [CC](recovery/PROJECT_PASSPORT_CONTROL_CENTER.md) / [TRL](recovery/PROJECT_PASSPORT_TRL.md).
 
 ## Области и приоритет

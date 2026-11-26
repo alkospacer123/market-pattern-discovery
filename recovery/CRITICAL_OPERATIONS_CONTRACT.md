@@ -176,7 +176,7 @@ RECOVER принимает только строго разрешённые Task
 | COC-TRL-01 | raw/normalized/loaded bytes, provenance, coverage, OHLCV quality | manifest без фактических входов = replay |
 | COC-TRL-02 | source→available→signal→order→fill timestamps, ZERO LOOK-AHEAD | future/aligned timestamp без as-of logic |
 | COC-TRL-03 | frozen protocol, costs/GO/lots/liquidity, event ledger | красивый PF компенсирует неверную модель |
-| COC-TRL-04 | Baseline→Optimization→Robustness→WF→TRUE OOS и contamination ledger | повторный запуск/новый год = untouched OOS |
+| COC-TRL-04 | Свободный поиск по опыту V20; ZERO LOOK-AHEAD с первого теста; Robustness и WF только перспективным кандидатам (WF при достаточной истории); честный OOS-статус, без обязательной цепочки этапов | повторный запуск/новый год = untouched OOS |
 | COC-TRL-05 | clean replay, signals/refusals/orders/fills/ledger/cash/GO/equity witnesses | совпадение Net/PF/N = полная воспроизводимость |
 
 `REPRODUCIBLE_VERIFIED` ограничен фактически воспроизведёнными кодом, входами, конфигурацией и witnesses. Не присваивай идентичность недоступному оригинальному R097 engine по восстановленному коду или output parity; обозначай `SOURCE_BYTE_IDENTITY_NOT_PROVEN` и фактический replay scope.

@@ -14,3 +14,5 @@
 ## Critical Operations Contract
 
 Перед анализом ENTRY, INITIAL_SLTP, Protect3, HOLD5, cancel-after-flat или reconciliation применяй [единый контракт](../recovery/CRITICAL_OPERATIONS_CONTRACT.md), особенно `COC-V20-*`. Восстанавливай фактический BASE→DERIVED path и собственные gates каждой операции. Не выводи разрешение или запрет из одного ARMED/HALTED, не смешивай switch HALTED с durable `execution_halt`; расхождение SOURCE и матрицы — `SOURCE_DRIFT`/STOP.
+
+**Решение владельца 26.11.2026:** сохранить сигналы и R088 60/30/45 + TP6 + Protect3 + HOLD5, EXT2 OFF, Market NEXT_OPEN. После 1–2 месяцев фактической торговой статистики рассмотреть лимитные входы, без автоматической смены. #601 — принятый SOURCE-кандидат диагностического журналирования Protect3, не установлен; подготовить единый пакет Shallow/OBV/Inside с installed identities, SHA/pins, offline regressions, backup/rollback и отдельным разрешением на установку, READONLY postflight. Историческая внутренняя причина 20.11 UNKNOWN. Не менять торговую логику или ARM ради квалификации.
