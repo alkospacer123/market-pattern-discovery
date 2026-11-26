@@ -1,5 +1,28 @@
 # Trading Systems — Roadmap (фактический R7 closeout, 22.11.2026)
 
+## CURRENT EXECUTION CHECKPOINT — 26.11.2026: G6 accepted; NOW GPT-OUTAGE
+
+**Единственный действующий указатель работ; supersedes earlier queues/statuses below, not historical evidence.** Владелец принял G6 и разрешил закрыть KDR-001 26.11.2026. См. [реестр недостатков и акт закрытия](recovery/kimi/KIMI_DEFECTS_AND_REMEDIATION_REGISTER.md). G0–G5 приняты в ранее проверенных пределах; G6 configuration 3/3, G6.2-R, new blind HOLD5/RECOVER, mutation verification and independent functional oracle accepted. G6.2 CRITICAL FAIL остаётся в истории. Не повторять экзамены или проверки Protect3. G7 REMOVED_BY_OWNER_DECISION; не требуется.
+
+| Этап | Статус |
+| --- | --- |
+| I | ACCEPTED |
+| G0–G5 | ACCEPTED_IN_DOCUMENTED_SCOPE |
+| G6 / KDR-001 | ACCEPTED_IN_TESTED_SCOPE / CLOSED_OWNER_ACCEPTED_20261126 |
+| G7 | REMOVED_BY_OWNER_DECISION |
+| GPT-OUTAGE | NOW / NOT_YET_TESTED |
+| G8 | PENDING — Full Operational Qualification & Capability Parity |
+| G9 | PENDING — final reconciliation, exports, owner acceptance and Pro decision |
+| III | NOT_STARTED — independent backup and cold restore |
+
+### NOW — GPT-OUTAGE (mandatory all-three autonomy)
+- Владелец самостоятельно формулирует новую полезную инженерную задачу или три связанных задачи, охватывающие V20, Control Center, TRL. Не передавать GPT-решения, готовые планы исправления, test oracle/hidden expected outputs. GPT не участвует в исполнении, подсказках, промежуточном/обязательном ревью и разрешении проблем. Наблюдение результатов GPT только после окончания outage, не заменяет контроль внутри него.
+- Kimi сам восстанавливает актуальную базу знаний из project-owned sources, без зависимости от GPT и, в выбранных сценариях, от вложений/старых чатов; сам выбирает Chat/Work/Code и Skills, диагностику, scope, реализацию, тесты и необходимые артефакты. Включить mobile route и независимое source recovery в полезную работу, не отдельный повторный экзамен. Не удалять память/вложения для симуляции.
+- Разрешённый GitHub/offline workflow: pinned source, изолированный резервный executor, согласованные отдельные ветки/PR, тесты с воспроизводимыми логами, CI/независимый non-GPT контроль, решение владельца. Разрешения на конкретные изменения/запуск/PR отдельно. Если обязательный независимый reviewer/oracle недоступен — STOP/DEFER только затронутого рискованного шага; продолжать отделимую разрешённую инженерную работу. Не принимать собственный рискованный PR. Не предоставлять новые LIVE/Intel/FINAM/секреты/ARM/HALT/deploy/Merge права.
+- Доказательство по каждому профилю: задача владельца, самостоятельно полученные source identities, выбранный подход, фактически выполненная полезная работа, тесты/логи/артефакты (либо обоснованный BLOCKED с безопасным продолжением), независимый non-GPT gate, owner decision. Зафиксировать surface/mobile evidence и source fallback, оставшиеся KDR и фактический расход лимитов, если доступен. STOP сам по себе не доказывает способность выполнить заблокированную компетенцию. Не заявлять полный автономный PASS, пока не подтверждены все три профиля и предусмотренные маршруты.
+- После GPT-OUTAGE: G8 на реальных разрешённых эксплуатационных задачах (READONLY лишь начальная ступень; равные права по отдельным допускам); G9 финальная документация, согласование #597 с #598/#599 и обновление COC/Skills statuses по доказательствам, сохранение ошибок обоих ИИ, экспорт знаний/артефактов, решение владельца; затем III. Другие KDR не закрыты автоматически. Не расходовать лимиты на повторные проверки принятого G0–G6.
+
+
 ## CURRENT EXECUTION CHECKPOINT — 26.11.2026: G5 accepted; no repeated exams
 
 **Действующий указатель программы, заменяет все более ранние NOW и очереди в этом документе.** Решение владельца: не расходовать лимиты Kimi на повторение принятой работы; конечная цель — самостоятельный равноправный инженерный контур без зависимости от GPT. G7 исключён (см. решение ниже). Приоритет — оставшиеся существенные доказательства, не новые общие экзамены.
