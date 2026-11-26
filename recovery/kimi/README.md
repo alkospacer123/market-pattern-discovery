@@ -1,5 +1,7 @@
 # Kimi Phase II — три логических проекта знаний
 
+**Решение владельца 26.11.2026 — рабочие роли Kimi.** Kimi Chat — основное общение, знания, обсуждение, аналитика и планирование; Kimi Code — основной технический исполнитель (Intel, V20, Control Center, TRL, GitHub, Python, PowerShell, тестирование, удалённая работа и Recovery); Kimi Work — резерв по необходимости, без параллельной адаптации и дублирования заданий. Владелец лично отмечает более стабильную удалённую работу Code с телефона; это не независимый тест и не полный допуск. B1/B2 выполняются через Code. Действующие полномочия и LIVE safety неизменны. [Действующий Roadmap](../../ROADMAP.md). Датированные исторические сведения ниже сохраняются; резервный Work проверяется только при фактической необходимости.
+
 ## Current checkpoint — 26.11.2026
 
 [Block A engineering acceptance](BLOCK_A_ACCEPTANCE_20261126.md) · [current Roadmap](../../ROADMAP.md) · [three knowledge profiles](memory/README.md) · [KDR register](KIMI_DEFECTS_AND_REMEDIATION_REGISTER.md). Three Chat projects and five Skills accepted in reported/tested scope; GitHub #601–#604 source results merged. Full autonomy, actual installed/LIVE and cold restore not established. Earlier dated statuses below remain historical. COC and five canonical Skills remain authoritative; KDR-001 later owner acceptance recorded in checkpoint. Use accepted MAIN, not old #597 as current source. No new access authorized.

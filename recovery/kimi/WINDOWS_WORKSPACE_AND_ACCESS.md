@@ -1,5 +1,7 @@
 # Kimi Code — Windows source workspace, safety gates and operator handoff
 
+**Решение владельца 26.11.2026 — рабочие роли Kimi.** Kimi Chat — основное общение, знания, обсуждение, аналитика и планирование; Kimi Code — основной технический исполнитель (Intel, V20, Control Center, TRL, GitHub, Python, PowerShell, тестирование, удалённая работа и Recovery); Kimi Work — резерв по необходимости, без параллельной адаптации и дублирования заданий. Владелец лично отмечает более стабильную удалённую работу Code с телефона; это не независимый тест и не полный допуск. B1/B2 выполняются через Code. Действующие полномочия и LIVE safety неизменны. [Действующий Roadmap](../../ROADMAP.md). Датированные исторические сведения ниже сохраняются; резервный Work проверяется только при фактической необходимости.
+
 ## G6.4 / G6.5 documentation checkpoint — 25.11.2026; G6.5.1 correction
 
 **Current SOURCE BASE:** `market-pattern-discovery/main@e05bbd24db88f127a52f0ff1b7282d7c6919cd81`.
