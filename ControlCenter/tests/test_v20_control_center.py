@@ -158,7 +158,7 @@ def test_minimal_streamlit_starts_without_read_or_trading_controls(monkeypatch):
     assert not app.sidebar.button and not app.sidebar.radio
     assert len(app.button) == 16  # refresh + 15 disabled CC-07 controls
     assert len(app.metric) == 0
-    visible = "\\n".join(str(item.value) for kind in ("markdown", "caption", "info", "warning", "success", "error")
+    visible = "\n".join(str(item.value) for kind in ("markdown", "caption", "info", "warning", "success", "error")
                          for item in getattr(app, kind))
     assert "Позиции · локально" not in visible
     assert "Стопы · локально" not in visible
@@ -211,7 +211,7 @@ def test_main_shows_only_current_operational_health_without_trade_metrics():
     app.run()
     assert not app.exception
     assert len(app.metric) == 0
-    visible = "\\n".join(str(item.value) for kind in ("markdown", "caption", "info", "warning", "success", "error")
+    visible = "\n".join(str(item.value) for kind in ("markdown", "caption", "info", "warning", "success", "error")
                          for item in getattr(app, kind))
     assert "Windows Task" in visible and "RUNNING" in visible
     assert "Kill switch" in visible and "ARMED" in visible
@@ -417,3 +417,112 @@ def test_cc02_armed_never_claims_cycle_without_fresh_trustworthy_local_proof(var
     assert "Shallow · UNKNOWN" in [x.label for x in app.tabs[1].get("expander")]
     assert any("Состояние Windows Task и ошибок не подтверждено" in x.value
                for x in main.caption)
+
+
+@pytest.mark.parametrize("field", ("positions_local", "stops_local", "unresolved_local"))
+def test_healthy_requires_complete_local_exposure_observations(field):
+    now = datetime.now(timezone.utc)
+    value = example(at=now)
+    value[field] = None
+    report = parse(wire(value), "V20_SHALLOW", now, "V20-SHALLOW")
+    assert report["status"] == "UNKNOWN"
+    assert report["status_reason"] == "LOCAL_EXPOSURE_DATA_MISSING"
+
+
+@pytest.mark.parametrize("engine_state", ("HEALTHY", "HALTED", "UNKNOWN", "FAULT"))
+def test_known_local_position_without_stops_is_fault_not_healthy(engine_state):
+    now = datetime.now(timezone.utc)
+    value = example(at=now)
+    value.update(engine_state=engine_state, positions_local=1, stops_local=0,
+                 unresolved_local=0)
+    report = parse(wire(value), "V20_SHALLOW", now, "V20-SHALLOW")
+    assert report["status"] == "FAULT"
+    assert report["status_reason"] == "LOCAL_POSITION_WITHOUT_STOPS"
+    assert report["positions_local"] == 1 and report["stops_local"] == 0
+    # Freshness remains a separate observation; it must not cancel the exposure fault.
+    assert heartbeat_health(report, now) == "HEALTHY"
+
+
+def test_healthy_rejects_contradictory_flat_with_local_stops():
+    now = datetime.now(timezone.utc)
+    value = example(at=now)
+    value.update(positions_local=0, stops_local=1, unresolved_local=0)
+    report = parse(wire(value), "V20_SHALLOW", now, "V20-SHALLOW")
+    assert report["status"] == "UNKNOWN"
+    assert report["status_reason"] == "LOCAL_EXPOSURE_CONTRADICTION"
+
+
+@pytest.mark.parametrize("positions,stops", ((0, 0), (1, 1), (2, 1)))
+def test_healthy_positive_controls_reach_exposure_gate(positions, stops):
+    now = datetime.now(timezone.utc)
+    value = example(at=now)
+    value.update(positions_local=positions, stops_local=stops, unresolved_local=0)
+    report = parse(wire(value), "V20_SHALLOW", now, "V20-SHALLOW")
+    assert report["status"] == "HEALTHY"
+    assert report["status_reason"] == "LOCAL_HEALTH_GATES_PASS"
+
+
+def test_unprotected_exposure_becomes_stale_not_current_fault_after_ttl():
+    now = datetime.now(timezone.utc)
+    value = example(at=now)
+    value.update(positions_local=1, stops_local=0, unresolved_local=0)
+    report = parse(wire(value), "V20_SHALLOW", now, "V20-SHALLOW")
+    stale = age(report, now + timedelta(seconds=TTL + 1))
+    assert stale["status"] == "STALE"
+    assert stale["status_reason"] == "STALE_LOCAL_REPORT"
+    assert stale["positions_local"] is None and stale["stops_local"] is None
+
+
+def test_ui_shows_local_unprotected_exposure_despite_fresh_heartbeat():
+    now = datetime.now(timezone.utc)
+    value = example(at=now)
+    value.update(positions_local=1, stops_local=0, unresolved_local=0)
+    report = parse(wire(value), "V20_SHALLOW", now, "V20-SHALLOW")
+    app = AppTest.from_file(str(ROOT / "v20_app.py"), default_timeout=15)
+    app.session_state["v20-snapshots"] = {
+        **{r: unconnected(r) for r in ROBOTS}, "V20_SHALLOW": report
+    }
+    app.run()
+    assert not app.exception
+    main = app.tabs[0]
+    assert any(x.value == "FAULT" for x in main.error)
+    assert not any(x.value == "HEALTHY" for x in main.success)
+    assert any("позиция есть, защитные стопы отсутствуют" in x.value
+               for x in main.error)
+    assert any("🟢 HEALTHY" in x.value for x in main.markdown)
+    assert not any("ARMED · ЦИКЛ" in x.value for x in main.info)
+
+
+def test_ui_armed_cycle_explicitly_marks_missing_exposure_data():
+    now = datetime.now(timezone.utc)
+    value = example(at=now)
+    value.update(engine_state="UNKNOWN", positions_local=None, stops_local=None,
+                 unresolved_local=None)
+    report = parse(wire(value), "V20_SHALLOW", now, "V20-SHALLOW")
+    app = AppTest.from_file(str(ROOT / "v20_app.py"), default_timeout=15)
+    app.session_state["v20-snapshots"] = {
+        **{r: unconnected(r) for r in ROBOTS}, "V20_SHALLOW": report
+    }
+    app.run()
+    assert not app.exception
+    main = app.tabs[0]
+    assert any("ARMED · ЦИКЛ PASS" in x.value for x in main.info)
+    assert any("Локальные позиции и стопы: НЕТ ДАННЫХ" in x.value
+               for x in main.caption)
+    assert any("FLAT и защита не подтверждены" in x.value for x in main.caption)
+
+    # A publisher's rejected HEALTHY claim must not borrow the real CC-02
+    # UNKNOWN/ARMED presentation, even though its derived status is UNKNOWN.
+    rejected = example(at=now)
+    rejected["positions_local"] = None
+    rejected_report = parse(wire(rejected), "V20_SHALLOW", now, "V20-SHALLOW")
+    assert rejected_report["engine_state"] == "HEALTHY"
+    assert rejected_report["status"] == "UNKNOWN"
+    rejected_app = AppTest.from_file(str(ROOT / "v20_app.py"), default_timeout=15)
+    rejected_app.session_state["v20-snapshots"] = {
+        **{r: unconnected(r) for r in ROBOTS}, "V20_SHALLOW": rejected_report
+    }
+    rejected_app.run()
+    assert not rejected_app.exception
+    assert not any("ARMED · ЦИКЛ" in x.value
+                   for x in rejected_app.tabs[0].info)
