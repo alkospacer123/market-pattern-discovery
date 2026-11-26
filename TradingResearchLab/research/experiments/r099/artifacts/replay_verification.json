@@ -1,0 +1,45 @@
+{
+  "research_id": "TRL-R-2026-099",
+  "status": "REPRODUCIBLE_VERIFIED",
+  "scope": "Two offline executions in separate processes/output directories plus an independent vectorized ledger/HAC check. This is not TRUE OOS or evidence of profitability; bootstrap and every diagnostic were not independently rewritten.",
+  "canonical_run": {
+    "start_utc": "2026-11-26T11:56:18.754856+00:00",
+    "end_utc": "2026-11-26T11:56:47.044624+00:00"
+  },
+  "clean_replay": {
+    "start_utc": "2026-11-26T11:56:48.762444+00:00",
+    "end_utc": "2026-11-26T11:57:11.566222+00:00"
+  },
+  "code_sha256": "56e99cd46a6f63eefe13be4fd2d95296bc1c67116a5cada929fdb52a858a2fdb",
+  "protocol_sha256": "ea2e066085b016b53be58f947b95e9b37aca99554cc5cdfbeff442f8684ffee0",
+  "input_sha256": {
+    "USDRUBF_M5.csv": "3758ed99e4ec0c712af09575ddc74f0437f2fcddda05df2c5d27268296037786",
+    "USDRUBF_M15.csv": "fef80630080a4e2a5e968d620b663f51acd1b7ab9d5d326a42c68cf2b80c67b8",
+    "USDRUBF_M30.csv": "1945489f25cf003d9ca63faa5cbf233282f461f7aafef4112445746146061e4d"
+  },
+  "byte_identical_outputs": {
+    "controls.json": "fc6b5e2b4b3d5f43fdd427f7f3bdaa7644ec7954919de44dbd921f1311a5f80e",
+    "daily_ledger.csv": "f038be621ddb35468c7fc6002060d71a66977466dfd4e5627b35d7c4a2a2c3a9",
+    "data_quality.json": "ea7ec58d35a13f8bbce8880b588e30a921ccb578da388ef409ab58ff0e5fa272",
+    "excluded_days.csv": "b1d2806328d99d675634082d1a80b3083a17534c1eacfc9aa9e9e9edabf92b18",
+    "metrics.csv": "08bfab4a643223489491ba010ea715a56474094ae038a8cc3de39724d8d8672a",
+    "statistical_tests.json": "96ead285b99d3016acefbc27ba3d097905214d5140407efbbb3832f9808ae722"
+  },
+  "semantic_log_match": {
+    "eligible_days": 922,
+    "trades": 910,
+    "decision": "REJECT_CURRENT_BASELINE",
+    "note": "run.log timestamps and therefore run.log/run_manifest.json bytes intentionally differ between executions."
+  },
+  "independent_calculation": {
+    "status": "PASS",
+    "code_path": "../independent_check.py",
+    "code_sha256": "22382754c120527b354e4265b700f7203ebe4dd8c56c9404db528cac511b8070",
+    "evidence_path": "independent_verification.json",
+    "evidence_sha256": "b536867c9e9f67cc734245af32fad1fb796b9c15e06c613be05c77c84c9100b0",
+    "method": "Vectorized pivot/shift ledger extraction and statsmodels HAC with explicit finite-sample correction",
+    "maximum_absolute_money_difference_rub": 1.340971778063249e-11,
+    "beta_difference": 0.0,
+    "beta_p_absolute_difference": 8.326672684688674e-17
+  }
+}
