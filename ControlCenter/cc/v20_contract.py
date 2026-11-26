@@ -152,6 +152,10 @@ def parse(raw, robot, now, account_alias):
         status_reason = "LOCAL_EXPOSURE_DATA_MISSING"
     elif positions == 0 and stops != 0:
         status_reason = "LOCAL_EXPOSURE_CONTRADICTION"
+    if status == "STALE":
+        # A report already stale on receipt must expose no current metrics,
+        # just like a fresh report that later expires in age().
+        cycle = positions = stops = unresolved = None
     return {"robot_id": robot, "status": status, "status_reason": status_reason,
             "reason": "LOCAL_REPORT",
             "observed_at": at, "heartbeat_at": heartbeat, "cycle": cycle,

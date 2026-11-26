@@ -526,3 +526,17 @@ def test_ui_armed_cycle_explicitly_marks_missing_exposure_data():
     assert not rejected_app.exception
     assert not any("ARMED · ЦИКЛ" in x.value
                    for x in rejected_app.tabs[0].info)
+ 
+ 
+@pytest.mark.parametrize("engine_state", ("HEALTHY", "HALTED", "FAULT", "UNKNOWN"))
+def test_already_stale_report_hides_current_metrics(engine_state):
+    now = datetime.now(timezone.utc)
+    value = example(at=now - timedelta(seconds=TTL + 1))
+    value.update(engine_state=engine_state, positions_local=1,
+                 stops_local=0, unresolved_local=2)
+    report = parse(wire(value), "V20_SHALLOW", now, "V20-SHALLOW")
+    assert report["status"] == "STALE"
+    assert report["status_reason"] == "STALE_LOCAL_REPORT"
+    assert all(report[key] is None for key in (
+        "cycle", "positions_local", "stops_local", "unresolved_local"))
+    assert age(report, now - timedelta(seconds=TTL + 2)) == report
