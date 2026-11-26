@@ -125,13 +125,35 @@ def parse(raw, robot, now, account_alias):
         checked.append({"at": event_at, "cycle": number, "result": event["result"],
                         "code": event["code"]})
     age = (now - at).total_seconds()
-    status = "STALE" if age > TTL or age < -30 else value["engine_state"]
-    if status == "HEALTHY":
-        if (heartbeat is None or not -30 <= (now - heartbeat).total_seconds() <= TTL
+    status = value["engine_state"]
+    status_reason = "SOURCE_ENGINE_STATE"
+    if age > TTL:
+        status, status_reason = "STALE", "STALE_LOCAL_REPORT"
+    elif age < -30:
+        status, status_reason = "STALE", "FUTURE_LOCAL_REPORT"
+    elif positions is not None and positions > 0 and stops == 0:
+        # A known local position without local stops is a current FAULT even if
+        # the publisher claims HEALTHY/HALTED. Counts do not prove FINAM SLTP.
+        status, status_reason = "FAULT", "LOCAL_POSITION_WITHOUT_STOPS"
+    elif status == "HEALTHY":
+        if positions is None or stops is None or unresolved is None:
+            status, status_reason = "UNKNOWN", "LOCAL_EXPOSURE_DATA_MISSING"
+        elif (heartbeat is None or not -30 <= (now - heartbeat).total_seconds() <= TTL
                 or value["task_state"] != "RUNNING" or value["kill_switch"] != "ARMED"
-                or unresolved is None or unresolved != 0):
-            status = "UNKNOWN"
-    return {"robot_id": robot, "status": status, "reason": "LOCAL_REPORT",
+                or unresolved != 0):
+            status, status_reason = "UNKNOWN", "LOCAL_HEALTH_GATES_FAIL"
+        elif positions == 0 and stops != 0:
+            status, status_reason = "UNKNOWN", "LOCAL_EXPOSURE_CONTRADICTION"
+        else:
+            status_reason = "LOCAL_HEALTH_GATES_PASS"
+    elif positions is None or stops is None or unresolved is None:
+        # Preserve HALTED/FAULT/UNKNOWN, but never imply absent exposure data
+        # is an observed zero, FLAT or PROTECTED.
+        status_reason = "LOCAL_EXPOSURE_DATA_MISSING"
+    elif positions == 0 and stops != 0:
+        status_reason = "LOCAL_EXPOSURE_CONTRADICTION"
+    return {"robot_id": robot, "status": status, "status_reason": status_reason,
+            "reason": "LOCAL_REPORT",
             "observed_at": at, "heartbeat_at": heartbeat, "cycle": cycle,
             "positions_local": positions, "stops_local": stops, "unresolved_local": unresolved,
             "engine_state": value["engine_state"], "task_state": value["task_state"],
@@ -168,13 +190,13 @@ def age(report, now):
     if report["status"] in ("STALE", "NOT_CONNECTED", "UNKNOWN"):
         return report
     if now.tzinfo is None:
-        return dict(report, status="UNKNOWN")
+        return dict(report, status="UNKNOWN", status_reason="INVALID_CHECK_TIME")
     now = now.astimezone(timezone.utc)
     observed = report["observed_at"]
     heartbeat = report["heartbeat_at"]
     if (now < observed or (now-observed).total_seconds() > TTL
             or report["status"] == "HEALTHY" and (heartbeat is None or now < heartbeat
                                                    or (now-heartbeat).total_seconds() > TTL)):
-        return dict(report, status="STALE", cycle=None, positions_local=None,
-                    stops_local=None, unresolved_local=None)
+        return dict(report, status="STALE", status_reason="STALE_LOCAL_REPORT",
+                    cycle=None, positions_local=None, stops_local=None, unresolved_local=None)
     return report

@@ -40,6 +40,8 @@ def confirmed_armed_cycle(report, now):
     last = report.get("events", ())[-1:]
     return (
         report["status"] == "UNKNOWN" and report.get("reason") == "LOCAL_REPORT"
+        and report.get("engine_state") == "UNKNOWN"
+        and report.get("status_reason") in ("SOURCE_ENGINE_STATE", "LOCAL_EXPOSURE_DATA_MISSING")
         and report.get("task_state") == "RUNNING"
         and report.get("kill_switch") == "ARMED"
         and heartbeat_health(report, now) == "HEALTHY" and bool(last)
@@ -53,6 +55,7 @@ def overview(snapshots, now):
     for robot in ROBOTS:
         report = snapshots[robot]
         status = report["status"]
+        status_reason = report.get("status_reason", "UNKNOWN")
         current = status in ("HEALTHY", "HALTED", "FAULT")
         pulse = heartbeat_health(report, now)
         # CC-02 intentionally reports UNKNOWN for ARMED without independent
@@ -80,6 +83,13 @@ def overview(snapshots, now):
                     "STALE": "🔴 UNHEALTHY",
                     "UNKNOWN": "⚪ НЕТ ДАННЫХ",
                 }[pulse])
+                if status_reason == "LOCAL_POSITION_WITHOUT_STOPS":
+                    st.error("Локальная позиция есть, защитные стопы отсутствуют. "
+                             "Требуется авторизованная брокерская сверка; панель не подтверждает защиту FINAM.")
+                elif status_reason == "LOCAL_EXPOSURE_DATA_MISSING":
+                    st.caption("Локальные позиции и стопы: НЕТ ДАННЫХ — FLAT и защита не подтверждены.")
+                elif status_reason == "LOCAL_EXPOSURE_CONTRADICTION":
+                    st.warning("Локальные позиции и стопы противоречивы — FLAT и защита не подтверждены.")
                 if status == "STAGING":
                     st.markdown("**Windows Task:** DISABLED · **Kill switch:** НЕТ ДАННЫХ")
                 elif current or armed_cycle:
@@ -100,7 +110,7 @@ def overview(snapshots, now):
     with st.expander("Об источниках", expanded=False):
         st.caption("CC-04: по ручному запросу используются подтверждённые V20 READONLY-снимки или штатные operator-check V20-07. Проверки не запускают торговлю.")
         st.caption("STAGING · LIVE OFF означает лишь проверенную отключённую Windows Task и блокирующее действие на момент запроса. Не означает работоспособный runtime.")
-        st.caption("HEALTHY означает состояние по локальному отчёту; не подтверждает сделки, брокерские позиции и SLTP FINAM.")
+        st.caption("HEALTHY допускается только при полных непротиворечивых локальных полях позиций/стопов; это не доказывает сделки, брокерские позиции или полное покрытие SLTP FINAM.")
         st.caption("Heartbeat: HEALTHY — свежий сигнал; UNHEALTHY — сигнал просрочен более чем на 5 минут; НЕТ ДАННЫХ — источник или подтверждённый heartbeat отсутствует.")
         st.caption("Heartbeat HEALTHY означает только свежий сигнал, а не разрешение торговли и не исправность всех компонентов.")
         st.caption("Дата рядом с кнопкой — время последней ручной проверки панелью, не обновления данных самого робота.")
