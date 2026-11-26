@@ -1,0 +1,71 @@
+{
+  "research_id": "TRL-R-2026-099",
+  "commit": "f8486b446cf3d5f9f3cba6dfec32bdef8fd184c8",
+  "code": {
+    "path": "run_r099.py",
+    "sha256": "56e99cd46a6f63eefe13be4fd2d95296bc1c67116a5cada929fdb52a858a2fdb"
+  },
+  "protocol": {
+    "path": "FROZEN_PROTOCOL.md",
+    "sha256": "ea2e066085b016b53be58f947b95e9b37aca99554cc5cdfbeff442f8684ffee0"
+  },
+  "inputs": [
+    {
+      "path": "USDRUBF/USDRUBF_M5.csv",
+      "sha256": "3758ed99e4ec0c712af09575ddc74f0437f2fcddda05df2c5d27268296037786"
+    },
+    {
+      "path": "USDRUBF/USDRUBF_M15.csv",
+      "sha256": "fef80630080a4e2a5e968d620b663f51acd1b7ab9d5d326a42c68cf2b80c67b8"
+    },
+    {
+      "path": "USDRUBF/USDRUBF_M30.csv",
+      "sha256": "1945489f25cf003d9ca63faa5cbf233282f461f7aafef4112445746146061e4d"
+    }
+  ],
+  "environment": {
+    "python": "3.12.12 (main, Oct  9 2025, 22:40:06) [GCC 12.2.0]",
+    "platform": "Linux-6.18.62-x86_64-with-glibc2.36",
+    "pandas": "2.3.2",
+    "numpy": "2.2.5"
+  },
+  "decision": "REJECT_CURRENT_BASELINE",
+  "sample_class": "RETROSPECTIVE_DEVELOPMENT_NOT_TRUE_OOS",
+  "outputs": [
+    {
+      "path": "controls.json",
+      "sha256": "fc6b5e2b4b3d5f43fdd427f7f3bdaa7644ec7954919de44dbd921f1311a5f80e",
+      "bytes": 672
+    },
+    {
+      "path": "daily_ledger.csv",
+      "sha256": "f038be621ddb35468c7fc6002060d71a66977466dfd4e5627b35d7c4a2a2c3a9",
+      "bytes": 250250
+    },
+    {
+      "path": "data_quality.json",
+      "sha256": "ea7ec58d35a13f8bbce8880b588e30a921ccb578da388ef409ab58ff0e5fa272",
+      "bytes": 1369
+    },
+    {
+      "path": "excluded_days.csv",
+      "sha256": "b1d2806328d99d675634082d1a80b3083a17534c1eacfc9aa9e9e9edabf92b18",
+      "bytes": 183
+    },
+    {
+      "path": "metrics.csv",
+      "sha256": "08bfab4a643223489491ba010ea715a56474094ae038a8cc3de39724d8d8672a",
+      "bytes": 17949
+    },
+    {
+      "path": "run.log",
+      "sha256": "f92c5fef131526809598b1ad2c2f48a753a97054df0cfdb2e9ce3fdd83be0974",
+      "bytes": 221
+    },
+    {
+      "path": "statistical_tests.json",
+      "sha256": "96ead285b99d3016acefbc27ba3d097905214d5140407efbbb3832f9808ae722",
+      "bytes": 2337
+    }
+  ]
+}

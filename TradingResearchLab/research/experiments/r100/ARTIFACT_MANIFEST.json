@@ -1,0 +1,100 @@
+{
+  "research_id": "TRL-R-2026-099",
+  "generated_utc": "2026-11-26T12:12:59.042840+00:00",
+  "base_main_commit": "f0d289bd64536975dbcf3ec25ed1811c06116119",
+  "data_commit": "f8486b446cf3d5f9f3cba6dfec32bdef8fd184c8",
+  "decision": "REJECT_CURRENT_BASELINE",
+  "sample_class": "RETROSPECTIVE_DEVELOPMENT_NOT_TRUE_OOS",
+  "files": [
+    {
+      "path": "CONTAMINATION_LEDGER.md",
+      "sha256": "87cd53db392def99ec2bf6666af12b3be3955566e4c08790ac835fb21e26ee29",
+      "bytes": 5154
+    },
+    {
+      "path": "FROZEN_PROTOCOL.md",
+      "sha256": "ea2e066085b016b53be58f947b95e9b37aca99554cc5cdfbeff442f8684ffee0",
+      "bytes": 15412
+    },
+    {
+      "path": "FROZEN_PROTOCOL.sha256",
+      "sha256": "cd92e2eceebec1269bef1580cffbd36796705910299a91b4d989b4f8f402d6e5",
+      "bytes": 85
+    },
+    {
+      "path": "RUNBOOK.md",
+      "sha256": "b1e66c79c4b4b5d2a5ad15aad16d3e8ef61aa4960a35703101ac9deedab9d1a6",
+      "bytes": 6220
+    },
+    {
+      "path": "WITNESS_MATRIX.md",
+      "sha256": "3960c4e147fbbb91590701367d06114756c68db21b5b06a81b4ab05c847b0202",
+      "bytes": 3768
+    },
+    {
+      "path": "artifacts/controls.json",
+      "sha256": "fc6b5e2b4b3d5f43fdd427f7f3bdaa7644ec7954919de44dbd921f1311a5f80e",
+      "bytes": 672
+    },
+    {
+      "path": "artifacts/daily_ledger.csv",
+      "sha256": "f038be621ddb35468c7fc6002060d71a66977466dfd4e5627b35d7c4a2a2c3a9",
+      "bytes": 250250
+    },
+    {
+      "path": "artifacts/data_quality.json",
+      "sha256": "ea7ec58d35a13f8bbce8880b588e30a921ccb578da388ef409ab58ff0e5fa272",
+      "bytes": 1369
+    },
+    {
+      "path": "artifacts/excluded_days.csv",
+      "sha256": "b1d2806328d99d675634082d1a80b3083a17534c1eacfc9aa9e9e9edabf92b18",
+      "bytes": 183
+    },
+    {
+      "path": "artifacts/independent_verification.json",
+      "sha256": "b536867c9e9f67cc734245af32fad1fb796b9c15e06c613be05c77c84c9100b0",
+      "bytes": 1399
+    },
+    {
+      "path": "artifacts/metrics.csv",
+      "sha256": "08bfab4a643223489491ba010ea715a56474094ae038a8cc3de39724d8d8672a",
+      "bytes": 17949
+    },
+    {
+      "path": "artifacts/replay_verification.json",
+      "sha256": "604ba23dc00147d582e24985d800f5313833c967506f933cb6155f679bfb5209",
+      "bytes": 2473
+    },
+    {
+      "path": "artifacts/run.log",
+      "sha256": "f92c5fef131526809598b1ad2c2f48a753a97054df0cfdb2e9ce3fdd83be0974",
+      "bytes": 221
+    },
+    {
+      "path": "artifacts/run_manifest.json",
+      "sha256": "384c7370adcab0b4a542408ca039bbb8b657442bb020c9b102839b400be58c7a",
+      "bytes": 2142
+    },
+    {
+      "path": "artifacts/statistical_tests.json",
+      "sha256": "96ead285b99d3016acefbc27ba3d097905214d5140407efbbb3832f9808ae722",
+      "bytes": 2337
+    },
+    {
+      "path": "independent_check.py",
+      "sha256": "22382754c120527b354e4265b700f7203ebe4dd8c56c9404db528cac511b8070",
+      "bytes": 6160
+    },
+    {
+      "path": "run_r099.py",
+      "sha256": "56e99cd46a6f63eefe13be4fd2d95296bc1c67116a5cada929fdb52a858a2fdb",
+      "bytes": 20922
+    }
+  ],
+  "exclusions": [
+    "ARTIFACT_MANIFEST.json itself",
+    "__pycache__"
+  ],
+  "note": "Includes independent vectorized ledger/HAC witness. External raw OHLCV hashes are in artifacts/run_manifest.json."
+}

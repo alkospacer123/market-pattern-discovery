@@ -25,3 +25,13 @@
 **Правило сохранения:** не удалять неудачные эксперименты или ранние frozen-протоколы. Не считать диагностические ex-post метки истинными входными признаками и не создавать «успешную» систему подбором границ на 2018–2026 после известного исхода.
 
 **Реальные ограничения:** весь индекс — история **RESEARCH**, не брокерские LIVE данные, не TRUE OOS и не установленный Intel. Для повторения обращаться к [реестру](TRL-RESEARCH-REGISTRY-2026-11-22.md) и [манифесту](TRL-NOV-2026-ARTIFACT-MANIFEST.md). При отсутствии требуемого ZIP/data — `PARTIAL / NOT_REPLAYED`, а не подтверждённый новый edge.
+
+## Дополнение 26.11.2026 — R100
+
+| ID | Гипотеза / тест | Факт/причина непринятия | Источник | Статус в исследовании |
+|---|---|---|---|---|
+| R100 | USDRUBF sign первого получасового движения от предыдущего Close → торговля последних 30 минут | Predictive gate PASS (beta 0,03549; HAC p 0,01629), но Gross +10960 ₽ не покрывает даже C1; Net C2 −25440 ₽, PF 0,5277, все четыре года отрицательны, bootstrap CI ниже нуля, без top-10 −29620 ₽; zero-signal gate FAIL | [Research Card](../research/TRL_R_2026_100_USDRUBF_FIRST_LAST_MOMENTUM.md) · [отчёт](TRL-2027-RESEARCH-DIRECTIONS-R100.md) · [ledger](../research/experiments/r100/artifacts/daily_ledger.csv) | `REJECT_CURRENT_BASELINE / NO_OPTIMIZATION` |
+
+Не продолжать R100 подбором session time, стороны, порога, стопов или фильтров. Два offline-запуска и отдельная vectorized ledger/HAC сверка совпали, но это лишь вычислительный `REPRODUCIBLE_VERIFIED`; 2023–2026 остаются retrospective development, а фактические costs/ГО/ликвидность и TRUE OOS отсутствуют.
+
+R099 / DAILY_TSMOM60 — отдельная предрегистрация, не отрицательный результат; не относится к строке R100. [Provenance](../research/TRL-R100-ID-PROVENANCE.md).

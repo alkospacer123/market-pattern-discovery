@@ -76,3 +76,15 @@
 Официальные статусы: `SOURCE_VERIFIED`, `REPRODUCIBLE_VERIFIED`, `PARTIAL`, `MISSING_BINARY`, `MISSING_DATA`, `NOT_REPLAYED`, `UNKNOWN`. Отсутствие в **GitHub** R060/R097/R086/R087 ZIP/XLSX = `MISSING_BINARY` **для GitHub-only Kimi**, но R060/R097 и перечисленные XLSX **локально SOURCE_VERIFIED**. Проверки полных backtest: `NOT_REPLAYED` в этом аудите. Остальные исключённые/отклонённые исследования сохранять: [отрицательный индекс](TRL-NEGATIVE-RESEARCH-INDEX-2026-11-22.md).
 
 **Для заключительного этапа III (не выполнять сейчас):** предоставить Kimi Code безопасный источник ZIP/XLSX из отдельного хранилища, сверить SHA, добавить исходные новые TXT R087, отсутствующие R043/R047 deps и данные, затем в независимом окружении выполнить точные witness-контроли. Ни архив Github, ни SHA из Markdown не дают сами по себе восстановление.
+
+## Дополнение 26.11.2026 — R100
+
+| Research ID | Назначение | Source path | Git blob / SHA256 | Данные | Код | Результат | Ограничения | Reproducibility status |
+|---|---|---|---|---|---|---|---|---|
+| R100 | Новая standalone first-to-last half-hour momentum на USDRUBF | [Research Card](../research/TRL_R_2026_100_USDRUBF_FIRST_LAST_MOMENTUM.md) · [отчёт](TRL-2027-RESEARCH-DIRECTIONS-R100.md) | Protocol SHA256 `ea2e066085b016b53be58f947b95e9b37aca99554cc5cdfbeff442f8684ffee0`; M5 SHA256 `3758ed99e4ec0c712af09575ddc74f0437f2fcddda05df2c5d27268296037786` | Pinned `market-pattern-data@f8486b446cf3d5f9f3cba6dfec32bdef8fd184c8`; 922 eligible / 910 trades | `run_r099.py`, SHA256 `56e99cd46a6f63eefe13be4fd2d95296bc1c67116a5cada929fdb52a858a2fdb` | `REJECT_CURRENT_BASELINE`; Net C2 −25440 ₽, PF 0,5277; beta p=0,01629, но все годы отрицательны | Retrospective development, нет TRUE OOS/фактических costs/ГО/depth; timezone metadata и close TF witnesses ограничены | `REPRODUCIBLE_VERIFIED`: 6/6 analytical outputs byte-identical + отдельная vectorized ledger/HAC сверка; bootstrap не переписан |
+
+R100 не переносит статус воспроизводимости на исторические R040–R098 и не изменяет выбор владельца V20 60/30/45, TP6, Protect3, HOLD5, EXT2 OFF. Подробный scope: [replay verification](../research/experiments/r100/artifacts/replay_verification.json).
+
+### Резервирование R099
+
+R099 / DAILY_TSMOM60 — ранее заявленная предрегистрация Kimi от 25.11.2026; расчёт не выполнялся по отчёту автора. ID сохранён за этой гипотезой. Полный первичный frozen protocol DAILY_TSMOM60 в данном пакете отсутствует; статус `PARTIAL / NOT_REPLAYED`. R100 — отдельная гипотеза USDRUBF. [Provenance](../research/TRL-R100-ID-PROVENANCE.md).

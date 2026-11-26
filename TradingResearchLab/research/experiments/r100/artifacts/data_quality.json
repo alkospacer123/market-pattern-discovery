@@ -1,0 +1,46 @@
+{
+  "source": {
+    "repository": "alkospacer123/market-pattern-data",
+    "commit": "f8486b446cf3d5f9f3cba6dfec32bdef8fd184c8",
+    "path": "forever/USDRUBF/USDRUBF_M5.csv",
+    "sha256": "3758ed99e4ec0c712af09575ddc74f0437f2fcddda05df2c5d27268296037786",
+    "git_blob_sha1": "2b621e1c0aa9a84838d95d4c139257889b6f825e"
+  },
+  "raw": {
+    "rows": 159752,
+    "first_timestamp": "2023-01-03 09:00:00",
+    "last_timestamp": "2026-08-30 18:55:00",
+    "na_cells": 0,
+    "duplicate_timestamps": 0,
+    "non_monotonic_timestamps": 0,
+    "invalid_ohlcv_rows": 0,
+    "ticker_values": [
+      "USDRUBF"
+    ]
+  },
+  "observed_dates": 939,
+  "weekday_main_session_candidates": 925,
+  "eligible_days_including_zero_signals": 922,
+  "trades_nonzero_signals": 910,
+  "zero_signal_days": 12,
+  "excluded_weekday_days": 3,
+  "exclusion_rate": 0.003243243243243243,
+  "exclusions": [
+    {
+      "date": "2023-01-03",
+      "reason": "MISSING_REQUIRED_BARS",
+      "detail": "previous_session_18:45"
+    },
+    {
+      "date": "2023-01-20",
+      "reason": "MISSING_REQUIRED_BARS",
+      "detail": "18:40"
+    },
+    {
+      "date": "2023-09-13",
+      "reason": "MISSING_REQUIRED_BARS",
+      "detail": "10:00;10:05;10:10;10:15;10:20;10:25"
+    }
+  ],
+  "timezone_timestamp_assumption": "naive CSV timestamps interpreted as bar start in MSK; original export metadata absent"
+}

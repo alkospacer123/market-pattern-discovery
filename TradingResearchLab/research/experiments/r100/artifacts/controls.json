@@ -1,0 +1,36 @@
+{
+  "prefix_invariance": {
+    "checked": 922,
+    "mismatch": 0
+  },
+  "future_perturbation": {
+    "checked": 922,
+    "multiplier_after_10:25": 1.01,
+    "mismatch": 0
+  },
+  "aggregation": {
+    "m30_first30": {
+      "checked": 922,
+      "mismatch": 0
+    },
+    "m15_close": {
+      "checked": 922,
+      "mismatch": 807
+    },
+    "m30_close": {
+      "checked": 922,
+      "mismatch": 106
+    },
+    "diagnostic_m15_18:45_close": {
+      "checked": 922,
+      "mismatch": 105
+    }
+  },
+  "ledger_invariants": {
+    "rows": 910,
+    "unique_dates": 910,
+    "one_row_per_date": true,
+    "nonzero_directions_only": true,
+    "net_recalculation_mismatch": 0
+  }
+}
