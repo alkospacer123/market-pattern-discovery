@@ -73,9 +73,9 @@
     {
       "file": "skills/trl-repro-review/SKILL.md",
       "source": "recovery/kimi/skills/trl-repro-review/SKILL.md",
-      "blob": "b5bca2832034dfe93b4981d8e53a9f394d9484e7",
-      "source_commit": "3eddebb4d915c7798a2d56d2230010933f553c81",
-      "authority": "PINNED_MAIN_SOURCE"
+      "blob": "2ce4933682827ef6ad7aaa256e91043f48318db7",
+      "source_commit": null,
+      "authority": "CANDIDATE_SAME_TREE_SOURCE"
     },
     {
       "file": "skills/github-source-audit/SKILL.md",
