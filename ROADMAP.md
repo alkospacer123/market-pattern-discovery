@@ -7,14 +7,14 @@
 | I — GitHub cleanup | ACCEPTED: V20/CC/TRL, H1/M15 dependencies, исследования и Git history сохранены. |
 | II. G0–G6 — обучение и практика | ACCEPTED_IN_DOCUMENTED_SCOPE: теория 156/160; G5 три проекта; Skills 5/5 reported byte match; G6 независимые испытания и KDR-001 CLOSED_OWNER_ACCEPTED_20261126. Не повторять. |
 | G7 | REMOVED_BY_OWNER_DECISION. Обычный peer handoff, без отдельного экзамена. |
-| II. A — GPT-OUTAGE | ENGINEERING_RESULTS_ACCEPTED_3_OF_3 / OWNER_CLOSEOUT_PENDING. Остаточные доказательства автономности сохранены. |
-| II. B — G8 + G9.6 | PENDING. Единая эксплуатационная квалификация и фактическая интеграция Intel. |
+| II. A — GPT-OUTAGE | ENGINEERING_RESULTS_ACCEPTED_3_OF_3 / OWNER_ACCEPTED_20261126. Остаточные доказательства автономности сохранены в B/C. |
+| II. B — G8 + G9.6 | IN_PROGRESS_B1_PENDING_EVIDENCE. Единая эксплуатационная квалификация и фактическая интеграция Intel. |
 | II. C — G9.1–G9.5, G9.7–G9.8 | PENDING. Один аудит, один ограниченный эксперимент, один окончательный closeout. |
 | III — Independent Recovery | NOT_STARTED; только после полного допуска G9. |
 
 ## A. GPT-OUTAGE — инженерные результаты приняты
 
-[Акт и пределы приёмки 26.11.2026](recovery/kimi/BLOCK_A_ACCEPTANCE_20261126.md) — V20 #601, CC #602/#603, TRL #604 MERGED. MAIN snapshot `3eddebb4d915c7798a2d56d2230010933f553c81`. Исторический ход независимого ревью: [Draft #597](https://github.com/alkospacer123/market-pattern-discovery/blob/a4af4cb72257f5c7cffd5d87d97e34438cf0fe46/ROADMAP.md). Сохраняется G6/KDR-001 owner acceptance. Это не полный GPT_OUTAGE_PASS: GPT формулировал задания и помог после первой сдачи; mobile/source fallback и non-GPT control остаются evidence gates. Владелец принимает bounded A и перенос остаточных требований в B/C, не ослабляя mandatory checks. Не повторять принятые три инженерные задачи.
+[Акт и пределы приёмки 26.11.2026](recovery/kimi/BLOCK_A_ACCEPTANCE_20261126.md) — V20 #601, CC #602/#603, TRL #604 MERGED. MAIN snapshot `3eddebb4d915c7798a2d56d2230010933f553c81`. Исторический ход независимого ревью: [Draft #597](https://github.com/alkospacer123/market-pattern-discovery/blob/a4af4cb72257f5c7cffd5d87d97e34438cf0fe46/ROADMAP.md). Сохраняется G6/KDR-001 owner acceptance. Это не полный GPT_OUTAGE_PASS: GPT формулировал задания и помог после первой сдачи; mobile/source fallback и non-GPT control остаются evidence gates. Владелец принял bounded A и перенос требований в B/C 26.11; разрешение зафиксировано в merge-коммите #605 `78767f6d684e2923561c1314b6466b464b7e1de6`. #597 закрыт без Merge, история сохранена. Не повторять принятые три инженерные задачи.
 
 ## B. G8 + G9.6 — одна практическая интеграция
 
@@ -23,6 +23,8 @@ GPT готовит безопасную конфигурацию доступа,
 - Настроить и проверить необходимые Work/Code/GitHub/remote маршруты к Intel для V20, CC, TRL: host identity, рабочие каталоги, требуемые права, PowerShell/Python, журналирование, approval/deny/revoke, безопасное восстановление после обрыва/unknown outcome, доступ с ПК и телефона. Конкретные изменения Intel/ОС/сети/прав — отдельно согласовать. Не открывать публичные сервисы и не раскрывать секреты. Утверждённый резервный ПК остаётся executor для экспериментов; подтвердить необходимые границы offline execution и отсутствие production egress/секретов на безопасных canary, не обращаться к реальным FINAM/DPAPI ради deny-test.
 - На подходящем реальном исправлении (например, принятый CC/V20 candidate, если он действительно готов) доказать недостающие практические компетенции: диагностика реального состояния, подготовка release/backup/rollback, установка и readback по отдельно согласованному плану, сопровождение операторских действий и восстановление. READONLY — начальная ступень, не потолок. Не делать искусственный production update, аварии, сделки или изменение риска ради квалификации; выбирать безопасную полезную операцию. Не утверждать installed/LIVE PASS из GitHub/CI.
 - Проверить независимый рабочий маршрут без обязательного GPT-review. Одинаковые для обоих агентов operation-specific gates, CI/independent review, source/host identity, broker reconciliation, approval владельца, secret protection, durable state и fail-closed/unknown handling обязательны. Не самоодобрять рискованные изменения. Новые права не следуют из Roadmap; каждый Merge/deploy/ARM/HALT/FINAM или критическая команда требует применимого отдельного разрешения. После подтверждённого полного допуска снять временные Kimi-only ограничения, не общие safety gates.
+
+Очередь B: B1 READONLY identity Intel / checkout / tools; B2 remote ПК/телефон, approval/deny/revoke/reconnect; B3 подготовка полезного #601 all-three V20 release с backup/rollback, SHA/pins и offline checks; установка отдельно по разрешению и readiness. #602 — плановое CC-only обновление, не экзамен. B4 самостоятельная эксплуатация и non-GPT control. Не менять исправные системы ради адаптации. B1 ещё не подтверждён.
 
 Результат B: доказанные эксплуатационные возможности и реальный доступ, не обещание настроить. Использовать одну согласованную цепочку работ и существующие артефакты для G8/G9.6; не два комплекта экзаменов.
 
@@ -55,7 +57,7 @@ GPT готовит безопасную конфигурацию доступа,
 | KDR-010/011 | A + C1/C3: фактическое применение Skills и all-three source fallback, одна компактная проверка восстановления контекста после существенных изменений знаний; не удалять существующие вложения/память. |
 | Новые findings / ошибки обоих ИИ / реальные дефекты проектов | Исправлять и проверять в соответствующем блоке; historical UNKNOWN не выдумывать; отсутствие доказательства обязательной функции блокирует приёмку. |
 
-GPT согласует Draft #597 с актуальным MAIN, #598/#599 и последующими принятыми PR; обновляет корневые/профильные AGENTS, README, Roadmap, COC, EXAM_AND_HANDOFF, WINDOWS_WORKSPACE_AND_ACCESS, паспорта, source maps, операционные/проектные инструкции Chat/Work/Code, Skills, memory/fallback, runbooks, manifests. После фактического допуска устранить временные Kimi-only READONLY/reserve-only/GPT-required запреты; обозначить историю историей; сохранить общий safety. Сохранить экспорт знаний и доказательств. Kimi не перечитывает весь репозиторий ради экзамена: одна финальная целевая проверка восстановленного контекста/изменившихся компетенций с покрытием трёх проектов, учитывая ранее принятые evidence, без повторной полной квалификации. GPT готовит единый Qualification Report и конфигурацию/профили, владелец принимает.
+GPT использует уже согласованный #605 (заменивший #597), #598/#599 и последующие принятые PR; обновляет корневые/профильные AGENTS, README, Roadmap, COC, EXAM_AND_HANDOFF, WINDOWS_WORKSPACE_AND_ACCESS, паспорта, source maps, операционные/проектные инструкции Chat/Work/Code, Skills, memory/fallback, runbooks, manifests. После фактического допуска устранить временные Kimi-only READONLY/reserve-only/GPT-required запреты; обозначить историю историей; сохранить общий safety. Сохранить экспорт знаний и доказательств. Kimi не перечитывает весь репозиторий ради экзамена: одна финальная целевая проверка восстановленного контекста/изменившихся компетенций с покрытием трёх проектов, учитывая ранее принятые evidence, без повторной полной квалификации. GPT готовит единый Qualification Report и конфигурацию/профили, владелец принимает.
 
 **G9 PASS только если:** A и B завершены; реальные недостатки и обязательные evidence gaps разрешены; безопасный Intel access реально работает; автономная работа V20/CC/TRL и non-GPT контроль подтверждены; бюджетная оптимизация измерена и профили утверждены без ухудшения обязательного качества; действующие документы и настройки согласованы; временные запреты сняты; экспорт выполнен; явное решение владельца `FULL_PARITY_OWNER_ADMITTED`. До этого `NOT_YET_ADMITTED_FULL_PARITY`. После допуска Kimi работает самостоятельно без GPT как обязательной зависимости, с равными полномочиями и общими safety gates. Совместная работа при желании остаётся возможной.
 
@@ -74,3 +76,7 @@ GPT согласует Draft #597 с актуальным MAIN, #598/#599 и п�
 
 
 История закрытия I и ранее принятые SHA: [MAIN Roadmap before consolidation](https://github.com/alkospacer123/market-pattern-discovery/blob/3eddebb4d915c7798a2d56d2230010933f553c81/ROADMAP.md).
+
+## Согласованная сопутствующая программа TRL, 26.11
+
+[Методология](TradingResearchLab/research/RESEARCH_METHODOLOGY.md): три исследования TREND / MOMENTUM / VOLATILITY, только C1, (PF ≥ 1,7 и 1–2 сделки/торговый день) либо ≥80% годовых, ZERO LOOK-AHEAD с первого теста; Robustness и Walk-Forward только перспективным кандидатам (WF при достаточной истории). После подготовки #601 и отдельного решения о rollout — запуск исследований по согласованной очереди. Не дополнительный gate квалификации. Этап III только после G9 PASS.

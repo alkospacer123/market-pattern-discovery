@@ -3,8 +3,8 @@
   "project": "V20 Trading System",
   "date": "2026-11-26",
   "source_snapshot": "3eddebb4d915c7798a2d56d2230010933f553c81",
-  "reference_main": "3eddebb4d915c7798a2d56d2230010933f553c81",
-  "status": "RECONCILED_REVIEW_CANDIDATE",
+  "reference_main": "78767f6d684e2923561c1314b6466b464b7e1de6",
+  "status": "OWNER_DECISIONS_REVIEW_CANDIDATE",
   "original_draft_head": "a4af4cb72257f5c7cffd5d87d97e34438cf0fe46",
   "files": [
     {
@@ -17,16 +17,16 @@
     {
       "file": "PROJECT_PASSPORT_V20.md",
       "source": "recovery/PROJECT_PASSPORT_V20.md",
-      "blob": "fd1e5aae857f2cfbf7588a234b9955e368737662",
-      "source_commit": "3eddebb4d915c7798a2d56d2230010933f553c81",
-      "authority": "PINNED_MAIN_SOURCE"
+      "blob": "433e9ebeed832f3b4684046f11c8f6df8952e24f",
+      "source_commit": null,
+      "authority": "CANDIDATE_SAME_TREE_SOURCE"
     },
     {
       "file": "V20.md",
       "source": "recovery/kimi/V20.md",
-      "blob": "73ea4300f3cc2040b89be2ddd6215c92f6a9ad41",
-      "source_commit": "3eddebb4d915c7798a2d56d2230010933f553c81",
-      "authority": "PINNED_MAIN_SOURCE"
+      "blob": "2e3db9670a79ac3219e832156b843daeb3bcbc83",
+      "source_commit": null,
+      "authority": "CANDIDATE_SAME_TREE_SOURCE"
     },
     {
       "file": "R088_ARCHITECTURE_AND_SAFETY_20261122.md",

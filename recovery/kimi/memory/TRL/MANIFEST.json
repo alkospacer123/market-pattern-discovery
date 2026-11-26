@@ -3,8 +3,8 @@
   "project": "Trading Research Lab",
   "date": "2026-11-26",
   "source_snapshot": "3eddebb4d915c7798a2d56d2230010933f553c81",
-  "reference_main": "3eddebb4d915c7798a2d56d2230010933f553c81",
-  "status": "RECONCILED_REVIEW_CANDIDATE",
+  "reference_main": "78767f6d684e2923561c1314b6466b464b7e1de6",
+  "status": "OWNER_DECISIONS_REVIEW_CANDIDATE",
   "original_draft_head": "a4af4cb72257f5c7cffd5d87d97e34438cf0fe46",
   "files": [
     {
@@ -17,16 +17,16 @@
     {
       "file": "PROJECT_PASSPORT_TRL.md",
       "source": "recovery/PROJECT_PASSPORT_TRL.md",
-      "blob": "0420ec83a8328ce625c2d699062ef9ec75018e43",
-      "source_commit": "3eddebb4d915c7798a2d56d2230010933f553c81",
-      "authority": "PINNED_MAIN_SOURCE"
+      "blob": "6fc5eab0657ac02c3470c2e2010685b1eb952f5a",
+      "source_commit": null,
+      "authority": "CANDIDATE_SAME_TREE_SOURCE"
     },
     {
       "file": "TRL.md",
       "source": "recovery/kimi/TRL.md",
-      "blob": "e1410ce55ca1da9c93ed00642ba6110967cf43ba",
-      "source_commit": "3eddebb4d915c7798a2d56d2230010933f553c81",
-      "authority": "PINNED_MAIN_SOURCE"
+      "blob": "45e3c623105642da6d9030d47710f433f9f507f8",
+      "source_commit": null,
+      "authority": "CANDIDATE_SAME_TREE_SOURCE"
     },
     {
       "file": "TRL-NOV-2026-KIMI-START-HERE.md",
@@ -38,21 +38,21 @@
     {
       "file": "RESEARCH_METHODOLOGY.md",
       "source": "TradingResearchLab/research/RESEARCH_METHODOLOGY.md",
-      "blob": "d96ada1f2babfa0bd050ec0f73de19e37d131331",
+      "blob": "5995dee8d2fcdd337085dd62ddd21d73aedd30a8",
       "source_commit": null,
       "authority": "CANDIDATE_SAME_TREE_SOURCE"
     },
     {
       "file": "OPERATING_CYCLE.md",
       "source": "TradingResearchLab/OPERATING_CYCLE.md",
-      "blob": "8e770c0b282d7f41ae611f608f98e4fe19bd9545",
+      "blob": "9b72cce632a0bcd5d22de54930a56d1b3e494885",
       "source_commit": null,
       "authority": "CANDIDATE_SAME_TREE_SOURCE"
     },
     {
       "file": "RESEARCH_CARD_TEMPLATE.md",
       "source": "TradingResearchLab/research/RESEARCH_CARD_TEMPLATE.md",
-      "blob": "a59264b5d6cee8f460f5bf1d0bf83953eae3e92e",
+      "blob": "3d90ca7823cbbeebdeece81a66951137ae4b6bae",
       "source_commit": null,
       "authority": "CANDIDATE_SAME_TREE_SOURCE"
     },

@@ -1,5 +1,7 @@
 # Control Center V20 — паспорт
 
+**Решение владельца 26.11.2026:** #602 — принятый SOURCE-кандидат профилактической проверки HEALTHY/локальной экспозиции и свежести, не установлен. Штатный экспортер не вычисляет HEALTHY и публикует exposure=None; дефект воспроизведён на synthetic snapshot, не подтверждён как LIVE инцидент. Сохранить для планового CC-only обновления при реальной необходимости, installed bytes/pins, backup/rollback и отдельном разрешении. Не обновлять исправную панель ради экзамена; UI не доказывает FINAM truth.
+
 **ACTIVE operator panel, not a trading algorithm.** [CC README](../ControlCenter/README.md), [CC-08 Operations](../ControlCenter/docs/V20_CC08_OPERATIONS.md), `ControlCenter/controller/`, `cc/`, `tests/`.
 
 UI на Intel: `C:\Control Center\v20-preview-d80f2446\v20_app.py`, локальный `http://127.0.0.1:8502`. Три робота V20; READONLY refresh отличается от START/PAUSE/STOP/RESTART/RECOVER в CC-07. Документированный 20.11 install+compatibility PASS — датированное свидетельство, не текущая LIVE проверка.

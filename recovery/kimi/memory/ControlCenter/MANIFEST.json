@@ -3,8 +3,8 @@
   "project": "Control Center",
   "date": "2026-11-26",
   "source_snapshot": "3eddebb4d915c7798a2d56d2230010933f553c81",
-  "reference_main": "3eddebb4d915c7798a2d56d2230010933f553c81",
-  "status": "RECONCILED_REVIEW_CANDIDATE",
+  "reference_main": "78767f6d684e2923561c1314b6466b464b7e1de6",
+  "status": "OWNER_DECISIONS_REVIEW_CANDIDATE",
   "original_draft_head": "a4af4cb72257f5c7cffd5d87d97e34438cf0fe46",
   "files": [
     {
@@ -17,16 +17,16 @@
     {
       "file": "PROJECT_PASSPORT_CONTROL_CENTER.md",
       "source": "recovery/PROJECT_PASSPORT_CONTROL_CENTER.md",
-      "blob": "9e649ee4820e1849580b85574f58d6084e798018",
-      "source_commit": "3eddebb4d915c7798a2d56d2230010933f553c81",
-      "authority": "PINNED_MAIN_SOURCE"
+      "blob": "61a7d34758fd372331d1d3d0049f9fbe8e3a9541",
+      "source_commit": null,
+      "authority": "CANDIDATE_SAME_TREE_SOURCE"
     },
     {
       "file": "CONTROL_CENTER.md",
       "source": "recovery/kimi/CONTROL_CENTER.md",
-      "blob": "13adb033b3c605d1d1346e09725bf983ed1942d7",
-      "source_commit": "3eddebb4d915c7798a2d56d2230010933f553c81",
-      "authority": "PINNED_MAIN_SOURCE"
+      "blob": "3c6ce463cad187a9e03d4d0fec68ee9e27310a50",
+      "source_commit": null,
+      "authority": "CANDIDATE_SAME_TREE_SOURCE"
     },
     {
       "file": "V20_START_HERE_SOURCE_MAP.md",
