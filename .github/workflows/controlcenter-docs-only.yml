@@ -1,6 +1,8 @@
 name: ControlCenter docs - immutable source and safe links
 
-# A separate documentation-only gate for the post-R7 V20 panel.
+# Exact scope and source admission for the post-R7 V20 panel.
+# Only the three explicitly reviewed active-source paths may evolve in this route.
+# Historical deployment manifest remains frozen; active SOURCE is NOT a release.
 # Frozen CC-03 original remains governed by its own UNMODIFIED native suite.
 on:
   pull_request:
@@ -15,6 +17,8 @@ permissions:
 jobs:
   cc-documents-no-live:
     name: CC docs scope, immutable CC03/runtime blobs and internal links
+    outputs:
+      scope: ${{ steps.scope.outputs.mode }}
     runs-on: ubuntu-24.04
     timeout-minutes: 15
     env:
@@ -36,7 +40,8 @@ jobs:
             /ControlCenter/
             /.github/workflows/
 
-      - name: Diff-safe docs allowlist, immutable source blob parity, links, privacy markers
+      - name: Diff-safe docs and active source allowlist, immutable history, links, privacy
+        id: scope
         shell: bash
         run: |
           python3 -B - <<'PY'
@@ -68,6 +73,11 @@ jobs:
                   'ControlCenter/docs/SECURITY_BOUNDARY.md',
                   'ControlCenter/docs/ROADMAP_STATUS.md',
               }
+          active_source={
+              'ControlCenter/cc/v20_contract.py',
+              'ControlCenter/v20_app.py',
+              'ControlCenter/tests/test_v20_control_center.py',
+          }
           workflows={
               '.github/workflows/controlcenter-cc03-windows-native.yml',
               '.github/workflows/controlcenter-docs-only.yml',
@@ -135,7 +145,7 @@ jobs:
 
           def validate_frozen(frozen_files,candidate_files):
               cc_delta=delta(frozen_files,candidate_files)
-              invalid={p for p in cc_delta if not doc_allowed(p) or not regular_doc(candidate_files.get(p))}
+              invalid={p for p in cc_delta if (not doc_allowed(p) and p not in active_source) or not regular_doc(candidate_files.get(p))}
               assert not invalid, ('CC_SEALED_SOURCE_OR_HISTORICAL_DOC_CHANGED', sorted(invalid))
               return cc_delta
 
@@ -154,6 +164,11 @@ jobs:
                   return 'CI_ONLY'
               cc_changed={p for p in paths if p.startswith('ControlCenter/')}
               assert cc_changed==cc_pr_delta and cc_changed, ('CC_DOCS_DIFF_NOT_EXACT',sorted(cc_changed^cc_pr_delta))
+              if cc_changed & active_source:
+                  assert paths==cc_changed, 'CC_ACTIVE_SOURCE_CROSS_PROJECT_FORBIDDEN'
+                  assert all(doc_allowed(p) or p in active_source for p in cc_changed), 'CC_ACTIVE_SOURCE_WRONG_PATH'
+                  assert all(changed[p]=='M' for p in cc_changed & active_source), 'CC_ACTIVE_SOURCE_NOT_MODIFICATION'
+                  return 'CC_ACTIVE_SOURCE'
               assert all(doc_allowed(p) for p in cc_changed), 'CC_DOCS_WRONG_CC_PATH'
               if paths-cc_changed:
                   assert paths.issubset(coc_paths), ('CC_DOCS_WRONG_PATH',sorted(paths-coc_paths))
@@ -180,6 +195,11 @@ jobs:
           scope_fixture(coc_paths,{p for p in coc_paths if p.startswith('ControlCenter/')},'CROSS_PROJECT_COC_DOCS')
           scope_fixture(ci_pair,set(),'CI_ONLY')
           scope_fixture(workflows,set(),'CI_ONLY')
+          scope_fixture(active_source|{cc_doc},active_source|{cc_doc},'CC_ACTIVE_SOURCE')
+          assert validate_frozen({p:normal for p in active_source},{p:('100644','blob','changed') for p in active_source})==active_source
+          must_reject(lambda: validate_scope({p:'M' for p in active_source|{contract}},active_source,{p:normal for p in active_source|{contract}}),'CC_ACTIVE_SOURCE_CROSS_PROJECT_FORBIDDEN')
+          must_reject(lambda: validate_scope({p:'M' for p in active_source|{runtime}},active_source|{runtime},{p:normal for p in active_source|{runtime}}),'CC_ACTIVE_SOURCE_WRONG_PATH')
+          must_reject(lambda: validate_frozen({p:normal for p in active_source},{}),'CC_SEALED_SOURCE')
           assert validate_frozen({runtime:normal},{runtime:normal,cc_doc:normal})=={cc_doc}
           must_reject(lambda: validate_frozen({runtime:normal},{runtime:('100644','blob','changed')}),'CC_SEALED_SOURCE')
           must_reject(lambda: validate_frozen({cc03:normal},{cc03:('100644','blob','changed')}),'CC_SEALED_SOURCE')
@@ -232,13 +252,105 @@ jobs:
               assert not bad.search(content), 'CC_DOCS_POSSIBLE_SECRET:'+path
 
           print('CC_DOCS_SCOPE_MODE='+scope)
-          print('CC_FROZEN_DOCUMENTATION_DELTA',len(cc_delta))
+          print('CC_CUMULATIVE_ALLOWED_DELTA',len(cc_delta))
           print('CC_PR_DOCUMENTATION_DELTA',len(cc_pr_delta))
           print('CC_FROZEN_ORIGINAL_SOURCE=PASS',frozen,os.environ['FROZEN_CC_TREE'])
-          print('CC_RUNTIME_AND_CC03_BLOB_IDENTITIES=UNCHANGED')
-          print('CC_DOCUMENTATION_CHANGE_SCOPE=PASS',len(cc_pr_delta))
+          print('CC_NON_ACTIVE_RUNTIME_AND_CC03_BLOB_IDENTITIES=UNCHANGED')
+          print('CC_CHANGE_SCOPE=PASS',len(cc_pr_delta))
           print('CC_MODIFIED_DOCUMENT_LINKS=PASS',linkcount)
           print('CC_NEGATIVE_SCOPE_TESTS=PASS')
           print('CC_DOCS_SOURCE_NOT_FINAM_NOT_LIVE=PASS')
           print('CC03_FROZEN_NATIVE_IS_SEPARATE_HISTORIC_GATE_NOT_RUN_IN_THIS_JOB')
+          with open(os.environ['GITHUB_OUTPUT'],'a',encoding='utf-8') as out:
+              out.write('mode='+scope+'\n')
           PY
+
+  cc-active-source-native:
+    name: CC current SOURCE Windows native tests (no release or LIVE)
+    needs: cc-documents-no-live
+    if: needs.cc-documents-no-live.outputs.scope == 'CC_ACTIVE_SOURCE' || needs.cc-documents-no-live.outputs.scope == 'CI_ONLY'
+    runs-on: windows-2022
+    timeout-minutes: 30
+    defaults:
+      run:
+        shell: pwsh
+        working-directory: ControlCenter
+    env:
+      PYTHONDONTWRITEBYTECODE: '1'
+      STREAMLIT_SERVER_HEADLESS: 'true'
+      STREAMLIT_BROWSER_GATHER_USAGE_STATS: 'false'
+    steps:
+      - name: Checkout exact current PR head (no credentials)
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        env:
+          GIT_CONFIG_COUNT: '1'
+          GIT_CONFIG_KEY_0: core.autocrlf
+          GIT_CONFIG_VALUE_0: 'false'
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          persist-credentials: false
+          fetch-depth: 1
+          filter: blob:none
+          sparse-checkout: |
+            /ControlCenter/
+          sparse-checkout-cone-mode: false
+      - name: Windows CPython 3.12.10 x64
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: '3.12.10'
+          architecture: x64
+      - name: Verify exact current head and install historical hash-locked test dependencies
+        env:
+          PR_HEAD: ${{ github.event.pull_request.head.sha }}
+        run: |
+          $ErrorActionPreference='Stop'
+          if($env:RUNNER_ENVIRONMENT -ne 'github-hosted'){throw 'CC_ACTIVE_NOT_HOSTED'}
+          if((& git.exe rev-parse HEAD).Trim() -cne $env:PR_HEAD){throw 'CC_ACTIVE_WRONG_HEAD'}
+          if((& git.exe rev-parse HEAD:ControlCenter/deployment/manifest.json).Trim() -cne '7cd99f68f930f64ef74f17d50f6510fcd7f96691'){throw 'CC_HISTORIC_MANIFEST_CHANGED'}
+          python -m venv "$env:RUNNER_TEMP\cc-active-python"
+          if($LASTEXITCODE -ne 0){throw 'CC_ACTIVE_VENV_FAILED'}
+          $python="$env:RUNNER_TEMP\cc-active-python\Scripts\python.exe"
+          & $python -m pip install --require-hashes --only-binary=:all: --no-deps -r requirements-windows-ci.lock
+          if($LASTEXITCODE -ne 0){throw 'CC_ACTIVE_WHEELS_FAILED'}
+          & $python -m pip check
+          if($LASTEXITCODE -ne 0){throw 'CC_ACTIVE_PIP_CHECK_FAILED'}
+      - name: Current full offline test suite, native cases and exact JUnit evidence
+        run: |
+          $ErrorActionPreference='Stop'
+          $python="$env:RUNNER_TEMP\cc-active-python\Scripts\python.exe"
+          $env:CC03_CI_DISPOSABLE_ROOT=Join-Path $env:RUNNER_TEMP ('CC03-'+[guid]::NewGuid().ToString('N'))
+          New-Item -ItemType Directory -Path $env:CC03_CI_DISPOSABLE_ROOT | Out-Null
+          $evidence=Join-Path $env:RUNNER_TEMP 'cc03-evidence'
+          New-Item -ItemType Directory -Path $evidence | Out-Null
+          & git.exe rev-parse HEAD | Set-Content -LiteralPath (Join-Path $evidence 'head.txt') -Encoding utf8
+          & $python -B -m pytest -q -p no:cacheprovider "--junitxml=$evidence/full-suite.xml" tests
+          if($LASTEXITCODE -ne 0){throw 'CC_ACTIVE_TESTS_FAILED'}
+          $audit=@'
+          import os, pathlib, xml.etree.ElementTree as ET
+          root=pathlib.Path(os.environ['RUNNER_TEMP'])/'cc03-evidence'
+          cases=list(ET.parse(root/'full-suite.xml').iter('testcase'))
+          targeted=[c for c in cases if 'test_v20_control_center' in c.get('classname','')]
+          assert len(targeted)>=38, 'CC_ACTIVE_V20_TEST_COUNT_TOO_SMALL'
+          assert all(c.find('skipped') is None for c in targeted), 'CC_ACTIVE_V20_TEST_SKIPPED'
+          passed=0
+          for c in cases:
+              assert c.find('failure') is None and c.find('error') is None, 'CC_ACTIVE_TEST_FAILURE'
+              skip=c.find('skipped')
+              if skip is not None:
+                  assert (skip.get('message') or '').startswith('POSIX descriptor fault injection;'), 'CC_ACTIVE_UNAPPROVED_SKIP:'+str(c.attrib)
+              else:
+                  passed+=1
+          assert passed>=700, 'CC_ACTIVE_NATIVE_INSUFFICIENT_COVERAGE'
+          print('CC_ACTIVE_SOURCE_NATIVE_PASS',passed,'V20 targeted',len(targeted))
+          print('CC_ACTIVE_SOURCE_NOT_CC03_PACKAGE_NOT_INSTALLED_NOT_LIVE')
+          '@
+          $audit | & $python -B -
+          if($LASTEXITCODE -ne 0){throw 'CC_ACTIVE_EVIDENCE_FAILED'}
+      - name: Preserve current SOURCE evidence
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: cc-active-source-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/cc03-evidence/
+          if-no-files-found: error
+          retention-days: 30

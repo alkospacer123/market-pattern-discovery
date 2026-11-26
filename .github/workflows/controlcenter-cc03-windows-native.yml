@@ -2,7 +2,8 @@ name: ControlCenter CC-03 sealed Windows native acceptance
 
 # R7 successor: run the UNMODIFIED frozen CC03 package and classify only
 # the one known historic full-root scope mismatch. This is not a release gate
-# for modifications to the frozen CC03 tree; all such edits fail closed.
+# for active V20 source changes. Historical acceptance runs on a pinned
+# immutable commit; the separate CC scope gate protects non-active bytes.
 on:
   pull_request:
     paths:
@@ -27,14 +28,14 @@ jobs:
         shell: pwsh
         working-directory: ControlCenter
     steps:
-      - name: Checkout the exact PR head, immutable ControlCenter only
+      - name: Checkout the immutable historical CC-03 commit, not the PR candidate
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # pinned v4
         env:
           GIT_CONFIG_COUNT: '1'
           GIT_CONFIG_KEY_0: core.autocrlf
           GIT_CONFIG_VALUE_0: 'false'
         with:
-          ref: ${{ github.event.pull_request.head.sha }}
+          ref: 0e569be6cb3c7cce1f7224e7f1fef6be38f6ba52
           persist-credentials: false
           fetch-depth: 1
           filter: blob:none
@@ -51,14 +52,14 @@ jobs:
 
       - name: Verify old complete CC tree, frozen manifest, historic original scope identities
         env:
-          EXPECTED_HEAD: ${{ github.event.pull_request.head.sha }}
+          EXPECTED_HEAD: 0e569be6cb3c7cce1f7224e7f1fef6be38f6ba52
         run: |
           $ErrorActionPreference='Stop'
           $audit=@'
           import json, os, subprocess
           def git(*args):
               return subprocess.check_output(['git',*args],stderr=subprocess.PIPE,text=True).strip()
-          assert git('rev-parse','HEAD')==os.environ['EXPECTED_HEAD'], 'WRONG_PR_HEAD'
+          assert git('rev-parse','HEAD')==os.environ['EXPECTED_HEAD'], 'WRONG_HISTORICAL_CC03_HEAD'
           expected={
               'HEAD:ControlCenter':'8052938c83a27b2367309052d455d74d9341df09',
               'HEAD:ControlCenter/ci/protected-main-tree.json':'ff07b592289d975fe644a79f9d1d32f32a003d7a',
@@ -142,7 +143,7 @@ jobs:
           print('CC_SEALED_NATIVE_NON_SCOPE=PASS_15_OF_15')
           print('CC_SEALED_EVIDENCE_SHA256_AND_JUNIT=PASS')
           print('CC_SEALED_OLD_SCOPE=EXPECTED_HISTORICAL_FAILURE_NOT_PASS')
-          print('CC_SEALED_FUTURE_FROZEN_SOURCE_CHANGES=FAIL_CLOSED')
+          print('CC_SEALED_HISTORICAL_ONLY_NOT_CURRENT_SOURCE_ACCEPTANCE')
           '@
           $check | & $python -B -
           if ($LASTEXITCODE -ne 0) { throw 'CC_SEALED_NATIVE_EVIDENCE_VERIFICATION_FAILED' }
