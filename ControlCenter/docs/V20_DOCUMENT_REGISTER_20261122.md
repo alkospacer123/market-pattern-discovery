@@ -37,6 +37,7 @@
 | `docs/V20_START_HERE_SOURCE_MAP.md` | CURRENT: источник навигации |
 | `docs/V20_CC07_COMMAND_CONTRACT.md` | CURRENT: команды |
 | `docs/V20_DATA_SECURITY_TESTS.md` | CURRENT: данные/security/CI |
+| `docs/V20_HEALTH_EXPOSURE_FIX_20261126.md` | SOURCE_EVIDENCE / REVIEW_CANDIDATE: HEALTHY/exposure fix; не INSTALLED/LIVE |
 | `docs/V20_KIMI_EXAM.md` | CURRENT: экзамен prepared |
 | `docs/V20_DOCUMENT_REGISTER_20261122.md` | CURRENT: реестр |
 
