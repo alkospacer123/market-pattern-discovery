@@ -320,14 +320,14 @@ jobs:
           $python="$env:RUNNER_TEMP\cc-active-python\Scripts\python.exe"
           $env:CC03_CI_DISPOSABLE_ROOT=Join-Path $env:RUNNER_TEMP ('CC03-'+[guid]::NewGuid().ToString('N'))
           New-Item -ItemType Directory -Path $env:CC03_CI_DISPOSABLE_ROOT | Out-Null
-          $evidence=Join-Path $env:RUNNER_TEMP 'cc-active-evidence'
+          $evidence=Join-Path $env:RUNNER_TEMP 'cc03-evidence'
           New-Item -ItemType Directory -Path $evidence | Out-Null
           & git.exe rev-parse HEAD | Set-Content -LiteralPath (Join-Path $evidence 'head.txt') -Encoding utf8
           & $python -B -m pytest -q -p no:cacheprovider "--junitxml=$evidence/full-suite.xml" tests
           if($LASTEXITCODE -ne 0){throw 'CC_ACTIVE_TESTS_FAILED'}
           $audit=@'
           import os, pathlib, xml.etree.ElementTree as ET
-          root=pathlib.Path(os.environ['RUNNER_TEMP'])/'cc-active-evidence'
+          root=pathlib.Path(os.environ['RUNNER_TEMP'])/'cc03-evidence'
           cases=list(ET.parse(root/'full-suite.xml').iter('testcase'))
           targeted=[c for c in cases if 'test_v20_control_center' in c.get('classname','')]
           assert len(targeted)>=38, 'CC_ACTIVE_V20_TEST_COUNT_TOO_SMALL'
@@ -351,6 +351,6 @@ jobs:
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
           name: cc-active-source-${{ github.run_id }}-${{ github.run_attempt }}
-          path: ${{ runner.temp }}/cc-active-evidence/
+          path: ${{ runner.temp }}/cc03-evidence/
           if-no-files-found: error
           retention-days: 30
