@@ -5,6 +5,7 @@ on:
     paths:
       - 'V20_TradingSystem_M15/v20_runtime/**'
       - 'V20_TradingSystem_M15/V20-08/v20-08-live-*.ps1'
+      - 'V20_TradingSystem_M15/V20-08/r088-protect3-diagnostic-cause-20261126.patch'
       - 'V20_TradingSystem_M15/V20-08/v20-08-weekend-entry-update.ps1'
       - 'V20_TradingSystem_M15/V20-08/v20-08-open-witness-recovery.ps1'
       - 'V20_TradingSystem_M15/V20-08/v20-08-friday-flat-recovery.py'
@@ -1012,3 +1013,72 @@ jobs:
             throw 'R088_SOURCE_PINS_NOT_RESTORED'
           }
           Write-Output 'R088_NO_LIVE_NO_FINAM_PINS_RESTORED=PASS'
+
+      - name: R088 Protect3 diagnostic JSONL exact nine-patch integration (offline mocks)
+        shell: pwsh
+        env:
+          PYTHONDONTWRITEBYTECODE: '1'
+          R070_PROTECT3_DIAGNOSTIC_PATCH_ACTIVE: '1'
+        run: |
+          $ErrorActionPreference='Stop'
+          $live='V20_TradingSystem_M15/v20_runtime/finam_live.py'
+          $execution='V20_TradingSystem_M15/v20_runtime/finam_execution.py'
+          $test='V20_TradingSystem_M15/v20_runtime/tests/test_r070_protect3_diagnostic_logging.py'
+          $dir='V20_TradingSystem_M15/V20-08/'
+          function Require-Blob($path,$expected) {
+            $actual=(& git.exe hash-object -- $path).Trim()
+            if($LASTEXITCODE -ne 0 -or $actual -cne $expected){throw ('R088_DIAG_BLOB_MISMATCH '+$path+' '+$actual)}
+          }
+          Require-Blob $live 'b80fb9eb135f7cdcb4c78337e2b808c4d7135195'
+          Require-Blob $execution '6b600451178b42bd4f8b2037995e7db3a9ad27c8'
+          Require-Blob ($dir+'r088-protect3-diagnostic-cause-20261126.patch') '9caa10395d2f692a062a1fb820c9ae8e19bfe7d6'
+          Require-Blob $test '0b6a20fc0d0ca6bde66425f6a08fea2d08377b97'
+          $patches=@(
+            'r070-tp6-one-shot-candidate.patch',
+            'r070-protect3-flat-cleanup-candidate.patch',
+            'r070-protect3-broker-id-readonly-candidate.patch',
+            'r070-protect3-live-trigger-candidate.patch',
+            'r070-protect3-night-monitor-candidate.patch',
+            'r070-finam-get-incomplete-read-candidate.patch',
+            'r088-hold5-after-r070-combined-candidate.patch',
+            'r088-inside-prepost-orphan-20261119.patch',
+            'r088-protect3-main-identity-20261120.patch',
+            'r088-protect3-diagnostic-cause-20261126.patch'
+          ) | ForEach-Object {$dir+$_}
+          $done=New-Object 'System.Collections.Generic.List[string]'
+          try {
+            foreach($p in $patches){
+              if($done.Count -eq 9){
+                Require-Blob $live '5d30270d3936fb52f58a61aa3abbf070d7df6b57'
+                Require-Blob $execution '0fc4c454d55f37e4e87fd74e3370cbc1ad83b53f'
+              }
+              & git.exe apply --check -- $p
+              if($LASTEXITCODE -ne 0){throw ('R088_DIAG_PATCH_CHECK_FAILED '+$p)}
+              & git.exe apply -- $p
+              if($LASTEXITCODE -ne 0){throw ('R088_DIAG_PATCH_FAILED '+$p)}
+              $done.Add($p)
+            }
+            Require-Blob $live '437d69280a15a2ad67ffbe7f2377583f430d5252'
+            Require-Blob $execution '0fc4c454d55f37e4e87fd74e3370cbc1ad83b53f'
+            $check=@'
+          import unittest
+          from V20_TradingSystem_M15.v20_runtime.tests.test_r070_protect3_diagnostic_logging import R070Protect3DiagnosticLoggingTests
+          suite = unittest.defaultTestLoader.loadTestsFromTestCase(R070Protect3DiagnosticLoggingTests)
+          result = unittest.TextTestRunner(verbosity=2).run(suite)
+          if result.testsRun != 1 or result.skipped or not result.wasSuccessful():
+              raise SystemExit(1)
+          print("R088_DIAGNOSTIC_JSONL=PASS_1_TEST_4_SUBCASES_NO_SKIP_NO_FINAM")
+          '@
+            $check | python -B -
+            if($LASTEXITCODE -ne 0){throw 'R088_DIAGNOSTIC_REGRESSION_FAILED'}
+          } finally {
+            $reverse=@($done.ToArray())
+            [array]::Reverse($reverse)
+            foreach($p in $reverse){
+              & git.exe apply -R -- $p
+              if($LASTEXITCODE -ne 0){throw ('R088_DIAG_RESTORE_FAILED '+$p)}
+            }
+          }
+          Require-Blob $live 'b80fb9eb135f7cdcb4c78337e2b808c4d7135195'
+          Require-Blob $execution '6b600451178b42bd4f8b2037995e7db3a9ad27c8'
+          Write-Output 'R088_DIAGNOSTIC_FROZEN_SOURCE_RESTORED=PASS'
