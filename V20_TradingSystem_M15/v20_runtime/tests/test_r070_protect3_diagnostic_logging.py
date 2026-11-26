@@ -25,6 +25,8 @@ class R070Protect3DiagnosticLoggingTests(unittest.TestCase):
         cases = (
             ("R070_RESTART_DURABLE_FILLS_MISSING",
              "R070_RESTART_DURABLE_FILLS_MISSING"),
+            ("TP6_FILL_PRICE_INVALID", "TP6_FILL_PRICE_INVALID"),
+            ("PROTECT3_CURRENT_STOP_INVALID", "PROTECT3_CURRENT_STOP_INVALID"),
             ("R070_RESTART_FILL_account-secret", None),
         )
         for reason, expected in cases:

@@ -1,15 +1,15 @@
 --- a/V20_TradingSystem_M15/v20_runtime/finam_live.py
 +++ b/V20_TradingSystem_M15/v20_runtime/finam_live.py
-@@ -914,6 +914,23 @@
+@@ -914,6 +914,24 @@
      return "NO_FROZEN_SIGNAL"
  
  
 +def _r070_protect3_log_reason(exc: Exception) -> str | None:
 +    """Return only the bounded internal code hidden by the public HALT label.
 +
-+    Never serialize a traceback, broker response, account identifier or
-+    arbitrary exception text. The original stop and all control flow remain
-+    unchanged; this is diagnostic evidence for the existing fail-closed path.
++    Serialize no traceback, broker response or text outside the bounded
++    internal-code grammar; current producers use static labels only. The
++    original stop and all control flow remain unchanged on this fail-closed path.
 +    """
 +    from .tp6_protect3 import TP6Protect3Unsafe
 +
@@ -18,13 +18,14 @@
 +            or not isinstance(exc.__cause__, TP6Protect3Unsafe)):
 +        return None
 +    reason = str(exc.__cause__)
-+    return reason if re.fullmatch(r"R070_[A-Z0-9_]{1,94}", reason) else None
++    pattern = r"(?:R070|TP6|PROTECT3)_[A-Z0-9_]{1,90}"
++    return reason if re.fullmatch(pattern, reason) else None
 +
 +
  def operator_switch(*, root: Path, robot: str, source: str, arm: bool) -> int:
      """Owner-scoped V20-only ARMED/HALTED, never a broker order."""
      if (root.name.casefold() != "v20lab" or not root.is_absolute()
-@@ -1047,6 +1064,9 @@
+@@ -1047,6 +1065,9 @@
                  detail = getattr(reader, "_m15_timestamp_diagnostic", None)
                  if state == "M15_FINAM_TIMESTAMP_OUT_OF_RANGE" and isinstance(detail, dict):
                      event["m15_rejected_bar"] = detail
