@@ -1,67 +1,138 @@
 {
-  "schema": "kimi-project-knowledge/v1",
+  "schema": "kimi-project-knowledge/v2",
   "project": "V20 Trading System",
-  "date": "2026-11-26",
-  "source_snapshot": "3eddebb4d915c7798a2d56d2230010933f553c81",
-  "reference_main": "78767f6d684e2923561c1314b6466b464b7e1de6",
-  "status": "OWNER_DECISIONS_REVIEW_CANDIDATE",
-  "original_draft_head": "a4af4cb72257f5c7cffd5d87d97e34438cf0fe46",
-  "files": [
+  "date": "2026-11-27",
+  "status": "CANONICAL_ROUTE_C3_CANDIDATE",
+  "authority": "Resolve accepted MAIN or explicitly authorized pinned snapshot; never infer live status.",
+  "current_sources": [
     {
-      "file": "Trading_Systems_Architecture_and_AI_Collaboration.md",
-      "source": "recovery/kimi/Trading_Systems_Architecture_and_AI_Collaboration.md",
-      "blob": "66325ca5e9264bf449cc73e9a6bfc2bd42a16db0",
-      "source_commit": null,
-      "authority": "CANDIDATE_SAME_TREE_SOURCE"
+      "path": "README.md",
+      "ref_policy": "SAME_RESOLVED_REF"
     },
     {
-      "file": "PROJECT_PASSPORT_V20.md",
-      "source": "recovery/PROJECT_PASSPORT_V20.md",
-      "blob": "433e9ebeed832f3b4684046f11c8f6df8952e24f",
-      "source_commit": null,
-      "authority": "CANDIDATE_SAME_TREE_SOURCE"
+      "path": "AGENTS.md",
+      "ref_policy": "SAME_RESOLVED_REF"
     },
     {
-      "file": "V20.md",
-      "source": "recovery/kimi/V20.md",
-      "blob": "2e3db9670a79ac3219e832156b843daeb3bcbc83",
-      "source_commit": null,
-      "authority": "CANDIDATE_SAME_TREE_SOURCE"
+      "path": "recovery/REPOSITORY_CURRENT_STATE.md",
+      "ref_policy": "SAME_RESOLVED_REF"
     },
     {
-      "file": "R088_ARCHITECTURE_AND_SAFETY_20261122.md",
-      "source": "V20_TradingSystem_M15/R088_ARCHITECTURE_AND_SAFETY_20261122.md",
-      "blob": "376c0342b1bbbe50aaeb24cff959c0f37b1fd648",
-      "source_commit": "3eddebb4d915c7798a2d56d2230010933f553c81",
-      "authority": "PINNED_MAIN_SOURCE"
+      "path": "recovery/STATUS.md",
+      "ref_policy": "SAME_RESOLVED_REF"
     },
     {
-      "file": "LIVE_RELEASE_R088_20261120_RU.md",
-      "source": "V20_TradingSystem_M15/V20-08/LIVE_RELEASE_R088_20261120_RU.md",
-      "blob": "641793d28566e0dfe81916a061f5cc92a35f12f0",
-      "source_commit": "3eddebb4d915c7798a2d56d2230010933f553c81",
-      "authority": "PINNED_MAIN_SOURCE"
+      "path": "recovery/CRITICAL_OPERATIONS_CONTRACT.md",
+      "ref_policy": "SAME_RESOLVED_REF"
     },
     {
-      "file": "skills/v20-safety-analysis/SKILL.md",
-      "source": "recovery/kimi/skills/v20-safety-analysis/SKILL.md",
-      "blob": "81880e77f97977c3067e923a8516ce52382475eb",
-      "source_commit": "3eddebb4d915c7798a2d56d2230010933f553c81",
-      "authority": "PINNED_MAIN_SOURCE"
+      "path": "recovery/kimi/EXAM_AND_HANDOFF.md",
+      "ref_policy": "SAME_RESOLVED_REF"
     },
     {
-      "file": "skills/github-source-audit/SKILL.md",
-      "source": "recovery/kimi/skills/github-source-audit/SKILL.md",
-      "blob": "320f3b558cee14b195ae0e8beb6ad392106f9359",
-      "source_commit": "3eddebb4d915c7798a2d56d2230010933f553c81",
-      "authority": "PINNED_MAIN_SOURCE"
+      "path": "recovery/kimi/Trading_Systems_Architecture_and_AI_Collaboration.md",
+      "ref_policy": "SAME_RESOLVED_REF"
     },
     {
-      "file": "skills/ai-engineering-handoff/SKILL.md",
-      "source": "recovery/kimi/skills/ai-engineering-handoff/SKILL.md",
-      "blob": "d08ccc90065b19a8abff75646b64dd0318688bd9",
-      "source_commit": "3eddebb4d915c7798a2d56d2230010933f553c81",
-      "authority": "PINNED_MAIN_SOURCE"
+      "path": "recovery/kimi/V20.md",
+      "ref_policy": "SAME_RESOLVED_REF"
+    },
+    {
+      "path": "V20_TradingSystem_M15/STATUS.md",
+      "ref_policy": "SAME_RESOLVED_REF"
+    },
+    {
+      "path": "V20_TradingSystem_M15/AGENTS.md",
+      "ref_policy": "SAME_RESOLVED_REF"
+    },
+    {
+      "path": "recovery/PROJECT_PASSPORT_V20.md",
+      "ref_policy": "SAME_RESOLVED_REF"
+    },
+    {
+      "path": "V20_TradingSystem_M15/R088_ARCHITECTURE_AND_SAFETY_20261122.md",
+      "ref_policy": "SAME_RESOLVED_REF"
+    },
+    {
+      "path": "V20_TradingSystem_M15/V20-08/LIVE_RELEASE_R088_20261120_RU.md",
+      "ref_policy": "SAME_RESOLVED_REF"
     }
-  ]
+  ],
+  "historical_inventory": {
+    "snapshot": "c90747064bc1bea4aefba2f325dd8d1e15ca29cb",
+    "entries": [
+      {
+        "former_mirror": "recovery/kimi/memory/V20/Trading_Systems_Architecture_and_AI_Collaboration.md",
+        "source": "recovery/kimi/Trading_Systems_Architecture_and_AI_Collaboration.md",
+        "blob": "ddc333b21c73e6dc6f841231113c9d844dc665a6",
+        "source_commit": "c90747064bc1bea4aefba2f325dd8d1e15ca29cb",
+        "authority": "CANDIDATE_SAME_TREE_SOURCE",
+        "materialized": false
+      },
+      {
+        "former_mirror": "recovery/kimi/memory/V20/PROJECT_PASSPORT_V20.md",
+        "source": "recovery/PROJECT_PASSPORT_V20.md",
+        "blob": "433e9ebeed832f3b4684046f11c8f6df8952e24f",
+        "source_commit": "2ac85eb5bcdd8757144898b5a27369329f4d125c",
+        "authority": "PINNED_MAIN_SOURCE",
+        "materialized": false
+      },
+      {
+        "former_mirror": "recovery/kimi/memory/V20/V20.md",
+        "source": "recovery/kimi/V20.md",
+        "blob": "2e3db9670a79ac3219e832156b843daeb3bcbc83",
+        "source_commit": "2ac85eb5bcdd8757144898b5a27369329f4d125c",
+        "authority": "PINNED_MAIN_SOURCE",
+        "materialized": false
+      },
+      {
+        "former_mirror": "recovery/kimi/memory/V20/R088_ARCHITECTURE_AND_SAFETY_20261122.md",
+        "source": "V20_TradingSystem_M15/R088_ARCHITECTURE_AND_SAFETY_20261122.md",
+        "blob": "376c0342b1bbbe50aaeb24cff959c0f37b1fd648",
+        "source_commit": "3eddebb4d915c7798a2d56d2230010933f553c81",
+        "authority": "PINNED_MAIN_SOURCE",
+        "materialized": false
+      },
+      {
+        "former_mirror": "recovery/kimi/memory/V20/LIVE_RELEASE_R088_20261120_RU.md",
+        "source": "V20_TradingSystem_M15/V20-08/LIVE_RELEASE_R088_20261120_RU.md",
+        "blob": "641793d28566e0dfe81916a061f5cc92a35f12f0",
+        "source_commit": "3eddebb4d915c7798a2d56d2230010933f553c81",
+        "authority": "PINNED_MAIN_SOURCE",
+        "materialized": false
+      },
+      {
+        "former_mirror": "recovery/kimi/memory/V20/skills/v20-safety-analysis/SKILL.md",
+        "source": "recovery/kimi/skills/v20-safety-analysis/SKILL.md",
+        "blob": "81880e77f97977c3067e923a8516ce52382475eb",
+        "source_commit": "3eddebb4d915c7798a2d56d2230010933f553c81",
+        "authority": "PINNED_MAIN_SOURCE",
+        "materialized": false
+      },
+      {
+        "former_mirror": "recovery/kimi/memory/V20/skills/github-source-audit/SKILL.md",
+        "source": "recovery/kimi/skills/github-source-audit/SKILL.md",
+        "blob": "320f3b558cee14b195ae0e8beb6ad392106f9359",
+        "source_commit": "3eddebb4d915c7798a2d56d2230010933f553c81",
+        "authority": "PINNED_MAIN_SOURCE",
+        "materialized": false
+      },
+      {
+        "former_mirror": "recovery/kimi/memory/V20/skills/ai-engineering-handoff/SKILL.md",
+        "source": "recovery/kimi/skills/ai-engineering-handoff/SKILL.md",
+        "blob": "d08ccc90065b19a8abff75646b64dd0318688bd9",
+        "source_commit": "3eddebb4d915c7798a2d56d2230010933f553c81",
+        "authority": "PINNED_MAIN_SOURCE",
+        "materialized": false
+      }
+    ]
+  },
+  "export": {
+    "pre_cleanup_snapshot": "c90747064bc1bea4aefba2f325dd8d1e15ca29cb",
+    "artifact": "C3_final_candidate_45962701886.zip",
+    "sha256": "3aa88b095b246d42ea591917a8bcb99b3e98b403a0de65432b3c7630d20d7344",
+    "owner_storage": "CONFIRMED_20261127",
+    "scope": "53 canonical + 16 historical; not full repository or cold restore"
+  },
+  "notes": "Historical entries are nonmaterialized provenance, not active paths or instructions. Missing required current source -> STOP dependent task. Installed settings and full qualification remain separate."
 }

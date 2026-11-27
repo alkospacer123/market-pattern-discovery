@@ -1,5 +1,14 @@
 # TRL — фактический статус roadmap
 
+## 27.11.2026 — текущий checkpoint C3.2
+
+MAIN `2ac85eb5bcdd8757144898b5a27369329f4d125c`, исходный Draft #608 `86a5731f64e039c52c8c296a9dffedab44e161d1`. Профильный HANDOFF подготовлен без новых research/replay и LIVE. Текущая методология — [Research Methodology](research/RESEARCH_METHODOLOGY.md), [Operating Cycle](OPERATING_CYCLE.md); предыдущие статусы ниже — история.
+
+- Новая отдельная программа: TREND, MOMENTUM, VOLATILITY, по одному самостоятельному исследованию, **только C1** для новых расчётов. Критерии и банк/риск — в методологии, без подгонки. Начало **PENDING_GATE**: завершить адаптацию Kimi, вернуть V20 к штатной эксплуатации, минимум 7 последовательных календарных суток безаварийной работы, затем Independent Recovery. 20.12.2026 — ориентир, не разрешение.
+- R100 (исходный R099): REJECT_CURRENT_BASELINE, 910 сделок, C1 Net −7 240 ₽, PF 0,8315 по опубликованному отчёту. Предложение будущих C1/C2/C4 в §10 [R100](reports/TRL-2027-RESEARCH-DIRECTIONS-R100.md) отменено позднейшим решением 26.11; frozen evidence и исторические цифры не изменять. Kimi published replay/ledger/HAC и ограниченный GPT cross-check не равны новому независимому полному replay.
+- Evolution V20: HOLD_DATA до проверенных обезличенных FINAM отчётов, никаких новых выводов LIVE. Выбранная 60/30/45 не исторический лидер 75/30/30.
+- Gaps: R060/R097 original ZIP/XLSX/OHLCV вне GitHub, R087 четыре TXT/ZIP, STS/V1–V24 pinned deps, original R100 upload ZIP и external raw OHLCV, session-close mismatch, separate reserved R099 protocol. SOURCE_VERIFIED / NOT_REPLAYED в соответствующем scope, не новый REPRODUCIBLE_VERIFIED.
+- C3: профильная ревизия `trl-repro-review` rc.3 выполнена; перенос требований кандидат, установленный Skill/старый fallback не отключены. Датированная запись — [Journal 27.11](journal/2026-11-27-trl-knowledge-consolidation.md).
 ## Контроль 20.11.2026 — GitHub Main актуализирован для Kimi
 
 Исследовательские PR **#570 → #572 → #573 → #576** последовательно объединены с `main` через Squash Merge, после каждого шага проверено состояние последующего PR. [Точка входа для Kimi](reports/TRL-NOV-2026-KIMI-START-HERE.md) и [итоговый ноябрьский отчёт](reports/TRL-NOV-2026-FINAL-CLOSEOUT.md) опубликованы в `main`. Ниже сохранены исторические записи состояния на 31.10.2026 и ход подготовки ноябрьского PR; **они не заменяют новое состояние**.

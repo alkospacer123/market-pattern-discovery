@@ -1,5 +1,6 @@
 # V20 Control Center: ложный HEALTHY при локальной экспозиции — 26.11.2026
 
+**Дополнение 27.11.2026 (C3.2):** [PR #602](https://github.com/alkospacer123/market-pattern-discovery/pull/602) MERGED 26.11, merge commit `e70cfed5db274530ba9687f5a9b13f2290fde1e7`. SOURCE fix принят; первоначальный pre-merge отчёт ниже сохраняется без исправления исторического статуса. INSTALLED/LIVE остаются NOT_VERIFIED/UNKNOWN; synthetic local exposure не равен broker protection. Установка только отдельным решением владельца, с CC-only backup/SHA/ACL и READONLY acceptance. Текущий статус — [STATUS](../STATUS.md).
 **Статус:** `SOURCE_FIX_READY_FOR_INDEPENDENT_REVIEW`. Это подготовка отдельной ветки и Draft PR, а не установленное или принятое исправление. **Merge, Intel, production-панель, deploy, Windows Tasks, FINAM и роботы не затрагивались.**
 
 ## 1. Задача, разрешения и границы

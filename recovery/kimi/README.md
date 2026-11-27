@@ -1,10 +1,18 @@
 # Kimi Phase II — три логических проекта знаний
 
+**Единый вход C3:** [V20](V20.md) · [Control Center](CONTROL_CENTER.md) · [TRL](TRL.md). Профильные карты сокращены; параметры, статус и хронология принадлежат каноническим документам. Исторические профили доступны по immutable pins из каждой карты. [STATUS](../STATUS.md) — актуальная очередь; [Навигатор и экспорт](memory/README.md) — канонические маршруты, исторические identities и offline fallback. Настройки ИИ меняются отдельно.
+## C3 — переход к единой базе знаний (27.11.2026, candidate)
+
+- Рабочая очередь и статус: [Roadmap](../../ROADMAP.md), [Recovery STATUS](../STATUS.md). Актуальный MAIN устанавливается при каждой содержательной задаче; dated checkpoints ниже — история.
+- Общая проверка источников — [AGENTS](../../AGENTS.md#проверка-источников--общий-порядок-c3-candidate); совместная работа — [HANDOFF](EXAM_AND_HANDOFF.md#действующий-рабочий-маршрут--c3-candidate-27112026); критические инварианты — [COC](../CRITICAL_OPERATIONS_CONTRACT.md). Профильные паспорта и source maps остаются предметными источниками. Читай только необходимое.
+- Согласованная цель: без пяти собственных активных Skills, без зеркал знаний. [Проверенный экспорт и навигатор](memory/README.md). Удаление source-файлов в #608 разрешено владельцем; настройки установленных Skills не изменены.
+- C1/C2 приняты в указанном Roadmap объёме, B принят ограниченно, C3 не завершён. Не повторять прежние экзамены; обязательные evidence gaps и KDR остаются. Ранее датированные NOT_CONNECTED/NOT_EXAMINED не являются текущим состоянием.
+
 **Решение владельца 26.11.2026 — рабочие роли Kimi.** Kimi Chat — основное общение, знания, обсуждение, аналитика и планирование; Kimi Code — основной технический исполнитель (Intel, V20, Control Center, TRL, GitHub, Python, PowerShell, тестирование, удалённая работа и Recovery); Kimi Work — резерв по необходимости, без параллельной адаптации и дублирования заданий. Владелец лично отмечает более стабильную удалённую работу Code с телефона; это не независимый тест и не полный допуск. B1/B2 выполняются через Code. Действующие полномочия и LIVE safety неизменны. [Действующий Roadmap](../../ROADMAP.md). Датированные исторические сведения ниже сохраняются; резервный Work проверяется только при фактической необходимости.
 
 ## Current checkpoint — 26.11.2026
 
-[Block A engineering acceptance](BLOCK_A_ACCEPTANCE_20261126.md) · [current Roadmap](../../ROADMAP.md) · [three knowledge profiles](memory/README.md) · [KDR register](KIMI_DEFECTS_AND_REMEDIATION_REGISTER.md). Three Chat projects and five Skills accepted in reported/tested scope; GitHub #601–#604 source results merged. Full autonomy, actual installed/LIVE and cold restore not established. Earlier dated statuses below remain historical. COC and five canonical Skills remain authoritative; KDR-001 later owner acceptance recorded in checkpoint. Use accepted MAIN, not old #597 as current source. No new access authorized.
+[Block A engineering acceptance](BLOCK_A_ACCEPTANCE_20261126.md) · [current Roadmap](../../ROADMAP.md) · [three knowledge profiles](memory/README.md) · [KDR register](KIMI_DEFECTS_AND_REMEDIATION_REGISTER.md). Three Chat projects and five Skills accepted in reported/tested scope; GitHub #601–#604 source results merged. Full autonomy, actual installed/LIVE and cold restore not established. Earlier dated statuses below remain historical. Current authority is AGENTS/COC and canonical profile documents; historical Skills are provenance; KDR-001 later owner acceptance recorded in checkpoint. Use accepted MAIN, not old #597 as current source. No new access authorized.
 
 
 ## Checkpoint G6.4 / G6.5 — 25.11.2026; исправление G6.5.1
@@ -53,9 +61,9 @@ MAIN != INSTALLED != LIVE != RESEARCH != ARCHIVE. Никаких DPAPI, FINAM cr
 
 [Windows workspace, GitHub access and staged permissions](WINDOWS_WORKSPACE_AND_ACCESS.md): the designated *source* checkout is `C:\KimiSandbox\market-pattern-discovery` on NTFS; the former temporary external `D:\KimiSandbox` was removed by the operator. Creating this folder and cloning Git does **not** establish a secure execution sandbox. Read-only source evaluation precedes isolated offline tests; successful examinations permit operator-approved graduated access to non-secret production evidence, not automatic LIVE control. Monthly Pro is the capacity pilot before annual Pro/Max; local Windows acceptance is still pending.
 
-## Critical Operations Contract и Skills
+## Critical Operations Contract и канонические источники
 
-- Общий вход: [Critical Operations Contract](../CRITICAL_OPERATIONS_CONTRACT.md). Перед критической задачей требуются контракт и **релевантные** Skills, не обязательно все пять.
-- Канонические редакции: `recovery/kimi/skills/<name>/SKILL.md`. Резервные копии в `recovery/kimi/memory/{V20,ControlCenter,TRL}/skills/` должны быть побайтово идентичны соответствующему canonical файлу; одинаковые bytes имеют одинаковый Git blob SHA.
+- Общий вход: [Critical Operations Contract](../CRITICAL_OPERATIONS_CONTRACT.md). Перед критической задачей требуются контракт и применимые профильные документы.
+- Исторические Skill-редакции и зеркала — в Git history и проверенном pre-cleanup export; [маршруты и manifests](memory/README.md). Historical pin не означает current MAIN.
 - Не редактируй backup самостоятельно. Старый `trl-reproducibility-review` не заменяет канонический `trl-repro-review`.
-- Фактическая загрузка Skill, чтение canonical `SKILL.md` как `SOURCE_FALLBACK` и наличие backup — разные проверки. Manifest не доказывает установку или qualification.
+- Доступность pinned source, наличие backup и фактическая конфигурация ИИ — разные проверки. Manifest не доказывает установку или qualification.

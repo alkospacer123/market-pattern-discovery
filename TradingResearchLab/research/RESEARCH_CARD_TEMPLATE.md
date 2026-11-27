@@ -27,5 +27,10 @@
 | Итоговый статус | IDEA / TESTING / REJECT / CONTINUE / CANDIDATE |
 | Решение / обоснование / дата / следующее действие | |
 | Ссылки на отчёты, журналы и тестовые артефакты | |
+| Data identity / raw-normalized-loaded hashes, coverage, as-of witnesses | |
+| Causal checks, contamination ledger / просмотренные варианты | |
+| Replay scope / input-code-config hashes / logs / first divergence | |
+| Witness locator: signals/refusals/orders/fills/trades/cash/GO/equity; ledger hash | |
+| Независимый review / принятое решение / ограничения | |
 
 **Критерий готовности:** есть повторяемый расчёт, численные результаты и явное решение. Наличие красивого PF на уже изученных 2018–2026 недостаточно для выпуска в LIVE.

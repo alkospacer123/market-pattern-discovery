@@ -1,5 +1,6 @@
 # Control Center V20 — START HERE / SOURCE MAP
 
+**C3 candidate 27.11.2026:** начни с [STATUS](../STATUS.md) и релевантного [JOURNAL](../JOURNAL.md), общего AGENTS/COC; ниже dated SOURCE map, проверяй актуальный ref/blob и #602 SOURCE fix отдельно от INSTALLED. Для задачи открывай только необходимые CC-07/CC-08/data-security документы. Kimi exam — историческое evidence, не повторять.
 **CURRENT SOURCE audit: 22.11.2026.** Baseline MAIN `0e569be6cb3c7cce1f7224e7f1fef6be38f6ba52`. Это точка проверки GitHub, НЕ доказательство состояния Intel/FINAM. Сначала прочесть [AGENTS](../../AGENTS.md), [паспорт Control Center](../../recovery/PROJECT_PASSPORT_CONTROL_CENTER.md), [правила источников](../../recovery/DOCUMENTATION_AUTHORITY_2026-11-22.md), затем этот документ.
 
 ## Архитектурные границы

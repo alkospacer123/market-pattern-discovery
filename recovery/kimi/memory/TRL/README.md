@@ -1,24 +1,23 @@
-# Trading Research Lab — резервная база знаний Kimi
+# Trading Research Lab — навигатор знаний
 
-Original snapshot `3eddebb4d915c7798a2d56d2230010933f553c81`; owner decisions 26.11 based on `78767f6d684e2923561c1314b6466b464b7e1de6`, updated same-tree docs explicitly marked. Read current MAIN AGENTS rather than the historical pinned link below. Historical draft source `a4af4cb72257f5c7cffd5d87d97e34438cf0fe46`. [Общий AGENTS](https://github.com/alkospacer123/market-pattern-discovery/blob/3eddebb4d915c7798a2d56d2230010933f553c81/AGENTS.md) · [COC](https://github.com/alkospacer123/market-pattern-discovery/blob/3eddebb4d915c7798a2d56d2230010933f553c81/recovery/CRITICAL_OPERATIONS_CONTRACT.md) · [актуальный checkpoint](../../BLOCK_A_ACCEPTANCE_20261126.md) · [Windows gate](../../WINDOWS_WORKSPACE_AND_ACCESS.md).
+C3: один канонический источник на знание. Этот каталог содержит только карту и manifest, а не копии источников. Начать с [общего маршрута](../../README.md), затем профильного STATUS и применимого AGENTS/COC. Читать только нужные документы на разрешённом pinned ref.
 
-Перед задачей re-resolve MAIN and verify source/ref/blob; snapshot is not second authority. Read only necessary source and relevant canonical Skill. Relative links inside copied files are relative to original source, use primary path below. No automatic permission from memory or handoff. If missing source, UNKNOWN/BLOCKED for dependent work. No secrets or production access. No full retraining.
+- [TRL.md](../../../../recovery/kimi/TRL.md)
+- [STATUS.md](../../../../TradingResearchLab/STATUS.md)
+- [AGENTS.md](../../../../TradingResearchLab/AGENTS.md)
+- [PROJECT_PASSPORT_TRL.md](../../../../recovery/PROJECT_PASSPORT_TRL.md)
+- [RESEARCH_METHODOLOGY.md](../../../../TradingResearchLab/research/RESEARCH_METHODOLOGY.md)
+- [OPERATING_CYCLE.md](../../../../TradingResearchLab/OPERATING_CYCLE.md)
+- [RESEARCH_CARD_TEMPLATE.md](../../../../TradingResearchLab/research/RESEARCH_CARD_TEMPLATE.md)
+- [TRL-NOV-2026-KIMI-START-HERE.md](../../../../TradingResearchLab/reports/TRL-NOV-2026-KIMI-START-HERE.md)
+- [TRL-NOV-2026-ARTIFACT-MANIFEST.md](../../../../TradingResearchLab/reports/TRL-NOV-2026-ARTIFACT-MANIFEST.md)
+- [TRL-NOV-2026-FINAL-CLOSEOUT.md](../../../../TradingResearchLab/reports/TRL-NOV-2026-FINAL-CLOSEOUT.md)
+- [README.md](../../../../TradingResearchLab/README.md)
+- [TRL_Roadmap_1_1.md](../../../../TradingResearchLab/TRL_Roadmap_1_1.md)
+- [TRL-CALENDAR-2027.md](../../../../TradingResearchLab/reports/TRL-CALENDAR-2027.md)
+- [TRL-RESEARCH-REGISTRY-2026-11-22.md](../../../../TradingResearchLab/reports/TRL-RESEARCH-REGISTRY-2026-11-22.md)
+- [TRL-NEGATIVE-RESEARCH-INDEX-2026-11-22.md](../../../../TradingResearchLab/reports/TRL-NEGATIVE-RESEARCH-INDEX-2026-11-22.md)
+- [MANUAL_FINAM_MONTHLY_INPUT.md](../../../../TradingResearchLab/evolution/MANUAL_FINAM_MONTHLY_INPUT.md)
+- [V20_READONLY_SOURCE_REQUIREMENTS.md](../../../../TradingResearchLab/reports/V20_READONLY_SOURCE_REQUIREMENTS.md)
 
-R100: [canonical research record](https://github.com/alkospacer123/market-pattern-discovery/blob/3eddebb4d915c7798a2d56d2230010933f553c81/TradingResearchLab/research/TRL_R_2026_100_USDRUBF_FIRST_LAST_MOMENTUM.md), [2027 directions](https://github.com/alkospacer123/market-pattern-discovery/blob/3eddebb4d915c7798a2d56d2230010933f553c81/TradingResearchLab/reports/TRL-2027-RESEARCH-DIRECTIONS-R100.md). REJECT, not LIVE.
-
-| Копия | Первоисточник | Git blob |
-| --- | --- | --- |
-| [Trading_Systems_Architecture_and_AI_Collaboration.md](Trading_Systems_Architecture_and_AI_Collaboration.md) | [recovery/kimi/Trading_Systems_Architecture_and_AI_Collaboration.md](../../../../recovery/kimi/Trading_Systems_Architecture_and_AI_Collaboration.md) | `66325ca5e9264bf449cc73e9a6bfc2bd42a16db0` |
-| [PROJECT_PASSPORT_TRL.md](PROJECT_PASSPORT_TRL.md) | [recovery/PROJECT_PASSPORT_TRL.md](../../../../recovery/PROJECT_PASSPORT_TRL.md) | `1d51b98e1fce01302e5b3e26de5825bcf038af74` |
-| [TRL.md](TRL.md) | [recovery/kimi/TRL.md](../../../../recovery/kimi/TRL.md) | `d8fc1f8e4286c6aeb50461f7a757cecc0a46a426` |
-| [TRL-NOV-2026-KIMI-START-HERE.md](TRL-NOV-2026-KIMI-START-HERE.md) | [TradingResearchLab/reports/TRL-NOV-2026-KIMI-START-HERE.md](https://github.com/alkospacer123/market-pattern-discovery/blob/3eddebb4d915c7798a2d56d2230010933f553c81/TradingResearchLab/reports/TRL-NOV-2026-KIMI-START-HERE.md) | `b0e316134eea8a2c62a6a2ae66dc282093fdbabe` |
-| [RESEARCH_METHODOLOGY.md](RESEARCH_METHODOLOGY.md) | [TradingResearchLab/research/RESEARCH_METHODOLOGY.md](../../../../TradingResearchLab/research/RESEARCH_METHODOLOGY.md) | `a4a116693634eef034e2a30ad4162df0f860ecf9` |
-| [OPERATING_CYCLE.md](OPERATING_CYCLE.md) | [TradingResearchLab/OPERATING_CYCLE.md](../../../../TradingResearchLab/OPERATING_CYCLE.md) | `edcb49586d03f20ea3e3ef47e70fceb831e2fa52` |
-| [RESEARCH_CARD_TEMPLATE.md](RESEARCH_CARD_TEMPLATE.md) | [TradingResearchLab/research/RESEARCH_CARD_TEMPLATE.md](../../../../TradingResearchLab/research/RESEARCH_CARD_TEMPLATE.md) | `d7beaf6bfc6516047df91d1419585b1b0c45e796` |
-| [TRL-NOV-2026-ARTIFACT-MANIFEST.md](TRL-NOV-2026-ARTIFACT-MANIFEST.md) | [TradingResearchLab/reports/TRL-NOV-2026-ARTIFACT-MANIFEST.md](https://github.com/alkospacer123/market-pattern-discovery/blob/3eddebb4d915c7798a2d56d2230010933f553c81/TradingResearchLab/reports/TRL-NOV-2026-ARTIFACT-MANIFEST.md) | `725da79a35484a7385a8f9b98c3d7c59bc4e19e3` |
-| [TRL-NOV-2026-FINAL-CLOSEOUT.md](TRL-NOV-2026-FINAL-CLOSEOUT.md) | [TradingResearchLab/reports/TRL-NOV-2026-FINAL-CLOSEOUT.md](https://github.com/alkospacer123/market-pattern-discovery/blob/3eddebb4d915c7798a2d56d2230010933f553c81/TradingResearchLab/reports/TRL-NOV-2026-FINAL-CLOSEOUT.md) | `ec06839fd233f9909eead53e82b9b7d1d7868fb8` |
-| [skills/trl-repro-review/SKILL.md](skills/trl-repro-review/SKILL.md) | [recovery/kimi/skills/trl-repro-review/SKILL.md](../../../../recovery/kimi/skills/trl-repro-review/SKILL.md) | `9f0f1af3516e6eb6af48d7c434355150544e1476` |
-| [skills/github-source-audit/SKILL.md](skills/github-source-audit/SKILL.md) | [recovery/kimi/skills/github-source-audit/SKILL.md](https://github.com/alkospacer123/market-pattern-discovery/blob/3eddebb4d915c7798a2d56d2230010933f553c81/recovery/kimi/skills/github-source-audit/SKILL.md) | `320f3b558cee14b195ae0e8beb6ad392106f9359` |
-| [skills/ai-engineering-handoff/SKILL.md](skills/ai-engineering-handoff/SKILL.md) | [recovery/kimi/skills/ai-engineering-handoff/SKILL.md](https://github.com/alkospacer123/market-pattern-discovery/blob/3eddebb4d915c7798a2d56d2230010933f553c81/recovery/kimi/skills/ai-engineering-handoff/SKILL.md) | `d08ccc90065b19a8abff75646b64dd0318688bd9` |
-
-[MANIFEST.json](MANIFEST.json) — точные identities. SOURCE parity does not prove actual Kimi retrieval or cold restore.
+[MANIFEST.json](MANIFEST.json) — current source routes и исторические identities. Прежние 12 зеркал сохранены в Git history на `c90747064bc1bea4aefba2f325dd8d1e15ca29cb` и в проверенном экспорте владельца. Исторические Skills не являются обязательным текущим маршрутом. При отсутствии требуемого источника остановить зависимую часть; не заменять его памятью. Ни экспорт, ни Merge не дают полномочий на LIVE.

@@ -1,13 +1,14 @@
 # Control Center V20 — паспорт
 
-**Решение владельца 26.11.2026:** #602 — принятый SOURCE-кандидат профилактической проверки HEALTHY/локальной экспозиции и свежести, не установлен. Штатный экспортер не вычисляет HEALTHY и публикует exposure=None; дефект воспроизведён на synthetic snapshot, не подтверждён как LIVE инцидент. Сохранить для планового CC-only обновления при реальной необходимости, installed bytes/pins, backup/rollback и отдельном разрешении. Не обновлять исправную панель ради экзамена; UI не доказывает FINAM truth.
+**ACTIVE operator panel, not a trading algorithm.** Каталог `ControlCenter/`; действующий UI `v20_app.py`, адаптер `v20_admin_control.py`, `controller/`, `cc/`, `tests/`. READONLY refresh и операторский CC-07 — отдельные контуры. CC-03/H1/8501 — сохранённая историческая ветвь, не V20.
 
-**ACTIVE operator panel, not a trading algorithm.** [CC README](../ControlCenter/README.md), [CC-08 Operations](../ControlCenter/docs/V20_CC08_OPERATIONS.md), `ControlCenter/controller/`, `cc/`, `tests/`.
+## Канонические источники по задаче
 
-UI на Intel: `C:\Control Center\v20-preview-d80f2446\v20_app.py`, локальный `http://127.0.0.1:8502`. Три робота V20; READONLY refresh отличается от START/PAUSE/STOP/RESTART/RECOVER в CC-07. Документированный 20.11 install+compatibility PASS — датированное свидетельство, не текущая LIVE проверка.
+- [STATUS](../ControlCenter/STATUS.md) и [JOURNAL](../ControlCenter/JOURNAL.md) — актуальный срез, принятые SOURCE changes и installed/LIVE gaps.
+- [Start Here](../ControlCenter/docs/V20_START_HERE_SOURCE_MAP.md), [README](../ControlCenter/README.md) и [CC-08](../ControlCenter/docs/V20_CC08_OPERATIONS.md) — архитектура, установка, диагностика и источник состояния.
+- [CC-07 command contract](../ControlCenter/docs/V20_CC07_COMMAND_CONTRACT.md), [data/security/tests](../ControlCenter/docs/V20_DATA_SECURITY_TESTS.md), [COC](CRITICAL_OPERATIONS_CONTRACT.md) — gates, unknown outcome, provenance, freshness, regressions.
+- [Общий AGENTS](../AGENTS.md), [HANDOFF](kimi/EXAM_AND_HANDOFF.md) — полномочия, Git identity и совместная работа.
 
-Установленные по операторскому свидетельству blobs: CC-07 operator `10de325be0335733a248c412943f39d45bd93c62`, Python adapter `ef2fa2cd6b0ddfefc920548995274f123c5884bf`. HTTP 200, Task Running и HEALTHY **не** доказывают broker FLAT/ARMED/SLTP.
+HTTP 200, локальный HEALTHY, Task Running и датированная установка не доказывают broker FLAT/SLTP. FAILED_UNKNOWN не повторять. Не выполнять операторские команды, FINAM, Task changes, установку или rollback без отдельного разрешения. H1/CC-03 frozen provenance сохраняется.
 
-Старый CC-03/H1-контент в `ControlCenter/` сохранён как история и test provenance. Его исходный scope_audit давал исторический native exit 1; успех узкого offline CI не означает исправленного полного acceptance.
-
-**Экзамен Kimi Code:** синтетический OFFLINE журнал и gate отказов, различие refresh и операторской команды, unknown POST fail closed, проверка границ с V20, контроль доступа. Не нажимать LIVE-кнопки и не читать DPAPI/FINAM.
+**C3.2 candidate 27.11.2026:** [предыдущая редакция](https://github.com/alkospacer123/market-pattern-discovery/blob/2ac85eb5bcdd8757144898b5a27369329f4d125c/recovery/PROJECT_PASSPORT_CONTROL_CENTER.md) сохраняет датированный installed locator/blob, решение по #602 и прежний exam scope. Текущий статус и доказательства — профильный STATUS/JOURNAL; повторных экзаменов не требуется. Владелец разрешил exact cleanup исторических зеркал и Skill-файлов после проверки fallback и подтверждения внешнего экспорта; итоговый Merge и конфигурация ИИ/полный допуск остаются отдельными.
