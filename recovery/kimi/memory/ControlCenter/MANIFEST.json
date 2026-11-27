@@ -72,6 +72,14 @@
     {
       "path": "ControlCenter/JOURNAL.md",
       "ref_policy": "SAME_RESOLVED_REF"
+    },
+    {
+      "path": "recovery/kimi/WINDOWS_WORKSPACE_AND_ACCESS.md",
+      "ref_policy": "SAME_RESOLVED_REF"
+    },
+    {
+      "path": "recovery/kimi/KIMI_DEFECTS_AND_REMEDIATION_REGISTER.md",
+      "ref_policy": "SAME_RESOLVED_REF"
     }
   ],
   "historical_inventory": {
