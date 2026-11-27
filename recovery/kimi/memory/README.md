@@ -8,6 +8,8 @@
 
 **Переход ещё не выполнен:** существующие копии, manifests и правила их соответствия остаются действующими. Не отключать Skills и не удалять файлы на основании только этой записи. Исторический snapshot фиксирован указанным commit, не moving MAIN. Отдельное разрешение на удаление и Merge обязательно.
 
+**C3.2 checkpoint 27.11.2026:** [commit 8da47cc](https://github.com/alkospacer123/market-pattern-discovery/commit/8da47cca39adfda0b46955b2776717b67f4d39ec) — 29/29 backup blobs соответствуют manifest; 25/29 текущим originals, четыре TRL copies — прежнему accepted MAIN `2ac85eb5bcdd8757144898b5a27369329f4d125c` с явными source_commit pins. Не объявлять 29/29 совпадением с текущим каноном. Состав 553869 bytes неизменён, новый export/fallback пока не принят. См. [TRL snapshot](TRL/README.md).
+
 [V20](V20/README.md) · [Control Center](ControlCenter/README.md) · [TRL](TRL/README.md).
 
 Snapshot accepted source base `3eddebb4d915c7798a2d56d2230010933f553c81`; candidate-specific documentation sources enumerated in same-tree manifests. GitHub fallback, not installed memory or independent Recovery. [Общая архитектура](../Trading_Systems_Architecture_and_AI_Collaboration.md) — датированный оригинал 25.11; [актуальный checkpoint](../BLOCK_A_ACCEPTANCE_20261126.md) · [COC](../../CRITICAL_OPERATIONS_CONTRACT.md) · [Roadmap](../../../ROADMAP.md). Read current canonical sources first; never treat snapshot as authority for changing release or LIVE. No permissions from attachments/Skills. If unavailable, STOP dependent work and request owner-held verified source. KDR-011 remains open pending all-three independent fallback. Do not edit copies separately.
