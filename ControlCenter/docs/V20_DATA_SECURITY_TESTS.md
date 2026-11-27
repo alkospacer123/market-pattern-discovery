@@ -1,5 +1,16 @@
 # V20 Control Center — data/telemetry, security, test gates
 
+## 27.11.2026 — C3.2: текущий CI и дополнительные диагностические регрессии
+
+[#602](https://github.com/alkospacer123/market-pattern-discovery/pull/602) принят в MAIN, #603 разделил исторический frozen CC-03 и active V20 SOURCE CI, [#609](https://github.com/alkospacer123/market-pattern-discovery/pull/609) допускает точный C3 документационный scope. Старый отказ #592 ниже — исторический, не текущий CI. На исходном HEAD #608 `86a5731f64e039c52c8c296a9dffedab44e161d1` CC docs/Main Admission SUCCESS, Windows native на docs-only не выполнялся. Это не installed/FINAM/LIVE acceptance.
+
+При целевой диагностике сохраняй symptom/robot/session/observed_at/attempt time и исходное evidence; трассируй конкретное поле UI → session/cache/render → receiver/validation → publisher/exporter → фактический source. Не повторяй refresh/rerun, пока не установлены side effects. Дополнительные синтетические regression classes из профильного Skill:
+
+- failed publisher → acquire того же старого snapshot: не считать новой публикацией; отдельно проверить attempt time vs observed_at, TTL после acquire, отсутствие воскрешения прежних положительных полей.
+- clock rollback / будущие и naive timestamps: STALE не возвращается в свежий PASS без нового валидного source; проверить отдельно heartbeat и ARMED-cycle в LOCAL_REPORT/UNKNOWN, не только общий health.
+- Streamlit startup, navigation, dialog, rerun, session/robot isolation: отсутствие неразрешённых source I/O/dispatch, повторного submit, сохранения cached positives после UNKNOWN; для зависимостей различать DECLARED / RESOLVED / IMPORTED / RUNTIME_LOADED, lockfile не подтверждает installed env.
+
+Это требования к будущим целевым проверкам, **NOT_RUN**, не новые доказанные LIVE-инциденты. Для действий — COC, CC-07 и CC-08. Не повторять экзамен или запускать реальную команду ради regression.
 **CURRENT CODE SOURCE, 22.11.2026:** `main=0e569be6cb3c7cce1f7224e7f1fef6be38f6ba52`. Это не доказательство физического Intel/LIVE. [START HERE](V20_START_HERE_SOURCE_MAP.md), [CC-07](V20_CC07_COMMAND_CONTRACT.md).
 
 ## Источник каждого наблюдения

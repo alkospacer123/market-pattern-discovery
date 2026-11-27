@@ -1,0 +1,8 @@
+# 27.11.2026 — TRL C3.2: консолидация знаний
+
+GPT / GitHub documentation, профильный HANDOFF и координационная реконструкция. Проверенный MAIN `2ac85eb5bcdd8757144898b5a27369329f4d125c`, исходный HEAD #608 `86a5731f64e039c52c8c296a9dffedab44e161d1`. Skill `trl-repro-review` rc.3 blob `9f0f1af3516e6eb6af48d7c434355150544e1476`; 12/12 backup pairs совпадали до обновления. Original patch не передан; изменения реконструированы по HANDOFF и pinned source, не заявляется применение original diff.
+
+- Предметные data/as-of/ledger/replay/statistics requirements в [методологии](../research/RESEARCH_METHODOLOGY.md), карточка и Operating Cycle обновлены; GPT/Kimi равноправны, independent gate сохранён. Абсолютный Skill-only ML ban не перенесён; вопрос требует решения владельца до отключения Skill.
+- [R100](../reports/TRL-2027-RESEARCH-DIRECTIONS-R100.md) REJECT_CURRENT_BASELINE (910, C1 Net −7240 ₽, PF 0.8315, historical reported evidence); исходный R099 provenance сохранён. Будущие C2/C4 из frozen §10 superseded решением 26.11, только C1 для новых расчётов. Новых replay/optimization нет.
+- [STATUS](../STATUS.md): старт TREND/MOMENTUM/VOLATILITY PENDING_GATE, ориентир 20.12.2026 условен; Evolution HOLD_DATA, originals gaps не закрыты.
+- Четыре неизменённые зеркальные копии теперь явно pinned к прежнему accepted MAIN, не выдаются за новую методологию. Проверяемый экспорт/fallback и снятие Skills требуют отдельного допуска. Intel/FINAM/LIVE не проверялись и не изменялись.

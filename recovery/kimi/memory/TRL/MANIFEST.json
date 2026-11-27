@@ -4,7 +4,7 @@
   "date": "2026-11-26",
   "source_snapshot": "3eddebb4d915c7798a2d56d2230010933f553c81",
   "reference_main": "78767f6d684e2923561c1314b6466b464b7e1de6",
-  "status": "OWNER_DECISIONS_REVIEW_CANDIDATE",
+  "status": "C3_TRANSITION_HISTORICAL_MIRRORS_NOT_CURRENT",
   "original_draft_head": "a4af4cb72257f5c7cffd5d87d97e34438cf0fe46",
   "files": [
     {
@@ -32,29 +32,29 @@
       "file": "TRL-NOV-2026-KIMI-START-HERE.md",
       "source": "TradingResearchLab/reports/TRL-NOV-2026-KIMI-START-HERE.md",
       "blob": "b0e316134eea8a2c62a6a2ae66dc282093fdbabe",
-      "source_commit": "3eddebb4d915c7798a2d56d2230010933f553c81",
+      "source_commit": "2ac85eb5bcdd8757144898b5a27369329f4d125c",
       "authority": "PINNED_MAIN_SOURCE"
     },
     {
       "file": "RESEARCH_METHODOLOGY.md",
       "source": "TradingResearchLab/research/RESEARCH_METHODOLOGY.md",
       "blob": "a4a116693634eef034e2a30ad4162df0f860ecf9",
-      "source_commit": null,
-      "authority": "CANDIDATE_SAME_TREE_SOURCE"
+      "source_commit": "2ac85eb5bcdd8757144898b5a27369329f4d125c",
+      "authority": "PINNED_MAIN_SOURCE"
     },
     {
       "file": "OPERATING_CYCLE.md",
       "source": "TradingResearchLab/OPERATING_CYCLE.md",
       "blob": "edcb49586d03f20ea3e3ef47e70fceb831e2fa52",
-      "source_commit": null,
-      "authority": "CANDIDATE_SAME_TREE_SOURCE"
+      "source_commit": "2ac85eb5bcdd8757144898b5a27369329f4d125c",
+      "authority": "PINNED_MAIN_SOURCE"
     },
     {
       "file": "RESEARCH_CARD_TEMPLATE.md",
       "source": "TradingResearchLab/research/RESEARCH_CARD_TEMPLATE.md",
       "blob": "d7beaf6bfc6516047df91d1419585b1b0c45e796",
-      "source_commit": null,
-      "authority": "CANDIDATE_SAME_TREE_SOURCE"
+      "source_commit": "2ac85eb5bcdd8757144898b5a27369329f4d125c",
+      "authority": "PINNED_MAIN_SOURCE"
     },
     {
       "file": "TRL-NOV-2026-ARTIFACT-MANIFEST.md",
@@ -91,5 +91,6 @@
       "source_commit": "3eddebb4d915c7798a2d56d2230010933f553c81",
       "authority": "PINNED_MAIN_SOURCE"
     }
-  ]
+  ],
+  "transition_note": "27.11.2026: four unchanged backup files are explicitly pinned to accepted MAIN 2ac85eb5bcdd8757144898b5a27369329f4d125c before canonical C3.2 edits. They are historical fallback only; current canonical reads required. No installed skill or export acceptance implied."
 }
