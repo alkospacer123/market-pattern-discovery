@@ -95,6 +95,8 @@ PASS только при: независимое чтение трёх прое�
 
 Recovery с реальным cold restore — только **после** завершения этапа Kimi.
 
-## G6.2.3 — documentation integration boundary
+## G6.2.3 — историческая documentation integration boundary (25.11; см. актуальный C3 маршрут выше)
 
 Перед критической задачей фиксируй версию/blob [Critical Operations Contract](../CRITICAL_OPERATIONS_CONTRACT.md) и релевантных Skills. Принятие documentation handoff не является Skill installation, TESTED, MERGED, QUALIFIED, LIVE_PASS или COLD_RESTORE_PASS. Отложенные независимые blind испытания G4 обязательны; уже принятые G5 tests заново не разрабатывать. `KDR-001=OPEN`; `G6.2 CRITICAL FAIL` остаётся в истории. Механизм не считается доказанным до независимой приёмки.
+
+**Уточнение 27.11.2026:** KDR-001 закрыт владельцем 26.11 в проверенном G6 scope; исторический CRITICAL FAIL сохранён. Для остаточных evidence gaps следовать Roadmap/KDR, не повторять принятые задания. Полный HANDOFF contract сохраняется до verified fallback.

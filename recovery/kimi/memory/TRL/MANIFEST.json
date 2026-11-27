@@ -18,15 +18,15 @@
       "file": "PROJECT_PASSPORT_TRL.md",
       "source": "recovery/PROJECT_PASSPORT_TRL.md",
       "blob": "1d51b98e1fce01302e5b3e26de5825bcf038af74",
-      "source_commit": null,
-      "authority": "CANDIDATE_SAME_TREE_SOURCE"
+      "source_commit": "2ac85eb5bcdd8757144898b5a27369329f4d125c",
+      "authority": "PINNED_MAIN_SOURCE"
     },
     {
       "file": "TRL.md",
       "source": "recovery/kimi/TRL.md",
       "blob": "d8fc1f8e4286c6aeb50461f7a757cecc0a46a426",
-      "source_commit": null,
-      "authority": "CANDIDATE_SAME_TREE_SOURCE"
+      "source_commit": "2ac85eb5bcdd8757144898b5a27369329f4d125c",
+      "authority": "PINNED_MAIN_SOURCE"
     },
     {
       "file": "TRL-NOV-2026-KIMI-START-HERE.md",
@@ -92,5 +92,5 @@
       "authority": "PINNED_MAIN_SOURCE"
     }
   ],
-  "transition_note": "27.11.2026: four unchanged backup files are explicitly pinned to accepted MAIN 2ac85eb5bcdd8757144898b5a27369329f4d125c before canonical C3.2 edits. They are historical fallback only; current canonical reads required. No installed skill or export acceptance implied."
+  "transition_note": "27.11.2026: passport/profile and any earlier TRL method snapshot entries explicitly pinned to accepted MAIN 2ac85eb5bcdd8757144898b5a27369329f4d125c. Existing backup bytes unchanged; canonical current source required. No export, installed Skill or recovery acceptance implied."
 }

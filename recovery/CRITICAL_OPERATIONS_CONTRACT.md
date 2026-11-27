@@ -1,8 +1,8 @@
 # Critical Operations Contract
 
 Contract: COC-2026-01
-Version: 1.0.0-rc.1
-Status: REVIEW_CANDIDATE_NOT_QUALIFIED
+Version: 1.0.0-rc.2
+Status: C3_REVIEW_CANDIDATE_NOT_QUALIFIED
 Scope: V20 Trading System, Control Center, Trading Research Lab и инженерный HANDOFF.
 
 > Документальная conformance matrix и карта первоисточников. Это не runtime authorization, не разрешение на запись, Merge, deploy, ARM, LIVE или доступ к секретам. Матрица не заменяет кодовые gates, broker reconciliation, независимые испытания и решение владельца.
@@ -11,7 +11,7 @@ Scope: V20 Trading System, Control Center, Trading Research Lab и инжене�
 
 1. Зафиксируй task ID, владельца, цель, роботов/account aliases, среду, разрешённые источники и запрещённые side effects.
 2. Прочитай действующие корневой/проектный `AGENTS.md`, Documentation Authority, паспорт и этот контракт на согласованном snapshot.
-3. Применяй `github-source-audit` для Git identity и **только релевантные** профильные Skills: V20, CC, TRL и/или HANDOFF. Не требуй чтения всех пяти без необходимости.
+3. Применяй общий Git audit в [AGENTS](../AGENTS.md), предметные источники из [навигатора](kimi/README.md) и [HANDOFF](kimi/EXAM_AND_HANDOFF.md) при передаче. До отдельной приёмки C3 также применяй релевантные действующие Skills; не загружай все пять без необходимости.
 4. Запиши версии и доступные identities контракта и Skills. Различай фактически загруженный Skill и чтение канонического `SKILL.md` как `SOURCE_FALLBACK`.
 5. Если установленный Skill недоступен, найди канонический Markdown по реестру, проверь версию/blob и обозначь fallback. Не выдавай чтение файла за штатную загрузку или установку.
 6. При недоступном обязательном источнике используй `SOURCE_UNAVAILABLE`/`BLOCKED`; при просроченном срезе — `STALE_SOURCE`. Недоступность не доказывает отсутствие.
@@ -187,7 +187,7 @@ RECOVER принимает только строго разрешённые Task
 ## 7. Skills, документация и HANDOFF
 
 - Канонические Skills находятся в `recovery/kimi/skills/<name>/SKILL.md`; резервные копии — в профильных knowledge folders.
-- Копии одной версии должны быть побайтово идентичны и иметь одинаковый Git blob SHA. Не редактируй backup самостоятельно и не синхронизируй разные версии молча.
+- Копии одной версии должны быть побайтово идентичны указанному source_commit/blob; historical pin не равен current MAIN. Не редактируй backup самостоятельно и не синхронизируй версии молча. Цель C3 — канонические пути плюс проверяемый экспорт без зеркал; до проверенного fallback/owner decision прежние копии и Skills сохраняются.
 - Integration manifest фиксирует подготовленные bytes, но не доказывает фактическую установку Skill, активацию, доступность механизма или qualification.
 - Профильные документы ссылаются на IDs этой матрицы и не создают конкурирующие копии правил.
 - Исторические отчёты, FAIL/PASS, protocols и Journal не переписывай; исправления оформляй append-only addendum/erratum.
@@ -195,15 +195,15 @@ RECOVER принимает только строго разрешённые Task
 
 ## 8. Независимая квалификация и STOP
 
-Документальная подготовка не закрывает отложенные G4 испытания. Нужны новые независимые blind задачи, заранее закреплённый oracle, positive/negative reachability и controlled mutation там, где требует G4. Critical failure budget = 0. Не создавай параллельную state machine и не повторно разрабатывай уже принятые G5 tests.
+Принятые G0–G6/A/B проверки не повторять. Остаточные обязательные evidence gaps — по [Roadmap](../ROADMAP.md) и [KDR](kimi/KIMI_DEFECTS_AND_REMEDIATION_REGISTER.md), с одной целевой C3 приёмкой изменённых компетенций/fallback. Для критического изменения — закреплённый oracle, positive/negative reachability и controlled mutation там, где требует контракт; critical failure budget = 0. Не создавать параллельную state machine и не заменять независимое доказательство саморевью.
 
 Немедленно останови затронутую часть при unknown write/command outcome, возможной потере stop, критичном `SOURCE_DRIFT`, неустановленной identity, отсутствии полномочий или mandatory independent gate. Безопасную отделимую работу заверши как `PARTIAL`; критичную недостижимую цель — `BLOCKED`.
 
-`KDR-001=OPEN.` `G6.2 CRITICAL FAIL` сохраняется в истории. Механизм не считается доказанным до отложенных независимых испытаний.
+`KDR-001=CLOSED_OWNER_ACCEPTED_20261126`; G6 принят в проверенном scope. [Акт A](kimi/BLOCK_A_ACCEPTANCE_20261126.md) и [KDR](kimi/KIMI_DEFECTS_AND_REMEDIATION_REGISTER.md) содержат основание и пределы; первоначальный G6.2 CRITICAL FAIL сохранён в Git history, recurrence reopens. Другие KDR и полная автономность/installed/LIVE/cold restore не закрываются автоматически.
 
 ## 9. Source authorities для этой редакции
 
-Срез подготовки: MAIN `2de8c212e29b2c589434a789cd81d6b3816ff28a`; Draft #597 head `90916c01bf85c3f9d5ef2ddcb70481845458d4ae` — только источник canonical Skills/knowledge layout, не принятый MAIN.
+Исторический срез rc.1: MAIN `2de8c212e29b2c589434a789cd81d6b3816ff28a`; Draft #597 head `90916c01bf85c3f9d5ef2ddcb70481845458d4ae`. [Integration manifest](CRITICAL_OPERATIONS_INTEGRATION_MANIFEST.json) — историческая подготовка #599, не manifest rc.2. C3 candidate rc.2 на принятом MAIN `2ac85eb5bcdd8757144898b5a27369329f4d125c`, исходном HEAD #608 `f723a4f172b1df62696a60f5ff66112cac9d5643`; это не новое runtime evidence. Resolve refs заново.
 
 | Область | Первоисточник |
 |---|---|
@@ -215,6 +215,6 @@ RECOVER принимает только строго разрешённые Task
 | CC command path | `ControlCenter/v20_admin_control.py`; `ControlCenter/v20_app.py`; `controller/cc07-v20-operator.ps1` |
 | CC READONLY path | `deployment/v20_live_export.py`; `cc/v20_receiver.py`; `cc/v20_contract.py` |
 | TRL | действующие Start Here, Closeout, Artifact Manifest, Research Methodology, Operating Cycle и primary research records |
-| Квалификация | действующий G4 gate и отложенные независимые acceptance records |
+| Квалификация | текущий Roadmap, KDR, принятые evidence records и остаточные gates |
 
 Перед применением заново разреши moving refs и проверь актуальные source paths. Эта карта не утверждает INSTALLED/LIVE состояние и не делает датированные evidence свежими.

@@ -4,7 +4,7 @@
   "date": "2026-11-26",
   "source_snapshot": "3eddebb4d915c7798a2d56d2230010933f553c81",
   "reference_main": "78767f6d684e2923561c1314b6466b464b7e1de6",
-  "status": "OWNER_DECISIONS_REVIEW_CANDIDATE",
+  "status": "C3_TRANSITION_HISTORICAL_MIRRORS_NOT_CURRENT",
   "original_draft_head": "a4af4cb72257f5c7cffd5d87d97e34438cf0fe46",
   "files": [
     {
@@ -18,21 +18,21 @@
       "file": "PROJECT_PASSPORT_CONTROL_CENTER.md",
       "source": "recovery/PROJECT_PASSPORT_CONTROL_CENTER.md",
       "blob": "61a7d34758fd372331d1d3d0049f9fbe8e3a9541",
-      "source_commit": null,
-      "authority": "CANDIDATE_SAME_TREE_SOURCE"
+      "source_commit": "2ac85eb5bcdd8757144898b5a27369329f4d125c",
+      "authority": "PINNED_MAIN_SOURCE"
     },
     {
       "file": "CONTROL_CENTER.md",
       "source": "recovery/kimi/CONTROL_CENTER.md",
       "blob": "3c6ce463cad187a9e03d4d0fec68ee9e27310a50",
-      "source_commit": null,
-      "authority": "CANDIDATE_SAME_TREE_SOURCE"
+      "source_commit": "2ac85eb5bcdd8757144898b5a27369329f4d125c",
+      "authority": "PINNED_MAIN_SOURCE"
     },
     {
       "file": "V20_START_HERE_SOURCE_MAP.md",
       "source": "ControlCenter/docs/V20_START_HERE_SOURCE_MAP.md",
       "blob": "2722096dfc2f8f404d31e9bed1efeac2ac932bfb",
-      "source_commit": "3eddebb4d915c7798a2d56d2230010933f553c81",
+      "source_commit": "2ac85eb5bcdd8757144898b5a27369329f4d125c",
       "authority": "PINNED_MAIN_SOURCE"
     },
     {
@@ -70,5 +70,6 @@
       "source_commit": "3eddebb4d915c7798a2d56d2230010933f553c81",
       "authority": "PINNED_MAIN_SOURCE"
     }
-  ]
+  ],
+  "transition_note": "27.11.2026: passport/profile and CC Start Here snapshot explicitly pinned to accepted MAIN 2ac85eb5bcdd8757144898b5a27369329f4d125c. Existing backup bytes unchanged; current canonical source required. No export, installed Skill or recovery acceptance implied."
 }

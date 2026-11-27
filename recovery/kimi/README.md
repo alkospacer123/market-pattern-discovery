@@ -1,5 +1,6 @@
 # Kimi Phase II — три логических проекта знаний
 
+**Единый вход C3:** [V20](V20.md) · [Control Center](CONTROL_CENTER.md) · [TRL](TRL.md). Профильные карты сокращены; параметры, статус и хронология принадлежат каноническим документам. Исторические профили доступны по immutable pins из каждой карты. [STATUS](../STATUS.md) — актуальная очередь; [memory](memory/README.md) — временный исторический резерв и переход к экспорту. Не путать подготовку документации с отключением Skills.
 ## C3 — переход к единой базе знаний (27.11.2026, candidate)
 
 - Рабочая очередь и статус: [Roadmap](../../ROADMAP.md), [Recovery STATUS](../STATUS.md). Актуальный MAIN устанавливается при каждой содержательной задаче; dated checkpoints ниже — история.
@@ -63,6 +64,6 @@ MAIN != INSTALLED != LIVE != RESEARCH != ARCHIVE. Никаких DPAPI, FINAM cr
 ## Critical Operations Contract и Skills
 
 - Общий вход: [Critical Operations Contract](../CRITICAL_OPERATIONS_CONTRACT.md). Перед критической задачей требуются контракт и **релевантные** Skills, не обязательно все пять.
-- Канонические редакции: `recovery/kimi/skills/<name>/SKILL.md`. Резервные копии в `recovery/kimi/memory/{V20,ControlCenter,TRL}/skills/` должны быть побайтово идентичны соответствующему canonical файлу; одинаковые bytes имеют одинаковый Git blob SHA.
+- Канонические редакции: `recovery/kimi/skills/<name>/SKILL.md`. Резервные копии в `recovery/kimi/memory/{V20,ControlCenter,TRL}/skills/` должны соответствовать точному source_commit/blob своей версии; одинаковые bytes имеют одинаковый Git blob SHA. Historical pin не означает current MAIN.
 - Не редактируй backup самостоятельно. Старый `trl-reproducibility-review` не заменяет канонический `trl-repro-review`.
 - Фактическая загрузка Skill, чтение canonical `SKILL.md` как `SOURCE_FALLBACK` и наличие backup — разные проверки. Manifest не доказывает установку или qualification.

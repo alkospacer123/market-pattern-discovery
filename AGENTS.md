@@ -1,5 +1,6 @@
 # Trading Systems — действующий общий AGENTS для GPT/Codex и Kimi Code
 
+**C3 candidate 27.11.2026 — маршрут двух ИИ:** начни с профильного STATUS и необходимых записей JOURNAL, затем применимого AGENTS/COC и точного source path. [V20](recovery/kimi/V20.md) · [CC](recovery/kimi/CONTROL_CENTER.md) · [TRL](recovery/kimi/TRL.md). Паспорта — устойчивые карты, не копии меняющихся параметров. Общая методика Git — этот AGENTS; HANDOFF — существующий [протокол](recovery/kimi/EXAM_AND_HANDOFF.md); профильные требования — документы систем. Skills пока обязательны по релевантности; маршрут без установленных Skills — только после проверки покрытия, fallback и решения владельца. Полномочия не расширяются.
 **Решения владельца 26.11.2026:** адаптировать ИИ к работающим системам, не изменять системы ради экзаменов. Для новых TRL-расчётов только C1; три исследования и критерии — [методология](TradingResearchLab/research/RESEARCH_METHODOLOGY.md). #601 подготовить к all-three установке, #602 оставить для планового обновления; [V20](recovery/PROJECT_PASSPORT_V20.md) и [CC](recovery/PROJECT_PASSPORT_CONTROL_CENTER.md). Не разрешение на deploy, ARM, FINAM или Merge.
 
 **Проверенный контур этапа I, 22.11.2026, после Merge #589.** [Реестр действующих и исторических документов](recovery/DOCUMENTATION_AUTHORITY_2026-11-22.md) задаёт приоритет, а каждый указанный Git SHA — свидетельство своего датированного среза, не постоянный HEAD. Заменяет старый корневой Research safety contract как универсальную инструкцию. Исходный текст и старый Market Pattern Discovery остаются в Git history и исторических документах. Для проекта сначала прочитать [README](README.md), [срез](recovery/REPOSITORY_CURRENT_STATE.md), [паспорт V20](recovery/PROJECT_PASSPORT_V20.md) / [CC](recovery/PROJECT_PASSPORT_CONTROL_CENTER.md) / [TRL](recovery/PROJECT_PASSPORT_TRL.md).
@@ -25,7 +26,7 @@
 
 ## Kimi, архив и восстановление
 
-- Три логических проекта Kimi Chat используют один MAIN с разными паспортами. Kimi Code — отдельная реальная code/GitHub интеграция, обязательны экзамен, отдельная ветка, peer review и handoff GPT↔Kimi.
+- Три логических проекта Kimi Chat используют один MAIN с разными паспортами. Kimi Code — основной технический исполнитель в согласованной среде; Chat — знания/аналитика, Work — резерв. Принятые G0–G6/A/B проверки не повторять; остаточные evidence gaps и допуск — по [Roadmap](ROADMAP.md). Отдельная ветка, peer review и handoff GPT↔Kimi остаются.
 - `market-pattern-archive` — опциональная вспомогательная публичная история, **не** обязательная зависимость V20/CC/TRL и **не** полный backup. Нельзя удалять до проверки полноты будущего Recovery; не делать туда массовую публикацию без privacy-аудита.
 - Финальный Recovery вне Intel, основного SSD, GitHub и обеих ИИ с SHA, Git refs, PR/Issues/CI, оригиналами TRL, защищёнными конфигами и реальным cold restore — в конце.
 
@@ -39,7 +40,7 @@ The single *designated source checkout* for Kimi Code on Intel is `C:\KimiSandbo
 
 - Перед критической задачей V20/CC/TRL прочитай [единый контракт](recovery/CRITICAL_OPERATIONS_CONTRACT.md) и применяй релевантные Skills; чтение всех пяти без необходимости не требуется.
 - Контракт — hazard-directed conformance matrix, не runtime authorization. Проверенный SOURCE и фактические gates сохраняют приоритет; противоречие фиксируй как `SOURCE_DRIFT` и останавливай зависимый вывод.
-- Для Git identity используй `github-source-audit`; для передачи — `ai-engineering-handoff`. Установленный Skill, канонический Markdown fallback и backup копия — разные состояния.
+- Для Git identity — общий порядок ниже; для передачи — [HANDOFF](recovery/kimi/EXAM_AND_HANDOFF.md). До приёмки C3 дополнительно применяй релевантные действующие Skills. Установленный Skill, canonical Markdown fallback и backup — разные состояния.
 
 ## Проверка источников — общий порядок (C3 candidate)
 

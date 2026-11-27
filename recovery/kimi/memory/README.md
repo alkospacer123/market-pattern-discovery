@@ -1,5 +1,7 @@
 # Kimi — три резервные базы знаний
 
+**C3 routing transition 27.11.2026:** six passport/profile copies and CC Start Here explicitly pinned to accepted MAIN `2ac85eb5bcdd8757144898b5a27369329f4d125c`. Together with four TRL method snapshots: 11 historical pins, 18 matching current canonical bytes. All 29 backup files retained (553869 bytes); current authoritative reads required, export/fallback still pending. Verify actual manifest/tree at subsequent refs.
+
 ## C3 — план прекращения зеркалирования (27.11.2026, candidate)
 
 В pinned дереве [95637f5…](https://github.com/alkospacer123/market-pattern-discovery/blob/95637f5bea33a93b856d5aea9565538712d3ad99/recovery/kimi/memory) подтверждены 29 побайтовых копий (V20 8, ControlCenter 9, TRL 12; 553869 bytes суммарно), каждая имеет идентичный Git blob вне memory/. Все три существующие MANIFEST.json содержат file/source/blob/source_commit/authority. Это не доказательство фактического доступа Kimi к fallback или измеренной экономии квоты.

@@ -4,7 +4,7 @@
   "date": "2026-11-26",
   "source_snapshot": "3eddebb4d915c7798a2d56d2230010933f553c81",
   "reference_main": "78767f6d684e2923561c1314b6466b464b7e1de6",
-  "status": "OWNER_DECISIONS_REVIEW_CANDIDATE",
+  "status": "C3_TRANSITION_HISTORICAL_MIRRORS_NOT_CURRENT",
   "original_draft_head": "a4af4cb72257f5c7cffd5d87d97e34438cf0fe46",
   "files": [
     {
@@ -18,15 +18,15 @@
       "file": "PROJECT_PASSPORT_V20.md",
       "source": "recovery/PROJECT_PASSPORT_V20.md",
       "blob": "433e9ebeed832f3b4684046f11c8f6df8952e24f",
-      "source_commit": null,
-      "authority": "CANDIDATE_SAME_TREE_SOURCE"
+      "source_commit": "2ac85eb5bcdd8757144898b5a27369329f4d125c",
+      "authority": "PINNED_MAIN_SOURCE"
     },
     {
       "file": "V20.md",
       "source": "recovery/kimi/V20.md",
       "blob": "2e3db9670a79ac3219e832156b843daeb3bcbc83",
-      "source_commit": null,
-      "authority": "CANDIDATE_SAME_TREE_SOURCE"
+      "source_commit": "2ac85eb5bcdd8757144898b5a27369329f4d125c",
+      "authority": "PINNED_MAIN_SOURCE"
     },
     {
       "file": "R088_ARCHITECTURE_AND_SAFETY_20261122.md",
@@ -63,5 +63,6 @@
       "source_commit": "3eddebb4d915c7798a2d56d2230010933f553c81",
       "authority": "PINNED_MAIN_SOURCE"
     }
-  ]
+  ],
+  "transition_note": "27.11.2026: passport/profile and any earlier TRL method snapshot entries explicitly pinned to accepted MAIN 2ac85eb5bcdd8757144898b5a27369329f4d125c. Existing backup bytes unchanged; canonical current source required. No export, installed Skill or recovery acceptance implied."
 }
