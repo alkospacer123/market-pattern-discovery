@@ -32,9 +32,9 @@
 
 **Количество старых файлов — не критерий мусора.** Для удаления нужны точный список, зависимость, сохранённый первоисточник/провананс, offline-тесты и отдельное разрешение. При UNKNOWN оставить.
 
-## Kimi Code Windows workspace and access gate — 23.11.2026
+## Kimi Code Windows workspace and access gate — 27.11.2026
 
-The single *designated source checkout* for Kimi Code on Intel is `C:\KimiSandbox\market-pattern-discovery`; see [Windows workspace and phased access policy](recovery/kimi/WINDOWS_WORKSPACE_AND_ACCESS.md). This local directory is **not** an OS sandbox: any unreviewed runtime tests/dependency installation require approved separate execution (isolated VM or no-secret CI). The three Kimi projects may share GitHub knowledge but not LIVE permissions. The former external D: checkout is retired. After practical exams the operator may authorize scoped read-only access to non-secret production data, while deploy, FINAM actions, HALT/ARM, code writes in LIVE and unknown-result retries remain independently gated. Preserve `Always Ask` and equivalent approvals in Work; optional Computer Use/Browser Extension must not silently gain LIVE authority.
+По решению владельца 27.11.2026 `C:\KimiSandbox\market-pattern-discovery` — временный учебный checkout, не обязательная постоянная среда. Действующая политика перехода и выбора каталога по задаче — [Windows workspace and access policy](recovery/kimi/WINDOWS_WORKSPACE_AND_ACCESS.md). Kimi Code должен самостоятельно исполнять согласованные инженерные операции в существующих рабочих каталогах; исходники для изменений — в подходящей Git-ветке/рабочей копии по необходимости, не в работающем runtime. До отдельного допуска разрешены только явно согласованные source/READONLY проверки. Не удалять учебную копию до проверки уникальных файлов, Git history, безопасного fallback и отдельного разрешения владельца. Рабочий каталог не OS sandbox; испытания с исполнением проектного кода — только в согласованной изолированной среде. Сохраняются Always Ask, отдельные approvals на запись, Merge, deploy, FINAM, ARM/HALT, запрет слепого повтора неизвестного результата и все COC gates. D: учебный checkout не восстанавливать. Решение о целевой архитектуре не предоставляет новых полномочий.
 
 ## Critical Operations Contract
 
