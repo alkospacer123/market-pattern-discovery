@@ -2,7 +2,9 @@
 
 **Аудит 22.11.2026, GitHub контрольный commit:** `41d0b48c1d33db29bc1b19497d558748b3db8fb4`. Это зафиксированный срез *до* документационного PR. При изменении `main` заново сверять `git rev-parse HEAD` и нужные Git blob SHA. **Аудит проверяет GitHub Markdown, а не Intel/LIVE и не full cold restore**.
 
-## 1. Правило приоритета (GPT, Kimi Chat, Kimi Code)
+**Уточнение 27.11.2026:** этот аудит — исторический срез; действующий порядок задаёт [AGENTS](../AGENTS.md), актуальная очередь — [Roadmap](../ROADMAP.md), [Recovery STATUS](STATUS.md) и профильные STATUS/JOURNAL. Этап II принят (FULL_PARITY_OWNER_ADMITTED), старые экзаменационные статусы ниже не являются текущей очередью. Не переоткрывать принятые испытания. Исторические доказательства ниже сохранены.
+
+## 1. Правило приоритета на дату аудита 22.11 (историческое)
 
 1. [Корневой AGENTS](../AGENTS.md): общие методы, полномочия, LIVE-безопасность, ZERO LOOK-AHEAD.
 2. [Корневой README](../README.md) → [Roadmap](../ROADMAP.md) → [текущий GitHub snapshot](REPOSITORY_CURRENT_STATE.md): цели и фактически завершённые PR.
