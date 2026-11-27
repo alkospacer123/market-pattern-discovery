@@ -4,14 +4,14 @@
 
 **SOURCE checkpoint**: `market-pattern-discovery/main` = `0e569be6cb3c7cce1f7224e7f1fef6be38f6ba52` (Merge #591, проверен через GitHub API 22.11). Это зафиксированный базовый срез для данного документа, а не вечный HEAD. **Никаких изменений Intel/FINAM/LIVE не выполнялось.**
 
-## Рабочий маршрут — C3.2, 27.11.2026
+## Действующий рабочий маршрут — 27.11.2026
 
-Начинай с [STATUS](STATUS.md), общего/профильного AGENTS и применимого COC, заново разреши MAIN. Далее только необходимые release/паспорт, source map, test evidence и runbook. Полный перечень ниже — навигация, не обязательная загрузка всех документов каждый раз.
+Начинай с [STATUS](STATUS.md), релевантного [JOURNAL](JOURNAL.md), общего/профильного AGENTS и применимого COC, заново разреши MAIN. Далее только необходимые release/паспорт, source map, test evidence и runbook. Полный перечень ниже — навигация, не обязательная загрузка всех документов каждый раз.
 
 1. [Общий AGENTS](../AGENTS.md) → [реестр полномочий документации](../recovery/DOCUMENTATION_AUTHORITY_2026-11-22.md) → [паспорт V20](../recovery/PROJECT_PASSPORT_V20.md). Общие полномочия и границы.
 2. [Проектный AGENTS](AGENTS.md) → [R088 LIVE release от 20.11](V20-08/LIVE_RELEASE_R088_20261120_RU.md). Выбранные правила, физическое **датированное** подтверждение, девять patch names и ограничения.
 3. [R088 ARCHITECTURE / SOURCE MAP / RISK / SAFETY](R088_ARCHITECTURE_AND_SAFETY_20261122.md). Операционный код, два связанных Git Python-модуля, SQLite/H1/M15, предохранители, CC-07/CC-08.
-4. [R088 TEST / REPRODUCIBILITY / EXAM](R088_OFFLINE_EXAM_20261122.md). Offline-only команды, ожидаемые Git blob SHA и отрицательные тесты; экзамен для Kimi Code.
+4. [R088 TEST / REPRODUCIBILITY / EXAM](R088_OFFLINE_EXAM_20261122.md). Offline-only команды, датированные ожидаемые Git blob SHA и отрицательные тесты; исторический протокол экзамена, применять только нужные проверяемые тесты, не повторять квалификацию.
 5. [Инвентаризация документации и находки](V20_DOCUMENTATION_AUDIT_20261122.md). Для каждого сохранённого Markdown — `CURRENT`, `HISTORICAL`, `RESEARCH`, `SOURCE_EVIDENCE`, `SUPERSEDED` или `UNKNOWN`. Исторические материалы не переписываются.
 6. Только при конкретном вопросе: [операторский runbook V20-08.5](V20-08/RUNBOOK_08_5_RU.md), [исторический этапный Roadmap](docs/ROADMAP_DETAILED_RU.md), [исходный frozen-сигнальный SOURCE_MAP 22.10](V20-04/SOURCE_MAP.md) и датированные R070/R088 исследования. Старые названия `CURRENT`, `Draft`, `TIME3`, `EXT2 ON`, `LIVE OFF` в них **не** задают R088.
 
