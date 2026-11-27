@@ -59,7 +59,7 @@ MAIN != INSTALLED != LIVE != RESEARCH != ARCHIVE. Никаких DPAPI, FINAM cr
 
 ## Kimi Code on Intel Windows — practical preparation (23.11.2026)
 
-[Windows workspace, GitHub access and staged permissions](WINDOWS_WORKSPACE_AND_ACCESS.md): the designated *source* checkout is `C:\KimiSandbox\market-pattern-discovery` on NTFS; the former temporary external `D:\KimiSandbox` was removed by the operator. Creating this folder and cloning Git does **not** establish a secure execution sandbox. Read-only source evaluation precedes isolated offline tests; successful examinations permit operator-approved graduated access to non-secret production evidence, not automatic LIVE control. Monthly Pro is the capacity pilot before annual Pro/Max; local Windows acceptance is still pending.
+Historical onboarding (23.11.2026): the NTFS training checkout was `C:\KimiSandbox\market-pattern-discovery`; the former external `D:\KimiSandbox` was removed by the operator. This folder is not an OS sandbox. The [current Windows workspace policy](WINDOWS_WORKSPACE_AND_ACCESS.md) supersedes the permanent checkout requirement: task-specific workspaces, existing systems unchanged, safe fallback and separate owner approval before training-copy removal. No automatic LIVE control; dated subscription/acceptance checkpoints are historical.
 
 ## Critical Operations Contract и канонические источники
 

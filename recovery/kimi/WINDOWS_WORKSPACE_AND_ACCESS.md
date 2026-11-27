@@ -3,6 +3,18 @@
 **C3 checkpoint 27.11.2026:** B1/B2 приняты владельцем в ограниченном scope: Code designated checkout и READONLY task, manual approve/deny, остановка inert background task, operator-confirmed reconnect. Mobile UI stop/revoke/unknown-outcome и OS isolation не доказаны; не считать sandbox directory security boundary. [Roadmap](../../ROADMAP.md) · [KDR](KIMI_DEFECTS_AND_REMEDIATION_REGISTER.md). Старые stages/exam/subscription checkpoints ниже исторические, не очередь повторных заданий. Критические действия требуют собственных полномочий; одинаковые правила для GPT/Kimi.
 **Решение владельца 26.11.2026 — рабочие роли Kimi.** Kimi Chat — основное общение, знания, обсуждение, аналитика и планирование; Kimi Code — основной технический исполнитель (Intel, V20, Control Center, TRL, GitHub, Python, PowerShell, тестирование, удалённая работа и Recovery); Kimi Work — резерв по необходимости, без параллельной адаптации и дублирования заданий. Владелец лично отмечает более стабильную удалённую работу Code с телефона; это не независимый тест и не полный допуск. B1/B2 выполняются через Code. Действующие полномочия и LIVE safety неизменны. [Действующий Roadmap](../../ROADMAP.md). Датированные исторические сведения ниже сохраняются; резервный Work проверяется только при фактической необходимости.
 
+## Действующая политика перехода C3.3.5 — решение владельца 27.11.2026
+
+Цель — Kimi Code самостоятельно выполняет согласованные инженерные задачи на Intel вместо ручного выполнения владельцем PowerShell/Python, без перестройки действующих систем. `C:\KimiSandbox\market-pattern-discovery` — временный учебный checkout, кандидат на вывод из эксплуатации; не обязательная постоянная копия и не граница доступа Windows. До окончания перехода его сохранять как доступный источник/fallback, не обновлять ради формальности. Для каждой задачи определять host, фактический рабочий каталог, source identity, разрешённые операции и пределы доступа.
+
+- SOURCE: актуальный MAIN или явно pinned ref через разрешённый GitHub/локальные Git-объекты. При разработке — отдельная ветка и проверяемая рабочая копия по необходимости; одну правку не разрабатывать дважды. Не считать production Git-worktree и не выполнять там `git pull`.
+- V20 `C:\V20Lab` и Control Center `C:\Control Center`: существующие установленные системы остаются на месте. После соответствующего допуска — чтение разрешённых несекретных файлов и диагностика; backup, запись установленных файлов, deploy, управление процессами и ARM/HALT только после отдельного согласования и проверок COC, включая backup/rollback и фактическую сверку. Kimi исполняет согласованную установку сам, не правит работающий runtime без протокола обновления.
+- TRL: использовать фактически подтверждённые рабочие исследовательские каталоги и данные в согласованной программе и безопасном контуре. Не считать исторические H1/M15 каталоги автоматически разрешёнными средами исполнения. Сохранять зависимости, исследования и provenance. Исполняемые тесты и установка зависимостей требуют отдельно согласованного изолированного исполнителя.
+- C3.3.5: READONLY инвентаризация учебного каталога (включая untracked/ignored, stash, локальные refs и неопубликованные коммиты), проверка актуального GitHub и профильных маршрутов, проверка существования известных рабочих каталогов без чтения production-содержимого. Не читать секреты. Не удалять/перемещать файлы, не менять Windows/production, не запускать проектный код. При неизвестной сохранности — BLOCKED. До удаления доказать сохранность уникальной работы, истории и доступность безопасного fallback всех трёх проектов; отдельное разрешение владельца на удаление обязательно.
+- C3.4: закрыть обязательные evidence gaps, подтвердить безопасный доступ к необходимым локальным данным и итоговый режим работы; FULL_PARITY только по явному решению владельца. Не расширять доступ, пока не выполнены соответствующие gates. Always Ask и COC действуют независимо от каталога/ИИ. Ни один этап не даёт автоматического LIVE-допуска.
+
+Датированные разделы ниже — история подготовки и принятых evidence; не текущие требования к обязательному checkout, подписке или повторному экзамену. Действующие safety gates сохранены.
+
 ## G6.4 / G6.5 documentation checkpoint — 25.11.2026; G6.5.1 correction
 
 **Current SOURCE BASE:** `market-pattern-discovery/main@e05bbd24db88f127a52f0ff1b7282d7c6919cd81`.
@@ -20,10 +32,10 @@ G6.5.1 preserves the original commit and adds one corrective commit to existing 
 
 **Status (2026-11-23): SOURCE_CHECKOUT_PASS_OPERATOR_OUTPUT / KIMI_EXAMS_NOT_RUN / OFFLINE_EXECUTOR_NOT_READY / LIVE_UNKNOWN.** The operator supplied Windows PowerShell output confirming the checkout and clean source tree. This document is not evidence of Kimi tool access, actual Windows isolation, tests, installed release or LIVE state. Approved source baseline for preparation: `market-pattern-discovery/main@1413273a1a312802a0ced7a06a4eb73f050d2ec3`; always recheck the actual HEAD when work begins.
 
-## 1. Single source and workspace
+## 1. Single source and workspace — historical onboarding baseline
 
 - Canonical approved **source**: `alkospacer123/market-pattern-discovery` / `main` with commit and blob SHA evidence. `main` is not the production installation.
-- **Only designated Kimi Code source checkout on Intel Windows**: `C:\KimiSandbox\market-pattern-discovery` (NTFS). One checked-out repository containing the three logical knowledge projects: `V20_TradingSystem_M15/`, `ControlCenter/`, `TradingResearchLab/`; retain `TradingSystemLab/`, `IntradayLab/`, `audit_only/` as verified dependencies, plus `recovery/`, `.github/` and root instructions. Sparse checkout is acceptable; *missing paths are not evidence that Git history was deleted*.
+- **Historical onboarding source checkout on Intel Windows (superseded by C3.3.5 policy above)**: `C:\KimiSandbox\market-pattern-discovery` (NTFS). One checked-out repository containing the three logical knowledge projects: `V20_TradingSystem_M15/`, `ControlCenter/`, `TradingResearchLab/`; retain `TradingSystemLab/`, `IntradayLab/`, `audit_only/` as verified dependencies, plus `recovery/`, `.github/` and root instructions. Sparse checkout is acceptable; *missing paths are not evidence that Git history was deleted*.
 - Temporary `D:\KimiSandbox\market-pattern-discovery` was removed by the operator; `D:` is external Expansion/exFAT, not the permanent Kimi workspace. Do not recreate it. **Do not treat a removable SSD as a sandbox or use Recovery media for agent experimentation.**
 - Production `C:\V20Lab`, `C:\Control Center`, `C:\TradingSystemLab`, `C:\IntradayLab` (and any FINAM/DPAPI/account configuration) are **not** Kimi Code working trees. Do not use `git pull`, package installation, tests, diagnostics or cleanup inside these directories as part of onboarding.
 - A folder on `C:` is a **working-copy boundary**, not an OS privilege or execution boundary. With the same Windows account Kimi tools may access other paths unless separately restricted.
@@ -32,7 +44,7 @@ G6.5.1 preserves the original commit and adds one corrective commit to existing 
 
 **Before subscription:** GitHub source/documents verified; Kimi Code authenticated under the same account and `Always Ask` selected, per operator. Kimi OAuth application found, with broad repository scope. OAuth authorization does **not** prove actual Kimi Work/Code tool reads. Windows operator command confirmed `C:` checkout HEAD `1413273a1a312802a0ced7a06a4eb73f050d2ec3`, required files and clean worktree; Kimi Code opening the workspace and all tests remain **NOT TESTED**.
 
-**Stage A — source exam:** Read repository files, inspect Git SHA/history, classify active versus historical and missing artifacts. Do not assume Kimi Chat projects, Work plugins and Code share instructions automatically. Three logical projects have different passports. Kimi Code starts in the sole approved checkout. Kimi GitHub work is on a task branch; require approval for writes, PR, merge.
+**Stage A — historical source exam:** Read repository files, inspect Git SHA/history, classify active versus historical and missing artifacts. Do not assume Kimi Chat projects, Work plugins and Code share instructions automatically. Three logical projects have different passports. During onboarding Kimi Code started in the designated training checkout; the C3.3.5 policy above supersedes this workspace requirement. GitHub changes use a task branch; require approval for writes, PR, merge.
 
 **Stage B — offline execution exam:** Tests that execute arbitrary project code or install dependencies require a separate, genuinely isolated executor (e.g. approved GitHub-hosted Actions with no broker secrets or a separately configured disposable VM). No initial execution of unreviewed scripts on production Intel, even inside `C:\KimiSandbox`. Capture commands, stdout/stderr, exit codes, versions, source commit and diff. Network/broker operations prohibited for tests. If isolation or data is absent: `BLOCKED`, not `PASS`.
 
@@ -52,7 +64,7 @@ G6.5.1 preserves the original commit and adds one corrective commit to existing 
 
 ## 5. Acceptance and subscription decision
 
-Required evidence to declare `C_SOURCE_WORKSPACE_READY`:
+Historical evidence required to declare the onboarding `C_SOURCE_WORKSPACE_READY` (not a mandatory permanent workspace after transition):
 1. `C:` is NTFS with adequate free space, working tree physically at `C:\KimiSandbox\market-pattern-discovery`.
 2. `git rev-parse HEAD` matches the explicitly pinned commit or a newly approved exact base.
 3. `git status --porcelain` is empty, required root instructions, V20, CC, TRL and shared dependencies are present.
