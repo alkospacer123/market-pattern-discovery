@@ -24,7 +24,7 @@
 
 ### 27.11.2026 — C2 закрыт по решению владельца
 
-GPT / GitHub documentation. Владелец отменил E6A/E6B Code High/Max и дальнейшие ресурсные прогоны; SKIPPED_BY_OWNER, не PASS. High штатно, Max для сложных задач; оставить только необходимые Skills/plugins. Результаты и пределы измерений — [Roadmap, C2](../ROADMAP.md#c2-ресурсная-оптимизация--closed_owner_20261127-не-g9-pass). Точная экономия не установлена. Следующий шаг — C3: очистить GitHub до обновления знаний Kimi. Настройки и LIVE не изменены; удаления, Merge и полный допуск остаются отдельными решениями.
+GPT / GitHub documentation. Владелец отменил E6A/E6B Code High/Max и дальнейшие ресурсные прогоны; SKIPPED_BY_OWNER, не PASS. High штатно, Max для сложных задач; оставить только необходимые Skills/plugins. Результаты и пределы измерений — [Roadmap, C2](https://github.com/alkospacer123/market-pattern-discovery/blob/e6af923ace80b6a97cb4b9c246a9f7829cdf7574/ROADMAP.md#c2-ресурсная-оптимизация--closed_owner_20261127-не-g9-pass). Точная экономия не установлена. Следующий шаг — C3: очистить GitHub до обновления знаний Kimi. Настройки и LIVE не изменены; удаления, Merge и полный допуск остаются отдельными решениями.
 
 ### 27.11.2026 — C3.1 общий перенос, CI blocker
 
