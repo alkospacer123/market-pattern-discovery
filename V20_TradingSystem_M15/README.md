@@ -1,4 +1,4 @@
-> **Актуально для Kimi с 21.11.2026:** [паспорт V20](../recovery/PROJECT_PASSPORT_V20.md), [R088 release](V20-08/LIVE_RELEASE_R088_20261120_RU.md), [проектный AGENTS](AGENTS.md). Старые разделы ниже — исторические свидетельства; не авторизуют LIVE.
+> **Действующий вход 27.11.2026 — FULL_PARITY_OWNER_ADMITTED:** проверь актуальный MAIN/рабочий ref, [общий AGENTS](../AGENTS.md), [STATUS](STATUS.md) и последние релевантные [JOURNAL](JOURNAL.md); затем [паспорт V20](../recovery/PROJECT_PASSPORT_V20.md), [R088 release](V20-08/LIVE_RELEASE_R088_20261120_RU.md), [проектный AGENTS](AGENTS.md) и применимый COC. Старые разделы ниже — датированные свидетельства; не авторизуют LIVE.
 
 # V20 Trading System M15 — R088 LIVE source и исторические исследования
 
@@ -6,7 +6,7 @@
 
 ## Начните здесь — GPT / Kimi Chat / Kimi Code
 
-**[KIMI START HERE](KIMI_START_HERE_R088.md)** — порядок чтения и пять состояний. Затем [архитектура / карта девяти патчей / риски / safety](R088_ARCHITECTURE_AND_SAFETY_20261122.md), [offline reproducibility / экзамен Kimi Code](R088_OFFLINE_EXAM_20261122.md), [инвентаризация 79 Markdown и разбор противоречий](V20_DOCUMENTATION_AUDIT_20261122.md). Канонические доказательства физической установки остаются в [R088 release](V20-08/LIVE_RELEASE_R088_20261120_RU.md). Общие правила — [AGENTS](AGENTS.md) и [паспорт V20](../recovery/PROJECT_PASSPORT_V20.md).
+**[KIMI START HERE](KIMI_START_HERE_R088.md)** — порядок чтения и пять состояний. Затем [архитектура / карта девяти патчей / риски / safety](R088_ARCHITECTURE_AND_SAFETY_20261122.md), [offline reproducibility / исторический протокол экзамена](R088_OFFLINE_EXAM_20261122.md) (использовать необходимые тесты, не повторять квалификацию), [инвентаризация 79 Markdown и разбор противоречий](V20_DOCUMENTATION_AUDIT_20261122.md). Канонические доказательства физической установки остаются в [R088 release](V20-08/LIVE_RELEASE_R088_20261120_RU.md). Общие правила — [AGENTS](AGENTS.md) и [паспорт V20](../recovery/PROJECT_PASSPORT_V20.md).
 
 ## Исторические решения и результаты V20-03/V20-04 (не новое LIVE-разрешение)
 
