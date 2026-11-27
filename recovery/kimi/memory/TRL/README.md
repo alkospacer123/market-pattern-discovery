@@ -1,9 +1,10 @@
 # Trading Research Lab — навигатор знаний
 
-C3: один канонический источник на знание. Этот каталог содержит только карту и manifest, а не копии источников. Начать с [общего маршрута](../../README.md), затем профильного STATUS и применимого AGENTS/COC. Читать только нужные документы на разрешённом pinned ref.
+C3: один канонический источник на знание. Этот каталог содержит только карту и manifest, а не копии источников. Начать с [общего маршрута](../../README.md), затем профильного STATUS, последних релевантных записей JOURNAL и применимого AGENTS/COC. Читать только нужные документы на разрешённом pinned ref.
 
 - [TRL.md](../../../../recovery/kimi/TRL.md)
 - [STATUS.md](../../../../TradingResearchLab/STATUS.md)
+- [journal/](../../../../TradingResearchLab/journal/) — датированные записи по ссылкам из STATUS.
 - [AGENTS.md](../../../../TradingResearchLab/AGENTS.md)
 - [PROJECT_PASSPORT_TRL.md](../../../../recovery/PROJECT_PASSPORT_TRL.md)
 - [RESEARCH_METHODOLOGY.md](../../../../TradingResearchLab/research/RESEARCH_METHODOLOGY.md)
