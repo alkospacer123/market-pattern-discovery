@@ -1,6 +1,8 @@
 # Kimi knowledge project — Control Center V20
 
-**C3 candidate, 27.11.2026.** Навигатор GPT/Kimi, не новая методика и не permission.
+**Статус 27.11.2026: FULL_PARITY_OWNER_ADMITTED.** Действующий допуск и пределы — в Roadmap и Recovery STATUS; предыдущие датированные экзаменационные ограничения не действуют. Общие COC и разрешения на конкретные операции сохраняются.
+
+**Рабочий навигатор, 27.11.2026.** Навигатор GPT/Kimi, не новая методика и не permission.
 
 1. [Общий AGENTS](../../AGENTS.md), [CC STATUS](../../ControlCenter/STATUS.md), [JOURNAL](../../ControlCenter/JOURNAL.md).
 2. [Паспорт](../PROJECT_PASSPORT_CONTROL_CENTER.md), [Start Here](../../ControlCenter/docs/V20_START_HERE_SOURCE_MAP.md), [CC-07](../../ControlCenter/docs/V20_CC07_COMMAND_CONTRACT.md), [CC-08](../../ControlCenter/docs/V20_CC08_OPERATIONS.md), [data/security/tests](../../ControlCenter/docs/V20_DATA_SECURITY_TESTS.md) — по конкретной задаче.
