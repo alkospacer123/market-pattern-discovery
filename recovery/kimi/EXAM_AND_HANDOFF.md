@@ -1,5 +1,26 @@
 # Kimi Chat + Kimi Code — практический экзамен и GPT ↔ Kimi handoff
 
+## Действующий рабочий маршрут — C3 candidate, 27.11.2026
+
+Текущий ход квалификации и решения владельца — [Roadmap](../../ROADMAP.md), [STATUS](../STATUS.md), [KDR](KIMI_DEFECTS_AND_REMEDIATION_REGISTER.md). Датированные разделы ниже — исторический протокол G0–G6, не очередь повторных экзаменов. A/B приняты в документированных пределах, C3 открыт; полный допуск не заявлен. Технические требования к HANDOFF применимы к обоим ИИ и людям; конкретный поставщик ИИ не получает исключительных полномочий.
+
+### Компактный протокол совместной работы
+
+- Инициализация: task ID, проект, проверяемая цель/критерии, scope/exclusions, действующие разрешения по операциям, actor/client/execution context, pinned MAIN/AUDITED_REF/PR base/head, предыдущий принятый checkpoint, failed attempts, defects, UNKNOWN. Применяй общий AGENTS, профильные источники и релевантный COC.
+- Ownership: один writer на scope; authority locator, actor, branch/paths/operations, expected base/head, issued/expires, lease state. При смене исполнителя — подтверждённая передача, не самоназначение. Перед записью проверяй scope, expiry, dirty state, конкурирующий writer, ожидаемый HEAD и технический compare-and-set/expected-ref guard. Не force-push и не повторяй unknown write. Неатомарная проверка HEAD/текстовый lease не доказывают технический lock. При недоступном обязательном guard — BLOCKED.
+- Выполнение: действительные действия, diff/identities, evidence и отрицательные результаты. Повторно используй прежнюю проверку только при совпадении объекта/bytes, конфигурации, зависимостей, метода, freshness и scope; иначе проверяй delta. Для P0 — actual call path, first side effect, target gate reachability, positive/negative witnesses и независимый oracle/known-bad mutation там, где требует контракт; только в разрешённой изоляции.
+- Checkpoint/HANDOFF при смене агента/чата, устойчивом результате, blocker, outage или перед рискованным допуском: цель/scope, permissions, pinned refs, changes, verification evidence, failures/UNKNOWN, ownership и следующий разрешённый шаг. Для полного record используй закреплённые формы ниже; compact record явно перечисляет опущенные секции/immutable annexes. Обновляй существующие STATUS/JOURNAL; не копируй документы.
+- Приёмка: non-author проверяет первоисточники, refs/diff, фактические changes, полномочия, ownership, provenance тестов, failures/conflicts и границы. Другой чат/модель не доказывают независимость; саморевью явно обозначай. ACCEPTED только проверенный scope; PARTIALLY_ACCEPTED — отделимая часть; REJECTED/PENDING при соответствующих пробелах. Handoff acceptance не равна TESTED/MERGED/INSTALLED/LIVE_PASS/QUALIFIED/COLD_RESTORE_PASS.
+- Разногласие решай evidence и минимальным различающим тестом, не голосованием моделей. Владелец определяет разрешение/риск, а не истинность факта. При отсутствии нового finding/evidence прекращай цикл ревью; P0 не компенсируется баллами.
+- Outage: восстанови принятый checkpoint и источники, проверь refs/freshness/dirty state, собственные права и ownership; in-flight operation без квитанции — UNKNOWN, не повторять до независимой сверки. Продолжай разрешённую автономную часть; обязательное независимое ревью не заменяй саморевью. При возврате — обратный HANDOFF.
+- Закрытие: результат/остаточный риск/решение владельца отдельно, подтверждённое освобождение lease, компактный STATUS/JOURNAL. Без автоматического Merge, deploy, ARM, FINAM, LIVE. Не передавай секреты, реальные account IDs или приватные артефакты.
+
+### Полные формы и долгосрочное восстановление
+
+Не переносить объёмные формы в каждый запрос. До окончательной приёмки C3 сохраняются полный [HANDOFF, acceptance и outage v1](https://github.com/alkospacer123/market-pattern-discovery/blob/95637f5bea33a93b856d5aea9565538712d3ad99/recovery/kimi/skills/ai-engineering-handoff/SKILL.md#6-универсальный-handoff) и [правила Recovery](https://github.com/alkospacer123/market-pattern-discovery/blob/95637f5bea33a93b856d5aea9565538712d3ad99/recovery/kimi/skills/ai-engineering-handoff/SKILL.md#10-долгосрочная-преемственность-и-recovery). Формы — спецификация, не реализованный валидатор. Полная запись: UTF-8 YAML 1.2 JSON subset, обязательные поля, UNKNOWN с причиной вместо выдуманных значений, уникальные IDs, ISO-8601 offset, проверка типов/ссылок/enum; parse alone не PASS. Не переносить старые результаты как новые. Для автономного пакета все обязательные locators должны разрешаться локально, а не только в GitHub. HANDOFF/ZIP/hash не доказывают cold restore; первый запуск OFF/READONLY/ISOLATED, без автоматической LIVE активации.
+
+Этот раздел — перенос общего рабочего порядка для C3 review, не отказ от действующих safety gates, не доказательство равнозначности всех подробностей Skill. Старые канонические файлы и backup пока не изменяются/не удаляются.
+
 ## G6.4 evidence checkpoint и граница G6.5 — 25.11.2026; исправление G6.5.1
 
 **Pinned SOURCE BASE:** `e05bbd24db88f127a52f0ff1b7282d7c6919cd81` (`main`, независимо разрешён через GitHub при подготовке G6.5).
