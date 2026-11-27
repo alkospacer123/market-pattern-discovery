@@ -2,6 +2,8 @@
 
 ## 27.11.2026 — текущий checkpoint Post-G9
 
+**Решение владельца: разовая предпусковая Evolution V20** после аудитов V20 и Control Center, до возврата к торговле. Scope и критерии — [Roadmap](../ROADMAP.md#post-g9-самостоятельная-диагностика-и-возврат-v20-в-эксплуатацию) и [методология](research/RESEARCH_METHODOLOGY.md). Это не месячный/квартальный цикл и не запуск трёх новых стратегий. После Recovery — полный штатный цикл по [Operating Cycle](OPERATING_CYCLE.md); согласованная программа TREND/MOMENTUM/VOLATILITY сохранена.
+
 Владелец 27.11.2026 утвердил `FULL_PARITY_OWNER_ADMITTED` для V20/CC/TRL; этап II принят в документированных пределах. [Roadmap](../ROADMAP.md), [Recovery STATUS](../recovery/STATUS.md), [KDR](../recovery/kimi/KIMI_DEFECTS_AND_REMEDIATION_REGISTER.md). #614 MERGED; итоговый документационный closeout — #615. Допуск не является разрешением на конкретные критические операции.
 
 C3.2 evidence (исторический срез)
