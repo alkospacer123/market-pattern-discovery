@@ -3,7 +3,9 @@
 **27.11.2026: FULL_PARITY_OWNER_ADMITTED.** Допуск и границы — Roadmap/Recovery STATUS. Общие COC и разрешения на операции неизменны.
 
 **Действующий маршрут 27.11.2026:** начни с [STATUS](../STATUS.md) и релевантного [JOURNAL](../JOURNAL.md), общего AGENTS/COC; ниже dated SOURCE map, проверяй актуальный ref/blob и #602 SOURCE fix отдельно от INSTALLED. Для задачи открывай только необходимые CC-07/CC-08/data-security документы. Kimi exam — историческое evidence, не повторять.
-**CURRENT SOURCE audit: 22.11.2026.** Baseline MAIN `0e569be6cb3c7cce1f7224e7f1fef6be38f6ba52`. Это точка проверки GitHub, НЕ доказательство состояния Intel/FINAM. Сначала прочесть [AGENTS](../../AGENTS.md), [паспорт Control Center](../../recovery/PROJECT_PASSPORT_CONTROL_CENTER.md), [правила источников](../../recovery/DOCUMENTATION_AUTHORITY_2026-11-22.md), затем этот документ.
+**HISTORICAL SOURCE audit: 22.11.2026.** Baseline MAIN `0e569be6cb3c7cce1f7224e7f1fef6be38f6ba52`. Это точка проверки GitHub, НЕ доказательство состояния Intel/FINAM. Сначала прочесть [AGENTS](../../AGENTS.md), [паспорт Control Center](../../recovery/PROJECT_PASSPORT_CONTROL_CENTER.md), [правила источников](../../recovery/DOCUMENTATION_AUTHORITY_2026-11-22.md), затем этот документ.
+
+**CURRENT SOURCE pointer, проверен 28.11.2026:** MAIN `a3aa48fee59b0a077794cccc5ae3eef33d62a6c5`. Актуальные Git blob: `v20_app.py` — `b255565b0267b111ecadf4bfb108ab997b577d66`; `cc/v20_contract.py` — `680a3c4b6344738f07b78aa5d6d361dcdca3d9e2`. Остальные восемь blob соответствуют датированной таблице ниже. Это SOURCE-only сведения, не INSTALLED/LIVE; исторические pins 22.11 сохранены без перезаписи.
 
 ## Архитектурные границы
 - **MAIN:** действующий V20 Streamlit entrypoint `ControlCenter/v20_app.py`. Три робота `v20-shallow`, `v20-obv`, `v20-inside` и вкладки «Главная / Журнал / Управление». `ControlCenter/app.py` — исторический CC-03/H1/M15 на 8501, **не** этот UI.
@@ -20,7 +22,7 @@
 
 **Отдельный альтернативный путь:** `v20_command_channel.py` + `controller/cc07_command_worker.py` — staged inbox/gateway с другим PIN и набором действий (в частности, без RECOVER). `v20_app.py` **не импортирует** эти компоненты. Их текущая установка на Intel **NOT_VERIFIED**, не включать второй канал рядом с admin adapter.
 
-## Код и точные Git blob SHA в MAIN
+## Исторический SOURCE audit 22.11.2026 — код и Git blob SHA
 
 | Назначение | Путь под `ControlCenter/` | Git blob |
 |---|---|---|
