@@ -12,14 +12,14 @@
 | II. A — GPT-OUTAGE | ENGINEERING_RESULTS_ACCEPTED_3_OF_3 / OWNER_ACCEPTED_20261126. Остаточные доказательства автономности сохранены в B/C. |
 | II. B — G8 + G9.6 | OWNER_ACCEPTED_BOUNDED_20261126. B1 синхронизация; B2 удалённая работа, approve/deny, остановка Code, переподключение; пределы доказательности ниже. |
 | II. C — G9.1–G9.5, G9.7–G9.8 | C1_AUDIT_COMPLETE / C2_CLOSED_OWNER_20261127 / C3.3.5_INVENTORY_COMPLETE_REVIEWED / KDR_OWNER_CLOSEOUT_20261127 / C3.4_COMPLETE / FULL_PARITY_OWNER_ADMITTED / G9_PASS_OWNER_ACCEPTED_20261127. Этап II принят владельцем в документированном scope. |
-| Post-G9 — V20 / CC / разовая Evolution V20 / release / ARM | V20 SOURCE-аудит и статическое ревью завершены ([Journal](V20_TradingSystem_M15/JOURNAL.md)); CC SOURCE-аудит и статическое ревью завершены ([CC Journal](ControlCenter/JOURNAL.md)); далее разовая Evolution; общий PR #617 без Merge до итогового решения, отдельные разрешения на исполнение, release и ARM. |
+| Post-G9 — V20 / CC / разовая Evolution V20 / release / ARM | V20 SOURCE-аудит и статическое ревью завершены ([Journal](V20_TradingSystem_M15/JOURNAL.md)); CC SOURCE-аудит и статическое ревью завершены ([CC Journal](ControlCenter/JOURNAL.md)); разовая Evolution завершена, GPT supported KEEP_CURRENT_V20 ([TRL Journal](TradingResearchLab/journal/2026-11-27-trl-knowledge-consolidation.md)); общий PR #617 без Merge до итогового решения, отдельные разрешения на исполнение, release и ARM. |
 | III — Independent Recovery | NOT_STARTED; после G9 PASS и ≥7 последовательных календарных суток штатной безаварийной эксплуатации V20 (3/3). |
 | TRL — полный штатный цикл | PENDING; после Recovery, ориентир 20.12.2026, не автоматический запуск. TREND/MOMENTUM/VOLATILITY сохранены для дальнейшей программы. |
 
 ## Единая очередь исполнения — решение владельца 26.11.2026
 
 1. Этап II завершён по решению владельца 27.11.2026. Датированные результаты ниже — evidence, не очередь повторных экзаменов.
-2. Post-G9: последовательные GitHub READONLY-аудиты в профильных Kimi Chat — V20, Control Center, затем разовая Evolution V20 (см. ниже); совместный отбор изменений. Kimi Code — локальная диагностика, согласованное исполнение, тесты и установка по отдельным полномочиям. #601 all-three, #602 плановый CC-only; ARM отдельно.
+2. Post-G9: последовательные GitHub READONLY-аудиты в профильных Kimi Chat — V20, Control Center, затем разовая Evolution V20 (см. ниже); совместный отбор изменений. Kimi Code — локальная диагностика, согласованное исполнение, тесты и установка по отдельным полномочиям. #601 all-three, #602 в согласованном CC rollout, V20 F6/CC H01 совместная state machine/pins; ARM отдельно.
 3. После ≥7 последовательных календарных суток безаварийной работы всех трёх — Independent Recovery.
 4. Затем полноценный штатный цикл TRL (Research/Evolution/Journal, месяц/квартал/год); отдельная программа TREND/MOMENTUM/VOLATILITY сохранена для дальнейшей эксплуатации, ориентир 20.12.2026 условен.
 5. Учебная копия не является штатной зависимостью, сохраняется до проверки сохранности уникальной работы и отдельного разрешения на удаление.
