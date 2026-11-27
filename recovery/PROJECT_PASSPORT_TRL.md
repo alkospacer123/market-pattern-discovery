@@ -6,7 +6,7 @@
 
 ## Канонические источники по задаче
 
-- [STATUS](../TradingResearchLab/STATUS.md), [Start Here](../TradingResearchLab/reports/TRL-NOV-2026-KIMI-START-HERE.md) — текущие решения, задачи, gates и источники.
+- [STATUS](../TradingResearchLab/STATUS.md), [journal/](../TradingResearchLab/journal/), [Start Here](../TradingResearchLab/reports/TRL-NOV-2026-KIMI-START-HERE.md) — текущие решения, задачи, gates и источники.
 - [Research Methodology](../TradingResearchLab/research/RESEARCH_METHODOLOGY.md) — единственный рабочий источник исследовательских правил, C1, направлений, критериев отбора, риска и доказательности.
 - [Operating Cycle](../TradingResearchLab/OPERATING_CYCLE.md), [Research Card](../TradingResearchLab/research/RESEARCH_CARD_TEMPLATE.md) — процесс/формат.
 - [November closeout](../TradingResearchLab/reports/TRL-NOV-2026-FINAL-CLOSEOUT.md), [Artifact manifest](../TradingResearchLab/reports/TRL-NOV-2026-ARTIFACT-MANIFEST.md) — принятые решения и исходные архивы; отсутствие originals не маскировать Markdown/reconstruction.
