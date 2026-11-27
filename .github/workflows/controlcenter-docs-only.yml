@@ -141,7 +141,58 @@ jobs:
               'recovery/kimi/memory/V20/Trading_Systems_Architecture_and_AI_Collaboration.md',
           }
           assert len(c3_paths)==19 and not c3_paths & coc_paths, 'CC_C3_ALLOWLIST_COUNT'
-          cross_project_docs=coc_paths|c3_paths
+          # Final reviewed C3 documentation paths; no wildcard.
+          c3_final_paths={
+              'ControlCenter/docs/V20_DATA_SECURITY_TESTS.md',
+              'ControlCenter/docs/V20_HEALTH_EXPOSURE_FIX_20261126.md',
+              'TradingResearchLab/AGENTS.md',
+              'TradingResearchLab/OPERATING_CYCLE.md',
+              'TradingResearchLab/STATUS.md',
+              'TradingResearchLab/journal/2026-11-27-trl-knowledge-consolidation.md',
+              'TradingResearchLab/research/RESEARCH_CARD_TEMPLATE.md',
+              'recovery/PROJECT_PASSPORT_CONTROL_CENTER.md',
+              'recovery/PROJECT_PASSPORT_TRL.md',
+              'recovery/PROJECT_PASSPORT_V20.md',
+              'recovery/kimi/WINDOWS_WORKSPACE_AND_ACCESS.md',
+          }
+          assert len(c3_final_paths)==11 and not c3_final_paths & (coc_paths|c3_paths), 'CC_C3_FINAL_ALLOWLIST_COUNT'
+          cross_project_docs=coc_paths|c3_paths|c3_final_paths
+          # Exact retirement inventory, NOT owner permission to delete. Only complete
+          # 29-file retirement in descendant of the reviewed draft; base and old blobs pinned.
+          c3_retire={
+              'recovery/kimi/memory/V20/Trading_Systems_Architecture_and_AI_Collaboration.md':('66325ca5e9264bf449cc73e9a6bfc2bd42a16db0','ddc333b21c73e6dc6f841231113c9d844dc665a6','recovery/kimi/Trading_Systems_Architecture_and_AI_Collaboration.md'),
+              'recovery/kimi/memory/V20/PROJECT_PASSPORT_V20.md':('433e9ebeed832f3b4684046f11c8f6df8952e24f','433e9ebeed832f3b4684046f11c8f6df8952e24f','recovery/PROJECT_PASSPORT_V20.md'),
+              'recovery/kimi/memory/V20/V20.md':('2e3db9670a79ac3219e832156b843daeb3bcbc83','2e3db9670a79ac3219e832156b843daeb3bcbc83','recovery/kimi/V20.md'),
+              'recovery/kimi/memory/V20/R088_ARCHITECTURE_AND_SAFETY_20261122.md':('376c0342b1bbbe50aaeb24cff959c0f37b1fd648','376c0342b1bbbe50aaeb24cff959c0f37b1fd648','V20_TradingSystem_M15/R088_ARCHITECTURE_AND_SAFETY_20261122.md'),
+              'recovery/kimi/memory/V20/LIVE_RELEASE_R088_20261120_RU.md':('641793d28566e0dfe81916a061f5cc92a35f12f0','641793d28566e0dfe81916a061f5cc92a35f12f0','V20_TradingSystem_M15/V20-08/LIVE_RELEASE_R088_20261120_RU.md'),
+              'recovery/kimi/memory/V20/skills/v20-safety-analysis/SKILL.md':('81880e77f97977c3067e923a8516ce52382475eb','81880e77f97977c3067e923a8516ce52382475eb','recovery/kimi/skills/v20-safety-analysis/SKILL.md'),
+              'recovery/kimi/memory/V20/skills/github-source-audit/SKILL.md':('320f3b558cee14b195ae0e8beb6ad392106f9359','320f3b558cee14b195ae0e8beb6ad392106f9359','recovery/kimi/skills/github-source-audit/SKILL.md'),
+              'recovery/kimi/memory/V20/skills/ai-engineering-handoff/SKILL.md':('d08ccc90065b19a8abff75646b64dd0318688bd9','d08ccc90065b19a8abff75646b64dd0318688bd9','recovery/kimi/skills/ai-engineering-handoff/SKILL.md'),
+              'recovery/kimi/memory/ControlCenter/Trading_Systems_Architecture_and_AI_Collaboration.md':('66325ca5e9264bf449cc73e9a6bfc2bd42a16db0','ddc333b21c73e6dc6f841231113c9d844dc665a6','recovery/kimi/Trading_Systems_Architecture_and_AI_Collaboration.md'),
+              'recovery/kimi/memory/ControlCenter/PROJECT_PASSPORT_CONTROL_CENTER.md':('61a7d34758fd372331d1d3d0049f9fbe8e3a9541','61a7d34758fd372331d1d3d0049f9fbe8e3a9541','recovery/PROJECT_PASSPORT_CONTROL_CENTER.md'),
+              'recovery/kimi/memory/ControlCenter/CONTROL_CENTER.md':('3c6ce463cad187a9e03d4d0fec68ee9e27310a50','3c6ce463cad187a9e03d4d0fec68ee9e27310a50','recovery/kimi/CONTROL_CENTER.md'),
+              'recovery/kimi/memory/ControlCenter/V20_START_HERE_SOURCE_MAP.md':('2722096dfc2f8f404d31e9bed1efeac2ac932bfb','2722096dfc2f8f404d31e9bed1efeac2ac932bfb','ControlCenter/docs/V20_START_HERE_SOURCE_MAP.md'),
+              'recovery/kimi/memory/ControlCenter/V20_CC08_OPERATIONS.md':('18be465651d3747abe99f669967e374cde616252','18be465651d3747abe99f669967e374cde616252','ControlCenter/docs/V20_CC08_OPERATIONS.md'),
+              'recovery/kimi/memory/ControlCenter/V20_CC07_COMMAND_CONTRACT.md':('729649f0fe60fe8cac7cf29cd281ce1dd28276c2','729649f0fe60fe8cac7cf29cd281ce1dd28276c2','ControlCenter/docs/V20_CC07_COMMAND_CONTRACT.md'),
+              'recovery/kimi/memory/ControlCenter/skills/cc-incident-audit/SKILL.md':('4ba0b325dd6ba7ee6129a3316b8313ea9fd7835d','4ba0b325dd6ba7ee6129a3316b8313ea9fd7835d','recovery/kimi/skills/cc-incident-audit/SKILL.md'),
+              'recovery/kimi/memory/ControlCenter/skills/github-source-audit/SKILL.md':('320f3b558cee14b195ae0e8beb6ad392106f9359','320f3b558cee14b195ae0e8beb6ad392106f9359','recovery/kimi/skills/github-source-audit/SKILL.md'),
+              'recovery/kimi/memory/ControlCenter/skills/ai-engineering-handoff/SKILL.md':('d08ccc90065b19a8abff75646b64dd0318688bd9','d08ccc90065b19a8abff75646b64dd0318688bd9','recovery/kimi/skills/ai-engineering-handoff/SKILL.md'),
+              'recovery/kimi/memory/TRL/Trading_Systems_Architecture_and_AI_Collaboration.md':('66325ca5e9264bf449cc73e9a6bfc2bd42a16db0','ddc333b21c73e6dc6f841231113c9d844dc665a6','recovery/kimi/Trading_Systems_Architecture_and_AI_Collaboration.md'),
+              'recovery/kimi/memory/TRL/PROJECT_PASSPORT_TRL.md':('1d51b98e1fce01302e5b3e26de5825bcf038af74','1d51b98e1fce01302e5b3e26de5825bcf038af74','recovery/PROJECT_PASSPORT_TRL.md'),
+              'recovery/kimi/memory/TRL/TRL.md':('d8fc1f8e4286c6aeb50461f7a757cecc0a46a426','d8fc1f8e4286c6aeb50461f7a757cecc0a46a426','recovery/kimi/TRL.md'),
+              'recovery/kimi/memory/TRL/TRL-NOV-2026-KIMI-START-HERE.md':('b0e316134eea8a2c62a6a2ae66dc282093fdbabe','b0e316134eea8a2c62a6a2ae66dc282093fdbabe','TradingResearchLab/reports/TRL-NOV-2026-KIMI-START-HERE.md'),
+              'recovery/kimi/memory/TRL/RESEARCH_METHODOLOGY.md':('a4a116693634eef034e2a30ad4162df0f860ecf9','a4a116693634eef034e2a30ad4162df0f860ecf9','TradingResearchLab/research/RESEARCH_METHODOLOGY.md'),
+              'recovery/kimi/memory/TRL/OPERATING_CYCLE.md':('edcb49586d03f20ea3e3ef47e70fceb831e2fa52','edcb49586d03f20ea3e3ef47e70fceb831e2fa52','TradingResearchLab/OPERATING_CYCLE.md'),
+              'recovery/kimi/memory/TRL/RESEARCH_CARD_TEMPLATE.md':('d7beaf6bfc6516047df91d1419585b1b0c45e796','d7beaf6bfc6516047df91d1419585b1b0c45e796','TradingResearchLab/research/RESEARCH_CARD_TEMPLATE.md'),
+              'recovery/kimi/memory/TRL/TRL-NOV-2026-ARTIFACT-MANIFEST.md':('725da79a35484a7385a8f9b98c3d7c59bc4e19e3','725da79a35484a7385a8f9b98c3d7c59bc4e19e3','TradingResearchLab/reports/TRL-NOV-2026-ARTIFACT-MANIFEST.md'),
+              'recovery/kimi/memory/TRL/TRL-NOV-2026-FINAL-CLOSEOUT.md':('ec06839fd233f9909eead53e82b9b7d1d7868fb8','ec06839fd233f9909eead53e82b9b7d1d7868fb8','TradingResearchLab/reports/TRL-NOV-2026-FINAL-CLOSEOUT.md'),
+              'recovery/kimi/memory/TRL/skills/trl-repro-review/SKILL.md':('9f0f1af3516e6eb6af48d7c434355150544e1476','9f0f1af3516e6eb6af48d7c434355150544e1476','recovery/kimi/skills/trl-repro-review/SKILL.md'),
+              'recovery/kimi/memory/TRL/skills/github-source-audit/SKILL.md':('320f3b558cee14b195ae0e8beb6ad392106f9359','320f3b558cee14b195ae0e8beb6ad392106f9359','recovery/kimi/skills/github-source-audit/SKILL.md'),
+              'recovery/kimi/memory/TRL/skills/ai-engineering-handoff/SKILL.md':('d08ccc90065b19a8abff75646b64dd0318688bd9','d08ccc90065b19a8abff75646b64dd0318688bd9','recovery/kimi/skills/ai-engineering-handoff/SKILL.md'),
+          }
+          assert len(c3_retire)==29
+          c3_indexes={f'recovery/kimi/memory/{p}/{n}' for p in ('V20','ControlCenter','TRL') for n in ('README.md','MANIFEST.json')}|{'recovery/kimi/memory/README.md'}
+          c3_reviewed='b50817d948b5503765117e8ab2b51793ee272dbd'
           assert doc_allowed('ControlCenter/STATUS.md')
           assert doc_allowed('ControlCenter/JOURNAL.md')
           assert not doc_allowed('ControlCenter/OTHER_JOURNAL.md')
@@ -179,9 +230,17 @@ jobs:
               assert not invalid, ('CC_SEALED_SOURCE_OR_HISTORICAL_DOC_CHANGED', sorted(invalid))
               return cc_delta
 
-          def validate_scope(changed,cc_pr_delta,candidate):
+          def validate_scope(changed,cc_pr_delta,candidate,cleanup_base=None,reviewed=None,ancestor=False):
               assert changed, 'CC_DOCS_NO_CHANGES'
+              deleted={p for p,s in changed.items() if s=='D'}
+              if deleted:
+                  assert deleted==set(c3_retire) and cleanup_base is not None and reviewed is not None and ancestor, 'CC_DOCS_DELETION_OR_RENAME_FORBIDDEN: exact C3 retirement only'
+                  assert c3_indexes.issubset(changed) and all(changed[p]=='M' for p in c3_indexes), 'CC_C3_INDEX_TRANSITION_REQUIRED'
+                  for p,(old,prior,source) in c3_retire.items():
+                      assert cleanup_base.get(p)==('100644','blob',old) and reviewed.get(p)==('100644','blob',prior), 'CC_C3_RETIRE_IDENTITY:'+p
+                      assert p not in candidate and regular_doc(candidate.get(source)), 'CC_C3_RETAIN_SOURCE:'+p
               for path,status in changed.items():
+                  if path in deleted: continue
                   assert status in ('A','M'), 'CC_DOCS_DELETION_OR_RENAME_FORBIDDEN:'+path
                   assert regular_doc(candidate.get(path)), 'CC_DOCS_NOT_REGULAR_BLOB:'+path
               paths=set(changed)
@@ -201,8 +260,8 @@ jobs:
                   return 'CC_ACTIVE_SOURCE'
               assert all(doc_allowed(p) for p in cc_changed), 'CC_DOCS_WRONG_CC_PATH'
               if paths-cc_changed:
-                  assert paths.issubset(cross_project_docs), ('CC_DOCS_WRONG_PATH',sorted(paths-cross_project_docs))
-                  return 'CROSS_PROJECT_COC_DOCS'
+                  assert (paths-deleted).issubset(cross_project_docs), ('CC_DOCS_WRONG_PATH',sorted(paths-deleted-cross_project_docs))
+                  return 'C3_EXACT_MIRROR_RETIREMENT' if deleted else 'CROSS_PROJECT_COC_DOCS'
               return 'CC_ONLY'
 
           # Calibrate the same predicates used below with harmless synthetic tree entries.
@@ -258,6 +317,21 @@ jobs:
           must_reject(lambda: validate_scope({admission:'M'},set(),{admission:normal}),'CC_DOCS_CI_PAIR_SCOPE')
           must_reject(lambda: validate_scope({cc_doc:'M','.github/workflows/controlcenter-docs-only.yml':'M'},{cc_doc},{cc_doc:normal,'.github/workflows/controlcenter-docs-only.yml':normal}),'CC_DOCS_WORKFLOW_AND_DOCUMENTS_MIXED')
 
+          # Final scope tests use the same predicate; unrelated/partial deletes fail closed.
+          final_fixture=c3_final_paths|{cc_doc}
+          scope_fixture(final_fixture,{p for p in final_fixture if p.startswith('ControlCenter/')},'CROSS_PROJECT_COC_DOCS')
+          retirement_changes={**{p:'D' for p in c3_retire},**{p:'M' for p in c3_indexes},cc_doc:'M'}
+          retirement_base={p:('100644','blob',x[0]) for p,x in c3_retire.items()}
+          retirement_reviewed={p:('100644','blob',x[1]) for p,x in c3_retire.items()}
+          retirement_candidate={p:normal for p in c3_indexes|{cc_doc}|{x[2] for x in c3_retire.values()}}
+          assert validate_scope(retirement_changes,{cc_doc},retirement_candidate,retirement_base,retirement_reviewed,True)=='C3_EXACT_MIRROR_RETIREMENT'
+          first=next(iter(c3_retire))
+          must_reject(lambda: validate_scope({p:s for p,s in retirement_changes.items() if p!=first},{cc_doc},retirement_candidate,retirement_base,retirement_reviewed,True),'CC_DOCS_DELETION')
+          must_reject(lambda: validate_scope({**retirement_changes,'recovery/kimi/skills/v20-safety-analysis/SKILL.md':'D'},{cc_doc},retirement_candidate,retirement_base,retirement_reviewed,True),'CC_DOCS_DELETION')
+          must_reject(lambda: validate_scope(retirement_changes,{cc_doc},retirement_candidate,retirement_base,retirement_reviewed,False),'CC_DOCS_DELETION')
+          must_reject(lambda: validate_scope(retirement_changes,{cc_doc},retirement_candidate,{},retirement_reviewed,True),'CC_C3_RETIRE_IDENTITY')
+          must_reject(lambda: validate_scope(retirement_changes,{cc_doc},{p:v for p,v in retirement_candidate.items() if p!=c3_retire[first][2]},retirement_base,retirement_reviewed,True),'CC_C3_RETAIN_SOURCE')
+
           # Two independent checks: frozen source protection (cumulative) and exact PR delta.
           frozen_files=cc_objects(objects(frozen))
           base_files=objects(base)
@@ -273,7 +347,9 @@ jobs:
               assert path not in changed, 'CC_DOCS_DUPLICATE_PATH:'+path
               changed[path]=status
           assert set(changed)==delta(base_files,candidate), 'CC_DOCS_FULL_DIFF_NOT_EXACT'
-          scope=validate_scope(changed,cc_pr_delta,candidate)
+          deleting=any(s=='D' for s in changed.values())
+          ancestor=deleting and subprocess.run(('git','merge-base','--is-ancestor',c3_reviewed,head),check=False).returncode==0
+          scope=validate_scope(changed,cc_pr_delta,candidate,base_files,objects(c3_reviewed) if ancestor else None,ancestor)
 
           # Read pinned Git blobs, not sparse working-tree files; cross-project docs stay checked.
           allpaths={p for p,e in candidate.items() if e[1]=='blob' and e[0] in ('100644','100755')}
@@ -288,7 +364,7 @@ jobs:
           linkcount=0
           bad=re.compile(r'-----BEGIN (?:RSA |EC |OPENSSH )?PRIVATE KEY-----|github_pat_[A-Za-z0-9_]{30,}|ghp_[A-Za-z0-9]{30,}|Authorization:\s*Bearer\s+[A-Za-z0-9_-]{35,}',re.I)
           for path in changed:
-              if not path.endswith(('.md','.json')): continue
+              if changed[path]=='D' or not path.endswith(('.md','.json')): continue
               content=git('show',f'{head}:{path}')
               if path.endswith('.md'):
                   for m in re.finditer(r'\]\(([^)]+)\)',content):
@@ -401,5 +477,123 @@ jobs:
         with:
           name: cc-active-source-${{ github.run_id }}-${{ github.run_attempt }}
           path: ${{ runner.temp }}/cc03-evidence/
+          if-no-files-found: error
+          retention-days: 30
+
+  c3-knowledge-audit:
+    name: C3 pinned knowledge export and dependency inventory (one-time)
+    needs: cc-documents-no-live
+    if: needs.cc-documents-no-live.outputs.scope == 'CI_ONLY' && github.event.pull_request.base.sha == '2ac85eb5bcdd8757144898b5a27369329f4d125c'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    steps:
+      - name: Checkout reviewed C3 snapshot (no credentials, no project execution)
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: b50817d948b5503765117e8ab2b51793ee272dbd
+          persist-credentials: false
+          fetch-depth: 1
+      - name: Read Git objects, scan references and verify candidate archive
+        shell: bash
+        run: |
+          python3 -B - <<'PY'
+          import collections, hashlib, json, os, pathlib, posixpath, re, subprocess, urllib.parse, zipfile
+          def git(*args, ok=(0,)):
+              p=subprocess.run(('git','--no-replace-objects',*args),stdout=subprocess.PIPE,stderr=subprocess.PIPE,env=dict(os.environ,GIT_OPTIONAL_LOCKS='0',GIT_NO_LAZY_FETCH='1',GIT_TERMINAL_PROMPT='0'))
+              assert p.returncode in ok, ('C3_GIT_READ_FAILED',args[0],p.returncode)
+              return p.stdout
+          head='b50817d948b5503765117e8ab2b51793ee272dbd'
+          assert git('rev-parse','HEAD').decode().strip()==head
+          tree={}
+          for row in git('ls-tree','-r','-z',head).split(b'\0'):
+              if row:
+                  meta,path=row.split(b'\t',1); tree[path.decode()]=tuple(meta.decode().split())
+          rows=[{"p":"recovery/kimi/memory/V20/Trading_Systems_Architecture_and_AI_Collaboration.md","base":"66325ca5e9264bf449cc73e9a6bfc2bd42a16db0","copy":"ddc333b21c73e6dc6f841231113c9d844dc665a6","source":"recovery/kimi/Trading_Systems_Architecture_and_AI_Collaboration.md","sourceBlob":"ddc333b21c73e6dc6f841231113c9d844dc665a6","pin":"b50817d948b5503765117e8ab2b51793ee272dbd","profile":"V20"},{"p":"recovery/kimi/memory/V20/PROJECT_PASSPORT_V20.md","base":"433e9ebeed832f3b4684046f11c8f6df8952e24f","copy":"433e9ebeed832f3b4684046f11c8f6df8952e24f","source":"recovery/PROJECT_PASSPORT_V20.md","sourceBlob":"dc56a6fcf96007e12c390c1a0a4072958b707244","pin":"2ac85eb5bcdd8757144898b5a27369329f4d125c","profile":"V20"},{"p":"recovery/kimi/memory/V20/V20.md","base":"2e3db9670a79ac3219e832156b843daeb3bcbc83","copy":"2e3db9670a79ac3219e832156b843daeb3bcbc83","source":"recovery/kimi/V20.md","sourceBlob":"e11bbcae40f307021993151973528b5678a06edb","pin":"2ac85eb5bcdd8757144898b5a27369329f4d125c","profile":"V20"},{"p":"recovery/kimi/memory/V20/R088_ARCHITECTURE_AND_SAFETY_20261122.md","base":"376c0342b1bbbe50aaeb24cff959c0f37b1fd648","copy":"376c0342b1bbbe50aaeb24cff959c0f37b1fd648","source":"V20_TradingSystem_M15/R088_ARCHITECTURE_AND_SAFETY_20261122.md","sourceBlob":"376c0342b1bbbe50aaeb24cff959c0f37b1fd648","pin":"3eddebb4d915c7798a2d56d2230010933f553c81","profile":"V20"},{"p":"recovery/kimi/memory/V20/LIVE_RELEASE_R088_20261120_RU.md","base":"641793d28566e0dfe81916a061f5cc92a35f12f0","copy":"641793d28566e0dfe81916a061f5cc92a35f12f0","source":"V20_TradingSystem_M15/V20-08/LIVE_RELEASE_R088_20261120_RU.md","sourceBlob":"641793d28566e0dfe81916a061f5cc92a35f12f0","pin":"3eddebb4d915c7798a2d56d2230010933f553c81","profile":"V20"},{"p":"recovery/kimi/memory/V20/skills/v20-safety-analysis/SKILL.md","base":"81880e77f97977c3067e923a8516ce52382475eb","copy":"81880e77f97977c3067e923a8516ce52382475eb","source":"recovery/kimi/skills/v20-safety-analysis/SKILL.md","sourceBlob":"81880e77f97977c3067e923a8516ce52382475eb","pin":"3eddebb4d915c7798a2d56d2230010933f553c81","profile":"V20"},{"p":"recovery/kimi/memory/V20/skills/github-source-audit/SKILL.md","base":"320f3b558cee14b195ae0e8beb6ad392106f9359","copy":"320f3b558cee14b195ae0e8beb6ad392106f9359","source":"recovery/kimi/skills/github-source-audit/SKILL.md","sourceBlob":"320f3b558cee14b195ae0e8beb6ad392106f9359","pin":"3eddebb4d915c7798a2d56d2230010933f553c81","profile":"V20"},{"p":"recovery/kimi/memory/V20/skills/ai-engineering-handoff/SKILL.md","base":"d08ccc90065b19a8abff75646b64dd0318688bd9","copy":"d08ccc90065b19a8abff75646b64dd0318688bd9","source":"recovery/kimi/skills/ai-engineering-handoff/SKILL.md","sourceBlob":"d08ccc90065b19a8abff75646b64dd0318688bd9","pin":"3eddebb4d915c7798a2d56d2230010933f553c81","profile":"V20"},{"p":"recovery/kimi/memory/ControlCenter/Trading_Systems_Architecture_and_AI_Collaboration.md","base":"66325ca5e9264bf449cc73e9a6bfc2bd42a16db0","copy":"ddc333b21c73e6dc6f841231113c9d844dc665a6","source":"recovery/kimi/Trading_Systems_Architecture_and_AI_Collaboration.md","sourceBlob":"ddc333b21c73e6dc6f841231113c9d844dc665a6","pin":"b50817d948b5503765117e8ab2b51793ee272dbd","profile":"ControlCenter"},{"p":"recovery/kimi/memory/ControlCenter/PROJECT_PASSPORT_CONTROL_CENTER.md","base":"61a7d34758fd372331d1d3d0049f9fbe8e3a9541","copy":"61a7d34758fd372331d1d3d0049f9fbe8e3a9541","source":"recovery/PROJECT_PASSPORT_CONTROL_CENTER.md","sourceBlob":"94af15e948422a490f99edb32841ef0c3f62ed1a","pin":"2ac85eb5bcdd8757144898b5a27369329f4d125c","profile":"ControlCenter"},{"p":"recovery/kimi/memory/ControlCenter/CONTROL_CENTER.md","base":"3c6ce463cad187a9e03d4d0fec68ee9e27310a50","copy":"3c6ce463cad187a9e03d4d0fec68ee9e27310a50","source":"recovery/kimi/CONTROL_CENTER.md","sourceBlob":"06db7ea2243e3ffb8592674d4e0a47f3043bebbf","pin":"2ac85eb5bcdd8757144898b5a27369329f4d125c","profile":"ControlCenter"},{"p":"recovery/kimi/memory/ControlCenter/V20_START_HERE_SOURCE_MAP.md","base":"2722096dfc2f8f404d31e9bed1efeac2ac932bfb","copy":"2722096dfc2f8f404d31e9bed1efeac2ac932bfb","source":"ControlCenter/docs/V20_START_HERE_SOURCE_MAP.md","sourceBlob":"fef7751f12c47699c5b71086ca793f3ac909e6cb","pin":"2ac85eb5bcdd8757144898b5a27369329f4d125c","profile":"ControlCenter"},{"p":"recovery/kimi/memory/ControlCenter/V20_CC08_OPERATIONS.md","base":"18be465651d3747abe99f669967e374cde616252","copy":"18be465651d3747abe99f669967e374cde616252","source":"ControlCenter/docs/V20_CC08_OPERATIONS.md","sourceBlob":"18be465651d3747abe99f669967e374cde616252","pin":"3eddebb4d915c7798a2d56d2230010933f553c81","profile":"ControlCenter"},{"p":"recovery/kimi/memory/ControlCenter/V20_CC07_COMMAND_CONTRACT.md","base":"729649f0fe60fe8cac7cf29cd281ce1dd28276c2","copy":"729649f0fe60fe8cac7cf29cd281ce1dd28276c2","source":"ControlCenter/docs/V20_CC07_COMMAND_CONTRACT.md","sourceBlob":"729649f0fe60fe8cac7cf29cd281ce1dd28276c2","pin":"3eddebb4d915c7798a2d56d2230010933f553c81","profile":"ControlCenter"},{"p":"recovery/kimi/memory/ControlCenter/skills/cc-incident-audit/SKILL.md","base":"4ba0b325dd6ba7ee6129a3316b8313ea9fd7835d","copy":"4ba0b325dd6ba7ee6129a3316b8313ea9fd7835d","source":"recovery/kimi/skills/cc-incident-audit/SKILL.md","sourceBlob":"4ba0b325dd6ba7ee6129a3316b8313ea9fd7835d","pin":"3eddebb4d915c7798a2d56d2230010933f553c81","profile":"ControlCenter"},{"p":"recovery/kimi/memory/ControlCenter/skills/github-source-audit/SKILL.md","base":"320f3b558cee14b195ae0e8beb6ad392106f9359","copy":"320f3b558cee14b195ae0e8beb6ad392106f9359","source":"recovery/kimi/skills/github-source-audit/SKILL.md","sourceBlob":"320f3b558cee14b195ae0e8beb6ad392106f9359","pin":"3eddebb4d915c7798a2d56d2230010933f553c81","profile":"ControlCenter"},{"p":"recovery/kimi/memory/ControlCenter/skills/ai-engineering-handoff/SKILL.md","base":"d08ccc90065b19a8abff75646b64dd0318688bd9","copy":"d08ccc90065b19a8abff75646b64dd0318688bd9","source":"recovery/kimi/skills/ai-engineering-handoff/SKILL.md","sourceBlob":"d08ccc90065b19a8abff75646b64dd0318688bd9","pin":"3eddebb4d915c7798a2d56d2230010933f553c81","profile":"ControlCenter"},{"p":"recovery/kimi/memory/TRL/Trading_Systems_Architecture_and_AI_Collaboration.md","base":"66325ca5e9264bf449cc73e9a6bfc2bd42a16db0","copy":"ddc333b21c73e6dc6f841231113c9d844dc665a6","source":"recovery/kimi/Trading_Systems_Architecture_and_AI_Collaboration.md","sourceBlob":"ddc333b21c73e6dc6f841231113c9d844dc665a6","pin":"b50817d948b5503765117e8ab2b51793ee272dbd","profile":"TRL"},{"p":"recovery/kimi/memory/TRL/PROJECT_PASSPORT_TRL.md","base":"1d51b98e1fce01302e5b3e26de5825bcf038af74","copy":"1d51b98e1fce01302e5b3e26de5825bcf038af74","source":"recovery/PROJECT_PASSPORT_TRL.md","sourceBlob":"444aa03c88758a75f39b45e831b3e8343245453e","pin":"2ac85eb5bcdd8757144898b5a27369329f4d125c","profile":"TRL"},{"p":"recovery/kimi/memory/TRL/TRL.md","base":"d8fc1f8e4286c6aeb50461f7a757cecc0a46a426","copy":"d8fc1f8e4286c6aeb50461f7a757cecc0a46a426","source":"recovery/kimi/TRL.md","sourceBlob":"2078c6ec0e5cabaa4a33ccb6356f606afbc6530c","pin":"2ac85eb5bcdd8757144898b5a27369329f4d125c","profile":"TRL"},{"p":"recovery/kimi/memory/TRL/TRL-NOV-2026-KIMI-START-HERE.md","base":"b0e316134eea8a2c62a6a2ae66dc282093fdbabe","copy":"b0e316134eea8a2c62a6a2ae66dc282093fdbabe","source":"TradingResearchLab/reports/TRL-NOV-2026-KIMI-START-HERE.md","sourceBlob":"049c97befa52c39ad8b803cd0c61bef9607c8abf","pin":"2ac85eb5bcdd8757144898b5a27369329f4d125c","profile":"TRL"},{"p":"recovery/kimi/memory/TRL/RESEARCH_METHODOLOGY.md","base":"a4a116693634eef034e2a30ad4162df0f860ecf9","copy":"a4a116693634eef034e2a30ad4162df0f860ecf9","source":"TradingResearchLab/research/RESEARCH_METHODOLOGY.md","sourceBlob":"ec51167f83211bcbb28a1f793285de53aeb32262","pin":"2ac85eb5bcdd8757144898b5a27369329f4d125c","profile":"TRL"},{"p":"recovery/kimi/memory/TRL/OPERATING_CYCLE.md","base":"edcb49586d03f20ea3e3ef47e70fceb831e2fa52","copy":"edcb49586d03f20ea3e3ef47e70fceb831e2fa52","source":"TradingResearchLab/OPERATING_CYCLE.md","sourceBlob":"54d1fbe46c6b4cc60b980f213ae223f8f85ab018","pin":"2ac85eb5bcdd8757144898b5a27369329f4d125c","profile":"TRL"},{"p":"recovery/kimi/memory/TRL/RESEARCH_CARD_TEMPLATE.md","base":"d7beaf6bfc6516047df91d1419585b1b0c45e796","copy":"d7beaf6bfc6516047df91d1419585b1b0c45e796","source":"TradingResearchLab/research/RESEARCH_CARD_TEMPLATE.md","sourceBlob":"cc846f1e6b9d17ba6373780391679b622c5af1cd","pin":"2ac85eb5bcdd8757144898b5a27369329f4d125c","profile":"TRL"},{"p":"recovery/kimi/memory/TRL/TRL-NOV-2026-ARTIFACT-MANIFEST.md","base":"725da79a35484a7385a8f9b98c3d7c59bc4e19e3","copy":"725da79a35484a7385a8f9b98c3d7c59bc4e19e3","source":"TradingResearchLab/reports/TRL-NOV-2026-ARTIFACT-MANIFEST.md","sourceBlob":"725da79a35484a7385a8f9b98c3d7c59bc4e19e3","pin":"3eddebb4d915c7798a2d56d2230010933f553c81","profile":"TRL"},{"p":"recovery/kimi/memory/TRL/TRL-NOV-2026-FINAL-CLOSEOUT.md","base":"ec06839fd233f9909eead53e82b9b7d1d7868fb8","copy":"ec06839fd233f9909eead53e82b9b7d1d7868fb8","source":"TradingResearchLab/reports/TRL-NOV-2026-FINAL-CLOSEOUT.md","sourceBlob":"ec06839fd233f9909eead53e82b9b7d1d7868fb8","pin":"3eddebb4d915c7798a2d56d2230010933f553c81","profile":"TRL"},{"p":"recovery/kimi/memory/TRL/skills/trl-repro-review/SKILL.md","base":"9f0f1af3516e6eb6af48d7c434355150544e1476","copy":"9f0f1af3516e6eb6af48d7c434355150544e1476","source":"recovery/kimi/skills/trl-repro-review/SKILL.md","sourceBlob":"9f0f1af3516e6eb6af48d7c434355150544e1476","pin":"b50817d948b5503765117e8ab2b51793ee272dbd","profile":"TRL"},{"p":"recovery/kimi/memory/TRL/skills/github-source-audit/SKILL.md","base":"320f3b558cee14b195ae0e8beb6ad392106f9359","copy":"320f3b558cee14b195ae0e8beb6ad392106f9359","source":"recovery/kimi/skills/github-source-audit/SKILL.md","sourceBlob":"320f3b558cee14b195ae0e8beb6ad392106f9359","pin":"3eddebb4d915c7798a2d56d2230010933f553c81","profile":"TRL"},{"p":"recovery/kimi/memory/TRL/skills/ai-engineering-handoff/SKILL.md","base":"d08ccc90065b19a8abff75646b64dd0318688bd9","copy":"d08ccc90065b19a8abff75646b64dd0318688bd9","source":"recovery/kimi/skills/ai-engineering-handoff/SKILL.md","sourceBlob":"d08ccc90065b19a8abff75646b64dd0318688bd9","pin":"3eddebb4d915c7798a2d56d2230010933f553c81","profile":"TRL"}]
+          selected=["AGENTS.md","ControlCenter/JOURNAL.md","ControlCenter/README.md","ControlCenter/STATUS.md","ControlCenter/docs/V20_CC07_COMMAND_CONTRACT.md","ControlCenter/docs/V20_CC08_OPERATIONS.md","ControlCenter/docs/V20_DATA_SECURITY_TESTS.md","ControlCenter/docs/V20_HEALTH_EXPOSURE_FIX_20261126.md","ControlCenter/docs/V20_START_HERE_SOURCE_MAP.md","ROADMAP.md","TradingResearchLab/AGENTS.md","TradingResearchLab/OPERATING_CYCLE.md","TradingResearchLab/STATUS.md","TradingResearchLab/journal/2026-11-27-trl-knowledge-consolidation.md","TradingResearchLab/reports/TRL-2027-RESEARCH-DIRECTIONS-R100.md","TradingResearchLab/reports/TRL-NOV-2026-ARTIFACT-MANIFEST.md","TradingResearchLab/reports/TRL-NOV-2026-FINAL-CLOSEOUT.md","TradingResearchLab/reports/TRL-NOV-2026-KIMI-START-HERE.md","TradingResearchLab/research/RESEARCH_CARD_TEMPLATE.md","TradingResearchLab/research/RESEARCH_METHODOLOGY.md","TradingResearchLab/research/TRL-R100-ID-PROVENANCE.md","TradingResearchLab/research/TRL_R_2026_100_USDRUBF_FIRST_LAST_MOMENTUM.md","V20_TradingSystem_M15/AGENTS.md","V20_TradingSystem_M15/JOURNAL.md","V20_TradingSystem_M15/KIMI_START_HERE_R088.md","V20_TradingSystem_M15/R088_ARCHITECTURE_AND_SAFETY_20261122.md","V20_TradingSystem_M15/STATUS.md","V20_TradingSystem_M15/V20-08/LIVE_RELEASE_R088_20261120_RU.md","recovery/CRITICAL_OPERATIONS_CONTRACT.md","recovery/DOCUMENTATION_AUTHORITY_2026-11-22.md","recovery/JOURNAL.md","recovery/PROJECT_PASSPORT_CONTROL_CENTER.md","recovery/PROJECT_PASSPORT_TRL.md","recovery/PROJECT_PASSPORT_V20.md","recovery/STATUS.md","recovery/kimi/BLOCK_A_ACCEPTANCE_20261126.md","recovery/kimi/CONTROL_CENTER.md","recovery/kimi/EXAM_AND_HANDOFF.md","recovery/kimi/KIMI_DEFECTS_AND_REMEDIATION_REGISTER.md","recovery/kimi/README.md","recovery/kimi/TRL.md","recovery/kimi/Trading_Systems_Architecture_and_AI_Collaboration.md","recovery/kimi/V20.md","recovery/kimi/WINDOWS_WORKSPACE_AND_ACCESS.md","recovery/kimi/skills/ai-engineering-handoff/SKILL.md","recovery/kimi/skills/cc-incident-audit/SKILL.md","recovery/kimi/skills/github-source-audit/SKILL.md","recovery/kimi/skills/trl-repro-review/SKILL.md","recovery/kimi/skills/v20-safety-analysis/SKILL.md"]
+          def read(p,expected):
+              assert tree[p]==('100644','blob',expected), ('C3_IDENTITY',p)
+              data=git('cat-file','blob',expected)
+              assert hashlib.sha1(b'blob '+str(len(data)).encode()+b'\0'+data).hexdigest()==expected
+              assert not data.startswith(b'version https://git-lfs.github.com/spec/v1')
+              assert len(data)<=2000000
+              data.decode('utf-8')
+              # Obvious secret screening only, not full privacy certification.
+              assert not re.search(rb'-----BEGIN (?:RSA |EC |OPENSSH |DSA |ENCRYPTED )?PRIVATE KEY-----|gh[pousr]_[A-Za-z0-9]{30,}|github_pat_[A-Za-z0-9_]{30,}|sk-[A-Za-z0-9_-]{30,}|Authorization:\s*Bearer\s+[A-Za-z0-9_-]{35,}',data,re.I), ('C3_POSSIBLE_SECRET',p)
+              return data
+          mirrors={x['p'] for x in rows}
+          assert len(mirrors)==29
+          assert sum(x['copy']==x['sourceBlob'] for x in rows)==18
+          entries={}
+          files=[]
+          def add(name,source,ref,oid,data):
+              assert name not in entries
+              entries[name]=data
+              files.append(dict(path=name,source=source,ref=ref,blob=oid,sha256=hashlib.sha256(data).hexdigest(),size=len(data)))
+          for p in selected:
+              add('current/'+p,p,head,tree[p][2],read(p,tree[p][2]))
+          for x in rows:
+              data=read(x['p'],x['copy'])
+              assert tree[x['source']]==('100644','blob',x['sourceBlob'])
+              if x['copy']!=x['sourceBlob']:
+                  add('historical/'+x['pin']+'/'+x['source'],x['source'],x['pin'],x['copy'],data)
+          assert len([p for p in entries if p.startswith('historical/')])==11
+          tokens=sorted(set(['recovery/kimi/memory','kimi/memory','memory/V20','memory/ControlCenter','memory/TRL','recovery/kimi/skills','ai-engineering-handoff','github-source-audit','v20-safety-analysis','cc-incident-audit','trl-repro-review']+[p.rsplit('/',1)[-1] for p in mirrors]+list(mirrors)))
+          args=['grep','-I','-n','-z','-F','--no-textconv']
+          for token in tokens: args+=['-e',token]
+          raw=git(*args,head,'--',ok=(0,1))
+          matches=[]; counts=collections.Counter()
+          linkpat=re.compile(r'!?\[[^\]\n]*\]\(\s*(<[^>\n]+>|[^\s)]+)|^\s*\[[^\]\n]+\]:\s*(<[^>\n]+>|\S+)')
+          def target(path,raw):
+              val=urllib.parse.unquote(raw.strip('<>').split('#',1)[0].split('?',1)[0])
+              if not val or val.startswith('/') or re.match(r'^[a-zA-Z][a-zA-Z0-9+.-]*:',val): return None
+              return posixpath.normpath(posixpath.join(posixpath.dirname(path),val))
+          for line in raw.split(b'\n'):
+              if not line: continue
+              parts=line.split(b'\0',2)
+              assert len(parts)==3 and parts[1].isdigit(), 'C3_GREP_FORMAT'
+              loc=parts[0].decode()
+              assert loc.startswith(head+':')
+              p=loc[len(head)+1:]
+              if p in mirrors: continue
+              s=parts[2].decode('utf-8','replace')
+              direct=sorted(x for x in mirrors if x in s)
+              relative=sorted({t for m in linkpat.finditer(s) if (t:=target(p,m.group(1) or m.group(2))) in mirrors})
+              category='code_or_config' if p.endswith(('.py','.ps1','.sh','.bat','.cmd','.yml','.yaml','.toml','.ini','.json')) else 'doc_or_other'
+              matches.append(dict(path=p,line=int(parts[1]),category=category,direct=direct,relative=relative))
+              counts[category]+=1
+          gaps=[]
+          for p in selected:
+              if not p.endswith('.md'): continue
+              for i,s in enumerate(entries['current/'+p].decode().splitlines(),1):
+                  for m in linkpat.finditer(s):
+                      t=target(p,m.group(1) or m.group(2))
+                      if t and t not in selected:
+                          gaps.append(dict(path=p,line=i,target=t,kind='mirror' if t in mirrors else 'outside_export' if t in tree or any(k.startswith(t.rstrip('/')+'/') for k in tree) else 'missing_in_tree'))
+          report=dict(status='CANDIDATE_EXPORT_DEPENDENCY_REVIEW_PENDING',source_commit=head,inventory=rows,current_count=len(selected),historical_count=11,files=files,reference_candidates=matches,reference_counts=dict(counts),link_gaps=gaps,limitations=['Pinned checkout: historical source pins cross-checked separately by GPT via GitHub trees; historical export bytes verified from mirror blobs.','Literal text search only, dynamic and external consumers not excluded.','Not Kimi retrieval, dependency closure, full secret audit or cold restore. No deletion or Skill disable permission.'])
+          out=pathlib.Path(os.environ['RUNNER_TEMP'])/'c3-knowledge-audit'
+          out.mkdir(exist_ok=False)
+          manifest=(json.dumps(report,ensure_ascii=False,indent=2,sort_keys=True)+'\n').encode()
+          entries['EXPORT_MANIFEST.json']=manifest
+          entries['START_HERE.txt']=('Candidate export '+head+'; NOT accepted MAIN. Read current/AGENTS.md then profile STATUS and task sources. Historical bytes are not current authority. Missing required source: STOP. Not independent Recovery.\n').encode()
+          zpath=out/'C33_Knowledge_Export.zip'
+          with zipfile.ZipFile(zpath,'x',compression=zipfile.ZIP_DEFLATED,compresslevel=9) as z:
+              for name,data in sorted(entries.items()):
+                  zi=zipfile.ZipInfo(name,(2026,11,27,0,0,0)); zi.compress_type=zipfile.ZIP_DEFLATED
+                  z.writestr(zi,data)
+          with zipfile.ZipFile(zpath) as z:
+              assert z.testzip() is None and set(z.namelist())==set(entries)
+              assert all(z.read(n)==d for n,d in entries.items())
+          (out/'EXPORT_MANIFEST.json').write_bytes(manifest)
+          digest=hashlib.sha256(zpath.read_bytes()).hexdigest()
+          (out/'SHA256SUMS.txt').write_text(digest+'  '+zpath.name+'\n',encoding='ascii')
+          print('C3_EXPORT_BYTE_VERIFIED',digest,'current',len(selected),'historical',11,'mirrors',len(rows),'reference_candidates',len(matches),'link_gaps',len(gaps))
+          print('C3_REFERENCE_COUNTS',json.dumps(dict(counts)))
+          print('C3_DEPENDENCY_REVIEW_PENDING_NOT_RECOVERY_NOT_LIVE')
+          PY
+      - name: Preserve candidate knowledge archive and locator-only audit
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: c3-knowledge-audit-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/c3-knowledge-audit/
           if-no-files-found: error
           retention-days: 30
