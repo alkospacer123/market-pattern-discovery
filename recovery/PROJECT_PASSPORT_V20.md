@@ -1,5 +1,7 @@
 # V20 Trading System M15 — паспорт
 
+**27.11.2026: FULL_PARITY_OWNER_ADMITTED.** Действующий допуск и границы — Roadmap и Recovery STATUS; общие COC и отдельные разрешения на операции сохраняются. Датированные прежние ограничения квалификации — история.
+
 **ACTIVE trading system.** V20 — три независимых робота Shallow / OBV / Inside на отдельных FINAM-счетах; N4: USDRUBF, CNYRUBF, GLDRUBF, IMOEXF. Каталог `V20_TradingSystem_M15/`, зависимости `TradingSystemLab.stage8_robot`, `IntradayLab.core` сохраняются.
 
 ## Канонические источники по задаче
@@ -11,4 +13,4 @@
 
 MAIN/SOURCE, DERIVED, INSTALLED и LIVE различаются; старый installed hash не является новым доказательством. HALTED не подтверждает broker FLAT. Не изменять торговые правила, запуск, FINAM, риск или LIVE без отдельного разрешения и действующих gates. Оба ИИ работают по одному контракту.
 
-**C3.2 candidate 27.11.2026:** историческая [предыдущая редакция паспорта](https://github.com/alkospacer123/market-pattern-discovery/blob/2ac85eb5bcdd8757144898b5a27369329f4d125c/recovery/PROJECT_PASSPORT_V20.md) сохраняет решения 26.11, dated installed evidence и прежний exam scope. Актуальные статусы — только STATUS; ранее принятые испытания не повторять. Владелец разрешил exact cleanup исторических зеркал и Skill-файлов после проверки fallback и подтверждения внешнего экспорта; итоговый Merge и конфигурация ИИ/полный допуск остаются отдельными.
+**Исторический срез C3.2, 27.11.2026:** историческая [предыдущая редакция паспорта](https://github.com/alkospacer123/market-pattern-discovery/blob/2ac85eb5bcdd8757144898b5a27369329f4d125c/recovery/PROJECT_PASSPORT_V20.md) сохраняет решения 26.11, dated installed evidence и прежний exam scope. Актуальные статусы — только STATUS; ранее принятые испытания не повторять. Владелец разрешил exact cleanup исторических зеркал и Skill-файлов после проверки fallback и подтверждения внешнего экспорта; cleanup принят, настройки подтверждены владельцем; полный допуск утверждён 27.11.2026.

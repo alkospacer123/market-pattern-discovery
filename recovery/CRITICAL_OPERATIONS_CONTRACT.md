@@ -2,7 +2,7 @@
 
 Contract: COC-2026-01
 Version: 1.0.0-rc.2
-Status: C3_REVIEW_CANDIDATE_NOT_QUALIFIED
+Status: FULL_PARITY_OWNER_ADMITTED_20261127 (qualification status; no runtime authorization)
 Scope: V20 Trading System, Control Center, Trading Research Lab и инженерный HANDOFF.
 
 > Документальная conformance matrix и карта первоисточников. Это не runtime authorization, не разрешение на запись, Merge, deploy, ARM, LIVE или доступ к секретам. Матрица не заменяет кодовые gates, broker reconciliation, независимые испытания и решение владельца.
@@ -187,7 +187,7 @@ RECOVER принимает только строго разрешённые Task
 ## 7. Документация, исторические источники и HANDOFF
 
 - Пять прежних собственных Skill-источников и зеркала сохраняются в Git history и проверенном pre-cleanup export; действующий маршрут — AGENTS, COC, профильные источники и HANDOFF.
-- Historical pin не равен current MAIN; проверяй фактическую identity экспортированных bytes. Не материализуй второе дерево знаний в MAIN. Владелец подтвердил резервный экспорт и разрешил exact cleanup 27.11; настройки ИИ и полный допуск остаются отдельными шагами C3. Переход не отменяет operation-specific gates, независимую проверку или отдельные разрешения.
+- Historical pin не равен current MAIN; проверяй фактическую identity экспортированных bytes. Не материализуй второе дерево знаний в MAIN. Владелец подтвердил резервный экспорт и разрешил exact cleanup 27.11; настройки приняты в заявленном объёме, полный допуск владельцем утверждён 27.11.2026. Переход не отменяет operation-specific gates, независимую проверку или отдельные разрешения.
 - Исторический Integration manifest фиксирует подготовленные bytes, не действующий набор файлов, установку или qualification.
 - Профильные документы ссылаются на IDs этой матрицы и не создают конкурирующие копии правил.
 - Исторические отчёты, FAIL/PASS, protocols и Journal не переписывай; исправления оформляй append-only addendum/erratum.
@@ -195,11 +195,11 @@ RECOVER принимает только строго разрешённые Task
 
 ## 8. Независимая квалификация и STOP
 
-Принятые G0–G6/A/B проверки не повторять. Остаточные обязательные evidence gaps — по [Roadmap](../ROADMAP.md) и [KDR](kimi/KIMI_DEFECTS_AND_REMEDIATION_REGISTER.md), с одной целевой C3 приёмкой изменённых компетенций/fallback. Для критического изменения — закреплённый oracle, positive/negative reachability и controlled mutation там, где требует контракт; critical failure budget = 0. Не создавать параллельную state machine и не заменять независимое доказательство саморевью.
+Принятые G0–G6/A/B проверки не повторять. C3 и KDR закрыты владельцем в принятом объёме; пределы доказательств и operation-specific gates — по [Roadmap](../ROADMAP.md) и [KDR](kimi/KIMI_DEFECTS_AND_REMEDIATION_REGISTER.md). Для критического изменения — закреплённый oracle, positive/negative reachability и controlled mutation там, где требует контракт; critical failure budget = 0. Не создавать параллельную state machine и не заменять независимое доказательство саморевью.
 
 Немедленно останови затронутую часть при unknown write/command outcome, возможной потере stop, критичном `SOURCE_DRIFT`, неустановленной identity, отсутствии полномочий или mandatory independent gate. Безопасную отделимую работу заверши как `PARTIAL`; критичную недостижимую цель — `BLOCKED`.
 
-`KDR-001=CLOSED_OWNER_ACCEPTED_20261126`; G6 принят в проверенном scope. [Акт A](kimi/BLOCK_A_ACCEPTANCE_20261126.md) и [KDR](kimi/KIMI_DEFECTS_AND_REMEDIATION_REGISTER.md) содержат основание и пределы; первоначальный G6.2 CRITICAL FAIL сохранён в Git history, recurrence reopens. Другие KDR и полная автономность/installed/LIVE/cold restore не закрываются автоматически.
+`KDR-001=CLOSED_OWNER_ACCEPTED_20261126`; G6 принят в проверенном scope. [Акт A](kimi/BLOCK_A_ACCEPTANCE_20261126.md) и [KDR](kimi/KIMI_DEFECTS_AND_REMEDIATION_REGISTER.md) содержат основание и пределы; первоначальный G6.2 CRITICAL FAIL сохранён в Git history, recurrence reopens. Все 11 KDR закрыты владельцем; FULL_PARITY_OWNER_ADMITTED утверждён отдельно 27.11.2026. Полный no-GPT end-to-end, installed/LIVE/cold restore не доказаны этим решением.
 
 ## 9. Source authorities для этой редакции
 

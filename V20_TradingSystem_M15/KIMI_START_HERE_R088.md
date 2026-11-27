@@ -1,5 +1,7 @@
 # V20 START HERE — GPT / Kimi Chat / Kimi Code (аудит 22.11.2026)
 
+**27.11.2026: FULL_PARITY_OWNER_ADMITTED.** Допуск и границы — Roadmap/Recovery STATUS. Общие COC и разрешения на операции неизменны.
+
 **SOURCE checkpoint**: `market-pattern-discovery/main` = `0e569be6cb3c7cce1f7224e7f1fef6be38f6ba52` (Merge #591, проверен через GitHub API 22.11). Это зафиксированный базовый срез для данного документа, а не вечный HEAD. **Никаких изменений Intel/FINAM/LIVE не выполнялось.**
 
 ## Рабочий маршрут — C3.2, 27.11.2026
@@ -35,7 +37,7 @@
 
 **Kimi Chat:** читать документацию, находить верные пути/SHA, отличать historical от LIVE, не объявлять статус без источника, не делать Git/LIVE-операций от лица оператора.
 
-**Kimi Code:** основная инженерная среда, включая согласованный Intel sandbox после ограниченной приёмки B. Только разрешённые scope/runner/операции; offline tests на pinned disposable checkout, `git apply --check`, mock/unit без FINAM, logs/diff. Подключение не доказывает OS isolation и не разрешает production. Запись, Merge, deploy, ARM/HALT и LIVE — только по отдельным полномочиям и контракту.
+**Kimi Code:** основная инженерная среда, включая согласованные штатные рабочие области Intel по Windows policy; рабочий каталог не OS sandbox. Только разрешённые scope/runner/операции; offline tests на pinned disposable checkout, `git apply --check`, mock/unit без FINAM, logs/diff. Подключение не доказывает OS isolation и не разрешает production. Запись, Merge, deploy, ARM/HALT и LIVE — только по отдельным полномочиям и контракту.
 
 **2025–2026 уже исследованы для V20/TRL и не являются untouched TRUE OOS**. Оценки PF из этого периода нельзя выдавать за независимую будущую валидацию. Защита ZERO LOOK-AHEAD остаётся обязательной.
 

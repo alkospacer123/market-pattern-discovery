@@ -1,5 +1,7 @@
 # Control Center V20 — паспорт
 
+**27.11.2026: FULL_PARITY_OWNER_ADMITTED.** Действующий допуск и границы — Roadmap и Recovery STATUS; общие COC и отдельные разрешения на операции сохраняются. Датированные прежние ограничения квалификации — история.
+
 **ACTIVE operator panel, not a trading algorithm.** Каталог `ControlCenter/`; действующий UI `v20_app.py`, адаптер `v20_admin_control.py`, `controller/`, `cc/`, `tests/`. READONLY refresh и операторский CC-07 — отдельные контуры. CC-03/H1/8501 — сохранённая историческая ветвь, не V20.
 
 ## Канонические источники по задаче
@@ -11,4 +13,4 @@
 
 HTTP 200, локальный HEALTHY, Task Running и датированная установка не доказывают broker FLAT/SLTP. FAILED_UNKNOWN не повторять. Не выполнять операторские команды, FINAM, Task changes, установку или rollback без отдельного разрешения. H1/CC-03 frozen provenance сохраняется.
 
-**C3.2 candidate 27.11.2026:** [предыдущая редакция](https://github.com/alkospacer123/market-pattern-discovery/blob/2ac85eb5bcdd8757144898b5a27369329f4d125c/recovery/PROJECT_PASSPORT_CONTROL_CENTER.md) сохраняет датированный installed locator/blob, решение по #602 и прежний exam scope. Текущий статус и доказательства — профильный STATUS/JOURNAL; повторных экзаменов не требуется. Владелец разрешил exact cleanup исторических зеркал и Skill-файлов после проверки fallback и подтверждения внешнего экспорта; итоговый Merge и конфигурация ИИ/полный допуск остаются отдельными.
+**Исторический срез C3.2, 27.11.2026:** [предыдущая редакция](https://github.com/alkospacer123/market-pattern-discovery/blob/2ac85eb5bcdd8757144898b5a27369329f4d125c/recovery/PROJECT_PASSPORT_CONTROL_CENTER.md) сохраняет датированный installed locator/blob, решение по #602 и прежний exam scope. Текущий статус и доказательства — профильный STATUS/JOURNAL; повторных экзаменов не требуется. Владелец разрешил exact cleanup исторических зеркал и Skill-файлов после проверки fallback и подтверждения внешнего экспорта; cleanup принят, настройки подтверждены владельцем; полный допуск утверждён 27.11.2026.
