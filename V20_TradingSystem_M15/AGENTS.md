@@ -16,3 +16,14 @@
 Перед анализом ENTRY, INITIAL_SLTP, Protect3, HOLD5, cancel-after-flat или reconciliation применяй [единый контракт](../recovery/CRITICAL_OPERATIONS_CONTRACT.md), особенно `COC-V20-*`. Восстанавливай фактический BASE→DERIVED path и собственные gates каждой операции. Не выводи разрешение или запрет из одного ARMED/HALTED, не смешивай switch HALTED с durable `execution_halt`; расхождение SOURCE и матрицы — `SOURCE_DRIFT`/STOP.
 
 **Решение владельца 26.11.2026:** сохранить сигналы и R088 60/30/45 + TP6 + Protect3 + HOLD5, EXT2 OFF, Market NEXT_OPEN. После 1–2 месяцев фактической торговой статистики рассмотреть лимитные входы, без автоматической смены. #601 — принятый SOURCE-кандидат диагностического журналирования Protect3, не установлен; подготовить единый пакет Shallow/OBV/Inside с installed identities, SHA/pins, offline regressions, backup/rollback и отдельным разрешением на установку, READONLY postflight. Историческая внутренняя причина 20.11 UNKNOWN. Не менять торговую логику или ARM ради квалификации.
+
+## C3.2 — дополнительные инженерные инварианты (candidate 27.11.2026)
+
+- Восстанавливай launcher → entrypoint → BASE/DERIVED → imports/calls, проверяй единственность module/class identity (`__main__` vs canonical import). H1/M15 зависимости не удалять без доказательств.
+- Проверяй завершённые M15, OHLCV, instrument/grid/timezone/gaps и свежую наблюдаемую broker boundary NEXT_OPEN; не подставляй историческую цену и не отправляй поздний вход. Gates новых входов не заменяют gates сопровождения.
+- Partial fill: своевременная защита фактического объёма, linked SLTP только по полному order-linked evidence; не отменять stop ради VWAP. Protect3 ARMED/permit/release и прочие gates до cancel; возможный незащищённый интервал — STOP/эскалация по COC.
+- SQLite snapshot штатным backup API, integrity/identity/schema, совместимость миграции/rollback; не копировать открытую БД как файл. Проверять crash windows вокруг durable transitions/внешних вызовов; Task Running/CC HEALTHY не доказывают broker protection.
+- Исправление: достижимость целевого gate, BASE failure/DERIVED pass, positive/negative witnesses, reason/side-effect budget, fake broker/disposable runner без реальных endpoints/secrets. Одна достаточная проверка не равна одному тесту.
+- Перед отдельно разрешённой установкой — все три робота, SHA/launcher/deps, backup/compatible rollback и broker preflight; после — ограниченный READONLY postflight, не пробная сделка/автоматический ARM.
+
+Полный NEVER_POSTED и GO/fees guard — COC-V20-ENTRY. Релевантный Skill не отключать до проверенного переноса/fallback и решения владельца.

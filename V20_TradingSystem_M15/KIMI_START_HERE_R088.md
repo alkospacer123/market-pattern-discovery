@@ -2,7 +2,9 @@
 
 **SOURCE checkpoint**: `market-pattern-discovery/main` = `0e569be6cb3c7cce1f7224e7f1fef6be38f6ba52` (Merge #591, проверен через GitHub API 22.11). Это зафиксированный базовый срез для данного документа, а не вечный HEAD. **Никаких изменений Intel/FINAM/LIVE не выполнялось.**
 
-## Обязательный маршрут чтения (в таком порядке)
+## Рабочий маршрут — C3.2, 27.11.2026
+
+Начинай с [STATUS](STATUS.md), общего/профильного AGENTS и применимого COC, заново разреши MAIN. Далее только необходимые release/паспорт, source map, test evidence и runbook. Полный перечень ниже — навигация, не обязательная загрузка всех документов каждый раз.
 
 1. [Общий AGENTS](../AGENTS.md) → [реестр полномочий документации](../recovery/DOCUMENTATION_AUTHORITY_2026-11-22.md) → [паспорт V20](../recovery/PROJECT_PASSPORT_V20.md). Общие полномочия и границы.
 2. [Проектный AGENTS](AGENTS.md) → [R088 LIVE release от 20.11](V20-08/LIVE_RELEASE_R088_20261120_RU.md). Выбранные правила, физическое **датированное** подтверждение, девять patch names и ограничения.
@@ -11,11 +13,13 @@
 5. [Инвентаризация документации и находки](V20_DOCUMENTATION_AUDIT_20261122.md). Для каждого сохранённого Markdown — `CURRENT`, `HISTORICAL`, `RESEARCH`, `SOURCE_EVIDENCE`, `SUPERSEDED` или `UNKNOWN`. Исторические материалы не переписываются.
 6. Только при конкретном вопросе: [операторский runbook V20-08.5](V20-08/RUNBOOK_08_5_RU.md), [исторический этапный Roadmap](docs/ROADMAP_DETAILED_RU.md), [исходный frozen-сигнальный SOURCE_MAP 22.10](V20-04/SOURCE_MAP.md) и датированные R070/R088 исследования. Старые названия `CURRENT`, `Draft`, `TIME3`, `EXT2 ON`, `LIVE OFF` в них **не** задают R088.
 
-## Разделять пять состояний (строго)
+## Разделять состояния (строго)
 
 | Состояние | Что доказывает | Чего НЕ доказывает |
 | --- | --- | --- |
 | `MAIN` | Принятый GitHub commit, его базовые файлы, патчи, документы | Что конкретный blob установлен на Intel |
+| `SOURCE` | Исходные bytes на pinned ref | DERIVED/установку |
+| `DERIVED` | Реальный результат ordered patches/build и provenance | Установку/LIVE |
 | `INSTALLED` | Подтверждение локального SHA и результата установщика на определённую дату | Текущий ARMED, FINAM баланс, SLTP |
 | `LIVE` | **Только свежая** сверка Tasks, kill switches, FINAM позиций/заявок/защит | Не выводится из CI, Git, истории PR или Streamlit heartbeat |
 | `RESEARCH` | Описательная/offline проверка на использованной истории | Новый untouched TRUE OOS или торговый допуск |
@@ -31,7 +35,7 @@
 
 **Kimi Chat:** читать документацию, находить верные пути/SHA, отличать historical от LIVE, не объявлять статус без источника, не делать Git/LIVE-операций от лица оператора.
 
-**Kimi Code:** только отдельный одноразовый offline checkout с фиксированным SHA, точные Git blob проверки, `git apply --check` до применения в scratch, mock/unit без FINAM, журнал команд/stdout/exit/Git diff, один Draft PR для разрешённых будущих документальных изменений. Не деплоить, не MERGE, не ARM/HALT, не открывать реальные заявки.
+**Kimi Code:** основная инженерная среда, включая согласованный Intel sandbox после ограниченной приёмки B. Только разрешённые scope/runner/операции; offline tests на pinned disposable checkout, `git apply --check`, mock/unit без FINAM, logs/diff. Подключение не доказывает OS isolation и не разрешает production. Запись, Merge, deploy, ARM/HALT и LIVE — только по отдельным полномочиям и контракту.
 
 **2025–2026 уже исследованы для V20/TRL и не являются untouched TRUE OOS**. Оценки PF из этого периода нельзя выдавать за независимую будущую валидацию. Защита ZERO LOOK-AHEAD остаётся обязательной.
 

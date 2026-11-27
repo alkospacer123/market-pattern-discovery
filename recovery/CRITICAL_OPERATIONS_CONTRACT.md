@@ -79,7 +79,8 @@ Scope: V20 Trading System, Control Center, Trading Research Lab и инжене�
 - Используй действующие frozen-функции и причинно доступные завершённые данные.
 - Сохраняй атомарность сигнала, риск-резервации, session quota и intent; повтор границы не создаёт второй вход.
 - Не смешивай деньги, резервации, ГО и риск разных роботов/счетов.
-- Неизвестный POST запрещает retransmit; `NEVER_POSTED` признавай только полным действующим recovery predicate.
+- Неизвестный POST запрещает retransmit; `NEVER_POSTED` признавай только полным действующим recovery predicate: точный durable status, отсутствие pre-POST/submission checkpoint, broker ID и конфликтующих durable записей (включая flat cleanup), свежая broker reconciliation без позиции/активной заявки, транзакционная повторная проверка. Не очищай unknown submitted intent; не возвращай автоматически сигнал, риск или quota.
+- Account-bound equity, available funds, ГО, tick value/step, lot, costs и snapshot revision обязательны. Отличай pending reservations от уже учтённого broker ГО по точным client IDs; не вычитай средства повторно. После fills пересчитывай по фактическому qty/VWAP/stop и costs, не суммируй повторно бюджет и fees; сохраняй консервативную нижнюю границу (текущая модель max бюджета и известных fees), точную формулу сверяй с DERIVED. Per-trade и account limits обязательны.
 
 ### COC-V20-INITIAL-SLTP — первая и текущая защита
 
