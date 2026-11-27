@@ -40,3 +40,9 @@ The single *designated source checkout* for Kimi Code on Intel is `C:\KimiSandbo
 - Перед критической задачей V20/CC/TRL прочитай [единый контракт](recovery/CRITICAL_OPERATIONS_CONTRACT.md) и применяй релевантные Skills; чтение всех пяти без необходимости не требуется.
 - Контракт — hazard-directed conformance matrix, не runtime authorization. Проверенный SOURCE и фактические gates сохраняют приоритет; противоречие фиксируй как `SOURCE_DRIFT` и останавливай зависимый вывод.
 - Для Git identity используй `github-source-audit`; для передачи — `ai-engineering-handoff`. Установленный Skill, канонический Markdown fallback и backup копия — разные состояния.
+
+## Преемственность работы GPT / Kimi
+
+- В начале новой содержательной задачи или чата прочитай профильный рабочий статус: [V20](V20_TradingSystem_M15/STATUS.md), [CC](ControlCenter/STATUS.md), [TRL](TradingResearchLab/STATUS.md) или [Recovery](recovery/STATUS.md), затем только релевантные последние записи: [V20](V20_TradingSystem_M15/JOURNAL.md), [CC](ControlCenter/JOURNAL.md), [TRL journal](TradingResearchLab/journal/), [Recovery](recovery/JOURNAL.md). Проверь актуальный MAIN, разрешённый рабочий ref/PR и существенные факты по первоисточникам. При незаполненном статусе не выдумывай контекст.
+- После значимого результата, решения, блокера или передачи работы обнови краткий STATUS и добавь компактную запись в существующий Journal в рамках разрешённой ветки/PR. Не создавай отдельный PR на каждую запись; не копируй полные отчёты, историю и секреты. Если запись не разрешена или недоступна, передай краткий checkpoint владельцу, не заявляя о публикации.
+- Журнал — навигация, не технический источник истины и не полномочие. Не переносить устаревший LIVE/PASS или разрешения, не смешивать Draft и MAIN, не повторять неизвестный исход записи. Существующие COC, профильные правила и допуски сохраняются.
