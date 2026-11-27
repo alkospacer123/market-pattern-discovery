@@ -41,3 +41,10 @@ GPT / GitHub documentation. Исходный HEAD 86a5731f64e039c52c8c296a9dffed
 ### 27.11.2026 — C3 общая маршрутизация и authority reconciliation
 
 GPT / GitHub docs. MAIN `2ac85eb5bcdd8757144898b5a27369329f4d125c`, исходный HEAD #608 `f723a4f172b1df62696a60f5ff66112cac9d5643`: Main Admission PASS, CC docs FAIL с шестью ранее известными отсутствующими путями allowlist (run 45955591360), R7 SKIP. Сокращены 3 паспорта и 3 профиля (19294 → 9523 символов; полные прежние версии на принятом MAIN). Общий AGENTS, COC rc.2 candidate, HANDOFF, README, TRL AGENTS, CC source map, Windows scope согласованы. KDR-001 закрыт владельцем 26.11, старый CRITICAL FAIL сохранён. Backup bytes не изменены: 11 исторических pins, 18 current. C3 migration не принята, Skills по-прежнему обязательны по релевантности, all-three fallback/export и итоговый CI scope pending. Ни одного удаления, Merge, Intel/FINAM/LIVE или settings change.
+
+## 27.11.2026 — C3.2: цель без собственных Skills
+
+- Владелец согласовал целевую архитектуру без пяти активных собственных Skills, при сохранении необходимых требований и безопасного fallback. Не разрешение на удаление/Merge/отключение или LIVE.
+- #610 MERGED `807d765fab2eb923f4b745caeafa11a27ef6fc53`; #608 синхронизирован `8d5ac184eb9ea74770b3a9c3afea9e9204bb7240`, CC docs/Main Admission SUCCESS, R7 SKIPPED ([CC CI](https://github.com/alkospacer123/market-pattern-discovery/actions/runs/45958387127), [Main CI](https://github.com/alkospacer123/market-pattern-discovery/actions/runs/45958387130)). Входной документационный diff 42 файла, новые изменения не наследуют этот CI.
+- Перенос оставшихся требований в существующие AGENTS/COC/HANDOFF/V20/CC/TRL; три полные формы HANDOFF/acceptance/outage v1 перенесены из Skill без изменения шаблонов. ML-запрет сохранён в прежнем scope, дальнейшее изменение только отдельным решением. Это статический перенос, не доказанное полное покрытие или executed test.
+- Следующий шаг: независимая сверка покрытия и ссылок, обновлённый pinned export, all-three fallback, отдельное разрешение на удаление зеркал/Skill retirement и Merge. Ни одного удаления, настройки и LIVE не изменены.

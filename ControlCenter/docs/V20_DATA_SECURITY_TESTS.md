@@ -10,6 +10,9 @@
 - clock rollback / будущие и naive timestamps: STALE не возвращается в свежий PASS без нового валидного source; проверить отдельно heartbeat и ARMED-cycle в LOCAL_REPORT/UNKNOWN, не только общий health.
 - Streamlit startup, navigation, dialog, rerun, session/robot isolation: отсутствие неразрешённых source I/O/dispatch, повторного submit, сохранения cached positives после UNKNOWN; для зависимостей различать DECLARED / RESOLVED / IMPORTED / RUNTIME_LOADED, lockfile не подтверждает installed env.
 
+- Дополнительно по применимости: duplicate keys/oversize/wrong robot/account, независимость отказа одного робота, неподтверждённые policy/root/owner/ACL/reparse/pins, раздельные observed/publish/acquire/render timestamps, concurrent busy без retry; журнал worker attempts не broker fills. Digest не authentication.
+- Для operator path: invalid confirmation/release/SID/pins и каждый preflight gate с нулём dispatch/writes; timeout/missing marker после dispatch → FAILED_UNKNOWN и ноль автоматических повторов. Ручной повтор с новым request ID — отдельный технический interlock, не считать доказанным только по запрету регламента. Проверять durable began/finished, duplicate ID, crash windows, full/untrusted journal, rollback без удаления истории; точные gates из COC/CC-07, не реальная команда ради теста.
+
 Это требования к будущим целевым проверкам, **NOT_RUN**, не новые доказанные LIVE-инциденты. Для действий — COC, CC-07 и CC-08. Не повторять экзамен или запускать реальную команду ради regression.
 **CURRENT CODE SOURCE, 22.11.2026:** `main=0e569be6cb3c7cce1f7224e7f1fef6be38f6ba52`. Это не доказательство физического Intel/LIVE. [START HERE](V20_START_HERE_SOURCE_MAP.md), [CC-07](V20_CC07_COMMAND_CONTRACT.md).
 

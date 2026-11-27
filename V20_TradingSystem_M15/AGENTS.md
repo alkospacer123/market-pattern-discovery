@@ -26,4 +26,8 @@
 - Исправление: достижимость целевого gate, BASE failure/DERIVED pass, positive/negative witnesses, reason/side-effect budget, fake broker/disposable runner без реальных endpoints/secrets. Одна достаточная проверка не равна одному тесту.
 - Перед отдельно разрешённой установкой — все три робота, SHA/launcher/deps, backup/compatible rollback и broker preflight; после — ограниченный READONLY postflight, не пробная сделка/автоматический ARM.
 
+- Для incident trace сопоставляй robot/account/instrument/side/qty/time: signal → reservation/quota → intent/pre-write checkpoint → broker order/fills → position/SLTP. Durable intent ≠ broker order; ACK ≠ fill; fill ≠ active SLTP. Не выводить отмену из исчезновения заявки без требуемого broker status.
+- При изменении позиции заново проверяй effective stop coverage, не создавать избыточную защиту; cancel-after-flat только со свежим broker-flat proof и точным ownership. При Protect3 расчёт отдельно от writes, tick-aware и fresh executable quote по SOURCE; ACK/unknown cancel и unknown POST не равны PROTECTED. Не удалять временной gate ради мониторинга.
+- Для durable state проверять account/robot binding и exclusive lock, schema/version; не исправлять несовместимое состояние догадкой. Rollback не удаляет неизвестные intents. Целевые regressions по риску: duplicate/missing fills, wrong/stale snapshots, repeated fees, margin reflection, unknown writes, missed boundaries, restart/dual import и rollback. Указывать фактически проверенные DERIVED, конфигурацию, commands/logs/exit/skips; не переносить тесты между SHA.
+
 Полный NEVER_POSTED и GO/fees guard — COC-V20-ENTRY. Релевантный Skill не отключать до проверенного переноса/fallback и решения владельца.
