@@ -4,7 +4,7 @@
 ## Действующая база знаний — FULL_PARITY_OWNER_ADMITTED (27.11.2026)
 
 - Рабочая очередь и статус: [Roadmap](../../ROADMAP.md), [Recovery STATUS](../STATUS.md). Актуальный MAIN устанавливается при каждой содержательной задаче; dated checkpoints ниже — история.
-- Общая проверка источников — [AGENTS](../../AGENTS.md#проверка-источников--общий-порядок-c3-candidate); совместная работа — [HANDOFF](EXAM_AND_HANDOFF.md#действующий-рабочий-маршрут--c3-candidate-27112026); критические инварианты — [COC](../CRITICAL_OPERATIONS_CONTRACT.md). Профильные паспорта и source maps остаются предметными источниками. Читай только необходимое.
+- Общая проверка источников — [AGENTS](../../AGENTS.md#проверка-источников--действующий-общий-порядок); совместная работа — [HANDOFF](EXAM_AND_HANDOFF.md#действующий-рабочий-маршрут--27112026); критические инварианты — [COC](../CRITICAL_OPERATIONS_CONTRACT.md). Профильные паспорта и source maps остаются предметными источниками. Читай только необходимое.
 - Действующая модель: без пяти собственных активных Skills (отключены по сообщению владельца), без зеркал знаний. [Проверенный экспорт и навигатор](memory/README.md). Исторические исходники сохранены в Git и экспорте.
 - G0–G6/A/B/C приняты в документированном объёме; KDR 11/11 закрыты владельцем; FULL_PARITY_OWNER_ADMITTED утверждён 27.11.2026. Экзамены не повторять; operation-specific gates сохраняются. Ранее датированные NOT_CONNECTED/NOT_EXAMINED не являются текущим состоянием.
 
@@ -15,7 +15,11 @@
 [Block A engineering acceptance](BLOCK_A_ACCEPTANCE_20261126.md) · [current Roadmap](../../ROADMAP.md) · [three knowledge profiles](memory/README.md) · [KDR register](KIMI_DEFECTS_AND_REMEDIATION_REGISTER.md). Three Chat projects and five Skills accepted in reported/tested scope; GitHub #601–#604 source results merged. Full autonomy, actual installed/LIVE and cold restore not established. Earlier dated statuses below remain historical. Current authority is AGENTS/COC and canonical profile documents; historical Skills are provenance; KDR-001 later owner acceptance recorded in checkpoint. Use accepted MAIN, not old #597 as current source. No new access authorized.
 
 
-## Checkpoint G6.4 / G6.5 — 25.11.2026; исправление G6.5.1
+## Исторические checkpoints 22–25.11.2026 — не текущие задачи
+
+Все следующие статусы подготовки/экзаменов относятся к указанным датам. #598 MERGED; актуальный итог — в разделе выше и STATUS. Не выполнять старые инструкции о повторной квалификации.
+
+### Checkpoint G6.4 / G6.5 — 25.11.2026; исправление G6.5.1
 
 **Проверенный SOURCE BASE:** `alkospacer123/market-pattern-discovery/main@e05bbd24db88f127a52f0ff1b7282d7c6919cd81`.
 
@@ -25,7 +29,7 @@
 - **Независимая сверка GPT — 19/19 Git blob SHA MATCH; иерархия Control Center признана корректной.** Результат передан оператором и имеет класс `REPORTED_ONLY`: Kimi не выдаёт его за собственную повторную сверку всех 19 blob.
 - По переданному оператором решению GPT, **G6.5=PARTIALLY_ACCEPTED, MERGE_HOLD** до исправления атрибуции. G6.5.1 сохраняет исходный commit и добавляет один корректирующий commit в существующий Draft PR #598.
 
-| Последующий статус | Действующее заключение |
+| Последующий статус | Заключение на дату checkpoint (история) |
 | --- | --- |
 | Полный `CODE_EXAM_PASS` | **NOT CONFIRMED** |
 | Полный `HANDOFF_PASS` | **NOT CONFIRMED** до повторного независимого review и решения оператора |
@@ -45,7 +49,7 @@
 
 PINNED_SOURCE: market-pattern-discovery main `bb8c46c1db89ca2b5311f22c755bb4e51ce8f7d6`, GitHub 22.11.2026. Это исходные материалы, а не настройка Kimi или проверка Intel.
 
-**СТАТУС: SOURCE_PACKAGES_PREPARED / KIMI_CHAT_NOT_CONNECTED / KIMI_CODE_NOT_CONNECTED / EXAM_NOT_RUN.**
+**ИСТОРИЧЕСКИЙ СТАТУС 22.11: SOURCE_PACKAGES_PREPARED / KIMI_CHAT_NOT_CONNECTED / KIMI_CODE_NOT_CONNECTED / EXAM_NOT_RUN.**
 
 Один общий репозиторий, три независимых логических проекта Kimi: [V20 Trading System](V20.md), [Control Center V20](CONTROL_CENTER.md), [Trading Research Lab](TRL.md). Для каждого использовать [общий AGENTS](../../AGENTS.md), [README](../../README.md), [паспорт и источники](../README.md), затем только свой профиль. Исторические H1/M15 — общие библиотеки и исследовательские источники, не отдельные LIVE-проекты. Исторический `audit_only/stop_tick_grid_20261012` **не удалён**: [R7 финальный аудит](../R7_STAGE_I_FINAL_ACCEPTANCE_20261122.md) выявил два прямых H1 offline source/test dependency; Kimi не должен выдавать их за актуальную V20 LIVE логику.
 
@@ -65,5 +69,5 @@ Historical onboarding (23.11.2026): the NTFS training checkout was `C:\KimiSandb
 
 - Общий вход: [Critical Operations Contract](../CRITICAL_OPERATIONS_CONTRACT.md). Перед критической задачей требуются контракт и применимые профильные документы.
 - Исторические Skill-редакции и зеркала — в Git history и проверенном pre-cleanup export; [маршруты и manifests](memory/README.md). Historical pin не означает current MAIN.
-- Не редактируй backup самостоятельно. Старый `trl-reproducibility-review` не заменяет канонический `trl-repro-review`.
+- Не редактируй backup самостоятельно. `trl-reproducibility-review` и `trl-repro-review` — исторические Skill-редакции; действуют каноническая [методология TRL](../../TradingResearchLab/research/RESEARCH_METHODOLOGY.md) и COC, а не установленный собственный Skill.
 - Доступность pinned source, наличие backup и фактическая конфигурация ИИ — разные проверки. Manifest не доказывает установку или qualification.
