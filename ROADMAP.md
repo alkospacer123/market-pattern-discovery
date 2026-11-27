@@ -12,7 +12,7 @@
 | II. A — GPT-OUTAGE | ENGINEERING_RESULTS_ACCEPTED_3_OF_3 / OWNER_ACCEPTED_20261126. Остаточные доказательства автономности сохранены в B/C. |
 | II. B — G8 + G9.6 | OWNER_ACCEPTED_BOUNDED_20261126. B1 синхронизация; B2 удалённая работа, approve/deny, остановка Code, переподключение; пределы доказательности ниже. |
 | II. C — G9.1–G9.5, G9.7–G9.8 | C1_AUDIT_COMPLETE / C2_CLOSED_OWNER_20261127 / C3.3.5_INVENTORY_COMPLETE_REVIEWED / KDR_OWNER_CLOSEOUT_20261127 / C3.4_COMPLETE / FULL_PARITY_OWNER_ADMITTED / G9_PASS_OWNER_ACCEPTED_20261127. Этап II принят владельцем в документированном scope. |
-| Post-G9 — V20 / CC / разовая Evolution V20 / release / ARM | V20 GitHub-аудит в работе по сообщению владельца; затем CC и разовая Evolution, совместное решение; отдельные разрешения на исполнение, release и ARM. |
+| Post-G9 — V20 / CC / разовая Evolution V20 / release / ARM | V20 SOURCE-аудит и статическое ревью завершены ([Journal](V20_TradingSystem_M15/JOURNAL.md)); CC в работе по сообщению владельца, затем разовая Evolution; общий PR #617 без Merge до итогового решения, отдельные разрешения на исполнение, release и ARM. |
 | III — Independent Recovery | NOT_STARTED; после G9 PASS и ≥7 последовательных календарных суток штатной безаварийной эксплуатации V20 (3/3). |
 | TRL — полный штатный цикл | PENDING; после Recovery, ориентир 20.12.2026, не автоматический запуск. TREND/MOMENTUM/VOLATILITY сохранены для дальнейшей программы. |
 
