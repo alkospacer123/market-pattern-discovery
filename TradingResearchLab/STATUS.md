@@ -2,6 +2,14 @@
 
 ## 27.11.2026 — текущий checkpoint Post-G9
 
+### 28.11.2026 — разовая предпусковая Evolution V20 завершена
+
+**`ANALYTICAL_COMPLETE / GPT_REVIEW_SUPPORTED / KEEP_CURRENT_V20 / NO_PRELAUNCH_CHANGE / NO_NEW_CALCULATIONS_REQUIRED`.** Независимое ревью GPT, переданное владельцем, поддержало сохранение V20; новые расчёты не требуются. Сохраняются 60/30/45, TP6 + Protect3 + HOLD5, EXT2 OFF, Market NEXT_OPEN и действующие ограничения риска/ГО. Отложенные гипотезы по reserved risk после Protect3 и conditional progress exit не являются кандидатами, дефектами или разрешением на торговые изменения. Downsizing подтверждён SOURCE; альтернативная приоритизация R092 не доказана. [Итог и отложенные гипотезы](journal/2026-11-27-trl-knowledge-consolidation.md), [полный авторский отчёт Kimi, pinned history](https://github.com/alkospacer123/market-pattern-discovery/blob/96cea3a01591fcb7f00087e8397c179ef74682a3/TradingResearchLab/evolution/TRL-PRELAUNCH-EVOLUTION-V20-20261128.md). Итоговая приёмка владельцем — отдельно.
+
+Перед публикацией повторно подтверждены MAIN `a3aa48fee59b0a077794cccc5ae3eef33d62a6c5` и исходный HEAD #617 `143b17c825dc397293c64de52154f9fad160397d`. Запись только в TRL documentation scope существующего PR #617, без Merge. Не задерживать запуск ради необязательной оптимизации; самостоятельного разрешения на deploy/ARM/LIVE это решение не даёт.
+
+**Решение владельца: разовая предпусковая Evolution V20** после аудитов V20 и Control Center, до возврата к торговле. Scope и критерии — [Roadmap](../ROADMAP.md#post-g9-самостоятельная-диагностика-и-возврат-v20-в-эксплуатацию) и [методология](research/RESEARCH_METHODOLOGY.md). Это не месячный/квартальный цикл и не запуск трёх новых стратегий. После Recovery — полный штатный цикл по [Operating Cycle](OPERATING_CYCLE.md); согласованная программа TREND/MOMENTUM/VOLATILITY сохранена.
+
 Владелец 27.11.2026 утвердил `FULL_PARITY_OWNER_ADMITTED` для V20/CC/TRL; этап II принят в документированных пределах. [Roadmap](../ROADMAP.md), [Recovery STATUS](../recovery/STATUS.md), [KDR](../recovery/kimi/KIMI_DEFECTS_AND_REMEDIATION_REGISTER.md). #614 MERGED; итоговый документационный closeout — #615. Допуск не является разрешением на конкретные критические операции.
 
 C3.2 evidence (исторический срез)
