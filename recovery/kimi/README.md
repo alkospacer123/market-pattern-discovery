@@ -69,5 +69,5 @@ Historical onboarding (23.11.2026): the NTFS training checkout was `C:\KimiSandb
 
 - Общий вход: [Critical Operations Contract](../CRITICAL_OPERATIONS_CONTRACT.md). Перед критической задачей требуются контракт и применимые профильные документы.
 - Исторические Skill-редакции и зеркала — в Git history и проверенном pre-cleanup export; [маршруты и manifests](memory/README.md). Historical pin не означает current MAIN.
-- Не редактируй backup самостоятельно. Старый `trl-reproducibility-review` не заменяет канонический `trl-repro-review`.
+- Не редактируй backup самостоятельно. `trl-reproducibility-review` и `trl-repro-review` — исторические Skill-редакции; действуют каноническая [методология TRL](../../TradingResearchLab/research/RESEARCH_METHODOLOGY.md) и COC, а не установленный собственный Skill.
 - Доступность pinned source, наличие backup и фактическая конфигурация ИИ — разные проверки. Manifest не доказывает установку или qualification.
