@@ -2,7 +2,7 @@
   "schema": "kimi-project-knowledge/v2",
   "project": "Control Center",
   "date": "2026-11-27",
-  "status": "CANONICAL_ROUTE_C3_CANDIDATE",
+  "status": "CANONICAL_ROUTE_OWNER_ADMITTED",
   "authority": "Resolve accepted MAIN or explicitly authorized pinned snapshot; never infer live status.",
   "current_sources": [
     {
@@ -59,6 +59,18 @@
     },
     {
       "path": "ControlCenter/docs/V20_DATA_SECURITY_TESTS.md",
+      "ref_policy": "SAME_RESOLVED_REF"
+    },
+    {
+      "path": "ROADMAP.md",
+      "ref_policy": "SAME_RESOLVED_REF"
+    },
+    {
+      "path": "recovery/JOURNAL.md",
+      "ref_policy": "SAME_RESOLVED_REF"
+    },
+    {
+      "path": "ControlCenter/JOURNAL.md",
       "ref_policy": "SAME_RESOLVED_REF"
     }
   ],
@@ -146,5 +158,5 @@
     "owner_storage": "CONFIRMED_20261127",
     "scope": "53 canonical + 16 historical; not full repository or cold restore"
   },
-  "notes": "Historical entries are nonmaterialized provenance, not active paths or instructions. Missing required current source -> STOP dependent task. Installed settings and full qualification remain separate."
+  "notes": "Current sources are a route map, not a mandatory full-context load. Resolve accepted MAIN and read the relevant STATUS and latest relevant JOURNAL entries before a task; TRL uses dated journal/ entries, use STATUS to locate the current entry. REPOSITORY_CURRENT_STATE.md is a dated historical snapshot. Historical entries and export remain unchanged provenance, not active paths or instructions. Missing required source -> STOP dependent task. FULL_PARITY_OWNER_ADMITTED is owner qualification, not automatic operation permission or LIVE/cold restore proof."
 }

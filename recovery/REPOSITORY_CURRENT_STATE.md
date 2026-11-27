@@ -1,5 +1,7 @@
 # GitHub — проверенное состояние проекта (22.11.2026)
 
+**Датированный исторический snapshot, не действующий STATUS.** 27.11.2026 итоговый допуск FULL_PARITY_OWNER_ADMITTED опубликован в [#615](https://github.com/alkospacer123/market-pattern-discovery/pull/615); актуальную очередь и принятые решения см. [Roadmap](../ROADMAP.md), [Recovery STATUS](STATUS.md), [KDR](kimi/KIMI_DEFECTS_AND_REMEDIATION_REGISTER.md). Старые DRAFT/NOT CONFIRMED ниже сохраняют первоначальный контекст, не возобновляют экзамены и не дают LIVE-разрешения.
+
 ## Checkpoint 25.11.2026 — G6.4, G6.5 и исправление G6.5.1
 
 **SOURCE BASE:** `alkospacer123/market-pattern-discovery/main@e05bbd24db88f127a52f0ff1b7282d7c6919cd81`, независимо разрешён через GitHub при подготовке G6.5. Это датированный snapshot, не постоянный HEAD и не свидетельство INSTALLED/LIVE.

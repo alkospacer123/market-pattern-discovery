@@ -1,17 +1,17 @@
 # Trading Systems — V20 / Control Center / Trading Research Lab
 
-**Операционная проверка 23.11.2026:** GitHub `main` сверялся на `1413273a1a312802a0ced7a06a4eb73f050d2ec3` до текущей документационной ревизии. На Intel оператор подтвердил **единственную** рабочую Git-копию `C:\KimiSandbox\market-pattern-discovery` на NTFS с тем же SHA и чистым рабочим деревом. Это не OS sandbox и не разрешение тестировать код на Intel. Для Kimi: [Phase-II knowledge](recovery/kimi/README.md) → [Windows access gate](recovery/kimi/WINDOWS_WORKSPACE_AND_ACCESS.md) → [практический экзамен](recovery/kimi/EXAM_AND_HANDOFF.md). LIVE по-прежнему UNKNOWN.
+**27.11.2026 — FULL_PARITY_OWNER_ADMITTED:** этап II принят владельцем ([Roadmap](ROADMAP.md), [Recovery STATUS](recovery/STATUS.md), [#615 MERGED](https://github.com/alkospacer123/market-pattern-discovery/pull/615)). GPT и Kimi — равноправные инженерные агенты; полномочия конкретной операции определяются AGENTS/COC и отдельными разрешениями. Штатные области Code — V20 `C:\V20Lab` и CC `C:\Control Center`, TRL — `TradingResearchLab/` без постоянного локального корня; [Windows policy](recovery/kimi/WINDOWS_WORKSPACE_AND_ACCESS.md). Учебная копия не штатная зависимость, не OS sandbox; не обновлять и не удалять без отдельного решения. LIVE UNKNOWN.
 
 
 > **Единый рабочий GitHub трёх проектов.** H1/M15 сохранены как необходимые V20-зависимости и источник исследований, а не новые LIVE-проекты. Контрольный GitHub-срез после этапа I: `main=41d0b48c1d33db29bc1b19497d558748b3db8fb4` (22.11.2026, Merge #589). Это **датированный pin**, а не обещание неизменности HEAD. Перед любой новой операцией повторно сверять GitHub SHA.
 
 ## Проекты — начинать здесь
 
-| Область | Назначение | Канонический паспорт |
+| Область | Назначение | Канонический паспорт / рабочий контекст |
 | --- | --- | --- |
-| `V20_TradingSystem_M15/` | Shallow, OBV, Inside: код, R088, тесты, замороженные правила | [V20](recovery/PROJECT_PASSPORT_V20.md) |
-| `ControlCenter/` | V20-панель, мониторинг, CC-07 и операторские команды | [Control Center](recovery/PROJECT_PASSPORT_CONTROL_CENTER.md) |
-| `TradingResearchLab/` | Research, Evolution, Journal и воспроизводимость исследований | [TRL](recovery/PROJECT_PASSPORT_TRL.md) |
+| `V20_TradingSystem_M15/` | Shallow, OBV, Inside: код, R088, тесты, замороженные правила | [V20](recovery/PROJECT_PASSPORT_V20.md) · [STATUS](V20_TradingSystem_M15/STATUS.md) · [JOURNAL](V20_TradingSystem_M15/JOURNAL.md) |
+| `ControlCenter/` | V20-панель, мониторинг, CC-07 и операторские команды | [Control Center](recovery/PROJECT_PASSPORT_CONTROL_CENTER.md) · [STATUS](ControlCenter/STATUS.md) · [JOURNAL](ControlCenter/JOURNAL.md) |
+| `TradingResearchLab/` | Research, Evolution, Journal и воспроизводимость исследований | [TRL](recovery/PROJECT_PASSPORT_TRL.md) · [STATUS](TradingResearchLab/STATUS.md) · [journal/](TradingResearchLab/journal/) |
 
 [**Сохранённые исследования и audit_only: точная классификация (22.11)**](recovery/RETAINED_RESEARCH_CLASSIFICATION_2026-11-22.md) — история H1/M15 отдельно от текущих инструкций.
 
@@ -38,8 +38,8 @@
 
 - [PR #583](https://github.com/alkospacer123/market-pattern-discovery/pull/583) удалил 11 594 исторических A/B/C+BBW файла с сохранением Git history, **но не провёл полного выноса старых исследований в отдельный архив**.
 - [market-pattern-data](https://github.com/alkospacer123/market-pattern-data) — отдельные данные; [market-pattern-archive](https://github.com/alkospacer123/market-pattern-archive) — дополнительный публичный архив (по проверке в его main 26 файлов), **не требуется для ежедневной работы трёх систем** и не является независимым полным Recovery. До решения о сохранности не удалять.
-- [Пакеты Kimi V20 / CC / TRL и практический экзамен](recovery/kimi/README.md) приняты через [Merge #589](https://github.com/alkospacer123/market-pattern-discovery/pull/589). **Обновление 23.11:** оператор подтвердил два Chat-проекта и авторизацию Kimi Code; третий Chat-проект пока ожидает подписки, реальное чтение Kimi GitHub и экзамены ещё не проверены. [Windows workspace и доступ](recovery/kimi/WINDOWS_WORKSPACE_AND_ACCESS.md).
-- Kimi Chat — три логических проекта знаний из одного GitHub; **Kimi Code отдельно** должен получить проверенные доступы, выполнить практический offline-экзамен и взаимную передачу задач с GPT. Не считать настроенным до теста.
-- Финальный автономный backup + реальный cold restore V20, CC и TRL вне Intel/GitHub/обоих ИИ — **после** всех исправлений и адаптации.
+- [Три проекта знаний Kimi](recovery/kimi/README.md), [KDR](recovery/kimi/KIMI_DEFECTS_AND_REMEDIATION_REGISTER.md) и [Recovery STATUS](recovery/STATUS.md): обучение и квалификация приняты в документированных пределах, KDR 11/11; не повторять экзамены.
+- Kimi Chat — общение и знания, Kimi Code — основной технический исполнитель, Work — резерв. [HANDOFF](recovery/kimi/EXAM_AND_HANDOFF.md): независимый контроль, один writer на scope, STOP/DEFER и безопасный runner обязательны. Допуск не доказывает полный GPT-outage, OS isolation или непроверенные remote controls.
+- Финальный автономный backup + реальный cold restore V20, CC и TRL вне Intel/GitHub/обоих ИИ — после возвращения V20 к штатной работе и ≥7 последовательных календарных суток безаварийной эксплуатации всех трёх, по [Roadmap](ROADMAP.md).
 
-**Порядок чтения:** `AGENTS.md` → этот README → один из трёх паспортов → проектный README/исходники/тесты → датированный оригинал. Старые исследовательские README не являются общими операционными инструкциями.
+**Порядок работы:** актуальный MAIN/рабочий ref, [AGENTS](AGENTS.md), профильный STATUS и последние релевантные JOURNAL → паспорт/применимый COC/первоисточники. После существенного результата обновить STATUS/JOURNAL в разрешённой ветке. Не читать весь репозиторий; исторические документы — свидетельства, не текущие инструкции.

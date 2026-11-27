@@ -1,9 +1,10 @@
 # Control Center — навигатор знаний
 
-C3: один канонический источник на знание. Этот каталог содержит только карту и manifest, а не копии источников. Начать с [общего маршрута](../../README.md), затем профильного STATUS и применимого AGENTS/COC. Читать только нужные документы на разрешённом pinned ref.
+C3: один канонический источник на знание. Этот каталог содержит только карту и manifest, а не копии источников. Начать с [общего маршрута](../../README.md), затем профильного STATUS, последних релевантных записей JOURNAL и применимого AGENTS/COC. Читать только нужные документы на разрешённом pinned ref.
 
 - [CONTROL_CENTER.md](../../../../recovery/kimi/CONTROL_CENTER.md)
 - [STATUS.md](../../../../ControlCenter/STATUS.md)
+- [JOURNAL.md](../../../../ControlCenter/JOURNAL.md)
 - [PROJECT_PASSPORT_CONTROL_CENTER.md](../../../../recovery/PROJECT_PASSPORT_CONTROL_CENTER.md)
 - [V20_START_HERE_SOURCE_MAP.md](../../../../ControlCenter/docs/V20_START_HERE_SOURCE_MAP.md)
 - [V20_CC08_OPERATIONS.md](../../../../ControlCenter/docs/V20_CC08_OPERATIONS.md)

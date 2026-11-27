@@ -1,9 +1,10 @@
 # V20 Trading System — навигатор знаний
 
-C3: один канонический источник на знание. Этот каталог содержит только карту и manifest, а не копии источников. Начать с [общего маршрута](../../README.md), затем профильного STATUS и применимого AGENTS/COC. Читать только нужные документы на разрешённом pinned ref.
+C3: один канонический источник на знание. Этот каталог содержит только карту и manifest, а не копии источников. Начать с [общего маршрута](../../README.md), затем профильного STATUS, последних релевантных записей JOURNAL и применимого AGENTS/COC. Читать только нужные документы на разрешённом pinned ref.
 
 - [V20.md](../../../../recovery/kimi/V20.md)
 - [STATUS.md](../../../../V20_TradingSystem_M15/STATUS.md)
+- [JOURNAL.md](../../../../V20_TradingSystem_M15/JOURNAL.md)
 - [AGENTS.md](../../../../V20_TradingSystem_M15/AGENTS.md)
 - [PROJECT_PASSPORT_V20.md](../../../../recovery/PROJECT_PASSPORT_V20.md)
 - [R088_ARCHITECTURE_AND_SAFETY_20261122.md](../../../../V20_TradingSystem_M15/R088_ARCHITECTURE_AND_SAFETY_20261122.md)
