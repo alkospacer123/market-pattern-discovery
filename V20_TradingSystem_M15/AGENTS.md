@@ -30,4 +30,4 @@
 - При изменении позиции заново проверяй effective stop coverage, не создавать избыточную защиту; cancel-after-flat только со свежим broker-flat proof и точным ownership. При Protect3 расчёт отдельно от writes, tick-aware и fresh executable quote по SOURCE; ACK/unknown cancel и unknown POST не равны PROTECTED. Не удалять временной gate ради мониторинга.
 - Для durable state проверять account/robot binding и exclusive lock, schema/version; не исправлять несовместимое состояние догадкой. Rollback не удаляет неизвестные intents. Целевые regressions по риску: duplicate/missing fills, wrong/stale snapshots, repeated fees, margin reflection, unknown writes, missed boundaries, restart/dual import и rollback. Указывать фактически проверенные DERIVED, конфигурацию, commands/logs/exit/skips; не переносить тесты между SHA.
 
-Полный NEVER_POSTED и GO/fees guard — COC-V20-ENTRY. Релевантный Skill не отключать до проверенного переноса/fallback и решения владельца.
+Полный NEVER_POSTED и GO/fees guard — COC-V20-ENTRY. Обязательны актуальный COC и профильные источники; прежний Skill — исторический материал. Настройки и полный допуск ИИ — отдельно.

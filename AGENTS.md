@@ -1,6 +1,6 @@
 # Trading Systems — действующий общий AGENTS для GPT/Codex и Kimi Code
 
-**C3 candidate 27.11.2026 — маршрут двух ИИ:** начни с профильного STATUS и необходимых записей JOURNAL, затем применимого AGENTS/COC и точного source path. [V20](recovery/kimi/V20.md) · [CC](recovery/kimi/CONTROL_CENTER.md) · [TRL](recovery/kimi/TRL.md). Паспорта — устойчивые карты, не копии меняющихся параметров. Общая методика Git — этот AGENTS; HANDOFF — существующий [протокол](recovery/kimi/EXAM_AND_HANDOFF.md); профильные требования — документы систем. Целевая архитектура C3 по решению владельца 27.11: ноль собственных активных Skills, необходимые требования в канонических документах, история и проверяемый offline export. До приёмки покрытия/fallback и отдельного разрешения на отключение действующие Skills обязательны по релевантности. Полномочия не расширяются.
+**C3 candidate 27.11.2026 — маршрут двух ИИ:** начни с профильного STATUS и необходимых записей JOURNAL, затем применимого AGENTS/COC и точного source path. [V20](recovery/kimi/V20.md) · [CC](recovery/kimi/CONTROL_CENTER.md) · [TRL](recovery/kimi/TRL.md). Паспорта — устойчивые карты, не копии меняющихся параметров. Общая методика Git — этот AGENTS; HANDOFF — существующий [протокол](recovery/kimi/EXAM_AND_HANDOFF.md); профильные требования — документы систем. Целевая архитектура C3 по решению владельца 27.11: ноль собственных активных Skills, необходимые требования в канонических документах, история и проверяемый offline export. Согласованное исключение пяти собственных Skill-файлов в C3: текущий маршрут — канонические документы, не исторические Skills. Физические настройки ИИ и окончательный допуск — отдельно. Полномочия не расширяются.
 **Решения владельца 26.11.2026:** адаптировать ИИ к работающим системам, не изменять системы ради экзаменов. Для новых TRL-расчётов только C1; три исследования и критерии — [методология](TradingResearchLab/research/RESEARCH_METHODOLOGY.md). #601 подготовить к all-three установке, #602 оставить для планового обновления; [V20](recovery/PROJECT_PASSPORT_V20.md) и [CC](recovery/PROJECT_PASSPORT_CONTROL_CENTER.md). Не разрешение на deploy, ARM, FINAM или Merge.
 
 **Проверенный контур этапа I, 22.11.2026, после Merge #589.** [Реестр действующих и исторических документов](recovery/DOCUMENTATION_AUTHORITY_2026-11-22.md) задаёт приоритет, а каждый указанный Git SHA — свидетельство своего датированного среза, не постоянный HEAD. Заменяет старый корневой Research safety contract как универсальную инструкцию. Исходный текст и старый Market Pattern Discovery остаются в Git history и исторических документах. Для проекта сначала прочитать [README](README.md), [срез](recovery/REPOSITORY_CURRENT_STATE.md), [паспорт V20](recovery/PROJECT_PASSPORT_V20.md) / [CC](recovery/PROJECT_PASSPORT_CONTROL_CENTER.md) / [TRL](recovery/PROJECT_PASSPORT_TRL.md).
@@ -38,9 +38,9 @@ The single *designated source checkout* for Kimi Code on Intel is `C:\KimiSandbo
 
 ## Critical Operations Contract
 
-- Перед критической задачей V20/CC/TRL прочитай [единый контракт](recovery/CRITICAL_OPERATIONS_CONTRACT.md) и применяй релевантные Skills; чтение всех пяти без необходимости не требуется.
+- Перед критической задачей V20/CC/TRL прочитай [единый контракт](recovery/CRITICAL_OPERATIONS_CONTRACT.md) и соответствующие профильные источники; при недостаточном доказательстве — STOP зависимой части.
 - Контракт — hazard-directed conformance matrix, не runtime authorization. Проверенный SOURCE и фактические gates сохраняют приоритет; противоречие фиксируй как `SOURCE_DRIFT` и останавливай зависимый вывод.
-- Для Git identity — общий порядок ниже; для передачи — [HANDOFF](recovery/kimi/EXAM_AND_HANDOFF.md). До приёмки C3 дополнительно применяй релевантные действующие Skills. Установленный Skill, canonical Markdown fallback и backup — разные состояния.
+- Для Git identity — общий порядок ниже; для передачи — [HANDOFF](recovery/kimi/EXAM_AND_HANDOFF.md). Релевантный профиль и COC обязательны по scope; исторические Skills не являются действующим требованием. Память, pinned source и backup — разные состояния.
 
 ## Проверка источников — общий порядок (C3 candidate)
 
@@ -55,7 +55,7 @@ The single *designated source checkout* for Kimi Code on Intel is `C:\KimiSandbo
 
 В критичном отчёте различай CONFIRMED / CONTRADICTED / UNKNOWN / BLOCKED / NOT_APPLICABLE, статус утверждения отдельно от полноты аудита. Сохраняй обе стороны конфликта, даты, refs и основание решения. При невозможности безопасно отделить scope или компрометации целостности останови весь аудит.
 
-Детальный прежний протокол и квалификационные классы сохранены [на проверенном ref](https://github.com/alkospacer123/market-pattern-discovery/blob/95637f5bea33a93b856d5aea9565538712d3ad99/recovery/kimi/skills/github-source-audit/SKILL.md). До итоговой приёмки C3 действует прежнее требование релевантных Skills; этот компактный раздел не является доказательством эквивалентности или разрешением отключить Skill.
+Детальный прежний протокол и квалификационные классы сохранены [на проверенном ref](https://github.com/alkospacer123/market-pattern-discovery/blob/95637f5bea33a93b856d5aea9565538712d3ad99/recovery/kimi/skills/github-source-audit/SKILL.md). Исторический протокол — provenance, не обязательное чтение и не источник новых требований. Полнота итогового допуска подтверждается отдельно; полномочия и operation-specific gates неизменны.
 
 ## Преемственность работы GPT / Kimi
 

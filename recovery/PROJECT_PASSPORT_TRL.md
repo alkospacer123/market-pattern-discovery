@@ -12,4 +12,4 @@
 
 ZERO LOOK-AHEAD с первого теста; 2018–2026 исследованы и не untouched TRUE OOS. Исследовательский лидер, OWNER_SELECTED, SOURCE, INSTALLED и LIVE не эквивалентны. Новая программа PENDING_GATE согласно STATUS, не автоматический старт. Не изменять V20/FINAM и не подменять replay отсутствующих оригиналов.
 
-**C3.2 candidate 27.11.2026:** [предыдущая редакция](https://github.com/alkospacer123/market-pattern-discovery/blob/2ac85eb5bcdd8757144898b5a27369329f4d125c/recovery/PROJECT_PASSPORT_TRL.md) сохраняет полный текст решения 26.11 и исторический exam scope. Текущая методология содержит согласованные численные критерии. Fallback/Skill migration ещё не приняты.
+**C3.2 candidate 27.11.2026:** [предыдущая редакция](https://github.com/alkospacer123/market-pattern-discovery/blob/2ac85eb5bcdd8757144898b5a27369329f4d125c/recovery/PROJECT_PASSPORT_TRL.md) сохраняет полный текст решения 26.11 и исторический exam scope. Текущая методология содержит согласованные численные критерии. Владелец разрешил exact cleanup исторических зеркал и Skill-файлов после проверки fallback и подтверждения внешнего экспорта; итоговый Merge и конфигурация ИИ/полный допуск остаются отдельными.

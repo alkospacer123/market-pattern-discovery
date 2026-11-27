@@ -4,7 +4,7 @@
 
 1. [Общий AGENTS](../../AGENTS.md), [CC STATUS](../../ControlCenter/STATUS.md), [JOURNAL](../../ControlCenter/JOURNAL.md).
 2. [Паспорт](../PROJECT_PASSPORT_CONTROL_CENTER.md), [Start Here](../../ControlCenter/docs/V20_START_HERE_SOURCE_MAP.md), [CC-07](../../ControlCenter/docs/V20_CC07_COMMAND_CONTRACT.md), [CC-08](../../ControlCenter/docs/V20_CC08_OPERATIONS.md), [data/security/tests](../../ControlCenter/docs/V20_DATA_SECURITY_TESTS.md) — по конкретной задаче.
-3. [COC](../CRITICAL_OPERATIONS_CONTRACT.md) и применимый [cc-incident-audit](skills/cc-incident-audit/SKILL.md) до принятия C3; [HANDOFF](EXAM_AND_HANDOFF.md) для передачи.
+3. [COC](../CRITICAL_OPERATIONS_CONTRACT.md) и [контракт диагностики и тестов](../../ControlCenter/docs/V20_DATA_SECURITY_TESTS.md); [HANDOFF](EXAM_AND_HANDOFF.md) для передачи.
 
 READONLY ≠ operator; UNKNOWN не повторять, UI не broker truth, #602 SOURCE ≠ INSTALLED. [Текущая программа](../../ROADMAP.md), [резервный профиль](memory/ControlCenter/README.md). Kimi Code работает только в разрешённом scope.
 

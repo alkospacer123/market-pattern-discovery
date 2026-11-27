@@ -1,96 +1,214 @@
 {
-  "schema": "kimi-project-knowledge/v1",
+  "schema": "kimi-project-knowledge/v2",
   "project": "Trading Research Lab",
-  "date": "2026-11-26",
-  "source_snapshot": "3eddebb4d915c7798a2d56d2230010933f553c81",
-  "reference_main": "78767f6d684e2923561c1314b6466b464b7e1de6",
-  "status": "C3_TRANSITION_HISTORICAL_MIRRORS_NOT_CURRENT",
-  "original_draft_head": "a4af4cb72257f5c7cffd5d87d97e34438cf0fe46",
-  "files": [
+  "date": "2026-11-27",
+  "status": "CANONICAL_ROUTE_C3_CANDIDATE",
+  "authority": "Resolve accepted MAIN or explicitly authorized pinned snapshot; never infer live status.",
+  "current_sources": [
     {
-      "file": "Trading_Systems_Architecture_and_AI_Collaboration.md",
-      "source": "recovery/kimi/Trading_Systems_Architecture_and_AI_Collaboration.md",
-      "blob": "ddc333b21c73e6dc6f841231113c9d844dc665a6",
-      "source_commit": null,
-      "authority": "CANDIDATE_SAME_TREE_SOURCE"
+      "path": "README.md",
+      "ref_policy": "SAME_RESOLVED_REF"
     },
     {
-      "file": "PROJECT_PASSPORT_TRL.md",
-      "source": "recovery/PROJECT_PASSPORT_TRL.md",
-      "blob": "1d51b98e1fce01302e5b3e26de5825bcf038af74",
-      "source_commit": "2ac85eb5bcdd8757144898b5a27369329f4d125c",
-      "authority": "PINNED_MAIN_SOURCE"
+      "path": "AGENTS.md",
+      "ref_policy": "SAME_RESOLVED_REF"
     },
     {
-      "file": "TRL.md",
-      "source": "recovery/kimi/TRL.md",
-      "blob": "d8fc1f8e4286c6aeb50461f7a757cecc0a46a426",
-      "source_commit": "2ac85eb5bcdd8757144898b5a27369329f4d125c",
-      "authority": "PINNED_MAIN_SOURCE"
+      "path": "recovery/REPOSITORY_CURRENT_STATE.md",
+      "ref_policy": "SAME_RESOLVED_REF"
     },
     {
-      "file": "TRL-NOV-2026-KIMI-START-HERE.md",
-      "source": "TradingResearchLab/reports/TRL-NOV-2026-KIMI-START-HERE.md",
-      "blob": "b0e316134eea8a2c62a6a2ae66dc282093fdbabe",
-      "source_commit": "2ac85eb5bcdd8757144898b5a27369329f4d125c",
-      "authority": "PINNED_MAIN_SOURCE"
+      "path": "recovery/STATUS.md",
+      "ref_policy": "SAME_RESOLVED_REF"
     },
     {
-      "file": "RESEARCH_METHODOLOGY.md",
-      "source": "TradingResearchLab/research/RESEARCH_METHODOLOGY.md",
-      "blob": "a4a116693634eef034e2a30ad4162df0f860ecf9",
-      "source_commit": "2ac85eb5bcdd8757144898b5a27369329f4d125c",
-      "authority": "PINNED_MAIN_SOURCE"
+      "path": "recovery/CRITICAL_OPERATIONS_CONTRACT.md",
+      "ref_policy": "SAME_RESOLVED_REF"
     },
     {
-      "file": "OPERATING_CYCLE.md",
-      "source": "TradingResearchLab/OPERATING_CYCLE.md",
-      "blob": "edcb49586d03f20ea3e3ef47e70fceb831e2fa52",
-      "source_commit": "2ac85eb5bcdd8757144898b5a27369329f4d125c",
-      "authority": "PINNED_MAIN_SOURCE"
+      "path": "recovery/kimi/EXAM_AND_HANDOFF.md",
+      "ref_policy": "SAME_RESOLVED_REF"
     },
     {
-      "file": "RESEARCH_CARD_TEMPLATE.md",
-      "source": "TradingResearchLab/research/RESEARCH_CARD_TEMPLATE.md",
-      "blob": "d7beaf6bfc6516047df91d1419585b1b0c45e796",
-      "source_commit": "2ac85eb5bcdd8757144898b5a27369329f4d125c",
-      "authority": "PINNED_MAIN_SOURCE"
+      "path": "recovery/kimi/Trading_Systems_Architecture_and_AI_Collaboration.md",
+      "ref_policy": "SAME_RESOLVED_REF"
     },
     {
-      "file": "TRL-NOV-2026-ARTIFACT-MANIFEST.md",
-      "source": "TradingResearchLab/reports/TRL-NOV-2026-ARTIFACT-MANIFEST.md",
-      "blob": "725da79a35484a7385a8f9b98c3d7c59bc4e19e3",
-      "source_commit": "3eddebb4d915c7798a2d56d2230010933f553c81",
-      "authority": "PINNED_MAIN_SOURCE"
+      "path": "recovery/kimi/TRL.md",
+      "ref_policy": "SAME_RESOLVED_REF"
     },
     {
-      "file": "TRL-NOV-2026-FINAL-CLOSEOUT.md",
-      "source": "TradingResearchLab/reports/TRL-NOV-2026-FINAL-CLOSEOUT.md",
-      "blob": "ec06839fd233f9909eead53e82b9b7d1d7868fb8",
-      "source_commit": "3eddebb4d915c7798a2d56d2230010933f553c81",
-      "authority": "PINNED_MAIN_SOURCE"
+      "path": "TradingResearchLab/STATUS.md",
+      "ref_policy": "SAME_RESOLVED_REF"
     },
     {
-      "file": "skills/trl-repro-review/SKILL.md",
-      "source": "recovery/kimi/skills/trl-repro-review/SKILL.md",
-      "blob": "9f0f1af3516e6eb6af48d7c434355150544e1476",
-      "source_commit": null,
-      "authority": "CANDIDATE_SAME_TREE_SOURCE"
+      "path": "TradingResearchLab/AGENTS.md",
+      "ref_policy": "SAME_RESOLVED_REF"
     },
     {
-      "file": "skills/github-source-audit/SKILL.md",
-      "source": "recovery/kimi/skills/github-source-audit/SKILL.md",
-      "blob": "320f3b558cee14b195ae0e8beb6ad392106f9359",
-      "source_commit": "3eddebb4d915c7798a2d56d2230010933f553c81",
-      "authority": "PINNED_MAIN_SOURCE"
+      "path": "recovery/PROJECT_PASSPORT_TRL.md",
+      "ref_policy": "SAME_RESOLVED_REF"
     },
     {
-      "file": "skills/ai-engineering-handoff/SKILL.md",
-      "source": "recovery/kimi/skills/ai-engineering-handoff/SKILL.md",
-      "blob": "d08ccc90065b19a8abff75646b64dd0318688bd9",
-      "source_commit": "3eddebb4d915c7798a2d56d2230010933f553c81",
-      "authority": "PINNED_MAIN_SOURCE"
+      "path": "TradingResearchLab/research/RESEARCH_METHODOLOGY.md",
+      "ref_policy": "SAME_RESOLVED_REF"
+    },
+    {
+      "path": "TradingResearchLab/OPERATING_CYCLE.md",
+      "ref_policy": "SAME_RESOLVED_REF"
+    },
+    {
+      "path": "TradingResearchLab/research/RESEARCH_CARD_TEMPLATE.md",
+      "ref_policy": "SAME_RESOLVED_REF"
+    },
+    {
+      "path": "TradingResearchLab/reports/TRL-NOV-2026-KIMI-START-HERE.md",
+      "ref_policy": "SAME_RESOLVED_REF"
+    },
+    {
+      "path": "TradingResearchLab/reports/TRL-NOV-2026-ARTIFACT-MANIFEST.md",
+      "ref_policy": "SAME_RESOLVED_REF"
+    },
+    {
+      "path": "TradingResearchLab/reports/TRL-NOV-2026-FINAL-CLOSEOUT.md",
+      "ref_policy": "SAME_RESOLVED_REF"
+    },
+    {
+      "path": "TradingResearchLab/README.md",
+      "ref_policy": "SAME_RESOLVED_REF"
+    },
+    {
+      "path": "TradingResearchLab/TRL_Roadmap_1_1.md",
+      "ref_policy": "SAME_RESOLVED_REF"
+    },
+    {
+      "path": "TradingResearchLab/reports/TRL-CALENDAR-2027.md",
+      "ref_policy": "SAME_RESOLVED_REF"
+    },
+    {
+      "path": "TradingResearchLab/reports/TRL-RESEARCH-REGISTRY-2026-11-22.md",
+      "ref_policy": "SAME_RESOLVED_REF"
+    },
+    {
+      "path": "TradingResearchLab/reports/TRL-NEGATIVE-RESEARCH-INDEX-2026-11-22.md",
+      "ref_policy": "SAME_RESOLVED_REF"
+    },
+    {
+      "path": "TradingResearchLab/evolution/MANUAL_FINAM_MONTHLY_INPUT.md",
+      "ref_policy": "SAME_RESOLVED_REF"
+    },
+    {
+      "path": "TradingResearchLab/reports/V20_READONLY_SOURCE_REQUIREMENTS.md",
+      "ref_policy": "SAME_RESOLVED_REF"
     }
   ],
-  "transition_note": "27.11.2026: passport/profile and any earlier TRL method snapshot entries explicitly pinned to accepted MAIN 2ac85eb5bcdd8757144898b5a27369329f4d125c. Existing backup bytes unchanged; canonical current source required. No export, installed Skill or recovery acceptance implied."
+  "historical_inventory": {
+    "snapshot": "c90747064bc1bea4aefba2f325dd8d1e15ca29cb",
+    "entries": [
+      {
+        "former_mirror": "recovery/kimi/memory/TRL/Trading_Systems_Architecture_and_AI_Collaboration.md",
+        "source": "recovery/kimi/Trading_Systems_Architecture_and_AI_Collaboration.md",
+        "blob": "ddc333b21c73e6dc6f841231113c9d844dc665a6",
+        "source_commit": "c90747064bc1bea4aefba2f325dd8d1e15ca29cb",
+        "authority": "CANDIDATE_SAME_TREE_SOURCE",
+        "materialized": false
+      },
+      {
+        "former_mirror": "recovery/kimi/memory/TRL/PROJECT_PASSPORT_TRL.md",
+        "source": "recovery/PROJECT_PASSPORT_TRL.md",
+        "blob": "1d51b98e1fce01302e5b3e26de5825bcf038af74",
+        "source_commit": "2ac85eb5bcdd8757144898b5a27369329f4d125c",
+        "authority": "PINNED_MAIN_SOURCE",
+        "materialized": false
+      },
+      {
+        "former_mirror": "recovery/kimi/memory/TRL/TRL.md",
+        "source": "recovery/kimi/TRL.md",
+        "blob": "d8fc1f8e4286c6aeb50461f7a757cecc0a46a426",
+        "source_commit": "2ac85eb5bcdd8757144898b5a27369329f4d125c",
+        "authority": "PINNED_MAIN_SOURCE",
+        "materialized": false
+      },
+      {
+        "former_mirror": "recovery/kimi/memory/TRL/TRL-NOV-2026-KIMI-START-HERE.md",
+        "source": "TradingResearchLab/reports/TRL-NOV-2026-KIMI-START-HERE.md",
+        "blob": "b0e316134eea8a2c62a6a2ae66dc282093fdbabe",
+        "source_commit": "2ac85eb5bcdd8757144898b5a27369329f4d125c",
+        "authority": "PINNED_MAIN_SOURCE",
+        "materialized": false
+      },
+      {
+        "former_mirror": "recovery/kimi/memory/TRL/RESEARCH_METHODOLOGY.md",
+        "source": "TradingResearchLab/research/RESEARCH_METHODOLOGY.md",
+        "blob": "a4a116693634eef034e2a30ad4162df0f860ecf9",
+        "source_commit": "2ac85eb5bcdd8757144898b5a27369329f4d125c",
+        "authority": "PINNED_MAIN_SOURCE",
+        "materialized": false
+      },
+      {
+        "former_mirror": "recovery/kimi/memory/TRL/OPERATING_CYCLE.md",
+        "source": "TradingResearchLab/OPERATING_CYCLE.md",
+        "blob": "edcb49586d03f20ea3e3ef47e70fceb831e2fa52",
+        "source_commit": "2ac85eb5bcdd8757144898b5a27369329f4d125c",
+        "authority": "PINNED_MAIN_SOURCE",
+        "materialized": false
+      },
+      {
+        "former_mirror": "recovery/kimi/memory/TRL/RESEARCH_CARD_TEMPLATE.md",
+        "source": "TradingResearchLab/research/RESEARCH_CARD_TEMPLATE.md",
+        "blob": "d7beaf6bfc6516047df91d1419585b1b0c45e796",
+        "source_commit": "2ac85eb5bcdd8757144898b5a27369329f4d125c",
+        "authority": "PINNED_MAIN_SOURCE",
+        "materialized": false
+      },
+      {
+        "former_mirror": "recovery/kimi/memory/TRL/TRL-NOV-2026-ARTIFACT-MANIFEST.md",
+        "source": "TradingResearchLab/reports/TRL-NOV-2026-ARTIFACT-MANIFEST.md",
+        "blob": "725da79a35484a7385a8f9b98c3d7c59bc4e19e3",
+        "source_commit": "3eddebb4d915c7798a2d56d2230010933f553c81",
+        "authority": "PINNED_MAIN_SOURCE",
+        "materialized": false
+      },
+      {
+        "former_mirror": "recovery/kimi/memory/TRL/TRL-NOV-2026-FINAL-CLOSEOUT.md",
+        "source": "TradingResearchLab/reports/TRL-NOV-2026-FINAL-CLOSEOUT.md",
+        "blob": "ec06839fd233f9909eead53e82b9b7d1d7868fb8",
+        "source_commit": "3eddebb4d915c7798a2d56d2230010933f553c81",
+        "authority": "PINNED_MAIN_SOURCE",
+        "materialized": false
+      },
+      {
+        "former_mirror": "recovery/kimi/memory/TRL/skills/trl-repro-review/SKILL.md",
+        "source": "recovery/kimi/skills/trl-repro-review/SKILL.md",
+        "blob": "9f0f1af3516e6eb6af48d7c434355150544e1476",
+        "source_commit": "c90747064bc1bea4aefba2f325dd8d1e15ca29cb",
+        "authority": "CANDIDATE_SAME_TREE_SOURCE",
+        "materialized": false
+      },
+      {
+        "former_mirror": "recovery/kimi/memory/TRL/skills/github-source-audit/SKILL.md",
+        "source": "recovery/kimi/skills/github-source-audit/SKILL.md",
+        "blob": "320f3b558cee14b195ae0e8beb6ad392106f9359",
+        "source_commit": "3eddebb4d915c7798a2d56d2230010933f553c81",
+        "authority": "PINNED_MAIN_SOURCE",
+        "materialized": false
+      },
+      {
+        "former_mirror": "recovery/kimi/memory/TRL/skills/ai-engineering-handoff/SKILL.md",
+        "source": "recovery/kimi/skills/ai-engineering-handoff/SKILL.md",
+        "blob": "d08ccc90065b19a8abff75646b64dd0318688bd9",
+        "source_commit": "3eddebb4d915c7798a2d56d2230010933f553c81",
+        "authority": "PINNED_MAIN_SOURCE",
+        "materialized": false
+      }
+    ]
+  },
+  "export": {
+    "pre_cleanup_snapshot": "c90747064bc1bea4aefba2f325dd8d1e15ca29cb",
+    "artifact": "C3_final_candidate_45962701886.zip",
+    "sha256": "3aa88b095b246d42ea591917a8bcb99b3e98b403a0de65432b3c7630d20d7344",
+    "owner_storage": "CONFIRMED_20261127",
+    "scope": "53 canonical + 16 historical; not full repository or cold restore"
+  },
+  "notes": "Historical entries are nonmaterialized provenance, not active paths or instructions. Missing required current source -> STOP dependent task. Installed settings and full qualification remain separate."
 }
