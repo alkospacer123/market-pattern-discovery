@@ -23,3 +23,7 @@
 - 19–20.11 (события): R088 60/30/45 + TP6 + Protect3 + HOLD5, EXT2 OFF; операторское свидетельство `V20_ALL3_PREPOST_PROTECT3_FIX=PASS_3_RUNNING_HALTED_FRESH_CYCLES`. [Release](V20-08/LIVE_RELEASE_R088_20261120_RU.md). Последнее HALTED 3/3 — REPORTED_ONLY, текущий broker state UNKNOWN.
 - 26.11: [#601](https://github.com/alkospacer123/market-pattern-discovery/pull/601) MERGED `d6f21355d33b22d35a98a1539f2bae2154f20b94`, diagnostic SOURCE fix Protect3, INSTALLED не доказан. Причина 20.11 UNKNOWN. Market входы сохраняются, лимитные после 1–2 месяцев статистики; единый пакет для трёх роботов, отдельный допуск.
 - 27.11: профильный HANDOFF, MAIN `2ac85eb5bcdd8757144898b5a27369329f4d125c`, исходный HEAD #608 `f6c28ad4027fdc1fdfc8c279671f5c3001f3bd1e`; Skill blob `81880e77f97977c3067e923a8516ce52382475eb`, 8/8 mirrored blobs MATCH. Original patch не предоставлен, документы реконструированы координатором; fallback/удаление/отключение Skill и qualification не приняты. Intel/FINAM/LIVE не проверялись.
+
+### 27.11.2026 — итоговый допуск, Post-G9 (GPT/GitHub documentation)
+
+- Владелец утвердил `FULL_PARITY_OWNER_ADMITTED`; #614 MERGED, #615 — документационный closeout. Kimi Code workspace `C:\V20Lab` и чтение резервных знаний подтверждены по отчёту; не свежая INSTALLED/LIVE проверка. Следующая работа — самостоятельная диагностика трёх роботов, #601 и оценка HOLD5 по согласованному scope. Не повторять экзамены. Сохраняются отдельные approvals и COC; deploy/ARM/FINAM не разрешены этим решением. [Recovery STATUS](../recovery/STATUS.md).
