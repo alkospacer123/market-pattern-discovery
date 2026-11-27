@@ -1,4 +1,4 @@
-> **Актуально с 21.11.2026:** [паспорт TRL](../recovery/PROJECT_PASSPORT_TRL.md), [проектный AGENTS](AGENTS.md), [TRL Start Here](reports/TRL-NOV-2026-KIMI-START-HERE.md). Изученные 2018–2026 не untouched TRUE OOS.
+> **Действующий вход 27.11.2026 — FULL_PARITY_OWNER_ADMITTED:** актуальный MAIN/рабочий ref, [общий AGENTS](../AGENTS.md), [STATUS](STATUS.md) и релевантные записи [journal/](journal/); затем [паспорт TRL](../recovery/PROJECT_PASSPORT_TRL.md), [проектный AGENTS](AGENTS.md), [TRL Start Here](reports/TRL-NOV-2026-KIMI-START-HERE.md). Изученные 2018–2026 не untouched TRUE OOS. Допуск не отменяет отдельный gate старта новой программы.
 
 **26.11.2026 — Research:** отдельная программа TREND / MOMENTUM / VOLATILITY (по одному исследованию стратегии каждого направления), только C1; критерии — [методология](research/RESEARCH_METHODOLOGY.md). R100 остаётся REJECT; новая программа не запущена.
 
