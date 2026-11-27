@@ -69,6 +69,8 @@ jobs:
               if p=='ControlCenter/README.md': return True
               if re.fullmatch(r'ControlCenter/docs/V20_[^/]+\.md',p): return True
               return p in {
+                  'ControlCenter/STATUS.md',
+                  'ControlCenter/JOURNAL.md',
                   'ControlCenter/docs/ARCHITECTURE.md',
                   'ControlCenter/docs/SECURITY_BOUNDARY.md',
                   'ControlCenter/docs/ROADMAP_STATUS.md',
@@ -115,6 +117,34 @@ jobs:
               for project in projects:
                   coc_paths.add(f'recovery/kimi/memory/{project}/skills/{skill}/SKILL.md')
           assert len(coc_paths)==29, 'CC_COC_ALLOWLIST_COUNT'
+          # Exact additional C3 draft #608 paths at reviewed head 699c231d0bc4.
+          # A/M regular blobs only; no generic documentation or deletion exemption.
+          c3_paths={
+              'ControlCenter/JOURNAL.md',
+              'ControlCenter/STATUS.md',
+              'ROADMAP.md',
+              'V20_TradingSystem_M15/JOURNAL.md',
+              'V20_TradingSystem_M15/STATUS.md',
+              'recovery/JOURNAL.md',
+              'recovery/STATUS.md',
+              'recovery/kimi/KIMI_DEFECTS_AND_REMEDIATION_REGISTER.md',
+              'recovery/kimi/Trading_Systems_Architecture_and_AI_Collaboration.md',
+              'recovery/kimi/memory/ControlCenter/MANIFEST.json',
+              'recovery/kimi/memory/ControlCenter/README.md',
+              'recovery/kimi/memory/ControlCenter/Trading_Systems_Architecture_and_AI_Collaboration.md',
+              'recovery/kimi/memory/README.md',
+              'recovery/kimi/memory/TRL/MANIFEST.json',
+              'recovery/kimi/memory/TRL/README.md',
+              'recovery/kimi/memory/TRL/Trading_Systems_Architecture_and_AI_Collaboration.md',
+              'recovery/kimi/memory/V20/MANIFEST.json',
+              'recovery/kimi/memory/V20/README.md',
+              'recovery/kimi/memory/V20/Trading_Systems_Architecture_and_AI_Collaboration.md',
+          }
+          assert len(c3_paths)==19 and not c3_paths & coc_paths, 'CC_C3_ALLOWLIST_COUNT'
+          cross_project_docs=coc_paths|c3_paths
+          assert doc_allowed('ControlCenter/STATUS.md')
+          assert doc_allowed('ControlCenter/JOURNAL.md')
+          assert not doc_allowed('ControlCenter/OTHER_JOURNAL.md')
           assert doc_allowed('ControlCenter/README.md')
           assert doc_allowed('ControlCenter/docs/V20_SAFE_TEST.md')
           assert doc_allowed('ControlCenter/docs/SECURITY_BOUNDARY.md')
@@ -171,7 +201,7 @@ jobs:
                   return 'CC_ACTIVE_SOURCE'
               assert all(doc_allowed(p) for p in cc_changed), 'CC_DOCS_WRONG_CC_PATH'
               if paths-cc_changed:
-                  assert paths.issubset(coc_paths), ('CC_DOCS_WRONG_PATH',sorted(paths-coc_paths))
+                  assert paths.issubset(cross_project_docs), ('CC_DOCS_WRONG_PATH',sorted(paths-cross_project_docs))
                   return 'CROSS_PROJECT_COC_DOCS'
               return 'CC_ONLY'
 
@@ -193,6 +223,17 @@ jobs:
                   raise AssertionError('CC_NEGATIVE_ACCEPTED:'+code)
           scope_fixture({cc_doc},{cc_doc},'CC_ONLY')
           scope_fixture(coc_paths,{p for p in coc_paths if p.startswith('ControlCenter/')},'CROSS_PROJECT_COC_DOCS')
+          c3_cc={'ControlCenter/STATUS.md','ControlCenter/JOURNAL.md'}
+          c3_fixture=c3_paths|{'AGENTS.md','recovery/kimi/EXAM_AND_HANDOFF.md','recovery/kimi/README.md'}
+          assert validate_scope({p:('A' if p in c3_cc else 'M') for p in c3_fixture},c3_cc,{p:normal for p in c3_fixture})=='CROSS_PROJECT_COC_DOCS'
+          assert validate_frozen({runtime:normal},{runtime:normal,**{p:normal for p in c3_cc}})==c3_cc
+          for p in c3_cc:
+              must_reject(lambda: validate_scope({p:'D'},{p},{}),'CC_DOCS_DELETION')
+              must_reject(lambda: validate_scope({p:'A'},{p},{p:link}),'CC_DOCS_NOT_REGULAR_BLOB')
+              must_reject(lambda: validate_frozen({},{p:link}),'CC_SEALED_SOURCE')
+          unreviewed='recovery/kimi/memory/unreviewed.md'
+          must_reject(lambda: validate_scope({**{p:'M' for p in c3_fixture},unreviewed:'A'},c3_cc,{**{p:normal for p in c3_fixture},unreviewed:normal}),'CC_DOCS_WRONG_PATH')
+          must_reject(lambda: validate_scope({**{p:'M' for p in c3_fixture},runtime:'M'},c3_cc|{runtime},{**{p:normal for p in c3_fixture},runtime:normal}),'CC_DOCS_WRONG_CC_PATH')
           scope_fixture(ci_pair,set(),'CI_ONLY')
           scope_fixture(workflows,set(),'CI_ONLY')
           scope_fixture(active_source|{cc_doc},active_source|{cc_doc},'CC_ACTIVE_SOURCE')
@@ -236,6 +277,14 @@ jobs:
 
           # Read pinned Git blobs, not sparse working-tree files; cross-project docs stay checked.
           allpaths={p for p,e in candidate.items() if e[1]=='blob' and e[0] in ('100644','100755')}
+          # Only this reviewed directory locator is accepted in addition to regular blobs.
+          # Require at least one real tracked regular file below it, not a symlink/gitlink.
+          def valid_doc_link(dest,paths):
+              return dest in paths or (dest=='TradingResearchLab/journal' and any(p.startswith(dest+'/') for p in paths))
+          assert valid_doc_link('TradingResearchLab/journal',{'TradingResearchLab/journal/entry.md'})
+          assert not valid_doc_link('TradingResearchLab/journal',{'TradingResearchLab/journal-other/entry.md'})
+          assert not valid_doc_link('recovery/kimi',{'recovery/kimi/README.md'})
+          assert not valid_doc_link('TradingResearchLab/journal/missing.md',{'TradingResearchLab/journal/entry.md'})
           linkcount=0
           bad=re.compile(r'-----BEGIN (?:RSA |EC |OPENSSH )?PRIVATE KEY-----|github_pat_[A-Za-z0-9_]{30,}|ghp_[A-Za-z0-9]{30,}|Authorization:\s*Bearer\s+[A-Za-z0-9_-]{35,}',re.I)
           for path in changed:
@@ -247,7 +296,7 @@ jobs:
                       if not href or re.match(r'^(https?://|mailto:|data:)',href,re.I): continue
                       if ' ' in href: continue
                       dest=posixpath.normpath(posixpath.join(posixpath.dirname(path),href))
-                      assert dest in allpaths, ('CC_DOCS_BROKEN_LINK',path,dest)
+                      assert valid_doc_link(dest,allpaths), ('CC_DOCS_BROKEN_LINK',path,dest)
                       linkcount+=1
               assert not bad.search(content), 'CC_DOCS_POSSIBLE_SECRET:'+path
 
