@@ -160,8 +160,6 @@ $source=Get-Content -LiteralPath $env:PG_INSTALLER -Raw -Encoding UTF8
 $cut=[regex]::Match($source,'(?m)^verify-package\r?$')
 if(-not $cut.Success){throw 'FUNCTION_TOP_LEVEL_BOUNDARY_MISSING'}
 $source=$source.Substring(0,$cut.Index)
-$definitions=[regex]::Matches($source,'(?ms)^function\s+.*?(?=^function\s+|\z)')
-foreach($definition in $definitions){Invoke-Expression $definition.Value}
 $v20=Join-Path $env:PG_ROOT 'V20Lab'
 $cc=Join-Path $env:PG_ROOT 'Control Center'
 $panel=Join-Path $cc 'v20-preview-d80f2446'
@@ -173,6 +171,12 @@ $PackageRoot=$env:PG_PACKAGE
 $BackupRoot=$env:PG_BACKUP
 $manifestPath=Join-Path $PackageRoot 'pg10-2-release-manifest.json'
 $release=Get-Content -LiteralPath $manifestPath -Raw -Encoding UTF8|ConvertFrom-Json
+$releaseSha=$null
+$RecoveryPhrase=''
+$ccMutex=$null
+$ccMutexHeld=$false
+$definitions=[regex]::Matches($source,'(?ms)^function\s+.*?(?=^function\s+|\z)')
+foreach($definition in $definitions){Invoke-Expression $definition.Value}
 $releaseSha=sha256 ([IO.File]::ReadAllBytes($manifestPath))
 $RecoveryPhrase=''
 $ccMutex=$null
