@@ -4,6 +4,7 @@ import json
 import os
 from pathlib import Path
 import threading
+import time
 
 import pytest
 
@@ -86,10 +87,11 @@ def test_concurrent_writer_is_excluded_or_appends_to_next_segment_without_loss(t
                 attempts.append("denied")
                 break
 
-    thread = threading.Thread(target=writer)
+    thread = threading.Thread(target=writer, daemon=True)
     thread.start()
+    deadline = time.monotonic() + 5
     while not attempts:
-        pass
+        assert thread.is_alive() and time.monotonic() < deadline, "writer did not start"
     result = rotate(active, robot=ROBOT)
     stop.set()
     thread.join(timeout=5)
