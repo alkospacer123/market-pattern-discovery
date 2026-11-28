@@ -95,3 +95,12 @@ V20-08/v20-08-live-operator.ps1 (owner-scoped check/start/stop/restart/backup)
 - Реальные SLTP partial-fill, reset/restart, broker cancel acknowledgment и переход Protect3 при разрыве связи **не доказаны этим GitHub-аудитом**; имеются только mock и прежняя операторская история.
 - Текущие ARMED/Task/FINAM, позиции, остатки, фактическая 60/30/45, стопы, CC-07 recovery — **UNKNOWN / NOT VERIFIED**. Cold restore — отдельный этап III, не заявлять PASS.
 - В R088 source/patch stack нет EXT2 ON, но исследовательские модули с «EXT2» внутри Git присутствуют сознательно. Наличие кода ≠ его импорт в installed main.
+
+
+## PG10.2 SOURCE candidate addendum — 28.11.2026
+
+PR #618 сохраняет BASE blobs и добавляет к девяти историческим patches №10 `r088-protect3-diagnostic-cause-20261126.patch` (#601) и №11 `pg10-2-protect3-margin-reflection-20261128.patch`. Canonical LF DERIVED: `finam_live.py=98037310ee5238f035ae174285a2f244cc1aeffd`, `finam_execution.py=7f963423aa0e957d4eb5408aa1b77143c270b688`; package launcher `3f017a7e697a9a9b1907bee0757cee77d33d466d`, operator `83cc20df33abadf0895bb42bf9508de8ab45c08e`. Полный ordered stack, raw SHA256/raw Git blob/filtered Git blob, CC pins и dependency statement — [manifest](V20-08/pg10-2-release-manifest.json). Exact release commit — внешняя аттестация финального PR HEAD, не самоссылка manifest.
+
+F3 исправление не меняет `account_risk`: после Protect3 `prepare_entry` признаёт broker-reflected ГО только после `verify_r070_protect3_effective_stop` с текущими `reader/snapshot/now`, durable original fills/TP6/stop ownership, PROTECTED successor и единственным активным SLTP. Исходный `:stop` intent не перезаписывается; unknown/uncertain successor сохраняет консервативный резерв. F6 относит три Protect3 результата к PENDING, не PASS. HALTED остаётся отдельным permission state.
+
+[Installer](V20-08/pg10-2-all3-cc-install.ps1) содержит check/install/rollback, но в подготовке не исполнялся. Install/rollback требуют отдельного разрешения, HALTED+FINAM FLAT 3/3 и backup; возвращают только Running+HALTED fresh cycles, никогда не ARM автоматически. Rollback код-only, SQLite/intents/unknown writes и журналы сохраняются. #601 и #602 входят в candidate package; INSTALLED/LIVE/реальный брокерский Protect3 после обновления остаются NOT_VERIFIED.

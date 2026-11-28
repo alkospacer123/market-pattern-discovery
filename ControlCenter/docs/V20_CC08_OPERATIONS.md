@@ -36,6 +36,18 @@
 - Независимо удостоверять FINAM состояния только утверждённой READONLY-процедурой. Не обещать, что local heartbeat подтверждает брокерские стопы.
 - После документационного коммита проверить manifest, CI и отсутствие изменений вне `ControlCenter/`; затем отдельное решение о Merge, **без автоматического ARM**.
 
+## PG10.2 — подготовленный coordinated package, recovery и rotation (SOURCE candidate)
+
+PR #618 содержит единый offline package для трёх V20 и CC; физическая установка в рамках подготовки НЕ выполнялась. [Manifest](../../V20_TradingSystem_M15/V20-08/pg10-2-release-manifest.json) различает raw SHA256, raw Git blob и Git-filtered blob; canonical package profile — `core.autocrlf=false;LF`. Installer не скачивает файлы и не меняет Python/dependencies.
+
+1. До отдельно разрешённой установки проверить exact PR HEAD/CI, распаковать package в admin-owned disposable staging и выполнить только чтение: `pg10-2-all3-cc-install.ps1 -mode check -PackageRoot <package>`. `check` сверяет bytes и installed identities, но не доказывает FINAM/LIVE.
+2. Установка требует отдельного разрешения, все три HALTED и свежий FINAM FLAT 3/3, новый пустой backup path. `-mode install` делает штатный SQLite backup, сохраняет все заменяемые V20/CC files, останавливает workers, проверяет новые pins и возвращает только Running+HALTED fresh cycles. Автоматического ARM нет. Неизвестная installed identity блокирует запись.
+3. Парный `-mode rollback -PackageRoot <package> -BackupRoot <backup>` требует те же HALTED/FLAT gates и восстанавливает только код из backup. SQLite, request/release history, live/control journals и unknown intents не перезаписываются. Отсутствовавший helper удаляется только при точном новом pin; неизвестный файл сохраняется с отказом. Старый adapter не интерпретирует новые recovery journals, а active release продолжает блокировать его — это остаточное ограничение rollback, не разрешение очистить файлы.
+4. После crash/reboot/power loss/timeout не повторять последнюю команду. Сопоставить request ID, `cc07-requests`, control audit, active release, Task/switch и FINAM positions/orders/SLTP. Только после независимой сверки применяется typed `resolve_recovery` из CC-07; он архивирует release и не выполняет исходную операцию. Startup Task/Ready/Running сам по себе не разрешает ARM и не доказывает защиту.
+5. JSONL rotation — отдельная явная maintenance-операция, не side effect `check`, UI, installer или Task. `deployment/v20_jsonl_history.py <active.jsonl> [--robot <id>]` атомарно переименовывает active segment в `archive/` с count/first/last/SHA256 в имени и создаёт новый active. `--verify-archives` проверяет bytes. Неизвестный/повреждённый archive, overlap или rotation во время snapshot дают fail-closed отказ; архивы не удалять. Реальную rotation производственных журналов выполнять только по отдельной операторской процедуре.
+
+Оставшиеся запреты: никаких искусственных LIVE аварий, FINAM writes, автоматического ARM, очистки durable HALT или повторения unknown command. Результаты exact-head CI и остаточные UNKNOWN — профильные STATUS/JOURNAL.
+
 ## Архив: исходная OFFLINE-приёмка 24–25 октября 2026
 
 Нижеследующие записи оставлены без удаления для воспроизводимости истории. Они описывают **тогдашний** STAGING, не работу текущей панели.

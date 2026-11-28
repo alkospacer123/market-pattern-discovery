@@ -4,6 +4,12 @@
 
 **27.11.2026 — Post-G9, SOURCE-аудит завершён, техническая readiness не доказана.** Владелец 27.11.2026 утвердил `FULL_PARITY_OWNER_ADMITTED` для V20/CC/TRL; этап II принят в документированных пределах. [Roadmap](../ROADMAP.md), [Recovery STATUS](../recovery/STATUS.md), [KDR](../recovery/kimi/KIMI_DEFECTS_AND_REMEDIATION_REGISTER.md). #614 MERGED; итоговый документационный closeout — #615. Допуск не является разрешением на конкретные критические операции.
 
+**28.11.2026 — PG10.2, coordinated SOURCE candidate PR #618; INSTALLED/LIVE не изменены.** Merge #617 принят на `568b339a1bb3ebc3f025d74762ae66c344278be9`; PG10.1 принят владельцем в выполненном scope и не повторяется. Ветка `feat/pg10-2-v20-cc-release` содержит F3/F4/F6 и #601 all-three package; #602 включён в совместимый CC package. Окончательный HEAD, CI и тестовые границы фиксируются в JOURNAL после exact-head runs. Deploy/Tasks/FINAM/reboot/ARM/HALT/Merge не выполнялись.
+
+- F3: patch №11 сохраняет BASE и требует полный Protect3 successor proof перед признанием broker-reflected ГО; conservative pending/unknown reserve сохранён. На кодовом HEAD `ef094d51b7bfc0e32b2916dda9971acd7ff61657` BASE+10 failure→DERIVED+11 PASS подтверждён Windows run 46133704921; targeted 52 tests OK (49 executed +3 existing optional skips). DERIVED live `98037310ee5238f035ae174285a2f244cc1aeffd`, execution `7f963423aa0e957d4eb5408aa1b77143c270b688`.
+- F4: [manifest](V20-08/pg10-2-release-manifest.json), 11 ordered patches, canonical LF package, raw SHA256/raw Git blob/filtered Git blob, launcher/deps, CC pins, installer `check/install/rollback` и code-only paired rollback. Release 3/3 PASS, 24 files; ZIP SHA256 `d5eb122bc515af7feb8da78f0d24f19c418b271a7c5f1451f5093e7bae538748`; CI run — итоговая запись JOURNAL.
+- F6/H01/M03/M06: Protect3 PASS/PENDING/HALTED/UNKNOWN согласованы с CC; durable request/release recovery и lossless JSONL archive readers добавлены. Это SOURCE candidate, не физический runtime результат. F1/F2/F5/F7 и вне-scope H/M находки не закрыты.
+
 Исторический профильный HANDOFF C3.2: MAIN при сверке `2ac85eb5bcdd8757144898b5a27369329f4d125c`; исходный [Draft #608](https://github.com/alkospacer123/market-pattern-discovery/pull/608) HEAD `f6c28ad4027fdc1fdfc8c279671f5c3001f3bd1e`.
 
 - SOURCE: R088 Shallow/OBV/Inside, N4, M15 Market NEXT_OPEN, SL 2×ATR14 Wilder, риск 1,5%/6%, модель капитала 60/30/45 тыс. ₽, TP6 + Protect3 (+3R M15 → SL +1R) + HOLD5 (выход на первом подтверждённом Open шестой наблюдаемой сессии), EXT2 OFF.
