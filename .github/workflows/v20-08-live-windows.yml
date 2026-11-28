@@ -1156,7 +1156,7 @@ jobs:
                 if result.testsRun!=4 or len(result.errors)!=3 or result.failures:
                     raise SystemExit('PG10_2_BASE10_EXPECTED_F3_FAILURE_NOT_REPRODUCED')
                 print('PG10_2_F3_BASE10_DOUBLE_RESERVE_REPRODUCED=PASS_4_TESTS_3_EXPECTED_ERRORS')
-'@
+          '@
                 $base | python -B -
                 if($LASTEXITCODE -ne 0){throw 'PG10_2_BASE10_REPRO_FAILED'}
               }

@@ -106,6 +106,13 @@ class Protect3MarginReflectionTests(unittest.TestCase):
         kwargs = dict(d.case)
         if successor_proof:
             kwargs.update(reader=d.reader, now=d.now)
+        captured = {}
+
+        def measured(**kwargs):
+            reservation = reserve_entry(**kwargs)
+            captured["reservation"] = reservation
+            return reservation
+
         with patch(
             "V20_TradingSystem_M15.v20_runtime.finam_execution._load_registry",
             return_value=d.registry,
@@ -114,12 +121,12 @@ class Protect3MarginReflectionTests(unittest.TestCase):
             return_value=d.registry,
         ), patch(
             "V20_TradingSystem_M15.v20_runtime.finam_execution.reserve_entry",
-            wraps=reserve_entry,
+            side_effect=measured,
         ) as observed:
             key = d.journal.prepare_entry(**kwargs)
         authority = observed.call_args.kwargs["authority"]
         reservation = observed.call_args.kwargs["current_reservations"]
-        quantity = observed.spy_return.quantity
+        quantity = captured["reservation"].quantity
         return key, authority, reservation, quantity
 
     def test_base_mechanism_double_reserves_broker_accounted_margin(self):

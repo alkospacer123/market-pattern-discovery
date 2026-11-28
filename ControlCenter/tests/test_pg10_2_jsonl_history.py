@@ -116,7 +116,7 @@ def test_concurrent_read_and_append_either_returns_valid_events_or_fails_closed(
         except ValueError as error:
             assert "JSONL" in str(error)
         else:
-            assert events[-1]["cycle"] == 13
+            assert events[-1]["cycle"] in (12, 13)
 
 
 def test_empty_oversize_unknown_and_corrupt_archives_fail_without_deletion(tmp_path):

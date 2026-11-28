@@ -160,4 +160,8 @@ def test_recover_reports_only_proven_preflight_codes(tmp_path, monkeypatch, stde
     else:
         assert "code" not in result
     assert len(calls) == 1
-    assert not release.exists()
+    if expected == "REFUSED_PREFLIGHT":
+        assert not release.exists()
+    else:
+        assert release.exists()
+        assert admin.recovery_status()["decision"] == "RECOVERY_REQUIRED"
