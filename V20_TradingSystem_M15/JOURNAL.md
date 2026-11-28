@@ -83,3 +83,10 @@
 - Installer использует `venv\Scripts\python.exe`, принимает OLD standalone base и NEW venv launcher/direct runtime child. `started-listener` разрешает только same PID либо непосредственный child запущенного parent; `start-cc` валидирует фактический listener PID. Это сохраняет остановку исходного OLD CC и доказывает NEW process/health/source IDs.
 - Изолированный runtime staging: 4068 base +13508 venv files byte-verified, изменены только пути в копии `pyvenv.cfg`. На `127.0.0.1:18502` фактический SOURCE candidate исполнил `start-cc NEW` и общий recover/rollback `start-cc BACKUP`: оба health/root 200 и source-ID PASS, venv parents завершились без orphans. Production 8502 не останавливался. Локальный Python 3.12.10 release suite **6/6 PASS**, включая новый OLD-base/NEW-child regression; deterministic candidate ZIP `d909e9462cf3b39cc9c8a3fa4305769227c4d2992f1674ce1a703dce63d76d5d`. Exact-head CI и скачанный artifact — в описании нового PR.
 - Production runtime/dependencies/files, Tasks, FINAM, ACL, reboot, ARM/HALT, physical install/recover/rollback и Merge не выполнялись. Исторические audit UNKNOWN и durable execution_halt limitations сохраняются в Recovery JOURNAL.
+
+
+### 28.11.2026 — PG10.5.2 coordinated V20/CC installation
+
+- Владелец разрешил install accepted artifact `d909e946…d76d5d`. Preflight: BackupRoot unique, durable NONE 3/3, FINAM FLAT 3/3, Running/HALTED/fresh 3/3. Installer создал 11 backup records и SQLite snapshots 3/3 `v20-live-20261128T185727Z`; DPAPI excluded. Transaction `7e34ea4a6449459296a4beb56ad223e8` = **COMPLETED**, coherent_before/release match=true.
+- Postflight: NEW raw identities **11/11**, installer check PASS, Tasks Running 3/3, HALTED/fresh cycles 3/3, FINAM GET-only FLAT 3/3. Торговая стратегия/капитал/dependencies/ACL не изменялись; ARM/reboot/broker writes/rollback/recover не выполнялись.
+- Wrapper ожидал постоянный CC descendant и не сохранил stdout install marker; install не повторялся. Wrapper PIDs завершены точечно после COMPLETED/postflight, новый CC не останавливался. Доказательство результата — durable transaction и независимый postflight, не повторная установка.

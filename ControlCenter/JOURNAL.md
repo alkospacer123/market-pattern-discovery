@@ -77,3 +77,10 @@ Pinned MAIN `a3aa48fee59b0a077794cccc5ae3eef33d62a6c5`; #602 merged `e70cfed5db2
 ### 28.11.2026 — PG10.2.2 stable forward transaction
 
 - Forward `install` повторно использует существующую проверенную BackupRoot/transaction: стабильный ID, исходный backup и `cc_was_running` сохраняются, повторный backup не выполняется. RecoveryPhrase для MIXED теперь может ссылаться на уже известный ID. После NEW pair повторяется штатный FLAT gate до workers. Full-path Windows test проверяет прерывание, отказ без phrase, resume и повторное восстановление без потери durable fixtures или ARM. Финальные CI/artifact IDs — описание PR #618, без дополнительного документального commit.
+
+
+### 28.11.2026 — PG10.5.2 CC venv installation postflight
+
+- Установлены accepted CC targets в составе NEW 11/11. Backup/transaction COMPLETED. Текущий CC listener PID 4200 — base runtime child, parent PID 15720 — historical `venv\Scripts\python.exe`; accepted `-I -B` args, CORS/XSRF/headless сохранены, `127.0.0.1:8502/_stcore/health=200 ok`.
+- Venv dependencies не изменялись; production SOURCE lock 40/40 и pip check PASS подтверждены до install. NEW/BACKUP restart paths ранее проверены на isolated 18502, OLD standalone stop и parent-without-orphans evidence сохранены. Физический CC запущен через venv успешно.
+- Роботы Running/HALTED 3/3, FINAM FLAT 3/3, автоматического ARM нет. Полноценный RECOVER/LIVE/cold restore этим не доказан; исторические audit UNKNOWN сохранены без нового расследования.
