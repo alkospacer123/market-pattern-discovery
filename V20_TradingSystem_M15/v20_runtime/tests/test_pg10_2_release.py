@@ -260,7 +260,7 @@ function Start-Process{
  return [pscustomobject]@{Id=2001;HasExited=$false}
 }
 function Invoke-WebRequest{
- param($Uri,$UseBasicParsing,$TimeoutSec)
+ param($Uri,[switch]$UseBasicParsing,$TimeoutSec)
  $content=if($script:healthOk){'ok'}else{'not-ready'}
  return [pscustomobject]@{StatusCode=200;Content=$content}
 }
