@@ -18,9 +18,14 @@ def test_exact_pinned_exporter_and_expected_readonly_response(tmp_path, monkeypa
     python.write_bytes(b"exe fixture, never executed")
     raw = exporter.read_bytes()
     sha = sha1(b"blob " + str(len(raw)).encode() + b"\0" + raw).hexdigest()
+    history = tmp_path / "v20_jsonl_history.py"
+    history.write_bytes(b"history fixture")
+    history_raw = history.read_bytes()
+    history_sha = sha1(b"blob " + str(len(history_raw)).encode() + b"\0" + history_raw).hexdigest()
     monkeypatch.setattr(source, "PUBLISHER", exporter)
     monkeypatch.setattr(source, "PYTHON", python)
     monkeypatch.setattr(source, "BLOB", sha)
+    monkeypatch.setattr(source, "HISTORY_BLOB", history_sha)
     monkeypatch.setattr(source, "os", SimpleNamespace(name="nt"))
     calls = []
     def runner(argv, **kwargs):
@@ -46,9 +51,14 @@ def test_execution_failure_never_turns_into_success(tmp_path, monkeypatch):
     python.write_bytes(b"exe")
     raw = exporter.read_bytes()
     sha = sha1(b"blob " + str(len(raw)).encode() + b"\0" + raw).hexdigest()
+    history = tmp_path / "v20_jsonl_history.py"
+    history.write_bytes(b"history fixture")
+    history_raw = history.read_bytes()
+    history_sha = sha1(b"blob " + str(len(history_raw)).encode() + b"\0" + history_raw).hexdigest()
     monkeypatch.setattr(source, "PUBLISHER", exporter)
     monkeypatch.setattr(source, "PYTHON", python)
     monkeypatch.setattr(source, "BLOB", sha)
+    monkeypatch.setattr(source, "HISTORY_BLOB", history_sha)
     monkeypatch.setattr(source, "os", SimpleNamespace(name="nt"))
     monkeypatch.setattr(source.subprocess, "run",
                         lambda *a, **kw: SimpleNamespace(returncode=1, stdout=b""))

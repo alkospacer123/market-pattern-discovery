@@ -77,9 +77,47 @@ jobs:
               }
           active_source={
               'ControlCenter/cc/v20_contract.py',
-              'ControlCenter/v20_app.py',
+              'ControlCenter/cc/v20_manual_export.py',
+              'ControlCenter/controller/cc07-v20-operator.ps1',
+              'ControlCenter/deployment/v20_jsonl_history.py',
+              'ControlCenter/deployment/v20_live_export.py',
+              'ControlCenter/tests/test_boundary.py',
+              'ControlCenter/tests/test_cc07_admin_control.py',
+              'ControlCenter/tests/test_cc07_operator_stage.py',
+              'ControlCenter/tests/test_pg10_2_cc_recovery.py',
+              'ControlCenter/tests/test_pg10_2_jsonl_history.py',
               'ControlCenter/tests/test_v20_control_center.py',
+              'ControlCenter/tests/test_v20_live_export.py',
+              'ControlCenter/tests/test_v20_manual_export.py',
+              'ControlCenter/v20_admin_control.py',
+              'ControlCenter/v20_app.py',
           }
+          pg10_2_paths={
+              '.github/workflows/controlcenter-docs-only.yml',
+              '.github/workflows/v20-08-live-windows.yml',
+              'ControlCenter/docs/V20_CC07_COMMAND_CONTRACT.md',
+              'ControlCenter/docs/V20_CC08_OPERATIONS.md',
+              'ControlCenter/docs/V20_DATA_SECURITY_TESTS.md',
+              'ControlCenter/docs/V20_START_HERE_SOURCE_MAP.md',
+              'ControlCenter/JOURNAL.md',
+              'ControlCenter/STATUS.md',
+              'ROADMAP.md',
+              'V20_TradingSystem_M15/JOURNAL.md',
+              'V20_TradingSystem_M15/STATUS.md',
+              'V20_TradingSystem_M15/R088_ARCHITECTURE_AND_SAFETY_20261122.md',
+              'V20_TradingSystem_M15/V20-08/LIVE_RELEASE_R088_20261120_RU.md',
+              'V20_TradingSystem_M15/V20-08/pg10-2-all3-cc-install.ps1',
+              'V20_TradingSystem_M15/V20-08/pg10-2-protect3-margin-reflection-20261128.patch',
+              'V20_TradingSystem_M15/V20-08/pg10-2-release-manifest.json',
+              'V20_TradingSystem_M15/V20-08/pg10-2-v20-08-live-launch.ps1',
+              'V20_TradingSystem_M15/V20-08/v20-08-live-operator.ps1',
+              'V20_TradingSystem_M15/v20_runtime/tests/test_pg10_2_margin_after_protect3.py',
+              'V20_TradingSystem_M15/v20_runtime/tests/test_pg10_2_release.py',
+              'recovery/JOURNAL.md',
+              'recovery/STATUS.md',
+          }|active_source
+          pg10_2_trigger='.github/workflows/v20-08-live-windows.yml'
+          assert len(pg10_2_paths)==37
           workflows={
               '.github/workflows/controlcenter-cc03-windows-native.yml',
               '.github/workflows/controlcenter-docs-only.yml',
@@ -259,6 +297,13 @@ jobs:
                   assert status in ('A','M'), 'CC_DOCS_DELETION_OR_RENAME_FORBIDDEN:'+path
                   assert regular_doc(candidate.get(path)), 'CC_DOCS_NOT_REGULAR_BLOB:'+path
               paths=set(changed)
+              cc_changed={p for p in paths if p.startswith('ControlCenter/')}
+              if pg10_2_trigger in paths:
+                  assert paths<=pg10_2_paths, ('PG10_2_UNREVIEWED_PATH',sorted(paths-pg10_2_paths))
+                  assert {pg10_2_trigger,'.github/workflows/controlcenter-docs-only.yml'}<=paths, 'PG10_2_NATIVE_CI_PAIR_REQUIRED'
+                  assert cc_changed==cc_pr_delta and cc_changed, 'PG10_2_CC_DIFF_NOT_EXACT'
+                  assert all(p in active_source or doc_allowed(p) for p in cc_changed), ('PG10_2_CC_SOURCE_OR_DOC_OUTSIDE_ACTIVE_SET',sorted(cc_changed-active_source))
+                  return 'PG10_2_COORDINATED'
               if paths & (workflows|{admission}):
                   if admission in paths:
                       assert paths==ci_pair, 'CC_DOCS_CI_PAIR_SCOPE'
@@ -266,7 +311,6 @@ jobs:
                       assert paths.issubset(workflows), 'CC_DOCS_WORKFLOW_AND_DOCUMENTS_MIXED'
                   assert not cc_pr_delta, 'CC_SOURCE_CHANGED_DURING_CI_CHANGE'
                   return 'CI_ONLY'
-              cc_changed={p for p in paths if p.startswith('ControlCenter/')}
               assert cc_changed==cc_pr_delta and cc_changed, ('CC_DOCS_DIFF_NOT_EXACT',sorted(cc_changed^cc_pr_delta))
               if cc_changed & active_source:
                   assert paths==cc_changed, 'CC_ACTIVE_SOURCE_CROSS_PROJECT_FORBIDDEN'
@@ -284,7 +328,7 @@ jobs:
           link=('120000','blob','synthetic')
           cc_doc='ControlCenter/docs/V20_CC07_COMMAND_CONTRACT.md'
           contract='recovery/CRITICAL_OPERATIONS_CONTRACT.md'
-          runtime='ControlCenter/v20_admin_control.py'
+          runtime='ControlCenter/controller/v20_control.py'
           cc03='ControlCenter/docs/CC03_MANUAL_OS_SOURCE.md'
           def scope_fixture(paths,cc_paths,expected):
               assert validate_scope({p:'M' for p in paths},set(cc_paths),{p:normal for p in paths})==expected
@@ -310,6 +354,8 @@ jobs:
           must_reject(lambda: validate_scope({**{p:'M' for p in c3_fixture},runtime:'M'},c3_cc|{runtime},{**{p:normal for p in c3_fixture},runtime:normal}),'CC_DOCS_WRONG_CC_PATH')
           scope_fixture(ci_pair,set(),'CI_ONLY')
           scope_fixture(workflows,set(),'CI_ONLY')
+          scope_fixture(pg10_2_paths,{p for p in pg10_2_paths if p.startswith('ControlCenter/')},'PG10_2_COORDINATED')
+          must_reject(lambda: validate_scope({p:'M' for p in pg10_2_paths|{'recovery/unreviewed.md'}},{p for p in pg10_2_paths if p.startswith('ControlCenter/')},{p:normal for p in pg10_2_paths|{'recovery/unreviewed.md'}}),'PG10_2_UNREVIEWED_PATH')
           scope_fixture(active_source|{cc_doc},active_source|{cc_doc},'CC_ACTIVE_SOURCE')
           assert validate_frozen({p:normal for p in active_source},{p:('100644','blob','changed') for p in active_source})==active_source
           must_reject(lambda: validate_scope({p:'M' for p in active_source|{contract}},active_source,{p:normal for p in active_source|{contract}}),'CC_ACTIVE_SOURCE_CROSS_PROJECT_FORBIDDEN')
@@ -413,7 +459,7 @@ jobs:
   cc-active-source-native:
     name: CC current SOURCE Windows native tests (no release or LIVE)
     needs: cc-documents-no-live
-    if: needs.cc-documents-no-live.outputs.scope == 'CC_ACTIVE_SOURCE' || needs.cc-documents-no-live.outputs.scope == 'CI_ONLY'
+    if: needs.cc-documents-no-live.outputs.scope == 'CC_ACTIVE_SOURCE' || needs.cc-documents-no-live.outputs.scope == 'CI_ONLY' || needs.cc-documents-no-live.outputs.scope == 'PG10_2_COORDINATED'
     runs-on: windows-2022
     timeout-minutes: 30
     defaults:

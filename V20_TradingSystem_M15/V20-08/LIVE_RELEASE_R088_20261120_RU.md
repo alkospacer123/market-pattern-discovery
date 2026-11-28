@@ -60,3 +60,8 @@
 Операторский скрипт: `c:\v20lab\pretrade-08\live-08\v20-08-live-operator.ps1`; Control Center: `http://127.0.0.1:8502`. Физический статус проверять `check` и FINAM GET-only, не выводить статус из PR. При неизвестной заявке/позиции не отправлять повторный POST. При чистом FINAM разрешён только штатный контролируемый `start`, без изменения кодовой базы.
 
 *Эта запись фиксирует состояние по последнему предоставленному выводу от 20.11.2026; более поздний LIVE статус требует нового свидетельства.*
+
+
+## PG10.2 candidate addendum — 28.11.2026
+
+Merge #617 принят на MAIN `568b339a1bb3ebc3f025d74762ae66c344278be9`; PG10.1 принят владельцем в выполненном scope и не повторяется. PR #618 готовит, но НЕ устанавливает единый V20/CC package: BASE+11 включает #601 и F3 margin fix, #602 входит в CC files. DERIVED/SHA/ordered patches, launcher/deps, backup и code-only rollback проверяются по [manifest](pg10-2-release-manifest.json) и [architecture addendum](../R088_ARCHITECTURE_AND_SAFETY_20261122.md). Историческое installed состояние 20.11 выше не переписано; candidate INSTALLED=NO, текущие Tasks/FINAM/SLTP/LIVE=UNKNOWN, ARM не выполнялся.

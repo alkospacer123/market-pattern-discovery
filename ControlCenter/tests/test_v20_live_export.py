@@ -118,3 +118,27 @@ def test_exit_witness_retry_is_pending_and_not_falsely_fault_or_pass():
     from deployment.v20_live_export import classification
     assert classification('M15_EXIT_WITNESS_PENDING_RETRY') == 'PENDING'
     assert classification('M15_EXIT_WITNESS_MISSING') == 'UNKNOWN'
+
+
+def test_protect3_retained_or_replaced_stop_is_pending_not_pass():
+    from deployment.v20_live_export import classification
+    for code in ('R070_PROTECT3_REPLACED_NEEDS_NEXT_BROKER_CHECK',
+                 'PROTECT3_QUOTE_UNVERIFIED_KEEP_OLD_STOP',
+                 'PROTECT3_QUOTE_GET_FAILED_KEEP_OLD_STOP'):
+        assert classification(code) == 'PENDING'
+
+
+def test_halted_unknown_or_fault_cannot_be_hidden_by_switch(tmp_path):
+    prepare(tmp_path)
+    robot = 'v20-shallow'
+    log = tmp_path / 'robots' / 'shallow' / 'logs' / 'live-m15.jsonl'
+    proof = parse_check(official_check())
+    for state, engine in (('UNRECOGNIZED_STATE', 'UNKNOWN'),
+                          ('FAULT_SYNTHETIC', 'FAULT')):
+        log.write_text('\n'.join((
+            json.dumps({'robot': robot, 'utc': '2026-10-27T12:29:55+00:00',
+                        'state': 'NO_FROZEN_SIGNAL'}),
+            json.dumps({'robot': robot, 'utc': '2026-10-27T12:29:58+00:00',
+                        'state': state}))) + '\n', encoding='utf-8')
+        report = collect(tmp_path, proof, NOW)[robot]
+        assert report['engine_state'] == engine

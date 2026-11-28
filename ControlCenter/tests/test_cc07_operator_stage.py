@@ -9,12 +9,13 @@ SCRIPT=PATH.read_text(encoding='utf-8')
 def test_action_semantics_and_immutable_v20_operator():
     assert "'start','pause','stop','restart','recover'" in SCRIPT
     assert "'preview','execute'" in SCRIPT
-    assert "b06957ea7833daeda65296eb372890951860c008" in SCRIPT
+    assert "83cc20df33abadf0895bb42bf9508de8ab45c08e" in SCRIPT
     assert "90e2171bd425015b6b7fd7f5d8e97e331e8b64cb" in SCRIPT
     assert "e68eba0b522a08493549a5cd9ed60d27188c700c" in SCRIPT
     assert "0ea762e73b76e64255489e2bb5428c62397a6e55" in SCRIPT
     assert "4e7498d2eacf0930d0ee1bbf6343883735f3aefb" in SCRIPT
     assert "e1de4aad7a98cdc84768c1811131c3ad079d7d90" in SCRIPT
+    assert "3f017a7e697a9a9b1907bee0757cee77d33d466d" in SCRIPT
     assert "function pin-one-of(" in SCRIPT
     assert "($shas -ccontains $hash)" in SCRIPT
     assert "pin-one-of $launcher @(" in SCRIPT
@@ -120,7 +121,9 @@ function powershell.exe {
     'v20_08_5_v20-shallow_switch='+$script:mockswitch
     'v20_08_5_v20-shallow_age_seconds='+$script:mockage
     'v20_08_5_v20-shallow_cycle='+$script:mockcycle
-    'v20_08_5_v20-shallow_cycle_code='+$script:mockcode
+    if($script:mockcode -ne ''){
+        'v20_08_5_v20-shallow_cycle_code='+$script:mockcode
+    }
     if($script:mockerror){
         write-error $script:mockerror
     }
@@ -173,6 +176,7 @@ $refused=$false
 try{[void](proof $false $true)}catch{$refused=$true}
 if(-not $refused){throw 'cc07_ready_failed_cycle_accepted'}
 $script:mockcycle='PASS'
+$script:mockcode=''
 if((proof $false $true) -cne 'READY_HALTED'){throw 'cc07_ready_last_pass_refused'}
 write-output 'cc07_native_ready_start_only=pass'
 
@@ -280,6 +284,33 @@ $r=proof $true
 if($r -cne 'ARMED'){throw 'cc07_pause_transitional_not_accepted'}
 write-output 'cc07_native_transitional_pause_only=pass'
 
+# A HALTED switch is permission state; fresh PASS/PENDING cycles prove only
+# continuing local protection and must not break PAUSE or its postflight.
+$action='pause'
+$script:mockswitch='HALTED'
+$script:mocktask='Running'
+$script:mockcycle='PASS'
+$script:mockcode=''
+$script:mockage='12'
+$script:mockerror='V20_08_5_HEALTH_PARTIAL'
+$script:mockexit=1
+if((proof) -cne 'HALTED'){throw 'cc07_halted_pass_cycle_refused'}
+$script:mockcycle='PENDING'
+$script:mockcode='R070_PROTECT3_REPLACED_NEEDS_NEXT_BROKER_CHECK'
+if((proof) -cne 'HALTED'){throw 'cc07_halted_protect3_pending_refused'}
+$script:mockcode='PROTECT3_QUOTE_UNVERIFIED_KEEP_OLD_STOP'
+if((proof) -cne 'HALTED'){throw 'cc07_halted_retained_stop_pending_refused'}
+$script:mockcode='UNRECOGNIZED_PENDING'
+$refused=$false
+try{[void](proof)}catch{$refused=$true}
+if(-not $refused){throw 'cc07_unknown_pending_accepted'}
+$script:mockcycle='UNKNOWN'
+$script:mockcode='UNRECOGNIZED_STATE'
+$refused=$false
+try{[void](proof)}catch{$refused=$true}
+if(-not $refused){throw 'cc07_halted_unknown_cycle_accepted'}
+write-output 'cc07_native_halted_pass_pending=pass'
+
 # Market-closed protected polling runs every 120s. Accept only its exact code.
 $script:mockswitch='ARMED'
 $script:mockcycle='PASS'
@@ -320,6 +351,7 @@ write-output 'cc07_native_protected_poll=pass'
     assert "cc07_native_risk_recovery=pass" in completed.stdout
     assert "cc07_native_recover=pass" in completed.stdout
     assert "cc07_native_halted_recover=pass" in completed.stdout
+    assert "cc07_native_halted_pass_pending=pass" in completed.stdout
 
 def test_stopped_task_start_only_guard():
     assert "if($allowStoppedStart -and $task.count -eq 1" in SCRIPT

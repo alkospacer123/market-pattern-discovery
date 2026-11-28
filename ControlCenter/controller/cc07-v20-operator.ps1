@@ -84,14 +84,20 @@ function proof([bool]$allowArmedHalted=$false,[bool]$allowStoppedStart=$false) {
  if($allowStoppedStart -and $task.count -eq 1 -and [string]$task[0] -match '=Ready$'){
   need ($switch.count -eq 1 -and [string]$switch[0] -match '=HALTED$') 'cc07_stopped_switch_not_halted'
   need ($checkexit -eq 1 -and ($lines -join '|') -match 'V20_08_5_HEALTH_PARTIAL') 'cc07_stopped_check_not_partial'
-  need ($cycle.count -eq 1 -and [string]$cycle[0] -match '=(PASS|HALTED|FAIL)$') 'cc07_stopped_cycle_untrusted'
+  need ($cycle.count -eq 1 -and [string]$cycle[0] -match '=(PASS|PENDING|HALTED|FAIL)$') 'cc07_stopped_cycle_untrusted'
   need ($age.count -eq 1 -and [string]$age[0] -match '=-?[0-9]+$') 'cc07_stopped_cycle_age_unknown'
   if([string]$cycle[0] -match '=HALTED$'){
    need ($code.count -eq 1 -and [string]$code[0] -match '=HALTED_NO_NEW_ENTRIES$') 'cc07_stopped_halt_code_untrusted'
+  }elseif([string]$cycle[0] -match '=PENDING$'){
+   need ($code.count -eq 1) 'cc07_stopped_pending_code_untrusted'
+   $pendingCode=([string]$code[0]).Split('=')[-1]
+   need ($pendingCode -cin @('ENTRY_ACK_NEEDS_FILL_AND_STOP','ENTRY_ACK_AWAIT_BROKER_FILL','STOP_ACK_NEEDS_BROKER_PROOF','M15_EXIT_WITNESS_PENDING_RETRY','EXIT_POSTED_AWAIT_BROKER_FLAT','FROZEN_EXIT_ACK_KEEP_STOP_UNTIL_FLAT','STOP_CANCEL_WAIT_BROKER_NO_RETRANSMIT','CANCEL_ACK_REQUIRE_BROKER_NO_STOP_CONFIRMATION','R070_PROTECT3_REPLACED_NEEDS_NEXT_BROKER_CHECK','PROTECT3_QUOTE_UNVERIFIED_KEEP_OLD_STOP','PROTECT3_QUOTE_GET_FAILED_KEEP_OLD_STOP')) 'cc07_stopped_pending_code_untrusted'
   }elseif([string]$cycle[0] -match '=FAIL$'){
    # Known post-fill risk HALT may be recovered only by approved START,
    # after a separate fresh FINAM-FLAT proof. Other FAIL states stay blocked.
    need ($code.count -eq 1 -and [string]$code[0] -ceq ('v20_08_5_'+$robot+'_cycle_code=HALT_V20_LIVE_POST_FILL_RISK_HALTED')) 'cc07_stopped_risk_halt_untrusted'
+  }else{
+   need ($code.count -eq 0 -or ($code.count -eq 1 -and [string]$code[0] -match '=MOEX_CLOSED_PROTECTED_MONITOR$')) 'cc07_stopped_pass_code_untrusted'
   }
   return 'READY_HALTED'
  }
@@ -106,8 +112,16 @@ function proof([bool]$allowArmedHalted=$false,[bool]$allowStoppedStart=$false) {
  if($switchstate -ceq 'HALTED'){
   # Only the intentionally HALTED stock check may return exit=1.
   need ($checkexit -eq 1 -and ($lines -join '|') -match 'V20_08_5_HEALTH_PARTIAL' -and
-   [string]$cycle[0] -match '=HALTED$' -and
-   $code.count -eq 1 -and [string]$code[0] -match '=HALTED_NO_NEW_ENTRIES$') 'cc07_check_not_expected_halted_partial'
+   [string]$cycle[0] -match '=(PASS|PENDING|HALTED)$') 'cc07_check_not_expected_halted_partial'
+  if([string]$cycle[0] -match '=HALTED$'){
+   need ($code.count -eq 1 -and [string]$code[0] -match '=HALTED_NO_NEW_ENTRIES$') 'cc07_check_not_expected_halted_partial'
+  }elseif([string]$cycle[0] -match '=PENDING$'){
+   need ($code.count -eq 1) 'cc07_running_pending_code_untrusted'
+   $pendingCode=([string]$code[0]).Split('=')[-1]
+   need ($pendingCode -cin @('ENTRY_ACK_NEEDS_FILL_AND_STOP','ENTRY_ACK_AWAIT_BROKER_FILL','STOP_ACK_NEEDS_BROKER_PROOF','M15_EXIT_WITNESS_PENDING_RETRY','EXIT_POSTED_AWAIT_BROKER_FLAT','FROZEN_EXIT_ACK_KEEP_STOP_UNTIL_FLAT','STOP_CANCEL_WAIT_BROKER_NO_RETRANSMIT','CANCEL_ACK_REQUIRE_BROKER_NO_STOP_CONFIRMATION','R070_PROTECT3_REPLACED_NEEDS_NEXT_BROKER_CHECK','PROTECT3_QUOTE_UNVERIFIED_KEEP_OLD_STOP','PROTECT3_QUOTE_GET_FAILED_KEEP_OLD_STOP')) 'cc07_running_pending_code_untrusted'
+  }else{
+   need ($code.count -eq 0 -or ($code.count -eq 1 -and [string]$code[0] -match '=MOEX_CLOSED_PROTECTED_MONITOR$')) 'cc07_running_pass_code_untrusted'
+  }
  }else{
   # Only the PAUSE preflight accepts a recent ARMED switch with an old HALTED
   # cycle. Never report this transitional state as successful START.
@@ -149,6 +163,20 @@ function audit([string]$phase,[string]$result){
  $stream=[io.filestream]::new($log,[io.filemode]::append,[io.fileaccess]::write,[io.fileshare]::none)
  try{$stream.write($data,0,$data.length);$stream.flush($true)}finally{$stream.dispose()}
 }
+function audit-history {
+ $folder=join-path $audit 'archive'
+ if(test-path -literalpath $folder){
+  trusted $folder
+  foreach($item in @(get-childitem -literalpath $folder -file | sort-object Name)){
+   need ($item.Name -cmatch '^v20-control-\d{8}T\d{6}\.\d{6}Z-\d{8}T\d{6}\.\d{6}Z-[0-9]{1,12}-[a-f0-9]{64}\.jsonl$') 'cc07_audit_archive_invalid'
+   foreach($line in @(get-content -literalpath $item.FullName -encoding utf8)){if($line){$line}}
+  }
+ }
+ $current=join-path $audit 'v20-control.jsonl'
+ if(test-path -literalpath $current){
+  foreach($line in @(get-content -literalpath $current -encoding utf8)){if($line){$line}}
+ }
+}
 function release {
  trusted $release
  $r=get-content -literalpath $release -raw -encoding utf8 | convertfrom-json
@@ -159,7 +187,7 @@ function release {
  need ($issued -le $now.addseconds(30) -and $expires -ge $now -and $expires -le $issued.addminutes(5)) 'cc07_release_expired'
 }
 need ($env:os -ceq 'Windows_NT' -and $env:computername -ceq 'URIU-PC') 'cc07_wrong_host'
-pin $operator 'b06957ea7833daeda65296eb372890951860c008'
+pin $operator '83cc20df33abadf0895bb42bf9508de8ab45c08e'
 # Known launcher blobs: reviewed changes affect only pinned finam_live.py / finam_execution.py hashes.
 # Do not accept arbitrary V20 changes, bypass its own internal pinning, or mutate V20.
 pin-one-of $launcher @(
@@ -167,7 +195,8 @@ pin-one-of $launcher @(
  'e68eba0b522a08493549a5cd9ed60d27188c700c',
  '0ea762e73b76e64255489e2bb5428c62397a6e55',
  '4e7498d2eacf0930d0ee1bbf6343883735f3aefb',
- 'e1de4aad7a98cdc84768c1811131c3ad079d7d90'
+ 'e1de4aad7a98cdc84768c1811131c3ad079d7d90',
+ '3f017a7e697a9a9b1907bee0757cee77d33d466d'
 )
 $sid=[security.principal.windowsidentity]::getcurrent().user.value
 $task=get-scheduledtask -taskname $robot -taskpath '\' -erroraction stop
@@ -201,12 +230,10 @@ try{
  if(test-path -literalpath $log){
   trusted $log
   need ((get-item -literalpath $log).length -le 4194304) 'cc07_audit_full'
-  foreach($line in @(get-content -literalpath $log -encoding utf8)){
-   if($line){
-    $old=$line|convertfrom-json
-    need ([string]$old.request_id -cne $requestid) 'cc07_duplicate_request_id'
-   }
-  }
+ }
+ foreach($line in @(audit-history)){
+  $old=$line|convertfrom-json
+  need ([string]$old.request_id -cne $requestid) 'cc07_duplicate_request_id'
  }
  $state=proof ($action -eq 'pause') ($action -in @('start','recover'))
  if($action -eq 'recover'){need ($state -ceq 'RECOVERY_HALTED') 'cc07_recovery_not_required'}

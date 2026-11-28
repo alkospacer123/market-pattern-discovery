@@ -2,6 +2,10 @@
 
 **CODE AUTHORITY:** `v20_app.py` → `v20_admin_control.py` → `controller/cc07-v20-operator.ps1`. Срез MAIN: `0e569be6cb3c7cce1f7224e7f1fef6be38f6ba52`. Документ НЕ разрешает живое управление. Историческая физическая приёмка — [CC-08](V20_CC08_OPERATIONS.md).
 
+**PG10.2 SOURCE candidate addendum, PR #618:** новые pins перечислены в [SOURCE map](V20_START_HERE_SOURCE_MAP.md) и release manifest. `HALTED` — только запрет новых входов; свежие `PASS/PENDING` означают локальный worker cycle, не FINAM protection. Три Protect3-кода (`R070_PROTECT3_REPLACED_NEEDS_NEXT_BROKER_CHECK`, `PROTECT3_QUOTE_UNVERIFIED_KEEP_OLD_STOP`, `PROTECT3_QUOTE_GET_FAILED_KEEP_OLD_STOP`) классифицируются `PENDING`, не `PASS`; неизвестный код остаётся блокирующим. Controller принимает HALTED+PASS/PENDING для корректных preflight/postflight без ослабления FLAT/SID/SHA/release/durable-HALT gates.
+
+Адаптер создаёт `data/private/cc07-requests/<request_id>.jsonl` с checkpoints `prepared/release_created/dispatched/finished`; crash/timeout/`FAILED_UNKNOWN` сохраняет active release и блокирует новые команды как `RECOVERY_REQUIRED`. После независимой READONLY-сверки Task/switch/audit/FINAM positions/orders/SLTP оператор может вызвать `resolve_recovery` с точной фразой `cc07 resolve <robot> <action> <request_id>`: release перемещается в `cc07-release-history`, журнал сохраняется, исходная команда НЕ повторяется и ARM не создаётся. Неизвестные V20 intents не удаляются. Это candidate, не INSTALLED evidence.
+
 ## Команда → подтверждение → эффект по коду
 
 | Команда | UI | Требуемая логика stock/PS |
