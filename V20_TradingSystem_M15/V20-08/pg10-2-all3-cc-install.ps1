@@ -55,7 +55,9 @@ function write-json([string]$path,$document,[bool]$replace=$false){
     try{
         if(Test-Path -LiteralPath $path){
             need $replace 'PG10_2_JSON_TARGET_EXISTS'
-            [IO.File]::Replace($temp,$path,$null)
+            $backupCopy=$temp+'.backup'
+            [IO.File]::Replace($temp,$path,$backupCopy)
+            if(Test-Path -LiteralPath $backupCopy){[IO.File]::Delete($backupCopy)}
         }else{[IO.File]::Move($temp,$path)}
     }finally{if(Test-Path -LiteralPath $temp){[IO.File]::Delete($temp)}}
 }
@@ -343,7 +345,11 @@ function replace-target([string]$destination,[byte[]]$bytes){
     $stream=[IO.FileStream]::new($temp,[IO.FileMode]::CreateNew,[IO.FileAccess]::Write,[IO.FileShare]::None)
     try{$stream.Write($bytes,0,$bytes.Length);$stream.Flush($true)}finally{$stream.Dispose()}
     try{
-        if(Test-Path -LiteralPath $destination){[IO.File]::Replace($temp,$destination,$null)}
+        if(Test-Path -LiteralPath $destination){
+            $backupCopy=$temp+'.backup'
+            [IO.File]::Replace($temp,$destination,$backupCopy)
+            if(Test-Path -LiteralPath $backupCopy){[IO.File]::Delete($backupCopy)}
+        }
         else{[IO.File]::Move($temp,$destination)}
     }finally{if(Test-Path -LiteralPath $temp){[IO.File]::Delete($temp)}}
 }
