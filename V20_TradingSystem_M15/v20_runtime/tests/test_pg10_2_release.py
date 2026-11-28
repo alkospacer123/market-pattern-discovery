@@ -429,12 +429,14 @@ foreach($path in @(
 $backup=Join-Path $root 'transaction'
 $third=Join-Path $stage 'v20-08-live-launch.ps1'
 $lock=$null
+$firstError=''
 try{
  $lock=[IO.FileStream]::new($third,[IO.FileMode]::Open,[IO.FileAccess]::Read,[IO.FileShare]::None)
  $failed=$false
- try{& $env:PG_FULL_INSTALLER -mode install -PackageRoot $env:PG_PACKAGE -BackupRoot $backup}catch{$failed=$true}
+ try{& $env:PG_FULL_INSTALLER -mode install -PackageRoot $env:PG_PACKAGE -BackupRoot $backup}catch{$failed=$true;$firstError=$_.Exception.Message}
  need $failed 'INITIAL_INTERRUPTION_NOT_REACHED'
 }finally{if($null -ne $lock){$lock.Dispose()}}
+Write-Output ('PG10_2_2_FIRST_ATTEMPT_ERROR='+$firstError)
 $tx=Get-Content -LiteralPath (Join-Path $backup 'transaction.json') -Raw|ConvertFrom-Json
 $stable=$tx.id
 need ($tx.status -ceq 'INTERRUPTED') 'FIRST_INTERRUPTION_NOT_DURABLE'
