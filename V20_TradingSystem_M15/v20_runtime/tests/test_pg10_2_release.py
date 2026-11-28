@@ -478,6 +478,7 @@ need ($script:backupCalls -eq 1) 'BACKUP_REWRITTEN_ON_RESUME'
 Write-Output 'PG10_2_2_REPEATED_RECOVERY=PASS_DURABLE_DATA_PRESERVED_NO_AUTO_ARM'
 '''
             script = root / "full-forward.ps1"
+            harness = harness.replace("$script:", "$global:")
             script.write_text(harness, encoding="utf-8-sig")
             environment = os.environ.copy()
             environment.update(PG_ROOT=str(root), PG_PACKAGE=str(package),
