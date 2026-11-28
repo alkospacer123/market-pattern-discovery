@@ -123,6 +123,10 @@ class ReleaseTests(unittest.TestCase):
         self.assertNotIn("pip install", installer)
         self.assertNotIn("-mode arm", installer)
         self.assertNotIn("Remove-Item", installer)
+        check = installer.split("if($mode -eq 'check')", 1)[1].split(
+            "need ($env:OS", 1)[0]
+        self.assertIn("verify-installed $false", check)
+        self.assertIn("KNOWN_OLD_OR_NEW", check)
         control = manifest["conversion_control"]
         self.assertNotEqual(control["crlf_raw_git_blob"], control["filtered_git_blob"])
         self.assertNotEqual(control["crlf_raw_sha256"],

@@ -168,9 +168,9 @@ function restore-targets([string]$source){
 }
 verify-package
 if($mode -eq 'check'){
-    verify-installed $true
+    verify-installed $false
     foreach($name in $robots){[void](task $name);[void](switch-state $name)}
-    Write-Output 'PG10_2_CHECK=PASS_SOURCE_DERIVED_INSTALLED_BYTES_ONLY'
+    Write-Output 'PG10_2_CHECK=PASS_PACKAGE_AND_KNOWN_OLD_OR_NEW_INSTALLED_BYTES_ONLY'
     Write-Output 'PG10_2_LIVE_BROKER_PROTECTION=NOT_CHECKED'
     return
 }
