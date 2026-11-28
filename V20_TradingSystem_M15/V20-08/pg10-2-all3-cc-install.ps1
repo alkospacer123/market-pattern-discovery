@@ -128,6 +128,20 @@ function start-halted{
     }
     throw 'PG10_2_FRESH_HALTED_CYCLES_NOT_PROVEN'
 }
+function installed-identity($item,[string]$path){
+    $bytes=[IO.File]::ReadAllBytes($path)
+    $raw=raw-blob $path
+    if($raw -ceq $item.raw_git_blob){
+        need ((sha256 $bytes) -ceq $item.raw_sha256) 'PG10_2_CANONICAL_PACKAGE_IDENTITY_CONTRADICTION'
+        return 'NEW'
+    }
+    if(($item.PSObject.Properties.Name -contains 'accepted_installed_old_raw') -and
+       @($item.accepted_installed_old_raw) -ccontains $raw){return 'OLD'}
+    $filtered=filtered-blob $path ([string]$item.source_path)
+    $old=@($item.accepted_installed_filtered|Where-Object {$_ -cne $item.filtered_git_blob})
+    if($old -ccontains $filtered){return 'OLD'}
+    return 'UNKNOWN'
+}
 function verify-installed([bool]$requireNew){
     foreach($item in @($release.files|Where-Object {$_.install -ne 'none'})){
         $path=target ([string]$item.install) ([string]$item.source_path)
@@ -136,9 +150,9 @@ function verify-installed([bool]$requireNew){
             continue
         }
         plain $path
-        $actual=filtered-blob $path ([string]$item.source_path)
-        if($requireNew){need ($actual -ceq $item.filtered_git_blob) ('PG10_2_NEW_IDENTITY_MISMATCH_'+$path)}
-        else{need (@($item.accepted_installed_filtered) -ccontains $actual) ('PG10_2_UNKNOWN_INSTALLED_IDENTITY_'+$path)}
+        $actual=installed-identity $item $path
+        if($requireNew){need ($actual -ceq 'NEW') ('PG10_2_NEW_IDENTITY_MISMATCH_'+$path)}
+        else{need ($actual -in @('OLD','NEW')) ('PG10_2_UNKNOWN_INSTALLED_IDENTITY_'+$path)}
     }
 }
 function backup-record($backup,[string]$id){
@@ -215,19 +229,18 @@ function identity-state{
     need ($launcherItem.Count -eq 1) 'PG10_2_LAUNCHER_MANIFEST_INVALID'
     $currentLauncher=target 'v20_stage' ([string]$launcherItem[0].source_path)
     if(-not (Test-Path -LiteralPath $currentLauncher)){return 'MISSING'}
-    $launcherHash=filtered-blob $currentLauncher ([string]$launcherItem[0].source_path)
-    $oldLauncher=[string]$launcherItem[0].accepted_installed_filtered[0]
-    $newLauncher=[string]$launcherItem[0].filtered_git_blob
-    $old=$true;$new=$true
+    $launcherState=installed-identity $launcherItem[0] $currentLauncher
+    if($launcherState -notin @('OLD','NEW')){return 'MIXED'}
+    $old=$launcherState -ceq 'OLD';$new=$launcherState -ceq 'NEW'
     foreach($item in @($release.files|Where-Object {$_.role -ceq 'DERIVED_BASE_PLUS_11'})){
         $path=target 'v20_runtime' ([string]$item.source_path)
         if(-not (Test-Path -LiteralPath $path)){return 'MISSING'}
-        $actual=filtered-blob $path ([string]$item.source_path)
-        $old=$old -and $actual -ceq [string]$item.accepted_installed_filtered[0]
-        $new=$new -and $actual -ceq [string]$item.filtered_git_blob
+        $actual=installed-identity $item $path
+        $old=$old -and $actual -ceq 'OLD'
+        $new=$new -and $actual -ceq 'NEW'
     }
-    if($new -and $launcherHash -ceq $newLauncher){return 'NEW'}
-    if($old -and $launcherHash -ceq $oldLauncher){return 'OLD'}
+    if($new){return 'NEW'}
+    if($old){return 'OLD'}
     return 'MIXED'
 }
 function broker-flat-for-state([string]$state,[string]$transactionId){

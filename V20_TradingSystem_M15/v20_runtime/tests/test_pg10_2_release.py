@@ -24,14 +24,14 @@ def identities(data):
             sha1(b"blob " + str(len(data)).encode() + b"\0" + data).hexdigest())
 
 
-def build_derived(manifest, work):
+def build_derived(manifest, work, patch_count=None):
     work = Path(work)
     for name in ("finam_live.py", "finam_execution.py"):
         source = ROOT / "V20_TradingSystem_M15" / "v20_runtime" / name
         target = work / "V20_TradingSystem_M15" / "v20_runtime" / name
         target.parent.mkdir(parents=True, exist_ok=True)
         target.write_bytes(canonical(source).replace(b"\n", b"\r\n"))
-    for patch in manifest["ordered_patches"]:
+    for patch in manifest["ordered_patches"][:patch_count]:
         source = ROOT / patch["source_path"]
         local = work / patch["source_path"]
         local.parent.mkdir(parents=True, exist_ok=True)
@@ -45,6 +45,90 @@ def build_derived(manifest, work):
         path = work / "V20_TradingSystem_M15" / "v20_runtime" / name
         derived["V20_TradingSystem_M15/v20_runtime/" + name] = path.read_bytes().replace(b"\r\n", b"\n")
     return derived
+
+
+def raw_git_blob(path, cwd):
+    return subprocess.check_output(
+        ["git", "hash-object", "--no-filters", "--", str(path)],
+        cwd=cwd, text=True).strip()
+
+
+def old_launcher_bytes():
+    data = canonical(RELEASE / "pg10-2-v20-08-live-launch.ps1")
+    replacements = (
+        (b"# PG10.2 shared isolated DPAPI launcher",
+         b"# V20-08.4 shared isolated DPAPI launcher"),
+        (b"# Existing owner authorization remains bound to its original approved source.\n", b""),
+        (b"7f963423aa0e957d4eb5408aa1b77143c270b688",
+         b"0fc4c454d55f37e4e87fd74e3370cbc1ad83b53f"),
+        (b"98037310ee5238f035ae174285a2f244cc1aeffd",
+         b"5d30270d3936fb52f58a61aa3abbf070d7df6b57"),
+        (b"    $relative='V20_TradingSystem_M15/v20_runtime/'+$spec[0]\n"
+         b"    $actual=(& git.exe -c core.autocrlf=false hash-object --path=$relative -- $item).Trim().ToLowerInvariant()\n"
+         b"    need ($LASTEXITCODE -eq 0 -and $actual -ceq $spec[1]) 'V20_LIVE_MODULE_HASH_INVALID'\n",
+         b"    need ((blob $item) -eq $spec[1]) 'V20_LIVE_MODULE_HASH_INVALID'\n"),
+    )
+    for before, after in replacements:
+        assert data.count(before) == 1
+        data = data.replace(before, after, 1)
+    needle = b"function need([bool]$v,[string]$msg){if(-not $v){throw $msg}}\n"
+    blob_function = (
+        b"function blob([string]$p) {\n"
+        b"    $s=(& git.exe hash-object -- $p).Trim().ToLowerInvariant()\n"
+        b"    need ($LASTEXITCODE -eq 0) 'V20_LIVE_HASH_EXEC_FAILED'\n"
+        b"    return $s\n}\n")
+    assert data.count(needle) == 1
+    data = data.replace(needle, needle + blob_function, 1)
+    assert identities(data)[1] == "e1de4aad7a98cdc84768c1811131c3ad079d7d90"
+    return data
+
+
+def historical_installed_bytes(manifest, work):
+    derived = build_derived(manifest, Path(work) / "base-plus-nine", patch_count=9)
+    result = {}
+    for row in manifest["files"]:
+        if row["install"] == "none" or row["allow_absent"]:
+            continue
+        if row["role"] == "DERIVED_BASE_PLUS_11":
+            data = derived[row["package_path"]]
+        elif row["role"] == "LAUNCHER":
+            data = old_launcher_bytes()
+        else:
+            data = canonical(ROOT / row["package_path"])
+        result[row["source_path"]] = data
+    return result
+
+
+def materialize_package(manifest, package, work):
+    derived = build_derived(manifest, work)
+    package = Path(package)
+    for row in manifest["files"]:
+        data = (derived[row["package_path"]] if row["role"] == "DERIVED_BASE_PLUS_11"
+                else canonical(ROOT / row["package_path"]))
+        path = package / row["package_path"]
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_bytes(data)
+    for row in manifest["ordered_patches"]:
+        path = package / row["package_path"]
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_bytes(canonical(ROOT / row["source_path"]))
+    (package / MANIFEST_PATH.name).write_bytes(canonical(MANIFEST_PATH))
+    return derived
+
+
+def installed_target(root, row):
+    root = Path(root)
+    source = row["source_path"]
+    if row["install"] == "v20_runtime":
+        return (root / "V20Lab/pretrade-08/live-runtime-08/V20_TradingSystem_M15/v20_runtime"
+                / Path(source).name)
+    if row["install"] == "v20_stage":
+        return root / "V20Lab/pretrade-08/live-08" / Path(source).name
+    if row["install"] == "cc_panel":
+        return root / "Control Center/v20-preview-d80f2446" / Path(source).relative_to("ControlCenter")
+    if row["install"] == "cc_controller":
+        return root / "Control Center/cc07-operator/cc07-v20-operator.ps1"
+    raise AssertionError(row)
 
 
 class ReleaseTests(unittest.TestCase):
@@ -301,33 +385,30 @@ Write-Output 'PG10_2_FUNCTIONAL_CC_RESTART=PASS_PROCESS_LISTENER_HEALTH_IDS_NO_C
         with tempfile.TemporaryDirectory(prefix="pg10-2-full-install-") as temporary:
             root = Path(temporary)
             package = root / "package"
-            derived = build_derived(manifest, root / "build")
+            materialize_package(manifest, package, root / "build")
+            old = historical_installed_bytes(manifest, root / "old-build")
+            old_targets = root / "old-targets"
             for row in manifest["files"]:
-                data = derived[row["package_path"]] if row["role"] == "DERIVED_BASE_PLUS_11" else canonical(ROOT / row["package_path"])
-                path = package / row["package_path"]
+                if row["source_path"] not in old:
+                    continue
+                data = old[row["source_path"]]
+                if row["source_path"].endswith("/finam_live.py"):
+                    data = data.replace(b"\n", b"\r\n")
+                path = old_targets / row["source_path"]
                 path.parent.mkdir(parents=True, exist_ok=True)
                 path.write_bytes(data)
-            for row in manifest["ordered_patches"]:
-                path = package / row["package_path"]
-                path.parent.mkdir(parents=True, exist_ok=True)
-                path.write_bytes(canonical(ROOT / row["source_path"]))
-            (package / MANIFEST_PATH.name).write_bytes(canonical(MANIFEST_PATH))
+            self.assertEqual(
+                raw_git_blob(old_targets / "V20_TradingSystem_M15/v20_runtime/finam_live.py", root),
+                "1eeb71cfaf81a56e65062a375ed9362fd805512a")
             installer_text = MANIFEST_PATH.with_name("pg10-2-all3-cc-install.ps1").read_text(encoding="utf-8")
             installer_text = installer_text.replace("C:\\V20Lab", "@V20@").replace("C:\\Control Center", "@CC@")
             installer_text = installer_text.replace("@V20@", str(root / "V20Lab")).replace("@CC@", str(root / "Control Center"))
-            mock_identity = r'''
-function filtered-blob([string]$path,[string]$sourcePath){
- $rows=@($release.files|Where-Object {$_.source_path -ceq $sourcePath})
- if($rows.Count -eq 1){
-  if((sha256 ([IO.File]::ReadAllBytes($path))) -ceq $rows[0].raw_sha256){return [string]$rows[0].filtered_git_blob}
-  return [string]$rows[0].accepted_installed_filtered[0]
- }
- return raw-blob $path
-}
-'''
-            installer_text = installer_text.replace("\nverify-package\n", "\n" + mock_identity + "\nverify-package\n", 1)
             self.assertNotIn("C:\\V20Lab", installer_text)
             self.assertNotIn("C:\\Control Center", installer_text)
+            admin_gate = "need ($identity.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)) 'PG10_2_ADMIN_REQUIRED'"
+            self.assertIn(admin_gate, installer_text)
+            installer_text = installer_text.replace(
+                admin_gate, "need ($env:PG_SYNTHETIC_ADMIN -ceq '1') 'PG10_2_ADMIN_REQUIRED'", 1)
             installer = root / "full-installer.ps1"
             installer.write_text(installer_text, encoding="utf-8-sig")
             harness = r'''
@@ -411,7 +492,8 @@ foreach($item in $items){
  if($item.allow_absent -eq $true){continue}
  $path=target ([string]$item.install) ([string]$item.source_path)
  [IO.Directory]::CreateDirectory((Split-Path $path -Parent))|Out-Null
- [IO.File]::WriteAllBytes($path,[Text.Encoding]::UTF8.GetBytes('old-synthetic-known '+$item.source_path))
+ $old=Join-Path $env:PG_OLD_TARGETS ([string]$item.source_path).Replace('/','\')
+ [IO.File]::WriteAllBytes($path,[IO.File]::ReadAllBytes($old))
 }
 foreach($name in @('v20-shallow','v20-obv','v20-inside')){
  $switch=Join-Path $v20 ('robots\'+$name.Substring(4)+'\safety\stage8-trading-kill-switch.json')
@@ -482,7 +564,8 @@ Write-Output 'PG10_2_2_REPEATED_RECOVERY=PASS_DURABLE_DATA_PRESERVED_NO_AUTO_ARM
             script.write_text(harness, encoding="utf-8-sig")
             environment = os.environ.copy()
             environment.update(PG_ROOT=str(root), PG_PACKAGE=str(package),
-                               PG_FULL_INSTALLER=str(installer))
+                               PG_FULL_INSTALLER=str(installer),
+                               PG_OLD_TARGETS=str(old_targets), PG_SYNTHETIC_ADMIN="1")
             result = subprocess.run(
                 ["powershell.exe", "-noprofile", "-noninteractive",
                  "-executionpolicy", "bypass", "-file", str(script)],
@@ -491,6 +574,154 @@ Write-Output 'PG10_2_2_REPEATED_RECOVERY=PASS_DURABLE_DATA_PRESERVED_NO_AUTO_ARM
             self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
             self.assertIn("PG10_2_2_FULL_MIXED_RESUME=PASS", result.stdout)
             self.assertIn("PG10_2_2_REPEATED_RECOVERY=PASS", result.stdout)
+
+    def test_windows_real_git_lf_crlf_installed_identity_and_exact_restore(self):
+        if os.name != "nt":
+            self.skipTest("native Windows real Git installer identity scenario")
+        manifest = json.loads(MANIFEST_PATH.read_text(encoding="utf-8"))
+        live = "V20_TradingSystem_M15/v20_runtime/finam_live.py"
+        execution = "V20_TradingSystem_M15/v20_runtime/finam_execution.py"
+        with tempfile.TemporaryDirectory(prefix="pg10-2-real-git-identity-") as temporary:
+            root = Path(temporary)
+            package = root / "staging/package"
+            derived = materialize_package(manifest, package, root / "build")
+            old = historical_installed_bytes(manifest, root / "old-build")
+            old[live] = old[live].replace(b"\n", b"\r\n")
+            for row in manifest["files"]:
+                if row["source_path"] not in old:
+                    continue
+                path = installed_target(root, row)
+                path.parent.mkdir(parents=True, exist_ok=True)
+                path.write_bytes(old[row["source_path"]])
+            expected = {
+                "old-live-lf": (old[live].replace(b"\r\n", b"\n"),
+                                "5d30270d3936fb52f58a61aa3abbf070d7df6b57"),
+                "old-live-crlf": (old[live],
+                                  "1eeb71cfaf81a56e65062a375ed9362fd805512a"),
+                "old-execution-lf": (old[execution],
+                                     "0fc4c454d55f37e4e87fd74e3370cbc1ad83b53f"),
+                "old-execution-crlf": (old[execution].replace(b"\n", b"\r\n"),
+                                       "36fc779e3a41e3cbe992d88de9802b2b237e17e6"),
+                "new-live": (derived[live],
+                             "98037310ee5238f035ae174285a2f244cc1aeffd"),
+                "new-execution": (derived[execution],
+                                  "7f963423aa0e957d4eb5408aa1b77143c270b688"),
+            }
+            hashes = root / "real-git-hashes"
+            hashes.mkdir()
+            for name, (data, identity) in expected.items():
+                path = hashes / name
+                path.write_bytes(data)
+                self.assertEqual(raw_git_blob(path, root), identity, name)
+            outside = subprocess.run(["git", "rev-parse", "--is-inside-work-tree"],
+                                     cwd=root, capture_output=True, text=True, check=False)
+            self.assertNotEqual(outside.returncode, 0, outside.stdout + outside.stderr)
+            installer_text = (RELEASE / "pg10-2-all3-cc-install.ps1").read_text(encoding="utf-8")
+            installer_text = installer_text.replace("C:\\V20Lab", "@V20@").replace("C:\\Control Center", "@CC@")
+            installer_text = installer_text.replace("@V20@", str(root / "V20Lab")).replace("@CC@", str(root / "Control Center"))
+            installer = root / "staging/pg10-2-all3-cc-install.ps1"
+            installer.write_text(installer_text, encoding="utf-8-sig")
+            harness = r'''
+$ErrorActionPreference='Stop'
+Set-StrictMode -Version Latest
+$source=Get-Content -LiteralPath $env:PG_INSTALLER -Raw -Encoding UTF8
+$cut=[regex]::Match($source,'(?m)^verify-package\r?$')
+if(-not $cut.Success){throw 'FUNCTION_TOP_LEVEL_BOUNDARY_MISSING'}
+$source=$source.Substring(0,$cut.Index)
+$v20=Join-Path $env:PG_ROOT 'V20Lab'
+$cc=Join-Path $env:PG_ROOT 'Control Center'
+$panel=Join-Path $cc 'v20-preview-d80f2446'
+$stage=Join-Path $v20 'pretrade-08\live-08'
+$runtime=Join-Path $v20 'pretrade-08\live-runtime-08\V20_TradingSystem_M15\v20_runtime'
+$pythonCC=Join-Path $cc 'runtime\python312\python.exe'
+$robots=@('v20-shallow','v20-obv','v20-inside')
+$PackageRoot=$env:PG_PACKAGE
+$BackupRoot=Join-Path $env:PG_ROOT 'backup'
+$manifestPath=Join-Path $PackageRoot 'pg10-2-release-manifest.json'
+$release=Get-Content -LiteralPath $manifestPath -Raw -Encoding UTF8|ConvertFrom-Json
+$releaseSha=$null
+$ccMutex=$null
+$ccMutexHeld=$false
+$definitions=[regex]::Matches($source,'(?ms)^function\s+.*?(?=^function\s+|\z)')
+foreach($definition in $definitions){Invoke-Expression $definition.Value}
+$releaseSha=sha256 ([IO.File]::ReadAllBytes($manifestPath))
+$items=@($release.files|Where-Object {$_.install -ne 'none'})
+$liveItem=@($release.files|Where-Object {$_.source_path -ceq 'V20_TradingSystem_M15/v20_runtime/finam_live.py'})[0]
+$livePath=target 'v20_runtime' $liveItem.source_path
+verify-installed $false
+need ((identity-state) -ceq 'OLD') 'OLD_CRLF_LF_NOT_RECOGNIZED'
+$refused=$false
+try{verify-installed $true}catch{$refused=$_.Exception.Message -match 'PG10_2_NEW_IDENTITY_MISMATCH_'}
+need $refused 'OLD_ACCEPTED_AS_CANONICAL_NEW'
+$oldBytes=@{}
+foreach($item in $items){
+ $path=target ([string]$item.install) ([string]$item.source_path)
+ if(Test-Path -LiteralPath $path){$oldBytes[$path]=[IO.File]::ReadAllBytes($path)}
+}
+backup-targets $BackupRoot $true
+$backup=backup-verify $BackupRoot
+foreach($item in $items){
+ $path=target ([string]$item.install) ([string]$item.source_path)
+ [IO.Directory]::CreateDirectory((Split-Path $path -Parent))|Out-Null
+ $new=Join-Path $PackageRoot ([string]$item.package_path).Replace('/','\')
+ [IO.File]::WriteAllBytes($path,[IO.File]::ReadAllBytes($new))
+}
+verify-installed $true
+need ((identity-state) -ceq 'NEW') 'CANONICAL_NEW_NOT_RECOGNIZED'
+assert-targets-known $backup
+restore-targets $BackupRoot $backup
+verify-backup-installed $backup
+foreach($path in $oldBytes.Keys){
+ need (([Convert]::ToBase64String([IO.File]::ReadAllBytes($path))) -ceq
+       [Convert]::ToBase64String($oldBytes[$path])) ('ORIGINAL_BYTES_CHANGED_'+$path)
+}
+foreach($item in @($items|Where-Object {$_.allow_absent -eq $true})){
+ $path=target ([string]$item.install) ([string]$item.source_path)
+ need (-not (Test-Path -LiteralPath $path)) 'ABSENT_OLD_FILE_NOT_REMOVED_BY_SHARED_RESTORE'
+}
+need ((identity-state) -ceq 'OLD') 'SHARED_ROLLBACK_RECOVERY_RESTORE_NOT_OLD'
+Write-Output 'PG10_2_REAL_GIT_BACKUP_RECOVERY_ROLLBACK=PASS_EXACT_CRLF_LF_BYTES'
+$newLive=Join-Path $PackageRoot ([string]$liveItem.package_path).Replace('/','\')
+[IO.File]::WriteAllBytes($livePath,[IO.File]::ReadAllBytes($newLive))
+need ((identity-state) -ceq 'MIXED') 'MIXED_STATE_NOT_RECOGNIZED'
+verify-installed $false
+[IO.File]::AppendAllText($livePath,'substantive-content-change',[Text.UTF8Encoding]::new($false))
+need ((installed-identity $liveItem $livePath) -ceq 'UNKNOWN') 'SUBSTANTIVE_CHANGE_NOT_UNKNOWN'
+$refused=$false
+try{verify-installed $false}catch{$refused=$_.Exception.Message -match 'PG10_2_UNKNOWN_INSTALLED_IDENTITY_'}
+need $refused 'SUBSTANTIVE_CHANGE_ACCEPTED_BY_VERIFY_INSTALLED'
+$refused=$false
+try{assert-targets-known $backup}catch{$refused=$_.Exception.Message -match 'PG10_2_UNKNOWN_TARGET_BYTES_'}
+need $refused 'SUBSTANTIVE_CHANGE_ACCEPTED_BY_RECOVERY_ROLLBACK'
+Write-Output 'PG10_2_REAL_GIT_OLD_NEW_MIXED_UNKNOWN=PASS'
+[IO.File]::WriteAllBytes($livePath,$oldBytes[$livePath])
+need ((identity-state) -ceq 'OLD') 'OLD_RESTORE_AFTER_NEGATIVE_WITNESS_FAILED'
+foreach($name in $robots){
+ $switch=Join-Path $v20 ('robots\'+$name.Substring(4)+'\safety\stage8-trading-kill-switch.json')
+ [IO.Directory]::CreateDirectory((Split-Path $switch -Parent))|Out-Null
+ [IO.File]::WriteAllText($switch,'{"state":"HALTED"}',[Text.UTF8Encoding]::new($false))
+}
+function Get-ScheduledTask{param($TaskName,$TaskPath,$ErrorAction);return [pscustomobject]@{State='Running'}}
+$check=@(& $env:PG_INSTALLER -mode check -PackageRoot $PackageRoot) -join '|'
+need ($check -match 'PG10_2_CHECK=PASS_PACKAGE_AND_KNOWN_OLD_OR_NEW_INSTALLED_BYTES_ONLY') ('REAL_CHECK_FAILED_'+$check)
+need ($check -match 'PG10_2_LIVE_BROKER_PROTECTION=NOT_CHECKED') 'REAL_CHECK_BROKER_BOUNDARY_MISSING'
+Write-Output 'PG10_2_REAL_GIT_CHECK_OUTSIDE_GIT_CHECKOUT=PASS_NO_FINAM'
+'''
+            script = root / "real-git-identity.ps1"
+            script.write_text(harness, encoding="utf-8-sig")
+            environment = os.environ.copy()
+            environment.update(PG_ROOT=str(root), PG_PACKAGE=str(package),
+                               PG_INSTALLER=str(installer))
+            result = subprocess.run(
+                ["powershell.exe", "-noprofile", "-noninteractive",
+                 "-executionpolicy", "bypass", "-file", str(script)],
+                cwd=root, env=environment, capture_output=True, text=True,
+                timeout=60, check=False)
+            self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+            for marker in ("PG10_2_REAL_GIT_BACKUP_RECOVERY_ROLLBACK=PASS",
+                           "PG10_2_REAL_GIT_OLD_NEW_MIXED_UNKNOWN=PASS",
+                           "PG10_2_REAL_GIT_CHECK_OUTSIDE_GIT_CHECKOUT=PASS"):
+                self.assertIn(marker, result.stdout)
 
     def test_new_powershell_files_parse_without_execution(self):
         if os.name != "nt":

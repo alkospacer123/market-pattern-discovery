@@ -67,3 +67,11 @@
 ### 28.11.2026 — PG10.2.2 forward recovery fix
 
 - Устранено противоречие случайного transaction ID: install возобновляет существующую проверенную transaction/BackupRoot без нового GUID или повторного backup. Исходное CC state, known old/new bytes, HALTED/FLAT/quiescence сохранены; после NEW pair FLAT повторяется до workers. Full-path synthetic test исполняет сам installer, включая MIXED refusal, стабильный resume и повторное interruption/recovery. Runtime/FINAM/Tasks/reboot/ARM/HALT/Merge не затронуты; доказательства публикуются в описании PR.
+
+
+### 28.11.2026 — PG10.5.1A real-Git installed identity remediation
+
+- **Root cause:** PG10.5.1 READONLY check отклонил фактические V20 runtime CRLF blobs `finam_live.py=1eeb71cfaf81a56e65062a375ed9362fd805512a`, `finam_execution.py=36fc779e3a41e3cbe992d88de9802b2b237e17e6`. GPT независимо воспроизвёл BASE+9 и подтвердил, что это CRLF-формы доказанных LF `5d30270d…6b57` / `0fc4c454…b53f`, а не содержательное отклонение. BASE+11 также совпал с manifest.
+- Ветка `fix/pg10-2-installed-identity-crlf` от MAIN `37e9e02c4a74ad895510e767aa99ecec0818f95e`. Installer получил общий OLD/NEW/MIXED classifier; manifest содержит только четыре явных OLD raw aliases. NEW принимается только при точных canonical package raw bytes; substantive unknown остаётся отказом. `verify-package`, raw backup/restore, recovery и rollback boundaries не ослаблены.
+- Существующий full-path test лишён mock подмены identity: OLD BASE+9 и historical launcher reconstructions проверяются реальным `git hash-object`. Добавлен Windows real-Git сценарий LF/CRLF, NEW, MIXED, substantive-change refusal, exact-byte backup/shared recovery-rollback restore и настоящий `-mode check` из staging вне Git checkout. Локально Python 3.12.10: **6/6 PASS**; deterministic local candidate ZIP SHA256 `9d8a961b836e6b2840b09f7c490afbfa5d3017341f78bb70f2afbf1a2b1e1799`. Exact-head CI и скачанный artifact проверяются после push, результат — описание PR.
+- Торговые BASE/BASE+11, strategy/risk и восемь PG10.2 обновлений не изменены. Deploy, production files, FINAM, Tasks, ACL, reboot, ARM/HALT, rollback/recover, rotation и Merge не выполнялись. Остаточные READONLY preflight gaps сохраняются до принятия исправления и отдельных полномочий.
