@@ -1149,13 +1149,13 @@ jobs:
                 Require-Blob $live '437d69280a15a2ad67ffbe7f2377583f430d5252'
                 Require-Blob $execution '0fc4c454d55f37e4e87fd74e3370cbc1ad83b53f'
                 $base=@'
-                import unittest
-                from V20_TradingSystem_M15.v20_runtime.tests.test_pg10_2_margin_after_protect3 import Protect3MarginReflectionTests
-                suite=unittest.defaultTestLoader.loadTestsFromTestCase(Protect3MarginReflectionTests)
-                result=unittest.TextTestRunner(verbosity=2).run(suite)
-                if result.testsRun!=4 or len(result.errors)!=3 or result.failures:
-                    raise SystemExit('PG10_2_BASE10_EXPECTED_F3_FAILURE_NOT_REPRODUCED')
-                print('PG10_2_F3_BASE10_DOUBLE_RESERVE_REPRODUCED=PASS_4_TESTS_3_EXPECTED_ERRORS')
+          import unittest
+          from V20_TradingSystem_M15.v20_runtime.tests.test_pg10_2_margin_after_protect3 import Protect3MarginReflectionTests
+          suite=unittest.defaultTestLoader.loadTestsFromTestCase(Protect3MarginReflectionTests)
+          result=unittest.TextTestRunner(verbosity=2).run(suite)
+          if result.testsRun!=4 or len(result.errors)!=3 or result.failures:
+              raise SystemExit('PG10_2_BASE10_EXPECTED_F3_FAILURE_NOT_REPRODUCED')
+          print('PG10_2_F3_BASE10_DOUBLE_RESERVE_REPRODUCED=PASS_4_TESTS_3_EXPECTED_ERRORS')
           '@
                 $base | python -B -
                 if($LASTEXITCODE -ne 0){throw 'PG10_2_BASE10_REPRO_FAILED'}
@@ -1166,6 +1166,7 @@ jobs:
             python -B -m unittest -v `
               V20_TradingSystem_M15.v20_runtime.tests.test_pg10_2_margin_after_protect3 `
               V20_TradingSystem_M15.v20_runtime.tests.test_finam_protected_recovery `
+              V20_TradingSystem_M15.v20_runtime.tests.test_finam_journal `
               V20_TradingSystem_M15.v20_runtime.tests.test_r070_v20_protection_handoff.R070V20HandoffTests.test_protect3_effective_stop_resealed_after_reboot_readonly `
               V20_TradingSystem_M15.v20_runtime.tests.test_r070_v20_protection_handoff.R070V20HandoffTests.test_staged_protect3_new_broker_id_is_owned_and_sealed `
               V20_TradingSystem_M15.v20_runtime.tests.test_r088_hold5_offline `
@@ -1202,7 +1203,7 @@ jobs:
           Copy-Item -LiteralPath 'V20_TradingSystem_M15/V20-08/pg10-2-release-manifest.json' -Destination (Join-Path $evidence 'pg10-2-release-manifest.json')
           Write-Output ('PG10_2_RELEASE_ARTIFACT_SHA256='+$hash)
       - name: Preserve PG10.2 release and native evidence
-        if: always()
+        if: success()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
           name: pg10-2-release-${{ github.run_id }}-${{ github.run_attempt }}
