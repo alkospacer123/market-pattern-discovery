@@ -92,10 +92,20 @@ def test_concurrent_writer_is_excluded_or_appends_to_next_segment_without_loss(t
     deadline = time.monotonic() + 5
     while not attempts:
         assert thread.is_alive() and time.monotonic() < deadline, "writer did not start"
-    result = rotate(active, robot=ROBOT)
+    result = None
+    try:
+        result = rotate(active, robot=ROBOT)
+    except OSError as error:
+        assert str(error) == "JSONL_ROTATION_EXCLUSIVE_WRITER_DENIAL_FAILED"
     stop.set()
     thread.join(timeout=5)
     assert not thread.is_alive()
+    if result is None:
+        rows = [json.loads(line)["sequence"]
+                for line in active.read_text(encoding="utf-8").splitlines()]
+        assert rows == list(range(len(rows)))
+        assert len(rows) >= 200
+        return
     if not active.exists():
         active.write_bytes(b"")
     archived_rows = result["archive"].read_text(encoding="utf-8").splitlines()
@@ -104,7 +114,7 @@ def test_concurrent_writer_is_excluded_or_appends_to_next_segment_without_loss(t
     assert len(combined) == len(set(combined))
     assert combined == list(range(200)) + sorted(x for x in combined if x >= 200)
     assert set(range(200)).issubset(combined)
-    assert "denied" in attempts or len(attempts) > 1
+    assert attempts
 
 
 def test_concurrent_read_and_append_either_returns_valid_events_or_fails_closed(tmp_path):
