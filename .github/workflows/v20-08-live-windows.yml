@@ -1166,7 +1166,7 @@ jobs:
             python -B -m unittest -v `
               V20_TradingSystem_M15.v20_runtime.tests.test_pg10_2_margin_after_protect3 `
               V20_TradingSystem_M15.v20_runtime.tests.test_finam_protected_recovery `
-              V20_TradingSystem_M15.v20_runtime.tests.test_finam_journal `
+              V20_TradingSystem_M15.v20_runtime.tests.test_finam_journal.JournalTests.test_uncertain_post_never_replayed_even_after_restart `
               V20_TradingSystem_M15.v20_runtime.tests.test_r070_v20_protection_handoff.R070V20HandoffTests.test_protect3_effective_stop_resealed_after_reboot_readonly `
               V20_TradingSystem_M15.v20_runtime.tests.test_r070_v20_protection_handoff.R070V20HandoffTests.test_staged_protect3_new_broker_id_is_owned_and_sealed `
               V20_TradingSystem_M15.v20_runtime.tests.test_r088_hold5_offline `
