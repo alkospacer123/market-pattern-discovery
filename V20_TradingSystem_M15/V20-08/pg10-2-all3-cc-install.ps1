@@ -14,7 +14,8 @@ $cc='C:\Control Center'
 $panel=Join-Path $cc 'v20-preview-d80f2446'
 $stage=Join-Path $v20 'pretrade-08\live-08'
 $runtime=Join-Path $v20 'pretrade-08\live-runtime-08\V20_TradingSystem_M15\v20_runtime'
-$pythonCC=Join-Path $cc 'runtime\python312\python.exe'
+$pythonCC=Join-Path $cc 'venv\Scripts\python.exe'
+$pythonBaseCC=Join-Path $cc 'runtime\python312\python.exe'
 $robots=@('v20-shallow','v20-obv','v20-inside')
 $manifestPath=Join-Path $PackageRoot 'pg10-2-release-manifest.json'
 $ccMutex=$null
@@ -289,8 +290,17 @@ function cc-process([int]$processId){
     $rows=@(Get-CimInstance Win32_Process -Filter ('ProcessId='+$processId))
     need ($rows.Count -eq 1) 'PG10_2_CC_PROCESS_MISSING'
     $process=$rows[0]
-    need ($process.ExecutablePath -ceq $pythonCC -and
-          $process.CommandLine -match '(?i)streamlit\s+run\s+(?:\S+\s+)*v20_app\.py' -and
+    $launcher=$process.ExecutablePath -ceq $pythonCC
+    $base=$process.ExecutablePath -ceq $pythonBaseCC
+    if($base){
+        $parent=@(Get-CimInstance Win32_Process -Filter ('ProcessId='+$process.ParentProcessId))
+        if($parent.Count -eq 1 -and $parent[0].ExecutablePath -ceq $pythonCC){
+            need ($parent[0].CommandLine -match '(?i)streamlit\s+run\s+(?:\S+\s+)*v20_app\.py' -and
+                  $parent[0].CommandLine -match '(?i)--server\.port(?:=|\s+)8502(?:\s|$)') 'PG10_2_CC_PARENT_IDENTITY_INVALID'
+        }
+    }
+    need ($launcher -or $base) 'PG10_2_CC_PROCESS_EXECUTABLE_INVALID'
+    need ($process.CommandLine -match '(?i)streamlit\s+run\s+(?:\S+\s+)*v20_app\.py' -and
           $process.CommandLine -match '(?i)--server\.port(?:=|\s+)8502(?:\s|$)') 'PG10_2_CC_PROCESS_IDENTITY_INVALID'
     return $process
 }
@@ -328,6 +338,12 @@ function stop-cc{
     }
     throw 'PG10_2_CC_LISTENER_STILL_ACTIVE'
 }
+function started-listener($listener,$process){
+    if($null -eq $listener){return $false}
+    if([int]$listener.OwningProcess -eq $process.Id){return $true}
+    $owner=@(Get-CimInstance Win32_Process -Filter ('ProcessId='+$listener.OwningProcess))
+    return ($owner.Count -eq 1 -and [int]$owner[0].ParentProcessId -eq $process.Id)
+}
 function start-cc([bool]$expectedNew,$backup,$tx){
     if(-not $tx.cc_was_running){
         need ($null -eq (cc-listener)) 'PG10_2_CC_UNEXPECTED_LISTENER'
@@ -342,12 +358,12 @@ function start-cc([bool]$expectedNew,$backup,$tx){
     $listener=$null
     for($i=0;$i -lt 60;$i++){
         $listener=cc-listener
-        if($null -ne $listener -and [int]$listener.OwningProcess -eq $process.Id){break}
+        if(started-listener $listener $process){break}
         if($process.HasExited){throw 'PG10_2_CC_PROCESS_EXITED'}
         Start-Sleep -Seconds 1
     }
-    need ($null -ne $listener -and [int]$listener.OwningProcess -eq $process.Id) 'PG10_2_CC_NEW_LISTENER_NOT_PROVEN'
-    [void](cc-process $process.Id)
+    need (started-listener $listener $process) 'PG10_2_CC_NEW_LISTENER_NOT_PROVEN'
+    [void](cc-process ([int]$listener.OwningProcess))
     $health=Invoke-WebRequest -Uri 'http://127.0.0.1:8502/_stcore/health' -UseBasicParsing -TimeoutSec 5
     need ($health.StatusCode -eq 200 -and [string]$health.Content -match '(?i)^\s*ok\s*$') 'PG10_2_CC_HEALTH_NOT_PROVEN'
     if($expectedNew){verify-installed $true}else{verify-backup-installed $backup}

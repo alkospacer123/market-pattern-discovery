@@ -208,6 +208,9 @@ class ReleaseTests(unittest.TestCase):
         self.assertIn("state_restore='FORBIDDEN_AUTOMATICALLY'", installer)
         self.assertIn("PG10_2_DURABLE_STATE_AND_UNKNOWN_INTENTS=UNTOUCHED", installer)
         self.assertIn("PG10_2_REFUSE_DELETE_UNKNOWN_FILE", installer)
+        self.assertIn("$pythonCC=Join-Path $cc 'venv\\Scripts\\python.exe'", installer)
+        self.assertIn("function started-listener", installer)
+        self.assertIn("cc-process ([int]$listener.OwningProcess)", installer)
         self.assertNotIn("Invoke-RestMethod", installer)
         self.assertNotIn("pip install", installer)
         self.assertNotIn("-mode arm", installer)
@@ -249,7 +252,8 @@ $cc=Join-Path $env:PG_ROOT 'Control Center'
 $panel=Join-Path $cc 'v20-preview-d80f2446'
 $stage=Join-Path $v20 'pretrade-08\live-08'
 $runtime=Join-Path $v20 'pretrade-08\live-runtime-08\V20_TradingSystem_M15\v20_runtime'
-$pythonCC=Join-Path $cc 'runtime\python312\python.exe'
+$pythonCC=Join-Path $cc 'venv\Scripts\python.exe'
+$pythonBaseCC=Join-Path $cc 'runtime\python312\python.exe'
 $robots=@('v20-shallow','v20-obv','v20-inside')
 $PackageRoot=$env:PG_PACKAGE
 $BackupRoot=$env:PG_BACKUP
@@ -360,6 +364,30 @@ $ccOutput=@(start-cc $false $backup $tx) -join '|'
 need ($ccOutput -match 'PG10_2_CC_RUNNING=PASS_NEW_PROCESS_LOOPBACK_HEALTH_AND_BACKUP_SOURCE_IDS') 'CC_VERIFIED_RESTART_MISSING'
 need ((cc-running) -eq 2001) 'CC_NEW_PROCESS_NOT_OBSERVED'
 Write-Output 'PG10_2_FUNCTIONAL_CC_RESTART=PASS_PROCESS_LISTENER_HEALTH_IDS_NO_COMMANDS'
+$script:listenerUp=$true
+$script:listenerPid=3002
+$script:launcherPid=3001
+function Get-CimInstance{
+ param($ClassName,$Filter)
+ $id=[int]([regex]::Match($Filter,'ProcessId=(\d+)').Groups[1].Value)
+ if($id -eq $script:listenerPid){return [pscustomobject]@{ProcessId=$id;ParentProcessId=$script:launcherPid;ExecutablePath=$pythonBaseCC;CommandLine='python -I -B -m streamlit run v20_app.py --server.port=8502'}}
+ if($id -eq $script:launcherPid){return [pscustomobject]@{ProcessId=$id;ParentProcessId=0;ExecutablePath=$pythonCC;CommandLine='python -I -B -m streamlit run v20_app.py --server.port=8502'}}
+ return $null
+}
+need ((cc-running) -eq 3002) 'CC_OLD_BASE_OR_NEW_VENV_CHILD_NOT_RECOGNIZED'
+$childListener=[pscustomobject]@{OwningProcess=3002}
+need (started-listener $childListener ([pscustomobject]@{Id=3001})) 'CC_VENV_DIRECT_CHILD_REJECTED'
+need (-not (started-listener $childListener ([pscustomobject]@{Id=9999}))) 'CC_UNRELATED_LISTENER_ACCEPTED'
+$script:listenerUp=$false
+function Start-Process{
+ param($FilePath,$ArgumentList,$WorkingDirectory,$WindowStyle,$RedirectStandardOutput,$RedirectStandardError,[switch]$PassThru)
+ $script:launcherPid=4001;$script:listenerPid=4002;$script:listenerUp=$true
+ return [pscustomobject]@{Id=4001;HasExited=$false}
+}
+$ccOutput=@(start-cc $false $backup $tx) -join '|'
+need ($ccOutput -match 'PG10_2_CC_RUNNING=PASS_NEW_PROCESS_LOOPBACK_HEALTH_AND_BACKUP_SOURCE_IDS') 'CC_VENV_CHILD_RESTART_FAILED'
+need ((cc-running) -eq 4002) 'CC_VENV_CHILD_RUNTIME_NOT_OBSERVED'
+Write-Output 'PG10_2_FUNCTIONAL_VENV_PROCESS_TREE=PASS_OLD_BASE_AND_NEW_DIRECT_CHILD'
 '''
             script = root / "functional-install.ps1"
             script.write_text(harness, encoding="utf-8-sig")
@@ -375,7 +403,8 @@ Write-Output 'PG10_2_FUNCTIONAL_CC_RESTART=PASS_PROCESS_LISTENER_HEALTH_IDS_NO_C
             self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
             for marker in ("PG10_2_FUNCTIONAL_INTERRUPTED_RECOVERY=PASS",
                            "PG10_2_FUNCTIONAL_JOURNAL_ARCHIVE_ROLLBACK_GATE=PASS",
-                           "PG10_2_FUNCTIONAL_CC_RESTART=PASS"):
+                           "PG10_2_FUNCTIONAL_CC_RESTART=PASS",
+                           "PG10_2_FUNCTIONAL_VENV_PROCESS_TREE=PASS"):
                 self.assertIn(marker, result.stdout)
 
     def test_windows_full_forward_recovery_stable_transaction(self):
@@ -457,7 +486,7 @@ function powershell.exe{
 }
 function Get-CimInstance{
  param($ClassName,$Filter)
- return [pscustomobject]@{ProcessId=$script:listenerPid;ExecutablePath=(Join-Path $env:PG_ROOT 'Control Center\runtime\python312\python.exe');CommandLine='python -I -B -m streamlit run v20_app.py --server.port=8502'}
+ return [pscustomobject]@{ProcessId=$script:listenerPid;ParentProcessId=0;ExecutablePath=(Join-Path $env:PG_ROOT 'Control Center\venv\Scripts\python.exe');CommandLine='python -I -B -m streamlit run v20_app.py --server.port=8502'}
 }
 function Get-NetTCPConnection{
  param($LocalAddress,$LocalPort,$State,$ErrorAction)
@@ -500,8 +529,8 @@ foreach($name in @('v20-shallow','v20-obv','v20-inside')){
  [IO.Directory]::CreateDirectory((Split-Path $switch -Parent))|Out-Null
  [IO.File]::WriteAllText($switch,'{"state":"HALTED"}',[Text.UTF8Encoding]::new($false))
 }
-[IO.Directory]::CreateDirectory((Join-Path $cc 'runtime\python312'))|Out-Null
-[IO.File]::WriteAllText((Join-Path $cc 'runtime\python312\python.exe'),'synthetic-runtime',[Text.UTF8Encoding]::new($false))
+[IO.Directory]::CreateDirectory((Join-Path $cc 'venv\Scripts'))|Out-Null
+[IO.File]::WriteAllText((Join-Path $cc 'venv\Scripts\python.exe'),'synthetic-runtime',[Text.UTF8Encoding]::new($false))
 $durable=@{}
 foreach($path in @(
  (Join-Path $v20 'robots\shallow\state\v20-real-intents.sqlite3'),
@@ -633,7 +662,8 @@ $cc=Join-Path $env:PG_ROOT 'Control Center'
 $panel=Join-Path $cc 'v20-preview-d80f2446'
 $stage=Join-Path $v20 'pretrade-08\live-08'
 $runtime=Join-Path $v20 'pretrade-08\live-runtime-08\V20_TradingSystem_M15\v20_runtime'
-$pythonCC=Join-Path $cc 'runtime\python312\python.exe'
+$pythonCC=Join-Path $cc 'venv\Scripts\python.exe'
+$pythonBaseCC=Join-Path $cc 'runtime\python312\python.exe'
 $robots=@('v20-shallow','v20-obv','v20-inside')
 $PackageRoot=$env:PG_PACKAGE
 $BackupRoot=Join-Path $env:PG_ROOT 'backup'
