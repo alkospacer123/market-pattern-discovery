@@ -307,6 +307,10 @@ Write-Output 'PG10_2_FUNCTIONAL_CC_RESTART=PASS_PROCESS_LISTENER_HEALTH_IDS_NO_C
                 path = package / row["package_path"]
                 path.parent.mkdir(parents=True, exist_ok=True)
                 path.write_bytes(data)
+            for row in manifest["ordered_patches"]:
+                path = package / row["package_path"]
+                path.parent.mkdir(parents=True, exist_ok=True)
+                path.write_bytes(canonical(ROOT / row["source_path"]))
             (package / MANIFEST_PATH.name).write_bytes(canonical(MANIFEST_PATH))
             installer_text = MANIFEST_PATH.with_name("pg10-2-all3-cc-install.ps1").read_text(encoding="utf-8")
             installer_text = installer_text.replace("C:\\V20Lab", "@V20@").replace("C:\\Control Center", "@CC@")
