@@ -405,16 +405,23 @@ $currentLauncher=Join-Path $stage 'v20-08-live-launch.ps1'
 if($mode -eq 'install'){
     verify-installed $false
     all-halted
-    need (-not (Test-Path -LiteralPath $BackupRoot)) 'PG10_2_BACKUP_TARGET_INVALID'
+    $resume=Test-Path -LiteralPath $BackupRoot
     $state=identity-state
-    $oldOperator=Join-Path $stage 'v20-08-live-operator.ps1'
-    $snapshot=@(& powershell.exe -noprofile -noninteractive -executionpolicy bypass -file $oldOperator -mode backup -robot all 2>&1)
-    need ($LASTEXITCODE -eq 0 -and ($snapshot -join '|') -match 'v20_08_5_backup=PASS') 'PG10_2_SQLITE_BACKUP_FAILED'
-    backup-targets $BackupRoot ($state -in @('OLD','NEW'))
-    $ccWasRunning=(cc-running) -ne 0
-    $tx=[ordered]@{schema='pg10.2.install-transaction.v1';id=[guid]::NewGuid().ToString('N');release_sha256=$releaseSha;backup_sha256=sha256 ([IO.File]::ReadAllBytes((Join-Path $BackupRoot 'backup.json')));status='PREPARED';coherent_before=($state -in @('OLD','NEW'));cc_was_running=$ccWasRunning;last_write_id='';created_utc=[datetimeoffset]::UtcNow.ToString('o');updated_utc=[datetimeoffset]::UtcNow.ToString('o')}
-    write-json (transaction-path) $tx $false
-    $tx=transaction-read
+    if($resume){
+        $backup=backup-verify $BackupRoot
+        $tx=transaction-read
+        assert-targets-known $backup
+        Write-Output ('PG10_2_INSTALL_RESUME_TRANSACTION='+$tx.id)
+    }else{
+        $oldOperator=Join-Path $stage 'v20-08-live-operator.ps1'
+        $snapshot=@(& powershell.exe -noprofile -noninteractive -executionpolicy bypass -file $oldOperator -mode backup -robot all 2>&1)
+        need ($LASTEXITCODE -eq 0 -and ($snapshot -join '|') -match 'v20_08_5_backup=PASS') 'PG10_2_SQLITE_BACKUP_FAILED'
+        backup-targets $BackupRoot ($state -in @('OLD','NEW'))
+        $ccWasRunning=(cc-running) -ne 0
+        $tx=[ordered]@{schema='pg10.2.install-transaction.v1';id=[guid]::NewGuid().ToString('N');release_sha256=$releaseSha;backup_sha256=sha256 ([IO.File]::ReadAllBytes((Join-Path $BackupRoot 'backup.json')));status='PREPARED';coherent_before=($state -in @('OLD','NEW'));cc_was_running=$ccWasRunning;last_write_id='';created_utc=[datetimeoffset]::UtcNow.ToString('o');updated_utc=[datetimeoffset]::UtcNow.ToString('o')}
+        write-json (transaction-path) $tx $false
+        $tx=transaction-read
+    }
     try{
         broker-flat-for-state $state $tx.id
         enter-command-quiescence
@@ -424,6 +431,7 @@ if($mode -eq 'install'){
         transaction-write $tx 'INSTALLING'
         foreach($item in @($release.files|Where-Object {$_.install -ne 'none'})){install-file $item $tx}
         verify-installed $true
+        broker-flat $currentLauncher
         transaction-write $tx 'CODE_INSTALLED'
         foreach($name in $robots){[void](launcher $name 'verify' $currentLauncher)}
         start-halted

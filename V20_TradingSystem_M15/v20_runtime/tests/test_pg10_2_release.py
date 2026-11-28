@@ -294,6 +294,187 @@ Write-Output 'PG10_2_FUNCTIONAL_CC_RESTART=PASS_PROCESS_LISTENER_HEALTH_IDS_NO_C
                            "PG10_2_FUNCTIONAL_CC_RESTART=PASS"):
                 self.assertIn(marker, result.stdout)
 
+    def test_windows_full_forward_recovery_stable_transaction(self):
+        if os.name != "nt":
+            self.skipTest("native Windows full installer scenario")
+        manifest = json.loads(MANIFEST_PATH.read_text(encoding="utf-8"))
+        with tempfile.TemporaryDirectory(prefix="pg10-2-full-install-") as temporary:
+            root = Path(temporary)
+            package = root / "package"
+            derived = build_derived(manifest, root / "build")
+            for row in manifest["files"]:
+                data = derived[row["package_path"]] if row["role"] == "DERIVED_BASE_PLUS_11" else canonical(ROOT / row["package_path"])
+                path = package / row["package_path"]
+                path.parent.mkdir(parents=True, exist_ok=True)
+                path.write_bytes(data)
+            (package / MANIFEST_PATH.name).write_bytes(canonical(MANIFEST_PATH))
+            installer_text = MANIFEST_PATH.with_name("pg10-2-all3-cc-install.ps1").read_text(encoding="utf-8")
+            installer_text = installer_text.replace("C:\\V20Lab", "@V20@").replace("C:\\Control Center", "@CC@")
+            installer_text = installer_text.replace("@V20@", str(root / "V20Lab")).replace("@CC@", str(root / "Control Center"))
+            mock_identity = r'''
+function filtered-blob([string]$path,[string]$sourcePath){
+ $rows=@($release.files|Where-Object {$_.source_path -ceq $sourcePath})
+ if($rows.Count -eq 1){
+  if((sha256 ([IO.File]::ReadAllBytes($path))) -ceq $rows[0].raw_sha256){return [string]$rows[0].filtered_git_blob}
+  return [string]$rows[0].accepted_installed_filtered[0]
+ }
+ return raw-blob $path
+}
+'''
+            installer_text = installer_text.replace("\nverify-package\n", "\n" + mock_identity + "\nverify-package\n", 1)
+            self.assertNotIn("C:\\V20Lab", installer_text)
+            self.assertNotIn("C:\\Control Center", installer_text)
+            installer = root / "full-installer.ps1"
+            installer.write_text(installer_text, encoding="utf-8-sig")
+            harness = r'''
+$ErrorActionPreference='Stop'
+Set-StrictMode -Version Latest
+$env:COMPUTERNAME='URIU-PC'
+$env:OS='Windows_NT'
+$script:tasks=@{}
+foreach($name in @('v20-shallow','v20-obv','v20-inside')){$script:tasks[$name]='Running'}
+$script:listenerUp=$true
+$script:listenerPid=1001
+$script:brokerCalls=0
+$script:backupCalls=0
+$script:forbiddenCalls=0
+function Get-ScheduledTask{param($TaskName,$TaskPath,$ErrorAction);return [pscustomobject]@{State=$script:tasks[$TaskName]}}
+function Stop-ScheduledTask{param($TaskName,$TaskPath,$ErrorAction);$script:tasks[$TaskName]='Ready'}
+function Start-ScheduledTask{
+ param($TaskName,$TaskPath,$ErrorAction)
+ $script:tasks[$TaskName]='Running'
+ $slug=$TaskName.Substring(4)
+ $log=Join-Path $env:PG_ROOT ('V20Lab\robots\'+$slug+'\logs\live-m15.jsonl')
+ [IO.Directory]::CreateDirectory((Split-Path $log -Parent))|Out-Null
+ $row=@{utc=[datetimeoffset]::UtcNow.ToString('o');robot=$TaskName;state='HALTED_NO_NEW_ENTRIES'}|ConvertTo-Json -Compress
+ [IO.File]::AppendAllText($log,$row+[Environment]::NewLine,[Text.UTF8Encoding]::new($false))
+}
+function Start-Sleep{param($Seconds)}
+function powershell.exe{
+ $joined=$args -join ' '
+ $global:LASTEXITCODE=0
+ if($joined -match ' -mode (arm|halt)( |$)'){$script:forbiddenCalls++;throw 'ARM_HALT_FORBIDDEN'}
+ if($joined -match ' -mode backup( |$)'){
+  $script:backupCalls++
+  Write-Output 'v20_08_5_backup=PASS'
+  return
+ }
+ if($joined -match ' -mode readonly( |$)'){
+  $script:brokerCalls++
+  Write-Output 'v20_08_4_positions=0'
+  Write-Output 'v20_08_4_active_orders=0'
+  Write-Output 'v20_08_4_order_posts=zero'
+  return
+ }
+ if($joined -match ' -mode verify( |$)'){return}
+ throw ('UNEXPECTED_POWERSHELL_CALL '+$joined)
+}
+function Get-CimInstance{
+ param($ClassName,$Filter)
+ return [pscustomobject]@{ProcessId=$script:listenerPid;ExecutablePath=(Join-Path $env:PG_ROOT 'Control Center\runtime\python312\python.exe');CommandLine='python -I -B -m streamlit run v20_app.py --server.port=8502'}
+}
+function Get-NetTCPConnection{
+ param($LocalAddress,$LocalPort,$State,$ErrorAction)
+ if($script:listenerUp){return [pscustomobject]@{OwningProcess=$script:listenerPid}}
+ return $null
+}
+function Stop-Process{param($Id,$ErrorAction);need ($Id -eq $script:listenerPid) 'WRONG_CC_PID';$script:listenerUp=$false}
+function Start-Process{
+ param($FilePath,$ArgumentList,$WorkingDirectory,$WindowStyle,$RedirectStandardOutput,$RedirectStandardError,[switch]$PassThru)
+ $script:listenerPid=2001;$script:listenerUp=$true
+ return [pscustomobject]@{Id=2001;HasExited=$false}
+}
+function Invoke-WebRequest{param($Uri,[switch]$UseBasicParsing,$TimeoutSec);return [pscustomobject]@{StatusCode=200;Content='ok'}}
+$root=$env:PG_ROOT
+$v20=Join-Path $root 'V20Lab'
+$cc=Join-Path $root 'Control Center'
+$stage=Join-Path $v20 'pretrade-08\live-08'
+$runtime=Join-Path $v20 'pretrade-08\live-runtime-08\V20_TradingSystem_M15\v20_runtime'
+$panel=Join-Path $cc 'v20-preview-d80f2446'
+$manifest=Get-Content -LiteralPath (Join-Path $env:PG_PACKAGE 'pg10-2-release-manifest.json') -Raw|ConvertFrom-Json
+$items=@($manifest.files|Where-Object {$_.install -ne 'none'})
+foreach($item in $items){
+ if($item.allow_absent -eq $true){continue}
+ $path=target ([string]$item.install) ([string]$item.source_path)
+ [IO.Directory]::CreateDirectory((Split-Path $path -Parent))|Out-Null
+ [IO.File]::WriteAllBytes($path,[Text.Encoding]::UTF8.GetBytes('old-synthetic-known '+$item.source_path))
+}
+foreach($name in @('v20-shallow','v20-obv','v20-inside')){
+ $switch=Join-Path $v20 ('robots\'+$name.Substring(4)+'\safety\stage8-trading-kill-switch.json')
+ [IO.Directory]::CreateDirectory((Split-Path $switch -Parent))|Out-Null
+ [IO.File]::WriteAllText($switch,'{"state":"HALTED"}',[Text.UTF8Encoding]::new($false))
+}
+[IO.Directory]::CreateDirectory((Join-Path $cc 'runtime\python312'))|Out-Null
+[IO.File]::WriteAllText((Join-Path $cc 'runtime\python312\python.exe'),'synthetic-runtime',[Text.UTF8Encoding]::new($false))
+$durable=@{}
+foreach($path in @(
+ (Join-Path $v20 'robots\shallow\state\v20-real-intents.sqlite3'),
+ (Join-Path $cc 'data\private\cc07-requests\original-request.jsonl'),
+ (Join-Path $cc 'data\private\cc07-release-history\original-release.json'),
+ (Join-Path $cc 'data\control-audit\v20-control.jsonl'))){
+ [IO.Directory]::CreateDirectory((Split-Path $path -Parent))|Out-Null
+ [IO.File]::WriteAllText($path,'durable-original',[Text.UTF8Encoding]::new($false))
+ $durable[$path]=[IO.File]::ReadAllBytes($path)
+}
+$backup=Join-Path $root 'transaction'
+$third=Join-Path $stage 'v20-08-live-launch.ps1'
+$lock=$null
+try{
+ $lock=[IO.FileStream]::new($third,[IO.FileMode]::Open,[IO.FileAccess]::Read,[IO.FileShare]::None)
+ $failed=$false
+ try{& $env:PG_FULL_INSTALLER -mode install -PackageRoot $env:PG_PACKAGE -BackupRoot $backup}catch{$failed=$true}
+ need $failed 'INITIAL_INTERRUPTION_NOT_REACHED'
+}finally{if($null -ne $lock){$lock.Dispose()}}
+$tx=Get-Content -LiteralPath (Join-Path $backup 'transaction.json') -Raw|ConvertFrom-Json
+$stable=$tx.id
+need ($tx.status -ceq 'INTERRUPTED') 'FIRST_INTERRUPTION_NOT_DURABLE'
+need ($script:listenerUp -eq $false) 'CC_NOT_QUIESCENT_AFTER_INTERRUPTION'
+need (@($script:tasks.Values|Where-Object {$_ -eq 'Ready'}).Count -eq 3) 'WORKERS_NOT_QUIESCENT_AFTER_INTERRUPTION'
+$failed=$false
+try{& $env:PG_FULL_INSTALLER -mode install -PackageRoot $env:PG_PACKAGE -BackupRoot $backup}catch{$failed=$true}
+need $failed 'MIXED_WITHOUT_PHRASE_ACCEPTED'
+$tx2=Get-Content -LiteralPath (Join-Path $backup 'transaction.json') -Raw|ConvertFrom-Json
+need ($tx2.id -ceq $stable) 'TRANSACTION_ID_CHANGED'
+need ($tx2.status -ceq 'INTERRUPTED') 'REFUSAL_NOT_PRESERVED'
+$phrase='PG10_2_EXTERNAL_FINAM_READONLY_FLAT_CONFIRMED '+$stable
+& $env:PG_FULL_INSTALLER -mode install -PackageRoot $env:PG_PACKAGE -BackupRoot $backup -RecoveryPhrase $phrase
+$tx3=Get-Content -LiteralPath (Join-Path $backup 'transaction.json') -Raw|ConvertFrom-Json
+need ($tx3.id -ceq $stable -and $tx3.status -ceq 'COMPLETED') 'FORWARD_RECOVERY_NOT_COMPLETED'
+need ($tx3.cc_was_running -eq $true) 'ORIGINAL_CC_STATE_LOST'
+need ($script:listenerUp -and $script:listenerPid -eq 2001) 'CC_NOT_RESTORED'
+need (@($script:tasks.Values|Where-Object {$_ -eq 'Running'}).Count -eq 3) 'WORKERS_NOT_RUNNING_HALTED'
+Write-Output 'PG10_2_2_FULL_MIXED_RESUME=PASS_STABLE_TRANSACTION_AND_CC_RESTORED'
+$lock=$null
+try{
+ $lock=[IO.FileStream]::new($third,[IO.FileMode]::Open,[IO.FileAccess]::Read,[IO.FileShare]::None)
+ $failed=$false
+ try{& $env:PG_FULL_INSTALLER -mode install -PackageRoot $env:PG_PACKAGE -BackupRoot $backup -RecoveryPhrase $phrase}catch{$failed=$true}
+ need $failed 'REPEATED_INTERRUPTION_NOT_REACHED'
+}finally{if($null -ne $lock){$lock.Dispose()}}
+$tx4=Get-Content -LiteralPath (Join-Path $backup 'transaction.json') -Raw|ConvertFrom-Json
+need ($tx4.id -ceq $stable -and $tx4.status -ceq 'INTERRUPTED') 'REPEATED_INTERRUPTION_NOT_DURABLE'
+& $env:PG_FULL_INSTALLER -mode install -PackageRoot $env:PG_PACKAGE -BackupRoot $backup -RecoveryPhrase $phrase
+$tx5=Get-Content -LiteralPath (Join-Path $backup 'transaction.json') -Raw|ConvertFrom-Json
+need ($tx5.id -ceq $stable -and $tx5.status -ceq 'COMPLETED') 'SECOND_RECOVERY_FAILED'
+foreach($path in $durable.Keys){need (([Convert]::ToBase64String([IO.File]::ReadAllBytes($path))) -ceq [Convert]::ToBase64String($durable[$path])) ('DURABLE_DATA_CHANGED_'+$path)}
+need ($script:forbiddenCalls -eq 0) 'ARM_OR_HALT_OBSERVED'
+need ($script:backupCalls -eq 1) 'BACKUP_REWRITTEN_ON_RESUME'
+Write-Output 'PG10_2_2_REPEATED_RECOVERY=PASS_DURABLE_DATA_PRESERVED_NO_AUTO_ARM'
+'''
+            script = root / "full-forward.ps1"
+            script.write_text(harness, encoding="utf-8-sig")
+            environment = os.environ.copy()
+            environment.update(PG_ROOT=str(root), PG_PACKAGE=str(package),
+                               PG_FULL_INSTALLER=str(installer))
+            result = subprocess.run(
+                ["powershell.exe", "-noprofile", "-noninteractive",
+                 "-executionpolicy", "bypass", "-file", str(script)],
+                cwd=root, env=environment, capture_output=True, text=True,
+                timeout=60, check=False)
+            self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+            self.assertIn("PG10_2_2_FULL_MIXED_RESUME=PASS", result.stdout)
+            self.assertIn("PG10_2_2_REPEATED_RECOVERY=PASS", result.stdout)
+
     def test_new_powershell_files_parse_without_execution(self):
         if os.name != "nt":
             self.skipTest("native Windows PowerShell parser")

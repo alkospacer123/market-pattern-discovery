@@ -62,3 +62,8 @@
 
 - Без изменения восьми PG10.2 обновлений и BASE+11: installer получил проверяемую installation transaction, полную backup verification, atomic writes после interruption, CC process/listener/health postflight и запрет rollback при несовместимых journals/archives. Forward recovery завершает новый release; unknown bytes и durable state сохраняются. Mixed launcher/runtime требует внешней FINAM READONLY FLAT-аттестации, а не обхода gate.
 - Functional Windows harness исполняет реальные installer functions в disposable NTFS trees с mock-only Windows boundaries. Финальные CI и artifact evidence публикуются в описании PR, без дополнительного документального commit. Runtime/Tasks/FINAM/reboot/ARM/HALT/Merge не затронуты.
+
+
+### 28.11.2026 — PG10.2.2 forward recovery fix
+
+- Устранено противоречие случайного transaction ID: install возобновляет существующую проверенную transaction/BackupRoot без нового GUID или повторного backup. Исходное CC state, known old/new bytes, HALTED/FLAT/quiescence сохранены; после NEW pair FLAT повторяется до workers. Full-path synthetic test исполняет сам installer, включая MIXED refusal, стабильный resume и повторное interruption/recovery. Runtime/FINAM/Tasks/reboot/ARM/HALT/Merge не затронуты; доказательства публикуются в описании PR.

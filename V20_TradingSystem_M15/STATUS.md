@@ -12,6 +12,8 @@
 
 **PG10.2.1 review remediation:** installer дополнен transaction/backup verification, atomic interrupted recovery, CC restart/postflight и fail-closed rollback boundaries для новых journals/rotation. Смешанная launcher/runtime пара не используется как внутренний FINAM FLAT proof; предусмотрены внешняя READONLY-аттестация и forward install. Functional Windows-synthetic harness покрывает recovery и CC lifecycle без parser-only substitution. Exact-head CI и новый artifact SHA указываются в описании PR #618; runtime не менялся.
 
+**PG10.2.2:** forward recovery использует существующую durable transaction/BackupRoot и стабильный ID вместо нового случайного GUID. Исходные backup и CC state сохраняются, backup не повторяется. После NEW identity проверяется штатный FLAT gate до workers; full-path synthetic test исполняет сам installer, включая MIXED refusal, resume и повторное прерывание. Доказательства публикуются в PR #618 без дополнительного документального commit.
+
 Исторический профильный HANDOFF C3.2: MAIN при сверке `2ac85eb5bcdd8757144898b5a27369329f4d125c`; исходный [Draft #608](https://github.com/alkospacer123/market-pattern-discovery/pull/608) HEAD `f6c28ad4027fdc1fdfc8c279671f5c3001f3bd1e`.
 
 - SOURCE: R088 Shallow/OBV/Inside, N4, M15 Market NEXT_OPEN, SL 2×ATR14 Wilder, риск 1,5%/6%, модель капитала 60/30/45 тыс. ₽, TP6 + Protect3 (+3R M15 → SL +1R) + HOLD5 (выход на первом подтверждённом Open шестой наблюдаемой сессии), EXT2 OFF.
