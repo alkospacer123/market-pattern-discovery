@@ -329,6 +329,7 @@ function filtered-blob([string]$path,[string]$sourcePath){
             harness = r'''
 $ErrorActionPreference='Stop'
 Set-StrictMode -Version Latest
+function need([bool]$ok,[string]$code){if(-not $ok){throw $code}}
 $env:COMPUTERNAME='URIU-PC'
 $env:OS='Windows_NT'
 $script:tasks=@{}
