@@ -77,3 +77,10 @@ Pinned MAIN `a3aa48fee59b0a077794cccc5ae3eef33d62a6c5`; #602 merged `e70cfed5db2
 ### 28.11.2026 — PG10.2.2 stable forward transaction
 
 - Forward `install` повторно использует существующую проверенную BackupRoot/transaction: стабильный ID, исходный backup и `cc_was_running` сохраняются, повторный backup не выполняется. RecoveryPhrase для MIXED теперь может ссылаться на уже известный ID. После NEW pair повторяется штатный FLAT gate до workers. Full-path Windows test проверяет прерывание, отказ без phrase, resume и повторное восстановление без потери durable fixtures или ARM. Финальные CI/artifact IDs — описание PR #618, без дополнительного документального commit.
+
+
+### 28.11.2026 — PG10.5.1A coordinated installer CRLF/LF fix
+
+- PG10.5.1 blocker отнесён к V20 installed identity recognition: доказанные BASE+9 CRLF raw blobs отклонялись filtered comparison с `core.autocrlf=false`. CC source и функциональные обновления H01/M03/M06/#602 не изменялись.
+- Installer/manifest теперь различают явные OLD raw LF/CRLF identities, точный canonical NEW и fail-closed UNKNOWN/MIXED. Real-Git test покрывает full install/recovery, exact backup/shared rollback-restore bytes и staging вне Git checkout; прежний identity mock удалён. Локальный release suite Python 3.12.10: **6/6 PASS**; exact-head CI и новый release ZIP будут зафиксированы в описании отдельного PR.
+- PG10.5.1 READONLY доступ к части защищённых installed CC files, process/runtime identity и остальные предустановочные gaps не закрыты этим SOURCE fix. Production, CC listener/process, Tasks, FINAM, ACL, reboot, ARM/HALT, rotation и Merge не затрагивались.
