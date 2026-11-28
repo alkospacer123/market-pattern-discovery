@@ -6,6 +6,7 @@ on:
       - 'V20_TradingSystem_M15/v20_runtime/**'
       - 'V20_TradingSystem_M15/V20-08/v20-08-live-*.ps1'
       - 'V20_TradingSystem_M15/V20-08/r088-protect3-diagnostic-cause-20261126.patch'
+      - 'V20_TradingSystem_M15/V20-08/pg10-2-*'
       - 'V20_TradingSystem_M15/V20-08/v20-08-weekend-entry-update.ps1'
       - 'V20_TradingSystem_M15/V20-08/v20-08-open-witness-recovery.ps1'
       - 'V20_TradingSystem_M15/V20-08/v20-08-friday-flat-recovery.py'
@@ -129,6 +130,9 @@ jobs:
             ENTRY_ACK_AWAIT_BROKER_FILL='PENDING'
             STOP_ACK_NEEDS_BROKER_PROOF='PENDING'
             HALTED_NO_NEW_ENTRIES='HALTED'
+            R070_PROTECT3_REPLACED_NEEDS_NEXT_BROKER_CHECK='PENDING'
+            PROTECT3_QUOTE_UNVERIFIED_KEEP_OLD_STOP='PENDING'
+            PROTECT3_QUOTE_GET_FAILED_KEEP_OLD_STOP='PENDING'
             FAULT_FinamServerError='FAIL'
             HALT_V20_LIVE_UNOWNED_BROKER_POSITION='FAIL'
             UNEXPECTED='UNKNOWN'
@@ -173,6 +177,26 @@ jobs:
           if($failed -notmatch 'v20_08_5_v20-shallow_cycle=FAIL' -or
              $failed -notmatch 'v20_08_5_v20-shallow_healthy=False' -or
              $failed -notmatch 'code=FAULT_FinamServerError') { throw ('CHECK_FAIL_HIDDEN '+$failed) }
+          $archive=Join-Path $base 'logs\archive'
+          New-Item -ItemType Directory -Path $archive -Force | Out-Null
+          $first=[datetimeoffset]::Parse((($rows[0]|ConvertFrom-Json).utc)).ToUniversalTime().ToString('yyyyMMddTHHmmss.ffffffZ')
+          $last=[datetimeoffset]::Parse((($rows[9]|ConvertFrom-Json).utc)).ToUniversalTime().ToString('yyyyMMddTHHmmss.ffffffZ')
+          $digest=(Get-FileHash -LiteralPath $log -Algorithm SHA256).Hash.ToLowerInvariant()
+          $archived=Join-Path $archive ('live-m15-'+$first+'-'+$last+'-10-'+$digest+'.jsonl')
+          Move-Item -LiteralPath $log -Destination $archived
+          $next=@(
+            (@{utc=[datetimeoffset]::UtcNow.AddSeconds(1).ToString('o');robot='v20-shallow';state='WAIT_NEXT_M15_OPEN'}|ConvertTo-Json -Compress),
+            (@{utc=[datetimeoffset]::UtcNow.AddSeconds(2).ToString('o');robot='v20-shallow';state='R070_PROTECT3_REPLACED_NEEDS_NEXT_BROKER_CHECK'}|ConvertTo-Json -Compress)
+          )
+          $next|Set-Content -LiteralPath $log -Encoding UTF8
+          $rotated=@(proof 'v20-shallow' $true) -join '|'
+          if($rotated -notmatch 'cycle_attempts_logged=12' -or $rotated -notmatch 'cycle=PENDING'){throw ('CHECK_ROTATED_HISTORY_FAILED '+$rotated)}
+          $unknown=Join-Path $archive 'live-m15-unknown.jsonl'
+          Copy-Item -LiteralPath $archived -Destination $unknown
+          $refused=$false
+          try{[void](log-attempts $log $archive)}catch{$refused=$true}
+          if(-not $refused){throw 'CHECK_UNKNOWN_ARCHIVE_ACCEPTED'}
+          Write-Output 'V20_08_5_ROTATED_JSONL_COUNT_AND_PROTECT3_PENDING=PASS_NO_BROKER'
           Write-Output 'V20_08_5_CHECK_H1_STYLE_REAL_LOG_PASS_AND_FAIL=PASS_NO_BROKER'
       - name: One-shot historical signal audit source & syntax (no broker)
         shell: powershell
@@ -1082,3 +1106,106 @@ jobs:
           Require-Blob $live 'b80fb9eb135f7cdcb4c78337e2b808c4d7135195'
           Require-Blob $execution '6b600451178b42bd4f8b2037995e7db3a9ad27c8'
           Write-Output 'R088_DIAGNOSTIC_FROZEN_SOURCE_RESTORED=PASS'
+
+      - name: PG10.2 F3 BASE+10 failure to DERIVED+11 pass (disposable, no FINAM)
+        shell: pwsh
+        env:
+          PYTHONDONTWRITEBYTECODE: '1'
+          R070_PROTECT3_DIAGNOSTIC_PATCH_ACTIVE: '1'
+          R070_PROTECT3_PATCH_ACTIVE: '1'
+        run: |
+          $ErrorActionPreference='Stop'
+          $live='V20_TradingSystem_M15/v20_runtime/finam_live.py'
+          $execution='V20_TradingSystem_M15/v20_runtime/finam_execution.py'
+          $dir='V20_TradingSystem_M15/V20-08/'
+          function Require-Blob($path,$expected) {
+            $actual=(& git.exe hash-object -- $path).Trim()
+            if($LASTEXITCODE -ne 0 -or $actual -cne $expected){throw ('PG10_2_BLOB_MISMATCH '+$path+' '+$actual)}
+          }
+          Require-Blob $live 'b80fb9eb135f7cdcb4c78337e2b808c4d7135195'
+          Require-Blob $execution '6b600451178b42bd4f8b2037995e7db3a9ad27c8'
+          $patches=@(
+            'r070-tp6-one-shot-candidate.patch',
+            'r070-protect3-flat-cleanup-candidate.patch',
+            'r070-protect3-broker-id-readonly-candidate.patch',
+            'r070-protect3-live-trigger-candidate.patch',
+            'r070-protect3-night-monitor-candidate.patch',
+            'r070-finam-get-incomplete-read-candidate.patch',
+            'r088-hold5-after-r070-combined-candidate.patch',
+            'r088-inside-prepost-orphan-20261119.patch',
+            'r088-protect3-main-identity-20261120.patch',
+            'r088-protect3-diagnostic-cause-20261126.patch',
+            'pg10-2-protect3-margin-reflection-20261128.patch'
+          ) | ForEach-Object {$dir+$_}
+          $done=New-Object 'System.Collections.Generic.List[string]'
+          try {
+            foreach($p in $patches){
+              & git.exe apply --check -- $p
+              if($LASTEXITCODE -ne 0){throw ('PG10_2_PATCH_CHECK_FAILED '+$p)}
+              & git.exe apply -- $p
+              if($LASTEXITCODE -ne 0){throw ('PG10_2_PATCH_APPLY_FAILED '+$p)}
+              $done.Add($p)
+              if($done.Count -eq 10){
+                Require-Blob $live '437d69280a15a2ad67ffbe7f2377583f430d5252'
+                Require-Blob $execution '0fc4c454d55f37e4e87fd74e3370cbc1ad83b53f'
+                $base=@'
+                import unittest
+                from V20_TradingSystem_M15.v20_runtime.tests.test_pg10_2_margin_after_protect3 import Protect3MarginReflectionTests
+                suite=unittest.defaultTestLoader.loadTestsFromTestCase(Protect3MarginReflectionTests)
+                result=unittest.TextTestRunner(verbosity=2).run(suite)
+                if result.testsRun!=4 or len(result.errors)!=3 or result.failures:
+                    raise SystemExit('PG10_2_BASE10_EXPECTED_F3_FAILURE_NOT_REPRODUCED')
+                print('PG10_2_F3_BASE10_DOUBLE_RESERVE_REPRODUCED=PASS_4_TESTS_3_EXPECTED_ERRORS')
+'@
+                $base | python -B -
+                if($LASTEXITCODE -ne 0){throw 'PG10_2_BASE10_REPRO_FAILED'}
+              }
+            }
+            Require-Blob $live '98037310ee5238f035ae174285a2f244cc1aeffd'
+            Require-Blob $execution '7f963423aa0e957d4eb5408aa1b77143c270b688'
+            python -B -m unittest -v `
+              V20_TradingSystem_M15.v20_runtime.tests.test_pg10_2_margin_after_protect3 `
+              V20_TradingSystem_M15.v20_runtime.tests.test_finam_protected_recovery `
+              V20_TradingSystem_M15.v20_runtime.tests.test_r070_v20_protection_handoff.R070V20HandoffTests.test_protect3_effective_stop_resealed_after_reboot_readonly `
+              V20_TradingSystem_M15.v20_runtime.tests.test_r070_v20_protection_handoff.R070V20HandoffTests.test_staged_protect3_new_broker_id_is_owned_and_sealed `
+              V20_TradingSystem_M15.v20_runtime.tests.test_r088_hold5_offline `
+              V20_TradingSystem_M15.v20_runtime.tests.test_r088_prepost_all3 `
+              V20_TradingSystem_M15.v20_runtime.tests.test_r088_protect3_identity `
+              V20_TradingSystem_M15.v20_runtime.tests.test_r070_protect3_diagnostic_logging
+            if($LASTEXITCODE -ne 0){throw 'PG10_2_DERIVED_TARGETED_REGRESSION_FAILED'}
+            Write-Output 'PG10_2_F3_DERIVED11=PASS_4_OF_4_AND_PROTECT3_HOLD5_PREPOST_REGRESSIONS_NO_FINAM'
+          } finally {
+            $reverse=@($done.ToArray());[array]::Reverse($reverse)
+            foreach($p in $reverse){
+              & git.exe apply -R -- $p
+              if($LASTEXITCODE -ne 0){throw ('PG10_2_PATCH_REVERSE_FAILED '+$p)}
+            }
+          }
+          Require-Blob $live 'b80fb9eb135f7cdcb4c78337e2b808c4d7135195'
+          Require-Blob $execution '6b600451178b42bd4f8b2037995e7db3a9ad27c8'
+          Write-Output 'PG10_2_FROZEN_BASE_RESTORED=PASS'
+      - name: PG10.2 deterministic all-three and CC release artifact
+        shell: pwsh
+        env:
+          PYTHONDONTWRITEBYTECODE: '1'
+          PG10_2_PACKAGE_OUT: ${{ runner.temp }}/pg10-2-release.zip
+        run: |
+          $ErrorActionPreference='Stop'
+          python -B -m unittest -v V20_TradingSystem_M15.v20_runtime.tests.test_pg10_2_release
+          if($LASTEXITCODE -ne 0){throw 'PG10_2_RELEASE_REPRO_FAILED'}
+          $zip=Join-Path $env:RUNNER_TEMP 'pg10-2-release.zip'
+          $evidence=Join-Path $env:RUNNER_TEMP 'pg10-2-release-evidence'
+          New-Item -ItemType Directory -Path $evidence | Out-Null
+          $hash=(Get-FileHash -LiteralPath $zip -Algorithm SHA256).Hash.ToLowerInvariant()
+          Set-Content -LiteralPath (Join-Path $evidence 'SHA256SUMS.txt') -Value ($hash+'  pg10-2-release.zip') -Encoding ascii
+          Copy-Item -LiteralPath $zip -Destination (Join-Path $evidence 'pg10-2-release.zip')
+          Copy-Item -LiteralPath 'V20_TradingSystem_M15/V20-08/pg10-2-release-manifest.json' -Destination (Join-Path $evidence 'pg10-2-release-manifest.json')
+          Write-Output ('PG10_2_RELEASE_ARTIFACT_SHA256='+$hash)
+      - name: Preserve PG10.2 release and native evidence
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: pg10-2-release-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/pg10-2-release-evidence/
+          if-no-files-found: error
+          retention-days: 30

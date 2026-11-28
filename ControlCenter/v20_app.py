@@ -50,6 +50,20 @@ def confirmed_armed_cycle(report, now):
     )
 
 
+def confirmed_halted_cycle(report, now):
+    """A paused robot may still have a fresh protective worker cycle."""
+    last = report.get("events", ())[-1:]
+    return (
+        report["status"] == "HALTED" and report.get("reason") == "LOCAL_REPORT"
+        and report.get("engine_state") == "HALTED"
+        and report.get("task_state") == "RUNNING"
+        and report.get("kill_switch") == "HALTED"
+        and heartbeat_health(report, now) == "HEALTHY" and bool(last)
+        and last[0]["result"] in ("PASS", "PENDING")
+        and last[0]["cycle"] == report.get("cycle")
+    )
+
+
 def overview(snapshots, now):
     """Only operator health signals. Trading details belong in FINAM."""
     for robot in ROBOTS:
@@ -63,6 +77,7 @@ def overview(snapshots, now):
         # the observed Task/switch and the latest local worker cycle only.
         last = report.get("events", ())[-1:]
         armed_cycle = confirmed_armed_cycle(report, now)
+        halted_cycle = confirmed_halted_cycle(report, now)
         with st.container(border=True):
             left, right = st.columns([2, 3])
             with left:
@@ -71,6 +86,8 @@ def overview(snapshots, now):
                     st.success(healthy_label(report))
                 elif armed_cycle:
                     st.info("ARMED · ЦИКЛ " + last[0]["result"])
+                elif halted_cycle:
+                    st.warning("HALTED · ЦИКЛ " + last[0]["result"])
                 elif status == "FAULT":
                     st.error(healthy_label(report))
                 elif status in ("STALE", "HALTED"):
@@ -97,6 +114,8 @@ def overview(snapshots, now):
                                 " · **Kill switch:** " + report["kill_switch"])
                     if armed_cycle:
                         st.caption("Подтверждён только локальный цикл. Позиции, заявки и SL/TP FINAM этим снимком не проверены.")
+                    elif halted_cycle:
+                        st.caption("HALTED запрещает новые входы; PASS/PENDING описывает только локальный цикл сопровождения, не защиту FINAM.")
                     error_code = report["last_error_code"]
                     if error_code not in ("NONE", "UNKNOWN"):
                         st.caption("Последняя ошибка: " + error_code)
@@ -123,6 +142,8 @@ def journal(snapshots, now):
         report = snapshots[robot]
         with st.expander(LABELS[robot] + " · " +
                          ("ARMED" if confirmed_armed_cycle(report, now)
+                          else "HALTED · ЦИКЛ " + report["events"][-1]["result"]
+                          if confirmed_halted_cycle(report, now)
                           else healthy_label(report)), expanded=False):
             if report.get("reason") == "LOCAL_REPORT":
                 st.caption("Источник V20 LIVE: реальные проходы live-m15.jsonl; не журнал сделок FINAM.")
@@ -208,6 +229,8 @@ def controls():
             st.info("Робот уже на PAUSE; состояние не изменялось.")
         elif answer["decision"] == "FAILED_UNKNOWN":
             st.error("Результат не подтверждён. Проверьте Task/FINAM и журнал CC-07 вручную. НЕ повторяйте команду автоматически.")
+        elif answer["decision"] == "RECOVERY_REQUIRED":
+            st.error("Есть незавершённая аварийная команда CC-07. Не повторяйте её. Сначала выполните независимую READONLY-сверку и процедуру восстановления release/journal.")
         elif answer["decision"] == "REFUSED_PREFLIGHT":
             st.error("Команда отклонена до запуска V20: " + answer.get("code", "CC07_PREFLIGHT") + ". Устраните причину перед новой попыткой.")
         else:

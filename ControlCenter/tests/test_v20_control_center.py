@@ -540,3 +540,22 @@ def test_already_stale_report_hides_current_metrics(engine_state):
     assert all(report[key] is None for key in (
         "cycle", "positions_local", "stops_local", "unresolved_local"))
     assert age(report, now - timedelta(seconds=TTL + 2)) == report
+
+
+def test_halted_protective_cycle_is_visible_without_becoming_healthy():
+    now = datetime.now(timezone.utc)
+    value = example(at=now)
+    value.update(engine_state="HALTED", kill_switch="HALTED",
+                 positions_local=None, stops_local=None, unresolved_local=None,
+                 events=[dict(at=now.isoformat(), cycle=42, result="PENDING",
+                              code="PROTECT3_QUOTE_UNVERIFIED_KEEP_OLD_STOP")])
+    report = parse(wire(value), "V20_SHALLOW", now, "V20-SHALLOW")
+    app = AppTest.from_file(str(ROOT / "v20_app.py"), default_timeout=15)
+    app.session_state["v20-snapshots"] = {
+        **{r: unconnected(r) for r in ROBOTS}, "V20_SHALLOW": report}
+    app.run()
+    assert not app.exception
+    assert any("HALTED · ЦИКЛ PENDING" in item.value
+               for item in app.tabs[0].warning)
+    assert not any(item.value == "HEALTHY" for item in app.tabs[0].success)
+    assert any("не защиту FINAM" in item.value for item in app.tabs[0].caption)

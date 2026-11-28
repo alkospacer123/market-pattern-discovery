@@ -11,9 +11,10 @@ def test_intel_only_and_stock_operator_pin():
     source = Path(__file__).resolve().parents[1] / "v20_admin_control.py"
     text = source.read_text(encoding="utf-8")
     for marker in ("URIU-PC", "IsUserAnAdmin", "cc07-v20-operator.ps1",
-                   "10de325be0335733a248c412943f39d45bd93c62",
+                   "27f16169c819bd06e267394215ba04a1dd7bd73c",
                    "cc07-gateway-policy.json", "powershell.exe",
                    "cc.v20.release.v1", "O_EXCL", "CC07_RELEASE_SIZE",
+                   "cc.v20.command-journal.v1", "RECOVERY_REQUIRED", "resolve_recovery",
                    "FAILED_UNKNOWN", "cc07_result=verified_"):
         assert marker in text
     assert "-noninteractive" not in text.lower().split("args = [", 1)[-1]
@@ -78,6 +79,8 @@ def test_start_release_matches_exact_action_and_is_removed(tmp_path, monkeypatch
     result = admin.submit("v20-shallow", "start", "cc07 start v20-shallow")
     assert result["decision"] == "EXECUTED"
     assert not release.exists()
+    archived = release.parent / "cc07-release-history" / ("b" * 32 + ".json")
+    assert json.loads(archived.read_text(encoding="ascii"))["action"] == "start"
     assert saved[0]["actor_sid"] == "S-1-5-21-1-2-3-4"
     assert saved[0]["approved"] is True
     assert saved[0]["request_id"] == "b" * 32
@@ -88,13 +91,14 @@ def test_start_release_matches_exact_action_and_is_removed(tmp_path, monkeypatch
 def test_existing_release_cannot_be_overwritten(tmp_path, monkeypatch):
     release = tmp_path / "private" / "cc07-v20-release.json"
     release.parent.mkdir()
-    release.write_text('{"request_id":"old"}', encoding="utf-8")
+    release.write_text('{"request_id":"' + "a" * 32 + '"}', encoding="utf-8")
     monkeypatch.setattr(admin, "RELEASE", release)
     monkeypatch.setattr(admin, "admin_ready", lambda: True)
     monkeypatch.setattr(admin, "_actor_sid", lambda: "S-1-5-21-1-2-3-4")
     result = admin.submit("v20-inside", "restart", "cc07 restart v20-inside")
-    assert result["decision"] == "REFUSED_PREFLIGHT"
-    assert release.read_text(encoding="utf-8") == '{"request_id":"old"}'
+    assert result["decision"] == "RECOVERY_REQUIRED"
+    assert result["request_id"] == "a" * 32
+    assert release.read_text(encoding="utf-8") == '{"request_id":"' + "a" * 32 + '"}'
 
 
 def test_no_success_on_ambiguous_exit(tmp_path, monkeypatch):
@@ -107,7 +111,9 @@ def test_no_success_on_ambiguous_exit(tmp_path, monkeypatch):
                         SimpleNamespace(returncode=1, stdout="cc07_result=verified_stop\n"))
     result = admin.submit("v20-shallow", "stop", "cc07 stop v20-shallow")
     assert result["decision"] == "FAILED_UNKNOWN"
-    assert not release.exists()
+    assert release.exists()
+    assert not (release.parent / "cc07-release-history" / (result["request_id"] + ".json")).exists()
+    assert admin.recovery_status()["decision"] == "RECOVERY_REQUIRED"
 
 
 def test_recover_exact_release_single_dispatch_and_no_retry(tmp_path, monkeypatch):

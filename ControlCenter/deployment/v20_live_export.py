@@ -6,7 +6,6 @@ observations. Never reads DPAPI, FINAM, SQLite or sends trading commands.
 """
 from __future__ import annotations
 import argparse
-from collections import deque
 from datetime import datetime, timezone
 from hashlib import sha1, sha256
 import json
@@ -17,13 +16,20 @@ import stat
 import subprocess
 import tempfile
 
+try:
+    from deployment.v20_jsonl_history import read_events
+except ModuleNotFoundError as error:
+    if error.name != "deployment":
+        raise
+    from v20_jsonl_history import read_events
+
 ROBOTS = ("v20-shallow", "v20-obv", "v20-inside")
 IDS = {name: name.replace("v20-", "V20_").upper() for name in ROBOTS}
 ALIASES = {name: name.replace("v20-", "V20-").upper() for name in ROBOTS}
 ROOT = Path("C:/V20Lab")
 DEST = Path("C:/Control Center/data/v20-readonly")
 OPERATOR = ROOT / "pretrade-08/live-08/v20-08-live-operator.ps1"
-PIN = "b06957ea7833daeda65296eb372890951860c008"
+PIN = "83cc20df33abadf0895bb42bf9508de8ab45c08e"
 BANNER = "NO_ORDER_NO_CANCEL_NO_FINAM_API_NO_SQLITE_OPEN_NO_TASK_MUTATION_NO_REARM=YES"
 CODE = re.compile(r"[A-Z][A-Z0-9_]{0,47}\Z")
 PASS = {"WAIT_NEXT_M15_OPEN", "NO_FROZEN_SIGNAL", "SESSION_ENTRY_LIMIT_REACHED",
@@ -34,7 +40,10 @@ PENDING = {"ENTRY_ACK_NEEDS_FILL_AND_STOP", "ENTRY_ACK_AWAIT_BROKER_FILL",
            "M15_EXIT_WITNESS_PENDING_RETRY",
            "STOP_ACK_NEEDS_BROKER_PROOF", "EXIT_POSTED_AWAIT_BROKER_FLAT",
            "FROZEN_EXIT_ACK_KEEP_STOP_UNTIL_FLAT", "STOP_CANCEL_WAIT_BROKER_NO_RETRANSMIT",
-           "CANCEL_ACK_REQUIRE_BROKER_NO_STOP_CONFIRMATION"}
+           "CANCEL_ACK_REQUIRE_BROKER_NO_STOP_CONFIRMATION",
+           "R070_PROTECT3_REPLACED_NEEDS_NEXT_BROKER_CHECK",
+           "PROTECT3_QUOTE_UNVERIFIED_KEEP_OLD_STOP",
+           "PROTECT3_QUOTE_GET_FAILED_KEEP_OLD_STOP"}
 
 
 def safe(path, is_dir=False):
@@ -129,38 +138,21 @@ def digest(payload):
 
 
 def events_from_log(path, robot, count_at_check, last_at_check):
-    if not safe(path) or path.stat().st_size > 64 * 1024 * 1024:
-        raise ValueError("CC02_BAD_LOG")
-    recent = deque(maxlen=10)
-    total = 0
-    with path.open("r", encoding="utf-8") as file:
-        for line in file:
-            if line.strip():
-                total += 1
-                recent.append(line)
-    # New cycles while taking the snapshot are valid; rollback/truncation is not.
-    if total < count_at_check or not recent:
-        raise ValueError("CC02_LOG_ROLLBACK")
-    events = []
-    last = None
-    for index, line in enumerate(recent):
-        try:
-            obj = json.loads(line)
-        except ValueError as err:
-            raise ValueError("CC02_BAD_CYCLE_JSON") from err
-        if type(obj) is not dict or obj.get("robot") != robot:
-            raise ValueError("CC02_LOG_IDENTITY_MISMATCH")
-        state = obj.get("state")
-        if type(state) is not str or not CODE.fullmatch(state):
-            raise ValueError("CC02_CYCLE_CODE_INVALID")
-        stamp = utc(obj.get("utc"))
-        if last is not None and stamp < last:
-            raise ValueError("CC02_CYCLE_TIME_ORDER")
-        last = stamp
-        events.append(dict(at=stamp.isoformat(), cycle=total - len(recent) + 1 + index,
-                           result=classification(state), code=state))
-    if last < last_at_check:
-        raise ValueError("CC02_LOG_TIME_ROLLBACK")
+    try:
+        events = read_events(path, "live-m15", robot, count_at_check, last_at_check)
+    except (OSError, ValueError) as error:
+        reason = str(error)
+        legacy = {
+            "JSONL_IDENTITY_INVALID": "CC02_LOG_IDENTITY_MISMATCH",
+            "JSONL_LOG_ROLLBACK": "CC02_LOG_ROLLBACK",
+            "JSONL_LOG_TIME_ROLLBACK": "CC02_LOG_TIME_ROLLBACK",
+            "JSONL_RECORD_INVALID": "CC02_BAD_CYCLE_JSON",
+            "JSONL_CYCLE_CODE_INVALID": "CC02_CYCLE_CODE_INVALID",
+            "JSONL_TIME_ORDER": "CC02_CYCLE_TIME_ORDER",
+        }.get(reason, "CC02_LOG_HISTORY_UNTRUSTED")
+        raise ValueError(legacy) from error
+    for event in events:
+        event["result"] = classification(event["code"])
     return events
 
 
@@ -168,10 +160,12 @@ def payload(robot, proof, events, observed):
     observed = observed.astimezone(timezone.utc)
     if not events or utc(events[-1]["at"]) > observed:
         raise ValueError("CC02_INVALID_OBSERVATION")
-    # No independent proof of actual FINAM positions/stops from local cycle logs.
-    # HALTED is a real engine state; ARMED without independent reconcile is UNKNOWN.
-    engine = ("HALTED" if proof["switch"] == "HALTED" else
-              "FAULT" if events[-1]["result"] == "FAULT" else "UNKNOWN")
+    # Permission, worker health and broker truth remain separate observations.
+    latest = events[-1]["result"]
+    known_halted = latest in ("PASS", "PENDING", "HALTED")
+    engine = ("FAULT" if latest == "FAULT" else
+              "HALTED" if proof["switch"] == "HALTED" and known_halted else
+              "UNKNOWN")
     result = dict(
         schema_id="cc.v20.readonly.v1", robot_id=IDS[robot],
         account_alias=ALIASES[robot], observed_at=observed.isoformat(),

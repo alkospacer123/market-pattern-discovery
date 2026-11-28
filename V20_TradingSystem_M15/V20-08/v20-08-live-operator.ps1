@@ -54,11 +54,45 @@ function cycle-result([string]$state){
         'EXIT_POSTED_AWAIT_BROKER_FLAT',
         'FROZEN_EXIT_ACK_KEEP_STOP_UNTIL_FLAT',
         'STOP_CANCEL_WAIT_BROKER_NO_RETRANSMIT',
-        'CANCEL_ACK_REQUIRE_BROKER_NO_STOP_CONFIRMATION'
+        'CANCEL_ACK_REQUIRE_BROKER_NO_STOP_CONFIRMATION',
+        'R070_PROTECT3_REPLACED_NEEDS_NEXT_BROKER_CHECK',
+        'PROTECT3_QUOTE_UNVERIFIED_KEEP_OLD_STOP',
+        'PROTECT3_QUOTE_GET_FAILED_KEEP_OLD_STOP'
     )){return 'PENDING'}
     if($state -eq 'HALTED_NO_NEW_ENTRIES'){return 'HALTED'}
     if($state -match '^(HALT_|FAULT_|FINAM_)'){return 'FAIL'}
     return 'UNKNOWN'
+}
+function archive-descriptors([string]$folder){
+    if(-not (Test-Path -LiteralPath $folder)){return}
+    need ((Test-Path -LiteralPath $folder -PathType Container) -and
+          (-not ((Get-Item -LiteralPath $folder -Force).Attributes -band [IO.FileAttributes]::ReparsePoint))) 'V20_08_5_ARCHIVE_PATH_INVALID'
+    $previous=[datetimeoffset]::MinValue
+    foreach($item in @(Get-ChildItem -LiteralPath $folder -File | Sort-Object Name)){
+        $match=[regex]::Match($item.Name,'^live-m15-(\d{8}T\d{6}\.\d{6}Z)-(\d{8}T\d{6}\.\d{6}Z)-([0-9]{1,12})-([a-f0-9]{64})\.jsonl$')
+        need ($match.Success) 'V20_08_5_ARCHIVE_NAME_INVALID'
+        $styles=[globalization.DateTimeStyles]::AssumeUniversal -bor [globalization.DateTimeStyles]::AdjustToUniversal
+        $first=[datetimeoffset]::ParseExact($match.Groups[1].Value,'yyyyMMddTHHmmss.ffffffZ',[globalization.cultureinfo]::InvariantCulture,$styles)
+        $last=[datetimeoffset]::ParseExact($match.Groups[2].Value,'yyyyMMddTHHmmss.ffffffZ',[globalization.cultureinfo]::InvariantCulture,$styles)
+        $count=[long]::Parse($match.Groups[3].Value,[globalization.cultureinfo]::InvariantCulture)
+        need ($item.Length -gt 0 -and $count -gt 0 -and $first -le $last -and $first -ge $previous) 'V20_08_5_ARCHIVE_ORDER_OR_COUNT_INVALID'
+        $previous=$last
+        [pscustomobject]@{Name=$item.Name;Length=$item.Length;Count=$count}
+    }
+}
+function log-attempts([string]$path,[string]$archive){
+    $before=@(archive-descriptors $archive)
+    [long]$logged=0
+    foreach($item in $before){$logged+=$item.Count}
+    need ((Get-Item -LiteralPath $path).Length -le 67108864) 'V20_08_5_ACTIVE_LOG_TOO_LARGE'
+    foreach($line in [IO.File]::ReadLines($path)){
+        if(-not [string]::IsNullOrWhiteSpace($line)){$logged++}
+    }
+    $after=@(archive-descriptors $archive)
+    $beforeNames=@($before|ForEach-Object {$_.Name+'='+$_.Length}) -join '|'
+    $afterNames=@($after|ForEach-Object {$_.Name+'='+$_.Length}) -join '|'
+    need ($beforeNames -ceq $afterNames) 'V20_08_5_ROTATION_DURING_CHECK'
+    return $logged
 }
 function proof([string]$name,[bool]$verbose=$false){
     $t=exact-task $name
@@ -85,12 +119,8 @@ function proof([string]$name,[bool]$verbose=$false){
               $lastStatus -in @('PASS','PENDING') -and $age -ge -5 -and $age -le $maxAge)
     Write-Output ('v20_08_5_'+$name+'_task='+$t.State)
     Write-Output ('v20_08_5_'+$name+'_switch='+$switch.state)
-    # This count is local JSONL attempts since the log began, not the
-    # durable H1 production_service_cycle_count counter.
-    [long]$logged=0
-    foreach($line in [IO.File]::ReadLines($log)){
-        if(-not [string]::IsNullOrWhiteSpace($line)){$logged++}
-    }
+    # Attempts in immutable rotated segments plus the bounded active JSONL.
+    [long]$logged=log-attempts $log (Join-Path $instance 'logs\archive')
     Write-Output ('v20_08_5_'+$name+'_cycle_attempts_logged='+$logged)
     Write-Output ('v20_08_5_'+$name+'_cycle='+$lastStatus)
     Write-Output ('v20_08_5_'+$name+'_last_cycle_utc='+[string]$last.utc)

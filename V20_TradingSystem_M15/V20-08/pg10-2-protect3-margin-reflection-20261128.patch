@@ -1,0 +1,57 @@
+diff --git a/V20_TradingSystem_M15/v20_runtime/finam_execution.py b/V20_TradingSystem_M15/v20_runtime/finam_execution.py
+--- a/V20_TradingSystem_M15/v20_runtime/finam_execution.py
++++ b/V20_TradingSystem_M15/v20_runtime/finam_execution.py
+@@ -378,7 +378,8 @@ class V20TradeJournal(IsolatedReferenceJournal):
+                 )[2:])
+ 
+     def prepare_entry(self, *, signal: FrozenSignal, entry: ProposedEntry,
+-                      authority: AccountAuthority, snapshot: LiveAccountSnapshot) -> str:
++                      authority: AccountAuthority, snapshot: LiveAccountSnapshot,
++                      reader=None, now=None) -> str:
+         """Atomic H1 risk reservation, once-per-session quota and immutable wire."""
+         if (not isinstance(signal, FrozenSignal) or not isinstance(entry, ProposedEntry)
+                 or not isinstance(authority, AccountAuthority)
+@@ -460,6 +461,21 @@ class V20TradeJournal(IsolatedReferenceJournal):
+                             and stop["broker_order_id"] == proof.get("broker_stop_id")
+                             and old.account_id == authority.account_id):
+                         continue
++                    effective_stop_id = proof["broker_stop_id"]
++                    replacement = self.store.get("r070_protect3:" + old.entry_key)
++                    if replacement is not None:
++                        if reader is None or now is None:
++                            continue
++                        from .r070_linked_sltp import verify_r070_protect3_effective_stop
++                        from .tp6_protect3 import TP6Protect3Unsafe
++                        try:
++                            successor = verify_r070_protect3_effective_stop(
++                                journal=self, reader=reader, snapshot=snapshot,
++                                entry_key=old.entry_key, now=now,
++                            )
++                        except (TP6Protect3Unsafe, V20FinamBlocked):
++                            continue
++                        effective_stop_id = successor.order_id
+                     entry_payload = prior["payload"]
+                     if (entry_payload.get("kind") != "ENTRY"
+                             or entry_payload.get("symbol") != old.symbol
+@@ -474,7 +490,7 @@ class V20TradeJournal(IsolatedReferenceJournal):
+                     matching_stop = [
+                         o for o in snapshot.orders
+                         if o.active and o.kind == "SLTP"
+-                        and o.order_id == proof["broker_stop_id"]
++                        and o.order_id == effective_stop_id
+                         and o.symbol == broker_symbol
+                     ]
+                     if len(matching_stop) != 1:
+diff --git a/V20_TradingSystem_M15/v20_runtime/finam_live.py b/V20_TradingSystem_M15/v20_runtime/finam_live.py
+--- a/V20_TradingSystem_M15/v20_runtime/finam_live.py
++++ b/V20_TradingSystem_M15/v20_runtime/finam_live.py
+@@ -741,7 +741,8 @@ def run_cycle(sender: V20LiveTransport, now: datetime) -> str:
+         try:
+             key = journal.prepare_entry(
+                 signal=signal, entry=candidate,
+-                authority=authority, snapshot=broker)
++                authority=authority, snapshot=broker,
++                reader=reader, now=now)
+         except RiskBlocked as exc:
+             if str(exc) in (
+                 "NO_ACCOUNT_RISK_OR_MARGIN_CAPACITY",

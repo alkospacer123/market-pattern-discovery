@@ -10,7 +10,8 @@ import subprocess
 import sys
 
 PUBLISHER = Path(r"C:\Control Center\v20-preview-d80f2446\deployment\v20_live_export.py")
-BLOB = "969d9cef2832b5b8ec243ef275de5e63c4e820a2"
+BLOB = "60cdac39845f85ecb63f45aca217d35975d5841e"
+HISTORY_BLOB = "a4357a44c950db61ab889fe996e35982a4c62e2d"
 PYTHON = Path(r"C:\Control Center\runtime\python312\python.exe")
 EXPECTED = ("cc02_export=PUBLISHED_CC_OWNED",
             "cc02_no_finam_no_task_mutation_no_arm=YES")
@@ -25,6 +26,11 @@ def refresh_once():
                 and not PUBLISHER.parent.is_symlink()):
             return "PUBLISHER_UNAVAILABLE"
         body = PUBLISHER.read_bytes()
+        history = PUBLISHER.with_name("v20_jsonl_history.py")
+        history_body = history.read_bytes() if history.is_file() and not history.is_symlink() else b""
+        history_actual = sha1(b"blob " + str(len(history_body)).encode("ascii") + b"\0" + history_body).hexdigest()
+        if not 0 < len(history_body) <= 32768 or history_actual != HISTORY_BLOB:
+            return "PUBLISHER_UNVERIFIED"
         if not 0 < len(body) <= 32768:
             return "PUBLISHER_UNVERIFIED"
         actual = sha1(b"blob " + str(len(body)).encode("ascii") + b"\0" + body).hexdigest()
