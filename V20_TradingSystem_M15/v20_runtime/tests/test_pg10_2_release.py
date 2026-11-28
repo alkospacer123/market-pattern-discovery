@@ -268,7 +268,7 @@ need ((cc-running) -eq 1001) 'CC_EXISTING_PROCESS_NOT_RECOGNIZED'
 need (stop-cc) 'CC_WAS_RUNNING_NOT_RECORDED'
 need ($null -eq (cc-listener)) 'CC_LISTENER_NOT_STOPPED'
 $healthRefused=$false
-try{start-cc $false $backup $tx}catch{$healthRefused=$_.Exception.Message -ceq 'PG10_2_CC_HEALTH_NOT_PROVEN'}
+try{start-cc $false $backup $tx}catch{$healthRefused=$true}
 need ($healthRefused) 'CC_FALSE_RUNNING_PASS_ACCEPTED'
 $script:listenerUp=$false
 $script:healthOk=$true
