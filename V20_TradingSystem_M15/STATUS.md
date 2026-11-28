@@ -10,6 +10,8 @@
 - F4: [manifest](V20-08/pg10-2-release-manifest.json), 11 ordered patches, canonical LF package, raw SHA256/raw Git blob/filtered Git blob, launcher/deps, CC pins, installer `check/install/rollback` и code-only paired rollback. Release 3/3 PASS, 24 files; ZIP SHA256 `2b2901efa2553c18609b65bce270401326850572f4ab0cdaf9c2841be67b8c54`; CI run — итоговая запись JOURNAL.
 - F6/H01/M03/M06: Protect3 PASS/PENDING/HALTED/UNKNOWN согласованы с CC; durable request/release recovery и lossless JSONL archive readers добавлены. Это SOURCE candidate, не физический runtime результат. F1/F2/F5/F7 и вне-scope H/M находки не закрыты.
 
+**PG10.2.1 review remediation:** installer дополнен transaction/backup verification, atomic interrupted recovery, CC restart/postflight и fail-closed rollback boundaries для новых journals/rotation. Смешанная launcher/runtime пара не используется как внутренний FINAM FLAT proof; предусмотрены внешняя READONLY-аттестация и forward install. Functional Windows-synthetic harness покрывает recovery и CC lifecycle без parser-only substitution. Exact-head CI и новый artifact SHA указываются в описании PR #618; runtime не менялся.
+
 Исторический профильный HANDOFF C3.2: MAIN при сверке `2ac85eb5bcdd8757144898b5a27369329f4d125c`; исходный [Draft #608](https://github.com/alkospacer123/market-pattern-discovery/pull/608) HEAD `f6c28ad4027fdc1fdfc8c279671f5c3001f3bd1e`.
 
 - SOURCE: R088 Shallow/OBV/Inside, N4, M15 Market NEXT_OPEN, SL 2×ATR14 Wilder, риск 1,5%/6%, модель капитала 60/30/45 тыс. ₽, TP6 + Protect3 (+3R M15 → SL +1R) + HOLD5 (выход на первом подтверждённом Open шестой наблюдаемой сессии), EXT2 OFF.

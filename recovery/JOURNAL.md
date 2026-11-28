@@ -162,3 +162,9 @@ GPT / GitHub docs. MAIN `2ac85eb5bcdd8757144898b5a27369329f4d125c`, исходн
 - Реализованы только F3/F4/F6/#601 и H01/M03/M06/#602 с согласованным P01. V20 Windows run 46133704921 SUCCESS: F3 BASE+10→DERIVED+11 доказан, targeted 52 OK/49 executed+3 existing optional skips; release 3/3 PASS, 24 files, ZIP SHA256 `2b2901efa2553c18609b65bce270401326850572f4ab0cdaf9c2841be67b8c54`. CC run 46133704873 SUCCESS: 789 passed/15 allowed skips/0 failed, UI targeted 57/57. Main Admission SUCCESS. Подробности и source identities — профильные JOURNAL и [manifest](../V20_TradingSystem_M15/V20-08/pg10-2-release-manifest.json).
 - Работа ограничена source checkout и GitHub-hosted disposable Windows; ноль production credentials/FINAM endpoints, deploy, runtime writes, Tasks/reboot, ARM/HALT или Merge. Неизвестные intents/release/journals не удаляются; rollback code-only. INSTALLED/LIVE/COLD_RESTORE не заявлены. F1/F2/F5/F7/H02/H03/M02/M04/M05 остаются вне реализации и не закрыты; несвязанный historical Windows long-path/8.3 test failure задокументирован в V20 JOURNAL без вне-scope fix.
 - Следующий gate: документный closeout и exact-final-head CI, затем независимое GPT review и отдельное решение владельца о Merge/deploy. Финальный PR HEAD и run IDs передаются в итоговом handoff; числа кодового HEAD не переносятся автоматически.
+
+
+### 28.11.2026 — PG10.2.1 review follow-up checkpoint
+
+- В PR #618 устранены GPT замечания о CC restart, interrupted install, rollback compatibility и будущем reboot READONLY контроле. Добавлены transaction-backed atomic recovery, CC process/listener/health/source-ID postflight, запрет rollback при новых journals/archives и forward recovery без удаления evidence. CI scope не расширен.
+- Физических install/reboot/FINAM/Tasks/ARM/HALT/Merge действий нет. Exact-head functional CI, HEAD/run/job IDs и проверенный ZIP SHA публикуются в описании PR без follow-up документального commit. Подробности — профильные STATUS/JOURNAL и CC-08.

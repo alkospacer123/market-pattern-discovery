@@ -24,6 +24,29 @@ def identities(data):
             sha1(b"blob " + str(len(data)).encode() + b"\0" + data).hexdigest())
 
 
+def build_derived(manifest, work):
+    work = Path(work)
+    for name in ("finam_live.py", "finam_execution.py"):
+        source = ROOT / "V20_TradingSystem_M15" / "v20_runtime" / name
+        target = work / "V20_TradingSystem_M15" / "v20_runtime" / name
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_bytes(canonical(source).replace(b"\n", b"\r\n"))
+    for patch in manifest["ordered_patches"]:
+        source = ROOT / patch["source_path"]
+        local = work / patch["source_path"]
+        local.parent.mkdir(parents=True, exist_ok=True)
+        local.write_bytes(canonical(source).replace(b"\n", b"\r\n"))
+        subprocess.run(["git", "apply", "--check", "--", str(local)],
+                       cwd=work, check=True, capture_output=True)
+        subprocess.run(["git", "apply", "--", str(local)],
+                       cwd=work, check=True, capture_output=True)
+    derived = {}
+    for name in ("finam_live.py", "finam_execution.py"):
+        path = work / "V20_TradingSystem_M15" / "v20_runtime" / name
+        derived["V20_TradingSystem_M15/v20_runtime/" + name] = path.read_bytes().replace(b"\r\n", b"\n")
+    return derived
+
+
 class ReleaseTests(unittest.TestCase):
     def test_manifest_base_plus_eleven_and_deterministic_package(self):
         manifest = json.loads(MANIFEST_PATH.read_text(encoding="utf-8"))
@@ -38,25 +61,7 @@ class ReleaseTests(unittest.TestCase):
                              (row["raw_sha256"], row["raw_git_blob"]))
         with tempfile.TemporaryDirectory(prefix="pg10-2-release-") as temporary:
             work = Path(temporary)
-            for name in ("finam_live.py", "finam_execution.py"):
-                source = ROOT / "V20_TradingSystem_M15" / "v20_runtime" / name
-                target = work / "V20_TradingSystem_M15" / "v20_runtime" / name
-                target.parent.mkdir(parents=True, exist_ok=True)
-                target.write_bytes(canonical(source).replace(b"\n", b"\r\n"))
-            for patch in manifest["ordered_patches"]:
-                source = ROOT / patch["source_path"]
-                local = work / patch["source_path"]
-                local.parent.mkdir(parents=True, exist_ok=True)
-                local.write_bytes(canonical(source).replace(b"\n", b"\r\n"))
-                subprocess.run(["git", "apply", "--check", "--", str(local)],
-                               cwd=work, check=True, capture_output=True)
-                subprocess.run(["git", "apply", "--", str(local)],
-                               cwd=work, check=True, capture_output=True)
-            derived = {}
-            for name in ("finam_live.py", "finam_execution.py"):
-                path = work / "V20_TradingSystem_M15" / "v20_runtime" / name
-                data = path.read_bytes().replace(b"\r\n", b"\n")
-                derived["V20_TradingSystem_M15/v20_runtime/" + name] = data
+            derived = build_derived(manifest, work)
             package = {}
             for row in manifest["files"]:
                 if row["role"] == "DERIVED_BASE_PLUS_11":
@@ -131,6 +136,159 @@ class ReleaseTests(unittest.TestCase):
         self.assertNotEqual(control["crlf_raw_git_blob"], control["filtered_git_blob"])
         self.assertNotEqual(control["crlf_raw_sha256"],
                             identities(canonical(ROOT / control["path"]))[0])
+
+    def test_windows_functional_install_recovery_and_cc_restart(self):
+        if os.name != "nt":
+            self.skipTest("native Windows synthetic installer functions")
+        manifest = json.loads(MANIFEST_PATH.read_text(encoding="utf-8"))
+        with tempfile.TemporaryDirectory(prefix="pg10-2-functional-") as temporary:
+            root = Path(temporary)
+            build = root / "build"
+            package = root / "package"
+            derived = build_derived(manifest, build)
+            for row in manifest["files"]:
+                data = derived[row["package_path"]] if row["role"] == "DERIVED_BASE_PLUS_11" else canonical(ROOT / row["package_path"])
+                path = package / row["package_path"]
+                path.parent.mkdir(parents=True, exist_ok=True)
+                path.write_bytes(data)
+            path = package / MANIFEST_PATH.name
+            path.write_bytes(canonical(MANIFEST_PATH))
+            harness = r'''
+$ErrorActionPreference='Stop'
+Set-StrictMode -Version Latest
+$source=Get-Content -LiteralPath $env:PG_INSTALLER -Raw -Encoding UTF8
+$cut=[regex]::Match($source,'(?m)^verify-package\r?$')
+if(-not $cut.Success){throw 'FUNCTION_TOP_LEVEL_BOUNDARY_MISSING'}
+$source=$source.Substring(0,$cut.Index)
+$definitions=[regex]::Matches($source,'(?ms)^function\s+.*?(?=^function\s+|\z)')
+foreach($definition in $definitions){Invoke-Expression $definition.Value}
+$v20=Join-Path $env:PG_ROOT 'V20Lab'
+$cc=Join-Path $env:PG_ROOT 'Control Center'
+$panel=Join-Path $cc 'v20-preview-d80f2446'
+$stage=Join-Path $v20 'pretrade-08\live-08'
+$runtime=Join-Path $v20 'pretrade-08\live-runtime-08\V20_TradingSystem_M15\v20_runtime'
+$pythonCC=Join-Path $cc 'runtime\python312\python.exe'
+$robots=@('v20-shallow','v20-obv','v20-inside')
+$PackageRoot=$env:PG_PACKAGE
+$BackupRoot=$env:PG_BACKUP
+$manifestPath=Join-Path $PackageRoot 'pg10-2-release-manifest.json'
+$release=Get-Content -LiteralPath $manifestPath -Raw -Encoding UTF8|ConvertFrom-Json
+$releaseSha=sha256 ([IO.File]::ReadAllBytes($manifestPath))
+$RecoveryPhrase=''
+$ccMutex=$null
+$ccMutexHeld=$false
+$items=@($release.files|Where-Object {$_.install -ne 'none'})
+foreach($item in $items){
+ $path=target ([string]$item.install) ([string]$item.source_path)
+ [IO.Directory]::CreateDirectory((Split-Path $path -Parent))|Out-Null
+ [IO.File]::WriteAllBytes($path,[Text.Encoding]::UTF8.GetBytes('old-known-byte-content '+$item.source_path))
+}
+[IO.Directory]::CreateDirectory((Split-Path $pythonCC -Parent))|Out-Null
+[IO.File]::WriteAllBytes($pythonCC,[Text.Encoding]::ASCII.GetBytes('synthetic-python'))
+backup-targets $BackupRoot $true
+$backup=backup-verify $BackupRoot
+$tx=[ordered]@{schema='pg10.2.install-transaction.v1';id='0123456789abcdef0123456789abcdef';release_sha256=$releaseSha;backup_sha256=sha256 ([IO.File]::ReadAllBytes((Join-Path $BackupRoot 'backup.json')));status='PREPARED';coherent_before=$true;cc_was_running=$true;last_write_id='';created_utc=[datetimeoffset]::UtcNow.ToString('o');updated_utc=[datetimeoffset]::UtcNow.ToString('o')}
+write-json (transaction-path) $tx $false
+$tx=transaction-read
+$script:flatCalls=0
+function broker-flat([string]$path){$script:flatCalls++}
+broker-flat-for-state 'NEW' $tx.id
+need ($script:flatCalls -eq 1) 'COHERENT_FLAT_PATH_NOT_USED'
+$refused=$false
+try{broker-flat-for-state 'MIXED' $tx.id}catch{$refused=$_.Exception.Message -ceq 'PG10_2_MIXED_RUNTIME_REQUIRES_EXTERNAL_FINAM_READONLY_FLAT'}
+need ($refused -and $script:flatCalls -eq 1) 'MIXED_FLAT_GATE_BYPASSED'
+$RecoveryPhrase='PG10_2_EXTERNAL_FINAM_READONLY_FLAT_CONFIRMED '+$tx.id
+broker-flat-for-state 'MIXED' $tx.id
+need ($script:flatCalls -eq 1) 'MIXED_EXTERNAL_FLAT_NOT_SEPARATE'
+for($i=0;$i -lt 3;$i++){install-file $items[$i] $tx}
+transaction-write $tx 'INTERRUPTED'
+assert-targets-known $backup
+$unknownItem=$items[4]
+$unknownPath=target ([string]$unknownItem.install) ([string]$unknownItem.source_path)
+$knownNew=[IO.File]::ReadAllBytes((Join-Path $PackageRoot ([string]$unknownItem.package_path).Replace('/','\')))
+[IO.File]::WriteAllBytes($unknownPath,[Text.Encoding]::UTF8.GetBytes('unknown-not-old-or-new'))
+$rejected=$false
+try{assert-targets-known $backup}catch{$rejected=$_.Exception.Message -match 'PG10_2_UNKNOWN_TARGET_BYTES_'}
+need ($rejected) 'UNKNOWN_BYTES_ACCEPTED'
+need (([Text.Encoding]::UTF8.GetString([IO.File]::ReadAllBytes($unknownPath))) -ceq 'unknown-not-old-or-new') 'UNKNOWN_BYTES_OVERWRITTEN'
+[IO.File]::WriteAllBytes($unknownPath,$knownNew)
+restore-targets $BackupRoot $backup
+verify-backup-installed $backup
+transaction-write $tx 'RECOVERED'
+need ((transaction-read).status -ceq 'RECOVERED') 'RECOVERY_STATE_NOT_DURABLE'
+Write-Output 'PG10_2_FUNCTIONAL_INTERRUPTED_RECOVERY=PASS_ATOMIC_KNOWN_BYTES_ONLY'
+assert-restore-compatible
+foreach($name in @('cc07-requests','cc07-release-history')){
+ $folder=Join-Path $cc ('data\private\'+$name)
+ [IO.Directory]::CreateDirectory($folder)|Out-Null
+ $marker=Join-Path $folder 'request-evidence.jsonl'
+ [IO.File]::WriteAllText($marker,'request-id-preserved',[Text.UTF8Encoding]::new($false))
+ $blocked=$false
+ try{assert-restore-compatible}catch{$blocked=$_.Exception.Message -ceq 'PG10_2_ROLLBACK_NEW_RECOVERY_JOURNALS_FORWARD_RECOVERY_REQUIRED'}
+ need ($blocked -and [IO.File]::ReadAllText($marker) -ceq 'request-id-preserved') 'RECOVERY_JOURNAL_ROLLBACK_NOT_BLOCKED'
+ [IO.File]::Delete($marker)
+}
+foreach($folder in @((Join-Path $cc 'data\control-audit\archive'),(Join-Path $v20 'robots\shallow\logs\archive'))){
+ [IO.Directory]::CreateDirectory($folder)|Out-Null
+ $marker=Join-Path $folder 'rotated-evidence.jsonl'
+ [IO.File]::WriteAllText($marker,'archive-preserved',[Text.UTF8Encoding]::new($false))
+ $blocked=$false
+ try{assert-restore-compatible}catch{$blocked=$_.Exception.Message -match 'PG10_2_ROLLBACK_ROTATED_.*_FORWARD_RECOVERY_REQUIRED'}
+ need ($blocked -and [IO.File]::ReadAllText($marker) -ceq 'archive-preserved') 'ARCHIVE_ROLLBACK_NOT_BLOCKED'
+ [IO.File]::Delete($marker)
+}
+Write-Output 'PG10_2_FUNCTIONAL_JOURNAL_ARCHIVE_ROLLBACK_GATE=PASS_FORWARD_REQUIRED'
+$script:listenerUp=$true
+$script:listenerPid=1001
+$script:healthOk=$false
+function cc-listener{
+ if($script:listenerUp){return [pscustomobject]@{OwningProcess=$script:listenerPid}}
+ return $null
+}
+function Get-CimInstance{
+ param($ClassName,$Filter)
+ return [pscustomobject]@{ProcessId=$script:listenerPid;ExecutablePath=$pythonCC;CommandLine='python -I -B -m streamlit run v20_app.py --server.port=8502'}
+}
+function Stop-Process{param($Id,$ErrorAction);need ($Id -eq $script:listenerPid) 'WRONG_CC_PID_STOPPED';$script:listenerUp=$false}
+function Start-Process{
+ param($FilePath,$ArgumentList,$WorkingDirectory,$WindowStyle,$RedirectStandardOutput,$RedirectStandardError,$PassThru)
+ $script:listenerPid=2001;$script:listenerUp=$true
+ return [pscustomobject]@{Id=2001;HasExited=$false}
+}
+function Invoke-WebRequest{
+ param($Uri,$UseBasicParsing,$TimeoutSec)
+ $content=if($script:healthOk){'ok'}else{'not-ready'}
+ return [pscustomobject]@{StatusCode=200;Content=$content}
+}
+need ((cc-running) -eq 1001) 'CC_EXISTING_PROCESS_NOT_RECOGNIZED'
+need (stop-cc) 'CC_WAS_RUNNING_NOT_RECORDED'
+need ($null -eq (cc-listener)) 'CC_LISTENER_NOT_STOPPED'
+$healthRefused=$false
+try{start-cc $false $backup $tx}catch{$healthRefused=$_.Exception.Message -ceq 'PG10_2_CC_HEALTH_NOT_PROVEN'}
+need ($healthRefused) 'CC_FALSE_RUNNING_PASS_ACCEPTED'
+$script:listenerUp=$false
+$script:healthOk=$true
+$ccOutput=@(start-cc $false $backup $tx) -join '|'
+need ($ccOutput -match 'PG10_2_CC_RUNNING=PASS_NEW_PROCESS_LOOPBACK_HEALTH_AND_BACKUP_SOURCE_IDS') 'CC_VERIFIED_RESTART_MISSING'
+need ((cc-running) -eq 2001) 'CC_NEW_PROCESS_NOT_OBSERVED'
+Write-Output 'PG10_2_FUNCTIONAL_CC_RESTART=PASS_PROCESS_LISTENER_HEALTH_IDS_NO_COMMANDS'
+'''
+            script = root / "functional-install.ps1"
+            script.write_text(harness, encoding="utf-8-sig")
+            environment = os.environ.copy()
+            environment.update(PG_ROOT=str(root / "runtime"),
+                               PG_INSTALLER=str(RELEASE / "pg10-2-all3-cc-install.ps1"),
+                               PG_PACKAGE=str(package), PG_BACKUP=str(root / "recovery"))
+            result = subprocess.run(
+                ["powershell.exe", "-noprofile", "-noninteractive",
+                 "-executionpolicy", "bypass", "-file", str(script)],
+                cwd=root, env=environment, capture_output=True, text=True,
+                timeout=45, check=False)
+            self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+            for marker in ("PG10_2_FUNCTIONAL_INTERRUPTED_RECOVERY=PASS",
+                           "PG10_2_FUNCTIONAL_JOURNAL_ARCHIVE_ROLLBACK_GATE=PASS",
+                           "PG10_2_FUNCTIONAL_CC_RESTART=PASS"):
+                self.assertIn(marker, result.stdout)
 
     def test_new_powershell_files_parse_without_execution(self):
         if os.name != "nt":
