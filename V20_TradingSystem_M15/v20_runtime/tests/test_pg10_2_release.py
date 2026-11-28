@@ -255,7 +255,7 @@ function Get-CimInstance{
 }
 function Stop-Process{param($Id,$ErrorAction);need ($Id -eq $script:listenerPid) 'WRONG_CC_PID_STOPPED';$script:listenerUp=$false}
 function Start-Process{
- param($FilePath,$ArgumentList,$WorkingDirectory,$WindowStyle,$RedirectStandardOutput,$RedirectStandardError,$PassThru)
+ param($FilePath,$ArgumentList,$WorkingDirectory,$WindowStyle,$RedirectStandardOutput,$RedirectStandardError,[switch]$PassThru)
  $script:listenerPid=2001;$script:listenerUp=$true
  return [pscustomobject]@{Id=2001;HasExited=$false}
 }
