@@ -435,11 +435,11 @@ $third=Join-Path $stage 'v20-08-live-launch.ps1'
 $lock=$null
 $firstError=''
 try{
- $lock=[IO.FileStream]::new($third,[IO.FileMode]::Open,[IO.FileAccess]::Read,[IO.FileShare]::None)
+ [IO.File]::SetAttributes($third,[IO.FileAttributes]::ReadOnly)
  $failed=$false
  try{& $env:PG_FULL_INSTALLER -mode install -PackageRoot $env:PG_PACKAGE -BackupRoot $backup}catch{$failed=$true;$firstError=$_.Exception.Message}
  need $failed 'INITIAL_INTERRUPTION_NOT_REACHED'
-}finally{if($null -ne $lock){$lock.Dispose()}}
+}finally{[IO.File]::SetAttributes($third,[IO.FileAttributes]::Normal)}
 Write-Output ('PG10_2_2_FIRST_ATTEMPT_ERROR='+$firstError)
 $tx=Get-Content -LiteralPath (Join-Path $backup 'transaction.json') -Raw|ConvertFrom-Json
 $stable=$tx.id
@@ -462,11 +462,11 @@ need (@($script:tasks.Values|Where-Object {$_ -eq 'Running'}).Count -eq 3) 'WORK
 Write-Output 'PG10_2_2_FULL_MIXED_RESUME=PASS_STABLE_TRANSACTION_AND_CC_RESTORED'
 $lock=$null
 try{
- $lock=[IO.FileStream]::new($third,[IO.FileMode]::Open,[IO.FileAccess]::Read,[IO.FileShare]::None)
+ [IO.File]::SetAttributes($third,[IO.FileAttributes]::ReadOnly)
  $failed=$false
  try{& $env:PG_FULL_INSTALLER -mode install -PackageRoot $env:PG_PACKAGE -BackupRoot $backup -RecoveryPhrase $phrase}catch{$failed=$true}
  need $failed 'REPEATED_INTERRUPTION_NOT_REACHED'
-}finally{if($null -ne $lock){$lock.Dispose()}}
+}finally{[IO.File]::SetAttributes($third,[IO.FileAttributes]::Normal)}
 $tx4=Get-Content -LiteralPath (Join-Path $backup 'transaction.json') -Raw|ConvertFrom-Json
 need ($tx4.id -ceq $stable -and $tx4.status -ceq 'INTERRUPTED') 'REPEATED_INTERRUPTION_NOT_DURABLE'
 & $env:PG_FULL_INSTALLER -mode install -PackageRoot $env:PG_PACKAGE -BackupRoot $backup -RecoveryPhrase $phrase
