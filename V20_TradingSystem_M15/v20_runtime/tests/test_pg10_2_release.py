@@ -391,6 +391,15 @@ $cc=Join-Path $root 'Control Center'
 $stage=Join-Path $v20 'pretrade-08\live-08'
 $runtime=Join-Path $v20 'pretrade-08\live-runtime-08\V20_TradingSystem_M15\v20_runtime'
 $panel=Join-Path $cc 'v20-preview-d80f2446'
+function target([string]$kind,[string]$sourcePath){
+ $name=Split-Path $sourcePath -Leaf
+ if($kind -eq 'v20_runtime'){return Join-Path $runtime $name}
+ if($kind -eq 'v20_stage'){return Join-Path $stage $name}
+ if($kind -eq 'cc_panel'){return Join-Path $panel ($sourcePath.Substring('ControlCenter/'.Length).Replace('/','\'))}
+ if($kind -eq 'cc_controller'){return Join-Path $cc 'cc07-operator\cc07-v20-operator.ps1'}
+ if($kind -eq 'none'){return ''}
+ throw 'PG10_2_INSTALL_TARGET_INVALID'
+}
 $manifest=Get-Content -LiteralPath (Join-Path $env:PG_PACKAGE 'pg10-2-release-manifest.json') -Raw|ConvertFrom-Json
 $items=@($manifest.files|Where-Object {$_.install -ne 'none'})
 foreach($item in $items){
